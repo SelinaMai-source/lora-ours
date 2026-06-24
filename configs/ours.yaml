@@ -1,0 +1,95 @@
+experiment_name: "citb_ours"
+mode: "ours"  # debug | baseline | ours
+
+seed: 2026
+
+paths:
+  project_root: "."
+  processed_stream_dir: "data/processed"
+  processed_stream_file: "citb_cl_dialogue_tasks_train50_eval10.json"
+  assets_dir: "assets"
+  results_dir: "results"
+
+data:
+  stream_format: "citb_processed"
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+
+model:
+  backbone_name: "llama31-8b-instruct"
+  hf_model_name_or_path: "assets/pretrained/meta-llama/Llama-3.1-8B-Instruct"
+  torch_dtype: "bfloat16"
+  device: "auto"
+
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: ["q_proj", "v_proj"]
+
+train:
+  epochs_per_segment: 1
+  batch_size: 2
+  lr: 2.0e-4
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 50
+
+output:
+  run_name: ""
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+
+# 通过这里的模块开关完成消融（不改代码结构）
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+
+drift:
+  anchor_size: 64
+  curriculum_strategy: "easy_core_hard_probe"
+  anchor_refresh_segments: 1
+  monitor_interval: 50
+  calibration_window: 3
+  threshold: 0.10
+  score_ema: 0.5
+  shift_stat: "absolute"
+  min_consecutive_probe_hits: 1
+  meta_threshold_enabled: true
+  meta_threshold_scale: 1.0
+  meta_threshold_min: 0.05
+  meta_threshold_max: 1.0
+
+bank:
+  max_branches: 8
+  spawn_on_drift: true
+  freeze_old_branches: true
+
+router:
+  hard_routing: true
+  pseudo_label_strategy: "self_consistency"
+  temperature: 1.0
+  router_warmup_segments: 1
+  margin_filter_min_gap: 0.0
+  learning_rate: 2.0e-3
+  training_strategy: "learned_router"
+  training_fallback_to_active: true
+  train_frozen_branches: false
+  balance_beta: 0.01
+  orthogonal_head_beta: 0.01
+
+overlap:
+  beta: 0.03
+  warmup_segments: 2
+  min_branches: 2
+  branch_scale: "sqrt"
+  activation_beta_ratio: 0.5
+  weight_beta_ratio: 0.5
+  weight_similarity: "squared_cosine"
+  # ACL/ARR 主方法：activation-space + weight-space anti-overlap，使用 curriculum warmup 避免早期压制监督学习。
+

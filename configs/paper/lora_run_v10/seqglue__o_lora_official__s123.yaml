@@ -1,0 +1,68 @@
+experiment_name: lora_run_v10_seqglue_o_lora_official
+runner: o_lora_official
+seed: 123
+method:
+  name: o_lora
+  source_dir: external_baselines/o_lora
+  env_prefix: /root/autodl-tmp/conda_envs/lora_v10_o_lora
+model:
+  # Official engine.py uses t5-small; override with MODEL_NAME_OR_PATH if a
+  # local strict checkpoint path is preferred.
+  model_name_or_path: t5-small
+data:
+  benchmark: seqglue
+  bridge_script: scripts/export_seqglue_to_olora.py
+  stream_json: data/processed/seqglue_cl_tasks_train50_eval10.json
+  olora_root: data/olora/seqglue_s123
+  data_dir: data/olora/seqglue_s123/data
+  task_config_dir: data/olora/seqglue_s123/task_configs
+  instruction_file: data/olora/seqglue_s123/instruction_config_cl.json
+training:
+  lora_dim: 8
+  learning_rate: 0.001
+  num_train_epochs: 1
+  lamda_1: 0.5
+  lamda_2: 0.0
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  gradient_accumulation_steps: 1
+  max_source_length: 512
+  max_target_length: 50
+  generation_max_length: 50
+  max_num_instances_per_task: 10000
+  max_num_instances_per_eval_task: 200
+output:
+  run_name: lora_run_v10_seqglue_o_lora_official_s123
+  output_dir: results/runs/lora_run_v10_seqglue_o_lora_official_s123/olora_output
+  log_file: results/logs/lora_run_v10/lora_run_v10_seqglue_o_lora_official_s123.log
+  tracking:
+    use_wandb: true
+    wandb_project: lora-run_v10
+    wandb_group: lora-run_v10
+    wandb_mode: online
+    report_to: wandb
+paper:
+  track: strict_published_reproduction
+  method_variant: official_o_lora
+  benchmark_alias: seqglue
+  notes: Official O-LoRA UIE runner with local Seq-GLUE bridge; single seed 123.
+strict_alignment:
+  status: official-runner-ready-needs-full-run-and-paper-audit
+  strict_allowed: false
+  verified:
+    - official_source_dir_exists
+    - official_run_uie_lora_entry_exists
+    - conda_env_help_smoke_passed
+    - seqglue_bridge_manifest_exists
+    - seqglue_bridge_label_instruction_validation_added
+    - dry_run_command_manifest_ready
+  blockers:
+    - no_completed_official_full_run
+    - paper_hparams_not_fully_audited
+    - seqglue_label_mapping_not_verified_against_original_official_metric_parser
+    - official_metric_parser_not_integrated_into_v10_tables
+  do_not_promote_to_strict_until:
+    - official_runner_full_run_completed
+    - official_or_paper_hparams_cited
+    - label_mapping_and_instruction_templates_verified
+    - metric_parser_matches_published_protocol

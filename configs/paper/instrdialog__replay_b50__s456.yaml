@@ -1,0 +1,85 @@
+experiment_name: paper_baseline_instrdialog
+mode: baseline
+seed: 456
+baseline_name: replay_lora
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: ''
+  raw_citb_root: data/raw/citb
+  assets_dir: assets
+  results_dir: results
+data:
+  stream_format: citb_processed
+  stream_name: instrdialog
+  auto_prepare_processed: true
+  processed_stream_train_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 10
+  processed_stream_limit_tasks: -1
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+model:
+  backbone_name: llama31-8b-instruct
+  hf_model_name_or_path: assets/pretrained/meta-llama/Llama-3.1-8B-Instruct
+  torch_dtype: bfloat16
+  device: auto
+  max_seq_len: 512
+  gen_max_new_tokens: 64
+  gen_do_sample: false
+  gen_num_beams: 1
+  mask_eos_token_in_labels: true
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - v_proj
+train:
+  epochs_per_segment: 5
+  batch_size: 1
+  lr: 0.0002
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 25
+replay:
+  enabled: true
+  buffer_size: 50
+  replay_ratio: 0.3
+  strategy: uniform
+periodic:
+  enabled: false
+  spawn_every_segments: 2
+  max_branches: 8
+router:
+  enabled: false
+  hard_routing: true
+  pseudo_label_strategy: self_consistency
+  temperature: 1.0
+  num_initial_branches: 8
+output:
+  run_name: paper_instrdialog_replay_b50_s456
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: true
+    wandb_project: lora-citb-v8-sota5-paper
+    wandb_group: baseline_multiseed_instrdialog
+    wandb_tags:
+    - v8_sota5_campaign
+    - v8_sota_5
+    - baseline_multiseed
+    - instrdialog
+    - seed_456
+    - replay_b50
+    wandb_mode: online
+paper:
+  track: paper
+  category: main
+  benchmark_alias: instrdialog
+  method_variant: replay_lora
+  memory_budget: 50
+  family: baseline

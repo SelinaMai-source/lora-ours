@@ -1,0 +1,25 @@
+experiment_name: lora_run_v10_seqglue_continual_t0_official
+runner: official_prompt_baseline_preflight
+seed: 123
+method:
+  name: continual_t0
+  source_dir: external_baselines/continual_t0
+  env_prefix: /root/autodl-tmp/conda_envs/lora_v10_continual_t0
+model:
+  required_checkpoint: ThomasNLG/CT0-11B
+data:
+  benchmark: Seq-GLUE
+  processed_stream_file: data/processed/seqglue_cl_tasks_train50_eval10.json
+  required_assets: official Google Drive processed mixture and rehearsal formatting
+output:
+  run_name: lora_run_v10_seqglue_continual_t0_official_s123
+paper:
+  source: "Continual-T0, arXiv 2205.12393"
+  strict_note: "Official source exists but local cleaned training script/checkpoint/processed mixture are missing."
+strict_alignment:
+  status: strict-runner-skeleton-needs-official-assets
+  strict_allowed: false
+  blockers:
+    - official README points to Colab/Google Drive assets not materialized locally
+    - CT0/T0 checkpoint unavailable locally
+    - benchmark templates/rehearsal/evaluation parser not integrated into v10

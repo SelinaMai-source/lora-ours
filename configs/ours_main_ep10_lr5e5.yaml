@@ -1,0 +1,78 @@
+experiment_name: "citb_ours_main"
+mode: "ours"
+
+seed: 2026
+
+paths:
+  project_root: "."
+  processed_stream_dir: "data/processed"
+  processed_stream_file: "citb_cl_dialogue_tasks_train50_eval10.json"
+  assets_dir: "assets"
+  results_dir: "results"
+
+data:
+  stream_format: "citb_processed"
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+
+model:
+  backbone_name: "llama31-8b-instruct"
+  hf_model_name_or_path: "assets/pretrained/meta-llama/Llama-3.1-8B-Instruct"
+  torch_dtype: "bfloat16"
+  device: "auto"
+  max_seq_len: 512
+  gen_max_new_tokens: 64
+  gen_do_sample: false
+  gen_num_beams: 1
+  mask_eos_token_in_labels: true
+
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: ["q_proj", "v_proj"]
+
+train:
+  epochs_per_segment: 10
+  batch_size: 1
+  lr: 5.0e-5
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 25
+
+output:
+  run_name: "ours_main_full_ep10_lr5e5"
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+
+drift:
+  anchor_size: 64
+  monitor_interval: 50
+  calibration_window: 3
+  threshold: 0.15
+  score_ema: 0.9
+
+bank:
+  max_branches: 8
+  spawn_on_drift: true
+  freeze_old_branches: true
+
+router:
+  hard_routing: true
+  pseudo_label_strategy: "self_consistency"
+  temperature: 1.0
+  router_warmup_segments: 1
+  margin_filter_min_gap: 0.0
+  learning_rate: 2.0e-3
+
+overlap:
+  beta: 0.1

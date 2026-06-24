@@ -1,0 +1,21 @@
+# Copy the `output.tracking` block into any experiment config to enable W&B.
+#
+# Setup:
+#   pip install wandb
+#   wandb login
+#   export WANDB_PROJECT=lora-citb   # optional override
+#
+# Offline (no network):
+#   export WANDB_MODE=offline
+#
+output:
+  tracking:
+    use_wandb: true
+    wandb_project: lora-citb
+    wandb_entity: ""          # your W&B username or team
+    wandb_group: paper_instrdialog
+    wandb_run_name: ""        # defaults to output.run_name
+    wandb_tags: [ours, instrdialog, seed123]
+    wandb_mode: online        # online | offline | disabled
+    log_artifacts: true
+    wandb_notes: "AAAI 2027 continual LoRA experiments"

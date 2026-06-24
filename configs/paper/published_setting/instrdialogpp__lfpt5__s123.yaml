@@ -1,0 +1,44 @@
+experiment_name: published_setting_instrdialogpp_lfpt5
+runner: lfpt5_external
+seed: 123
+lfpt5:
+  repo_subdir: external_baselines/lfpt5
+  lm_adapted_torch_ckpt: assets/pretrained/lfpt5/lm_adapted_t5_large_torch/pytorch_model.bin
+  prompt_number: 300
+  batch_size_per_gpu: 2
+  max_length: 128
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: citb_cl_38_random_tasks_train50_eval10.json
+  results_dir: results
+data:
+  stream_name: instrdialogpp
+  stream_format: citb_processed
+  max_segments: -1
+output:
+  run_name: published_instrdialogpp_lfpt5_s123
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: true
+    wandb_project: lora-run_v10
+    wandb_group: lora-run_v10
+    wandb_mode: online
+    wandb_tags:
+    - published_setting
+    - instrdialogpp
+    - lfpt5
+    - seed_123
+    - external_runner
+    - gap_v2
+    wandb_notes: 'LFPT5 external runner: InstrDialog++ train50/eval10, seed=123'
+    log_artifacts: true
+paper:
+  track: published_setting
+  category: advanced_baseline_single_seed
+  benchmark_alias: instrdialogpp
+  method_variant: lfpt5
+  family: advanced_baseline
+  published_setting_note: LFPT5 T5 prompt tuning; InstrDialog++ train50/eval10

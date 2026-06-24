@@ -1,0 +1,67 @@
+experiment_name: "citb_baseline_debug_audit"
+mode: "baseline"
+
+seed: 123
+baseline_name: "sequential_lora"
+
+paths:
+  project_root: "."
+  processed_stream_dir: "data/processed"
+  processed_stream_file: "citb_cl_dialogue_tasks_train50_eval10.json"
+  assets_dir: "assets"
+  results_dir: "results"
+
+data:
+  stream_format: "citb_processed"
+  max_segments: 1
+  max_train_examples_per_segment: 16
+  max_eval_examples_per_segment: 8
+
+model:
+  backbone_name: "llama31-8b-instruct"
+  hf_model_name_or_path: "assets/pretrained/meta-llama/Llama-3.1-8B-Instruct"
+  torch_dtype: "bfloat16"
+  device: "auto"
+  max_seq_len: 256
+  gen_max_new_tokens: 32
+  debug_print_formatted_examples: true
+  debug_print_tokenized_examples: true
+  debug_max_tokenized_examples: 2
+
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: ["q_proj", "v_proj"]
+
+train:
+  epochs_per_segment: 3
+  batch_size: 1
+  lr: 2.0e-4
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 10
+
+eval_normalization:
+  strip_whitespace: true
+  lowercase: true
+  remove_special_tokens: true
+  remove_prompt_prefix: true
+
+debug_tools:
+  enable_overfit_8_mode: true
+  overfit_segment_index: 0
+  overfit_steps: 40
+  overfit_log_every: 10
+  overfit_batch_size: 1
+  stop_after_overfit_mode: false
+  enable_single_segment_mode: true
+  single_segment_index: 0
+
+output:
+  run_name: "baseline_debug_audit"
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+

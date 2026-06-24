@@ -1,0 +1,48 @@
+experiment_name: lora_run_v10_seqglue_lfpt5
+runner: lfpt5_external
+seed: 123
+lfpt5:
+  repo_subdir: external_baselines/lfpt5
+  lm_adapted_torch_ckpt: assets/pretrained/lfpt5/lm_adapted_t5_large_torch/pytorch_model.bin
+  prompt_number: 300
+  batch_size_per_gpu: 2
+  max_length: 128
+  task_family: classification
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: seqglue_cl_tasks_train50_eval10.json
+  results_dir: results
+data:
+  stream_name: seqglue
+  stream_format: citb_processed
+  max_segments: -1
+output:
+  run_name: lora_run_v10_seqglue_lfpt5_s123_fix1
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: true
+    wandb_project: lora-run_v10
+    wandb_group: lora-run_v10_seqglue_lfpt5
+    wandb_mode: online
+    wandb_tags:
+    - lora-run_v10
+    - published_setting
+    - seqglue
+    - lfpt5
+    - seed_123
+    - external_runner
+    - prompt_init_fix1
+    wandb_notes: 'lora-run_v10 LFPT5 Seq-GLUE rerun after fixing classification prompt
+      initialization and prediction debug logging; seed=123'
+    log_artifacts: true
+paper:
+  track: lora-run_v10
+  category: advanced_baseline_single_seed
+  benchmark_alias: seqglue
+  method_variant: lfpt5
+  family: advanced_baseline
+  published_setting_note: LFPT5 T5 prompt tuning; Seq-GLUE 8-task train50/eval10;
+    W&B project lora_run_v10

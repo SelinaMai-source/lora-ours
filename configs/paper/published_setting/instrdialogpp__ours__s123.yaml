@@ -1,0 +1,127 @@
+experiment_name: published_setting_instrdialogpp_ours
+mode: ours
+seed: 123
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: citb_cl_38_random_tasks_train50_eval10.json
+  raw_citb_root: data/raw/citb
+  assets_dir: assets
+  results_dir: results
+data:
+  stream_format: citb_processed
+  stream_name: instrdialog++
+  auto_prepare_processed: false
+  processed_stream_train_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 10
+  processed_stream_limit_tasks: -1
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+  split: default
+model:
+  backbone_name: llama31-8b-instruct
+  hf_model_name_or_path: assets/pretrained/meta-llama/Llama-3.1-8B-Instruct
+  torch_dtype: bfloat16
+  device: auto
+  max_seq_len: 512
+  gen_max_new_tokens: 64
+  gen_do_sample: false
+  gen_num_beams: 1
+  mask_eos_token_in_labels: true
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - v_proj
+train:
+  epochs_per_segment: 1
+  batch_size: 2
+  lr: 0.0002
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 25
+  trajectory_early_stop: false
+  hard_early_stop_enabled: false
+output:
+  run_name: published_instrdialogpp_ours_s123
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: true
+    wandb_project: lora-published-setting-run_v2
+    wandb_group: published_setting_instrdialogpp
+    wandb_mode: online
+    wandb_tags:
+    - published_setting
+    - instrdialogpp
+    - ours
+    - seed_123
+    - train50_eval10
+    wandb_notes: 'Published-setting single-seed run: InstrDialog++/38-task train50/eval10,
+      method=ours, seed=123'
+    log_artifacts: true
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+drift:
+  anchor_size: 64
+  anchor_source: train
+  curriculum_strategy: easy_core_hard_probe
+  anchor_refresh_segments: 1
+  monitor_interval: 50
+  calibration_window: 1
+  threshold: 0.025
+  score_ema: 0.0
+  shift_stat: absolute
+  min_consecutive_probe_hits: 1
+  force_spawn_on_segment_boundary: false
+  meta_threshold_enabled: false
+  meta_threshold_scale: 1.0
+  meta_threshold_min: 0.05
+  meta_threshold_max: 1.0
+bank:
+  max_branches: 15
+  spawn_on_drift: true
+  freeze_old_branches: true
+router:
+  hard_routing: true
+  soft_routing: true
+  soft_routing_temperature: 0.08
+  soft_routing_top_k: 3
+  pseudo_label_strategy: self_consistency
+  temperature: 1.0
+  router_warmup_segments: 1
+  margin_filter_min_gap: 0.02
+  learning_rate: 0.008
+  training_strategy: learned_router
+  training_fallback_to_active: true
+  train_frozen_branches: false
+  balance_beta: 0.02
+  orthogonal_head_beta: 0.02
+  routing_backend: prototype
+  prototype_ema: 0.8
+  spawn_sync_prototype_init: true
+  prototype_update_steps: 3
+overlap:
+  beta: 0.05
+  warmup_segments: 1
+  min_branches: 2
+  branch_scale: none
+  activation_beta_ratio: 0.6
+  weight_beta_ratio: 0.4
+  weight_similarity: abs_cosine
+paper:
+  track: published_setting
+  category: ours_single_seed
+  benchmark_alias: instrdialogpp
+  method_variant: ours
+  memory_budget: 0
+  family: ours
+  published_setting_note: InstrDialog++/38-task train50/eval10

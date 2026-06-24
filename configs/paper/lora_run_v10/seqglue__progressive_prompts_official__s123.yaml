@@ -1,0 +1,32 @@
+experiment_name: lora_run_v10_seqglue_progressive_prompts_official
+runner: official_prompt_baseline_preflight
+seed: 123
+method:
+  name: progressive_prompts
+  source_dir: external_baselines/progressive_prompts
+  env_prefix: /root/autodl-tmp/conda_envs/lora_v10_progressive_prompts
+model:
+  model_name_or_path: t5-large
+data:
+  benchmark: Seq-GLUE
+  processed_stream_file: data/processed/seqglue_cl_tasks_train50_eval10.json
+training:
+  prefix_len: 10
+  learning_rate: 0.3
+  num_epochs: 10
+  select_k_per_class: 1000
+  early_stopping: true
+output:
+  run_name: lora_run_v10_seqglue_progressive_prompts_official_s123
+paper:
+  source: "Progressive Prompts, ICLR 2023"
+  strict_note: "Official command bridge plus results_dict.npy parser are present; local 8-task Seq-GLUE order is not the published 15-task PP long-order protocol."
+strict_alignment:
+  status: parser-implemented-paper-protocol-mismatch
+  strict_allowed: false
+  evidence:
+    - results/tables/seqglue_progressive_prompts_official_preflight.json
+    - scripts/parse_progressive_prompts_results.py
+  blockers:
+    - official runner loads HF task names rather than local exported stream
+    - local 8-task bridge does not match the published 15-task long-order protocol

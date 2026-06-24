@@ -1,0 +1,50 @@
+experiment_name: "seq_debug_local"
+mode: "debug"  # debug | baseline | ours
+
+seed: 42
+
+paths:
+  project_root: "."
+  sample_stream_path: "data/sample/mock_stream.json"
+  processed_stream_dir: "data/processed"   # 未来：放 CITB 处理后流式数据
+  assets_dir: "assets"
+  results_dir: "results"
+
+debug:
+  # debug 模型加载策略：dummy 不依赖 HF 权重；lightweight 可扩展到小模型
+  model_loading: "hf"   # dummy | hf
+  max_segments: 2          # 限制最多跑多少段（用于本地快速验证）
+  max_train_examples_per_segment: 12
+  max_eval_examples_per_segment: 8
+
+model:
+  backbone_name: "llama3"
+  hf_model_name_or_path: "/root/autodl-tmp/Lora-code/assets/pretrained/meta-llama/Llama-3.1-8B-Instruct"  # 仅作为未来占位
+
+lora:
+  enabled: true
+  r: 4
+  alpha: 8
+  dropout: 0.0
+  target_modules: ["q_proj", "v_proj"]  # debug 模型中的线性层名（未来可映射到 q_proj/v_proj 等）
+
+train:
+  epochs_per_segment: 1
+  batch_size: 4
+  lr: 0.3
+  weight_decay: 0.0
+  log_every: 10
+
+output:
+  run_name: ""              # 留空则自动生成
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: false
+    wandb_project: ""
+
+# debug 默认也走 baseline 选择逻辑，便于快速对齐 baseline 行为
+baseline:
+  baseline_name: "sequential_lora"
+

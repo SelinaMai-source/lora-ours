@@ -1,0 +1,46 @@
+experiment_name: lora_run_v10_instrdialog_citb_t5_replay50
+runner: citb_t5_strict_skeleton
+seed: 123
+method:
+  name: citb_t5_replay
+  paper_variant: Replay(50)
+  tuning: full_finetune
+  local_lora_adapter: false
+  memory_policy: replay50
+  memory_examples_per_task: 50
+model:
+  strict_backbone: lm_adapted_t5_small
+  model_name_or_path: assets/pretrained/citb/lm_adapted_t5_small
+data:
+  benchmark: InstrDialog
+  official_repo: external_baselines/citb_official
+  task_split_file_name: cl_dialogue_tasks
+  task_order_stream: cl_dialogue_tasks
+  order: 1
+  split: citb_official
+  required_paper_split: "official cl_dialogue_tasks; max 500 train plus 50 dev and 50 test instances per task plus CITB Replay(50) memory from initial multitask train data"
+paper:
+  source: "CITB: A Benchmark for Continual Instruction Tuning"
+  metric_suite: AR_FWT_BWT_FR
+  strict_note: "CPU preflight only; official split/order, Replay(50) selector, and metric modules are available, but full Replay training still requires the official stage-1 initial multitask checkpoint or a verified Stage-1 run."
+stage1_reproduction:
+  official_script: external_baselines/citb_official/scripts/run_initial_multitask_tuning.sh
+  required_checkpoint: external_baselines/citb_official/output/initial_multitask_model/base_epoch15_lr1e-05_seed50/checkpoint-14000
+  local_env: /root/autodl-tmp/conda_envs/lora_v10_citb
+  status: env-prep-running
+  notes:
+    - Tk-Instruct dependency downloaded into external_baselines/citb_official/Tk-Instruct.
+    - Official script import smoke passes only with proxy and Tk-Instruct compatibility patch.
+    - O-LoRA env is not safe for Stage-1 because datasets==1.17 cannot read CITB saved datasets.
+output:
+  run_name: lora_run_v10_instrdialog_citb_t5_replay50_s123
+  tracking:
+    wandb_project: lora-run_v10
+    wandb_group: lora-run_v10_citb_t5
+strict_alignment:
+  status: strict-runner-skeleton-needs-citb-implementation-and-official-splits
+  strict_allowed: false
+  replaces_non_strict_local_adaptation: configs/paper/published_setting/instrdialog__replay_lora__s123.yaml
+  blockers:
+    - Replay full run requires official stage-1 initial multitask checkpoint output/initial_multitask_model/base_epoch15_lr1e-05_seed50/checkpoint-14000 or a verified local Stage-1 reproduction
+    - no full strict CITB T5 Replay(50) training/evaluation run has been completed under lora-run_v10

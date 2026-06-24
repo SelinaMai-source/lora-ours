@@ -1,0 +1,74 @@
+experiment_name: published_setting_seqglue_lb_cl
+mode: baseline
+seed: 123
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: seqglue_cl_tasks_train50_eval10.json
+  assets_dir: assets
+  results_dir: results
+data:
+  stream_format: citb_processed
+  stream_name: seqglue
+  auto_prepare_processed: false
+  processed_stream_train_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 10
+  processed_stream_limit_tasks: -1
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+  split: default
+model:
+  backbone_name: llama31-8b-instruct
+  hf_model_name_or_path: assets/pretrained/meta-llama/Llama-3.1-8B-Instruct
+  torch_dtype: bfloat16
+  device: auto
+  max_seq_len: 512
+  gen_max_new_tokens: 64
+  gen_do_sample: false
+  gen_num_beams: 1
+  mask_eos_token_in_labels: true
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - v_proj
+train:
+  epochs_per_segment: 1
+  batch_size: 2
+  lr: 0.0002
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 25
+output:
+  run_name: published_seqglue_lb_cl_s123
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: true
+    wandb_project: lora-published-setting-run_v2
+    wandb_group: v2_seqglue
+    wandb_mode: online
+    wandb_tags:
+    - published_setting
+    - seqglue
+    - lb_cl
+    - seed_123
+    - train50_eval10
+    - gap_v2
+    wandb_notes: 'Published-setting gap run: Seq-GLUE 8-task train50/eval10, method=lb_cl,
+      seed=123'
+    log_artifacts: true
+paper:
+  track: published_setting
+  category: advanced_baseline_single_seed
+  benchmark_alias: seqglue
+  method_variant: lb_cl
+  memory_budget: 0
+  family: advanced_baseline
+  published_setting_note: Seq-GLUE 8-task train50/eval10
+baseline_name: lb_cl

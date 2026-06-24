@@ -1,0 +1,80 @@
+experiment_name: published_setting_multiwoz_o_lora_smoke
+mode: baseline
+seed: 123
+baseline_name: o_lora
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: multiwoz_nlg_cl_domains_train50_eval10_toy.json
+  assets_dir: assets
+  results_dir: results
+data:
+  stream_format: multiwoz_processed
+  stream_name: multiwoz_nlg
+  auto_prepare_processed: false
+  processed_stream_train_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 10
+  processed_stream_limit_tasks: -1
+  max_segments: 1
+  max_train_examples_per_segment: 2
+  max_eval_examples_per_segment: 2
+  split: default
+model:
+  backbone_name: llama31-8b-instruct
+  hf_model_name_or_path: assets/pretrained/meta-llama/Llama-3.1-8B-Instruct
+  torch_dtype: bfloat16
+  device: auto
+  max_seq_len: 512
+  gen_max_new_tokens: 32
+  gen_do_sample: false
+  gen_num_beams: 1
+  mask_eos_token_in_labels: true
+lora:
+  enabled: true
+  r: 8
+  alpha: 16
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - v_proj
+train:
+  epochs_per_segment: 1
+  batch_size: 1
+  lr: 0.0002
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 1
+  trajectory_early_stop: false
+  hard_early_stop_enabled: false
+advanced_baseline:
+  o_lora:
+    adapter_prefix: olora_s
+    freeze_previous_adapters: true
+    orthogonal_penalty_weight: 0.1
+    orthogonal_projection_strength: 1.0
+output:
+  run_name: smoke_multiwoz_o_lora_s123
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: false
+    wandb_project: lora-published-setting
+    wandb_group: published_setting_multiwoz_smoke
+    wandb_mode: offline
+    wandb_tags:
+    - published_setting
+    - multiwoz_nlg
+    - o_lora
+    - seed_123
+    - smoke
+    wandb_notes: 'MultiWOZ NLG smoke: toy processed stream, 1 segment, O-LoRA'
+    log_artifacts: false
+paper:
+  track: published_setting
+  category: advanced_baseline_single_seed
+  benchmark_alias: multiwoz_nlg
+  method_variant: o_lora
+  memory_budget: 0
+  family: advanced_baseline
+  published_setting_note: MultiWOZ NLG smoke toy train2/eval2, 1 segment

@@ -1,0 +1,75 @@
+# PEFT all-linear LoRA target set; same protocol as behavior_gate_manual_qv.
+experiment_name: "citb_behavior_gate_manual_alllinear"
+mode: "baseline"
+seed: 123
+baseline_name: "sequential_lora"
+
+paths:
+  project_root: "."
+  processed_stream_dir: "data/processed"
+  processed_stream_file: "citb_cl_dialogue_tasks_train50_eval10.json"
+  assets_dir: "assets"
+  results_dir: "results"
+
+data:
+  stream_format: "citb_processed"
+  max_segments: 1
+  max_train_examples_per_segment: 8
+  max_eval_examples_per_segment: 8
+
+model:
+  backbone_name: "llama31-8b-instruct"
+  hf_model_name_or_path: "assets/pretrained/meta-llama/Llama-3.1-8B-Instruct"
+  torch_dtype: "bfloat16"
+  device: "auto"
+  max_seq_len: 256
+  gen_max_new_tokens: 160
+  gen_do_sample: false
+  gen_num_beams: 1
+  train_labeling_mode: "manual"
+  completion_only_response_template: "<|start_header_id|>assistant<|end_header_id|>\n\n"
+  min_target_tokens_for_loss: 16
+  mask_all_special_tokens_in_labels: true
+  mask_eos_token_in_labels: true
+
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: "all-linear"
+
+train:
+  epochs_per_segment: 1
+  batch_size: 1
+  lr: 2.0e-4
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 10
+
+eval_normalization:
+  strip_whitespace: true
+  lowercase: true
+  remove_special_tokens: true
+  remove_prompt_prefix: false
+  mask_all_special_tokens_in_labels: true
+  teacher_forced_labeling_mode: "manual"
+
+debug_tools:
+  enable_overfit_8_mode: true
+  overfit_segment_index: 0
+  overfit_steps: 120
+  overfit_log_every: 20
+  overfit_batch_size: 1
+  overfit_gen_max_new_tokens: 160
+  stop_after_overfit_mode: true
+  enable_single_segment_mode: true
+  single_segment_index: 0
+  dump_teacher_forced_audit: true
+  strict_teacher_metric_assertions: false
+
+output:
+  run_name: "behavior_gate_manual_alllinear"
+  save_every_segment: true
+  write_tables: true
+  write_logs: true

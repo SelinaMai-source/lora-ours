@@ -1,0 +1,98 @@
+experiment_name: paper_ours_instrdialogpp
+mode: ours
+seed: 456
+paths:
+  project_root: .
+  processed_stream_dir: data/processed
+  processed_stream_file: ''
+  raw_citb_root: data/raw/citb
+  assets_dir: assets
+  results_dir: results
+data:
+  stream_format: citb_processed
+  stream_name: instrdialog++
+  auto_prepare_processed: true
+  processed_stream_train_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 10
+  processed_stream_limit_tasks: -1
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+model:
+  backbone_name: llama31-8b-instruct
+  hf_model_name_or_path: assets/pretrained/meta-llama/Llama-3.1-8B-Instruct
+  torch_dtype: bfloat16
+  device: auto
+  max_seq_len: 512
+  gen_max_new_tokens: 64
+  gen_do_sample: false
+  gen_num_beams: 1
+  mask_eos_token_in_labels: true
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+  - q_proj
+  - v_proj
+train:
+  epochs_per_segment: 5
+  batch_size: 1
+  lr: 0.0002
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 25
+output:
+  run_name: paper_instrdialogpp_ours_K100_s456
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+drift:
+  anchor_size: 64
+  curriculum_strategy: easy_core_hard_probe
+  anchor_refresh_segments: 1
+  monitor_interval: 100
+  calibration_window: 3
+  threshold: 0.1
+  score_ema: 0.9
+  meta_threshold_enabled: true
+  meta_threshold_scale: 1.0
+  meta_threshold_min: 0.05
+  meta_threshold_max: 1.0
+bank:
+  max_branches: 8
+  spawn_on_drift: true
+  freeze_old_branches: true
+router:
+  hard_routing: true
+  pseudo_label_strategy: self_consistency
+  temperature: 1.0
+  router_warmup_segments: 1
+  margin_filter_min_gap: 0.0
+  learning_rate: 0.002
+  training_strategy: learned_router
+  training_fallback_to_active: true
+  train_frozen_branches: false
+  balance_beta: 0.01
+  orthogonal_head_beta: 0.01
+overlap:
+  beta: 0.03
+  warmup_segments: 2
+  min_branches: 2
+  branch_scale: sqrt
+  activation_beta_ratio: 0.5
+  weight_beta_ratio: 0.5
+  weight_similarity: squared_cosine
+paper:
+  track: paper
+  category: sweep
+  benchmark_alias: instrdialog++
+  method_variant: ours_monitor_interval
+  memory_budget: 0
+  family: ours
