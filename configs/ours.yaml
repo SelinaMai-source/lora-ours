@@ -90,6 +90,6 @@ overlap:
   branch_scale: "sqrt"
   activation_beta_ratio: 0.5
   weight_beta_ratio: 0.5
-  weight_similarity: "squared_cosine"
+  weight_similarity: "cdma"
   # ACL/ARR 主方法：activation-space + weight-space anti-overlap，使用 curriculum warmup 避免早期压制监督学习。
 

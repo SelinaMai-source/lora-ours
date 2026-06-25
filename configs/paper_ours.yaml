@@ -100,7 +100,7 @@ overlap:
   branch_scale: "sqrt"
   activation_beta_ratio: 0.5
   weight_beta_ratio: 0.5
-  weight_similarity: "squared_cosine"
+  weight_similarity: "cdma"
 
 paper:
   track: "paper"
