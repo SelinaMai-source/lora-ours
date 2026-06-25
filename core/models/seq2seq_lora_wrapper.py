@@ -222,11 +222,14 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             do_sample=ds,
             pad_token_id=self.tokenizer.pad_token_id,
             eos_token_id=self.tokenizer.eos_token_id,
-            decoder_start_token_id=self.tokenizer.pad_token_id,
+            decoder_start_token_id=self.model.config.decoder_start_token_id,
             early_stopping=nb > 1,
         )
         with torch.no_grad():
             output_ids = self.model.generate(**inputs, generation_config=gen_cfg)
+        
+        # T5 seq2seq generate returns ONLY the generated sequence (starting with decoder_start_token_id).
+        # We don't need to slice off the prompt.
         texts = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
         if was_training:
             self.model.train()
