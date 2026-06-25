@@ -86,11 +86,6 @@ class Router:
         self.oracle_pll_min_agreement = float(cfg.get("oracle_pll_min_agreement", 0.55))
         self.oracle_pll_bonus_steps = max(0, int(cfg.get("oracle_pll_bonus_steps", 2)))
         self.oracle_pll_ema_override = float(cfg.get("oracle_pll_ema_override", 0.72))
-        # CCIR bundle (v1.1+): enable existing margin/NLL/calibration hooks together.
-        if bool(cfg.get("use_chat_aware_routing", False)):
-            self.nll_arbitration = True
-            self.margin_gated_soft_routing = True
-            self.prototype_calibration = True
         self._prototypes: Dict[str, torch.Tensor] = {}
         self._prototype_counts: Dict[str, int] = {}
 
@@ -227,9 +222,17 @@ class Router:
         if self.routing_backend != "prototype":
             return False
         feat_t = self._to_feature_tensor(features)
-        feat_n = F.normalize(feat_t, p=2, dim=-1)
-        proto = F.normalize(feat_n.mean(dim=0), p=2, dim=-1)
-        self._prototypes[branch_name] = proto.detach().cpu()
+        
+        # Pathway-Anchored Manifold Routing: Stiefel Manifold Subspace
+        if feat_t.shape[0] > 1:
+            U, S, Vh = torch.linalg.svd(feat_t, full_matrices=False)
+            V = Vh.mH
+            K = min(4, V.shape[1])
+            subspace = V[:, :K]
+        else:
+            subspace = F.normalize(feat_t[0], p=2, dim=-1).unsqueeze(1)
+            
+        self._prototypes[branch_name] = subspace.detach().cpu()
         self._prototype_counts[branch_name] = max(1, int(sample_count))
         if branch_name not in self._branch_names:
             self._branch_names.append(branch_name)
@@ -249,14 +252,25 @@ class Router:
         beta = float(self.anchor_prototype_refresh_beta if blend is None else blend)
         beta = min(1.0, max(0.0, beta))
         feat_t = self._to_feature_tensor(features)
-        feat_n = F.normalize(feat_t, p=2, dim=-1)
-        anchor_proto = F.normalize(feat_n.mean(dim=0), p=2, dim=-1)
-        if branch_name in self._prototypes:
-            old = self._prototypes[branch_name].to(anchor_proto.device)
-            mixed = (1.0 - beta) * old + beta * anchor_proto
-            proto = F.normalize(mixed, p=2, dim=-1)
+        
+        if feat_t.shape[0] > 1:
+            U, S, Vh = torch.linalg.svd(feat_t, full_matrices=False)
+            V = Vh.mH
+            K = min(4, V.shape[1])
+            anchor_subspace = V[:, :K]
         else:
-            proto = anchor_proto
+            anchor_subspace = F.normalize(feat_t[0], p=2, dim=-1).unsqueeze(1)
+            
+        if branch_name in self._prototypes:
+            old_subspace = self._prototypes[branch_name].to(anchor_subspace.device)
+            combined = torch.cat([(1.0 - beta) * old_subspace, beta * anchor_subspace], dim=1)
+            U, S, Vh = torch.linalg.svd(combined, full_matrices=False)
+            V = Vh.mH
+            K = min(4, V.shape[1])
+            proto = V[:, :K]
+        else:
+            proto = anchor_subspace
+            
         self._prototypes[branch_name] = proto.detach().cpu()
         self._prototype_counts[branch_name] = self._prototype_counts.get(branch_name, 0) + max(1, int(sample_count))
         if branch_name not in self._branch_names:
@@ -272,17 +286,24 @@ class Router:
         frozen_branches: List[str],
     ) -> Dict[str, Any]:
         feat_t = self._to_feature_tensor(features)
-        feat_n = F.normalize(feat_t, p=2, dim=-1)
         frozen = set(frozen_branches)
 
-        # Accuracy measured with prototypes as they were BEFORE this update
-        # (honest fit signal; 0.0 when nothing is routable yet).
         acc = 0.0
         routable = [b for b in branch_names if b in self._prototypes]
         if routable:
-            proto_mat = torch.stack([self._prototypes[b].to(feat_n.device) for b in routable])
-            sims = feat_n @ proto_mat.T
-            preds = [routable[int(i)] for i in torch.argmax(sims, dim=-1)]
+            preds = []
+            for i in range(feat_t.shape[0]):
+                h = feat_t[i:i+1] # [1, D]
+                best_b = None
+                best_energy = -1.0
+                for b in routable:
+                    subspace = self._prototypes[b].to(h.device)
+                    proj = torch.matmul(h, subspace)
+                    energy = torch.sum(proj ** 2, dim=-1).item()
+                    if energy > best_energy:
+                        best_energy = energy
+                        best_b = b
+                preds.append(best_b)
             acc = float(sum(1 for p, t in zip(preds, pseudo_labels) if p == t) / len(pseudo_labels))
 
         num_updated = 0
@@ -290,16 +311,28 @@ class Router:
             idx = [i for i, lab in enumerate(pseudo_labels) if lab == branch]
             if not idx:
                 continue
-            # Frozen branches keep their prototype frozen too, except for a
-            # one-time initialization (e.g. b0 frozen before the router saw it).
             if branch in frozen and branch in self._prototypes:
                 continue
-            batch_mean = F.normalize(feat_n[idx].mean(dim=0), p=2, dim=-1)
-            if branch not in self._prototypes:
-                proto = batch_mean
+                
+            branch_features = feat_t[idx]
+            if branch_features.shape[0] > 1:
+                U, S, Vh = torch.linalg.svd(branch_features, full_matrices=False)
+                V = Vh.mH
+                K = min(4, V.shape[1])
+                new_subspace = V[:, :K]
             else:
-                old = self._prototypes[branch].to(batch_mean.device)
-                proto = F.normalize(self.prototype_ema * old + (1.0 - self.prototype_ema) * batch_mean, p=2, dim=-1)
+                new_subspace = F.normalize(branch_features[0], p=2, dim=-1).unsqueeze(1)
+                
+            if branch not in self._prototypes:
+                proto = new_subspace
+            else:
+                old_subspace = self._prototypes[branch].to(new_subspace.device)
+                combined = torch.cat([self.prototype_ema * old_subspace, (1.0 - self.prototype_ema) * new_subspace], dim=1)
+                U, S, Vh = torch.linalg.svd(combined, full_matrices=False)
+                V = Vh.mH
+                K = min(4, V.shape[1])
+                proto = V[:, :K]
+                
             self._prototypes[branch] = proto.detach().cpu()
             self._prototype_counts[branch] = self._prototype_counts.get(branch, 0) + len(idx)
             num_updated += 1
@@ -326,9 +359,20 @@ class Router:
         if not known:
             return None
         feat_t = self._to_feature_tensor(features)
-        feat_n = F.normalize(feat_t[0:1], p=2, dim=-1)
-        proto_mat = torch.stack([self._prototypes[b].to(feat_n.device) for b in known])
-        sims = (feat_n @ proto_mat.T).squeeze(0)
+        h = feat_t[0:1]
+        
+        scores = {b: 0.0 for b in branch_names}
+        sims_list = []
+        for b in known:
+            subspace = self._prototypes[b].to(h.device)
+            proj = torch.matmul(h, subspace)
+            energy = torch.sum(proj ** 2, dim=-1)
+            h_energy = torch.sum(h ** 2, dim=-1) + 1e-6
+            normalized_energy = energy / h_energy
+            sims_list.append(normalized_energy.squeeze(0))
+            
+        sims = torch.stack(sims_list)
+        
         if self.prototype_calibration:
             prior = max(1.0, self.prototype_calibration_prior)
             reliabilities = torch.tensor(
@@ -339,14 +383,12 @@ class Router:
                 device=sims.device,
                 dtype=sims.dtype,
             )
-            # Logit sharpening: well-supported prototypes keep raw cosine; sparse ones are pulled toward uniform.
             sims = sims * reliabilities
         temp = max(1e-6, self.temperature)
         probs = F.softmax(sims / temp, dim=-1)
-        scores = {b: 0.0 for b in branch_names}
         for i, b in enumerate(known):
             scores[b] = float(probs[i].item())
-        return scores, "prototype_router"
+        return scores, "stiefel_manifold_router"
 
     def _ensure_head(self, features: torch.Tensor, branch_names: List[str]) -> None:
         feat_dim = int(features.shape[-1])

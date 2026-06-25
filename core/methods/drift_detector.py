@@ -102,9 +102,13 @@ def build_anchor_set(stream: ContinualStream, cfg: Dict[str, Any], *, seed: int,
     if model is not None and hasattr(model, "get_activations_tensor") and len(all_items) > anchor_size:
         import torch
         from core.formatting import format_for_infer
+        candidate_pool_size = max(anchor_size, int(cfg.get("anchor_candidate_pool_size", 2048)))
+        candidate_items = all_items
+        if len(candidate_items) > candidate_pool_size:
+            candidate_items = rng.sample(candidate_items, candidate_pool_size)
         tok = getattr(model, "tokenizer", None)
         prompts = []
-        for item in all_items:
+        for item in candidate_items:
             if tok is not None:
                 prompts.append(format_for_infer(tok, item.instruction, item.input_text, add_generation_prompt=True))
             else:
@@ -114,7 +118,7 @@ def build_anchor_set(stream: ContinualStream, cfg: Dict[str, Any], *, seed: int,
             features = model.get_activations_tensor(prompts, with_grad=False)
             
         # K-Center Greedy
-        selected_indices = [rng.randint(0, len(all_items) - 1)]
+        selected_indices = [rng.randint(0, len(candidate_items) - 1)]
         min_distances = torch.cdist(features, features[selected_indices[0]:selected_indices[0]+1], p=2).squeeze(1)
         
         while len(selected_indices) < anchor_size:
@@ -124,7 +128,7 @@ def build_anchor_set(stream: ContinualStream, cfg: Dict[str, Any], *, seed: int,
             min_distances = torch.minimum(min_distances, dist_to_new)
             
         for idx in selected_indices:
-            item = all_items[idx]
+            item = candidate_items[idx]
             item.complexity = _anchor_complexity(item)
             selected.append(item)
     else:
@@ -209,35 +213,6 @@ def _anchor_complexity(item: AnchorItem) -> float:
     return float(len(text) + 6 * punct + 12 * newlines + 4 * digits + 2 * uppercase)
 
 
-class _Kalman1D:
-    """Scalar Kalman filter for noisy anchor-NLL observations."""
-
-    def __init__(self, *, process_var: float, measure_var: float):
-        self.q = float(max(1e-8, process_var))
-        self.r = float(max(1e-8, measure_var))
-        self.x = 0.0
-        self.p = 1.0
-        self._initialized = False
-
-    def reset(self) -> None:
-        self.x = 0.0
-        self.p = 1.0
-        self._initialized = False
-
-    def update(self, observation: float) -> float:
-        z = float(observation)
-        if not self._initialized:
-            self.x = z
-            self.p = self.r
-            self._initialized = True
-            return self.x
-        self.p += self.q
-        k = self.p / (self.p + self.r)
-        self.x += k * (z - self.x)
-        self.p = (1.0 - k) * self.p
-        return self.x
-
-
 class DriftDetector:
     """
     Drift detector backed by two-tier anchor monitoring and calibrated CUSUM.
@@ -262,7 +237,7 @@ class DriftDetector:
         self.probe_slack_scale = float(cfg.get("probe_slack_scale", 0.1)) 
         self.core_guard_scale = float(cfg.get("core_guard_scale", 0.5))
         self.min_consecutive_probe_hits = int(cfg.get("min_consecutive_probe_hits", 1))
-        self.shift_stat = str(cfg.get("shift_stat", "degradation")).strip() or "degradation"
+        self.shift_stat = str(cfg.get("shift_stat", "absolute")).strip() or "absolute"
         if self.shift_stat not in {"degradation", "absolute"}:
             raise ValueError("drift.shift_stat must be one of: degradation | absolute")
         # If True, spawning is forced at every segment boundary. This leaks
@@ -273,9 +248,6 @@ class DriftDetector:
         self.meta_threshold_scale = float(cfg.get("meta_threshold_scale", 1.0))
         self.meta_threshold_min = float(cfg.get("meta_threshold_min", self.threshold))
         self.meta_threshold_max = float(cfg.get("meta_threshold_max", max(self.threshold, 10.0)))
-        self.kalman_drift_enabled = bool(cfg.get("kalman_drift_enabled", False))
-        self.kalman_process_var = float(cfg.get("kalman_process_var", 0.02))
-        self.kalman_measure_var = float(cfg.get("kalman_measure_var", 0.25))
 
         self._num_updates = 0
         self._history: List[Dict[str, Any]] = []
@@ -292,14 +264,6 @@ class DriftDetector:
         self._core_cusum: float = 0.0
         self._probe_cusum: float = 0.0
         self._consecutive_probe_hits: int = 0
-        self._core_kalman = _Kalman1D(
-            process_var=self.kalman_process_var,
-            measure_var=self.kalman_measure_var,
-        )
-        self._probe_kalman = _Kalman1D(
-            process_var=self.kalman_process_var,
-            measure_var=self.kalman_measure_var,
-        )
 
     def reset(self, *, keep_history: bool = False) -> None:
         self._num_updates = 0
@@ -317,8 +281,6 @@ class DriftDetector:
         self._core_cusum = 0.0
         self._probe_cusum = 0.0
         self._consecutive_probe_hits = 0
-        self._core_kalman.reset()
-        self._probe_kalman.reset()
 
     def update(
         self,
@@ -338,9 +300,6 @@ class DriftDetector:
 
         core_obs = float(core_mean_nll)
         probe_obs = float(probe_mean_nll)
-        if self.kalman_drift_enabled:
-            core_obs = self._core_kalman.update(core_obs)
-            probe_obs = self._probe_kalman.update(probe_obs)
         step_id = int(monitor_step if monitor_step is not None else self._num_updates)
 
         if not hasattr(self, '_last_seen_segment_id'):
@@ -420,10 +379,21 @@ class DriftDetector:
                 self.meta_threshold_max,
             )
 
-        self._core_cusum = max(0.0, self._core_cusum + core_dev - core_slack)
-        self._probe_cusum = max(0.0, self._probe_cusum + probe_dev - probe_slack)
+        # Use moving exponential average instead of strict CUSUM
+        if not hasattr(self, '_core_ema_dev'):
+            self._core_ema_dev = 0.0
+            self._probe_ema_dev = 0.0
+            
+        self._core_ema_dev = 0.8 * self._core_ema_dev + 0.2 * core_dev
+        self._probe_ema_dev = 0.8 * self._probe_ema_dev + 0.2 * probe_dev
+        
+        self._core_cusum = self._core_ema_dev
+        self._probe_cusum = self._probe_ema_dev
 
-        probe_hit = (self._probe_cusum >= probe_threshold) or (probe_dev >= probe_threshold)
+        # Lower the detection threshold dynamically
+        dynamic_probe_threshold = probe_threshold * 0.5
+
+        probe_hit = (self._probe_cusum >= dynamic_probe_threshold) or (probe_dev >= dynamic_probe_threshold)
         if probe_hit:
             self._consecutive_probe_hits += 1
         else:
