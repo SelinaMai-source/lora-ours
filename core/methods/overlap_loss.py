@@ -482,7 +482,16 @@ def compute_orthogonal_weight_loss(
                 spread1 = v1 * pn1
                 spread2 = v2 * pn2
                 
-                sim = F.cosine_similarity(spread1.unsqueeze(0), spread2.unsqueeze(0)).squeeze()
+                # To encourage orthogonality, we want the inner product to be 0
+                # sim = F.cosine_similarity(spread1.unsqueeze(0), spread2.unsqueeze(0)).squeeze()
+                # penalty = sim.pow(2)
+                
+                # Using dot product directly as penalty
+                dot_product = torch.dot(spread1, spread2)
+                # Normalize by length to make it scale-invariant
+                norm1 = torch.norm(spread1) + 1e-8
+                norm2 = torch.norm(spread2) + 1e-8
+                sim = dot_product / (norm1 * norm2)
                 penalty = sim.pow(2)
             elif similarity == "manifold_unfolding":
                 # Dynamic Manifold Unfolding
