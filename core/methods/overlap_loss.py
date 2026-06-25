@@ -161,8 +161,14 @@ def compute_overlap_loss_torch(
             # Treat each branch's activation as a charged particle.
             # We want to minimize the electrostatic potential energy to push them apart.
             # U = 1 / (r + epsilon)
-            dist = torch.norm(a1 - a2, p=2, dim=-1)
-            coulomb_potential = (1.0 / (dist + 0.1)).mean()
+            # dist = torch.norm(a1 - a2, p=2, dim=-1)
+            # coulomb_potential = (1.0 / (dist + 0.1)).mean()
+            
+            # Use cosine similarity directly for activation anti-overlap
+            import torch.nn.functional as F
+            sim = F.cosine_similarity(a1, a2, dim=-1)
+            # We want to penalize high similarity
+            coulomb_potential = sim.pow(2).mean()
             
             total = total + coulomb_potential
             count += 1
