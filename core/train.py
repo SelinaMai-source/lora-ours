@@ -789,7 +789,10 @@ def run_ours(
                 # Unfreeze the target branch so it can be updated
                 lora_bank.unfreeze_branch(target)
                 target_vec = lora.get_adapter_vector(target, detach=True)
-                set_adapter_vector(lora, target, target_vec + assessment["proj_vec"].to(target_vec.device))
+                proj_v = assessment.get("proj_vec", None)
+                if proj_v is None:
+                    proj_v = assessment.get("residual_vec", torch.zeros_like(target_vec)) # fallback
+                set_adapter_vector(lora, target, target_vec + proj_v.to(target_vec.device))
                 logger.log(f"Merged shared subspace into {target} and unfroze it.")
                 
             if assessment["action"] == "spawn":
