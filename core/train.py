@@ -775,19 +775,39 @@ def run_ours(
                 overlap_cfg={}
             )
             
-            from core.methods.assess_update import assess_transient_branch
+            from core.methods.assess_update import assess_transient_branch, set_adapter_vector
             existing_branches = lora_bank.list_branches()
-            assessment = assess_transient_branch(lora, transient_name, existing_branches, threshold=0.1)
-            logger.log(f"Transient assessment: {assessment}")
+            assessment = assess_transient_branch(lora, transient_name, existing_branches, threshold=0.2)
+            logger.log(f"Transient assessment: {assessment['action']}, isolated_energy_ratio: {assessment['isolated_energy_ratio']:.4f}")
             
             if hasattr(lora, "delete_adapter"):
                 lora.delete_adapter(transient_name)
                 
+            # Always merge the shared subspace into the best matching existing branch
+            target = assessment["target"]
+            if target is not None:
+                # Unfreeze the target branch so it can be updated
+                lora_bank.unfreeze_branch(target)
+                target_vec = lora.get_adapter_vector(target, detach=True)
+                set_adapter_vector(lora, target, target_vec + assessment["proj_vec"])
+                logger.log(f"Merged shared subspace into {target} and unfroze it.")
+                
             if assessment["action"] == "spawn":
                 if bool(bank_cfg.get("freeze_old_branches", True)):
-                    lora_bank.freeze_current_branch()
+                    # Freeze all branches except the target we just unfroze
+                    for b in lora_bank.list_branches():
+                        if b != target:
+                            if hasattr(lora_bank, "_branches") and b in lora_bank._branches:
+                                lora_bank._branches[b].frozen = True
+                            if hasattr(lora, "freeze_adapter"):
+                                lora.freeze_adapter(b)
+                                
                 new_b = lora_bank.spawn_new_branch(lora_wrapper=lora, segment_id=seg.segment_id)
                 logger.log(f"Spawned new branch {new_b} based on subspace energy.")
+                
+                # Transfer the isolated subspace to the new branch
+                set_adapter_vector(lora, new_b, assessment["residual_vec"])
+                logger.log(f"Transferred isolated subspace to {new_b}.")
                 
                 # Initialize router prototype for the new branch
                 if drift_anchor_set is not None:
@@ -814,11 +834,15 @@ def run_ours(
                     model=backbone,
                 )
             else:
-                target = assessment["target"]
                 logger.log(f"No new branch spawned. Subspace energy shared with {target}.")
                 if target is not None:
                     lora.set_active_adapter(target)
                     lora_bank._active = target
+                    
+                    # Merge the remaining isolated subspace (residual) into the target branch
+                    target_vec = lora.get_adapter_vector(target, detach=True)
+                    set_adapter_vector(lora, target, target_vec + assessment["residual_vec"])
+                    logger.log(f"Merged remaining isolated subspace into {target}.")
 
             # Route per example (hard routing); switch adapter before fit
             train_metrics = _train_with_router(

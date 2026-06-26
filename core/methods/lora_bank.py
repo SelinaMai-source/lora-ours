@@ -67,6 +67,12 @@ class LoRABank:
         if self._lora_wrapper is not None and hasattr(self._lora_wrapper, "freeze_adapter"):
             self._lora_wrapper.freeze_adapter(b)
 
+    def unfreeze_branch(self, name: str) -> None:
+        if name in self._branches:
+            self._branches[name].frozen = False
+        if self._lora_wrapper is not None and hasattr(self._lora_wrapper, "unfreeze_adapter"):
+            self._lora_wrapper.unfreeze_adapter(name)
+
     def merge_most_similar_branches(self) -> None:
         """
         Find the two most similar frozen branches by cosine similarity of their weights,
