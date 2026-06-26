@@ -148,6 +148,19 @@ class LoRAWrapper:
         # New adapter adds new parameters, so rebuild optimizer param groups.
         self._rebuild_optimizer()
 
+    def delete_adapter(self, name: str) -> None:
+        if not self.cfg.enabled or self.peft_model is None:
+            if name in self._adapter_steps:
+                del self._adapter_steps[name]
+            return
+            
+        if name in self.list_adapters():
+            self.peft_model.delete_adapter(name)
+            if name in self._adapter_steps:
+                del self._adapter_steps[name]
+            self._frozen_adapters.discard(name)
+            self._rebuild_optimizer()
+
     def list_adapters(self) -> List[str]:
         if not self.cfg.enabled or self.peft_model is None:
             return list(self._adapter_steps.keys())
@@ -518,6 +531,13 @@ class DebugLoRAWrapper:
         self._adapter_steps[name] = 0
         self._frozen_adapters.discard(name)
         self._adapter_vectors[name] = self._make_debug_vector(name)
+
+    def delete_adapter(self, name: str) -> None:
+        if name in self._adapter_steps:
+            del self._adapter_steps[name]
+        self._frozen_adapters.discard(name)
+        if name in self._adapter_vectors:
+            del self._adapter_vectors[name]
 
     def list_adapters(self) -> List[str]:
         return list(self._adapter_steps.keys())

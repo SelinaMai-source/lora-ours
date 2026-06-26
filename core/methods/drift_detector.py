@@ -391,9 +391,15 @@ class DriftDetector:
         self._probe_cusum = self._probe_ema_dev
 
         # Lower the detection threshold dynamically
-        dynamic_probe_threshold = probe_threshold * 0.5
+        # We use a relative threshold to account for the NLL scale
+        # If NLL is around 4.0, 0.001 is 0.025%.
+        # Let's use a very sensitive relative threshold: 0.05% of baseline
+        relative_probe_dev = probe_dev / max(1e-6, probe_baseline)
+        relative_core_dev = core_dev / max(1e-6, core_baseline)
+        
+        dynamic_probe_threshold = 0.0005 # 0.05% relative deviation
 
-        probe_hit = (self._probe_cusum >= dynamic_probe_threshold) or (probe_dev >= dynamic_probe_threshold)
+        probe_hit = (relative_probe_dev >= dynamic_probe_threshold) or (probe_dev >= probe_threshold * 0.5)
         if probe_hit:
             self._consecutive_probe_hits += 1
         else:

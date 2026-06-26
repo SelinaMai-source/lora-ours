@@ -1,0 +1,4 @@
+[2026-06-25 11:06:28] Config: configs/paper_ours.yaml
+[2026-06-25 11:06:28] Mode: ours
+[2026-06-25 11:06:28] Run ID: 20260625_110628_citb_paper_ours
+[2026-06-25 11:06:28] Requested processed stream alias='instrdialog' (auto_prepare_processed=True)

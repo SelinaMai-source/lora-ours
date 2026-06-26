@@ -1,0 +1,70 @@
+# Strict CCF-A v2 alignment config. Do not replace with Llama caveat configs.
+experiment_name: citb_instrdialogpp_order3_seed3_ours_strict
+mode: ours
+seed: 3
+strict_alignment:
+  status: blocked
+  blocker: "Official long-stream scripts use max_num_instances_per_eval_task=25, while requested split is 100/50/100; also needs Stage-1 checkpoint."
+  official_evidence: "CITB README; scripts/run_initial_multitask_tuning.sh; scripts/*_stream_scripts/run_cit_ft_instr.sh; collect_results.py; data/CIT_data/task_orders"
+paths:
+  project_root: /root/Lora-Baselines
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb/citb_instrdialogpp_order3_train100_dev50_test100.json
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results
+data:
+  suite: "CITB"
+  benchmark: "InstrDialog++-order3"
+  stream_format: unified_ccfa_stream
+  ready: false
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  backbone: "T5-small LM-adapted + 100 SuperNI init"
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  base_model_path: /root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 1024
+  max_target_len: 128
+  gen_max_new_tokens: 128
+  gen_num_beams: 1
+  gen_do_sample: false
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: ["q", "v"]
+train:
+  lr: 1e-05
+  epochs_per_segment: 15
+  batch_size: 16
+  hard_early_stop_enabled: false
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+eval_normalization:
+  enable_task_aware_score: true
+  auto_short_answer_max_new_tokens: false
+output:
+  run_name: citb_instrdialogpp_order3_seed3_ours_strict
+  tracking:
+    use_wandb: false
+paper:
+  strict_ready: false
+  status: blocked
+  metrics: ["ROUGE-L AR", "FWT", "BWT", "Tinit", "Tunseen"]
+  postprocess: ccfa_postprocess/summary.json
+  notes: "Official long-stream scripts use max_num_instances_per_eval_task=25, while requested split is 100/50/100; also needs Stage-1 checkpoint."
+official_reference:
+  stage1_command: "tmux new-session -s ccfa_citb_stage1_superni /root/Lora-Baselines/docs/scripts/run_citb_stage1_superni_official_wrapper.sh"
+  base_model_name: google/t5-small-lm-adapt
+  local_base_model_path: /root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt
+  required_stage1_checkpoint: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  stage1_train_tasks: 100
+  stage1_instances_per_task: 100
+  stage2_learning_rate: 1e-05
+  stage2_epochs: 15
+

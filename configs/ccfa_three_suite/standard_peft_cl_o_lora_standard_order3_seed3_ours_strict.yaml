@@ -1,0 +1,98 @@
+experiment_name: standard_peft_cl_o_lora_standard_order3_seed3_ours_strict
+mode: ours
+seed: 3
+strict_alignment:
+  status: ready
+  blocker: ''
+  official_evidence: O-LoRA README; scripts/order_3.sh; configs/order3_configs; CL_Benchmark;
+    order yahoo -> amazon -> agnews -> dbpedia; src/run_uie_lora.py
+paths:
+  project_root: /root/Lora-Baselines/methods/ours/source/project_local
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft/olora_standard_order3_t5large.json
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft
+data:
+  suite: Standard PEFT CL
+  benchmark: O-LoRA standard order3
+  stream_format: unified_ccfa_stream
+  ready: true
+  stream_name: standard_peft
+  auto_prepare_processed: false
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  backbone: T5-large
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/hf_snapshots/t5-large
+  base_model_path: /root/autodl-tmp/model_cache/hf_snapshots/t5-large
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 512
+  max_target_len: 50
+  gen_max_new_tokens: 50
+  gen_num_beams: 1
+  gen_do_sample: false
+  activation_batch_size: 1
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+  - q
+  - v
+train:
+  lr: 0.001
+  epochs_per_segment: 1
+  batch_size: 8
+  hard_early_stop_enabled: false
+  grad_clip_norm: 1.0
+  log_every: 25
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+eval_normalization:
+  enable_task_aware_score: true
+  auto_short_answer_max_new_tokens: true
+output:
+  run_name: standard_peft_cl_o_lora_standard_order3_seed3_ours_strict
+  tracking:
+    use_wandb: true
+    wandb_project: lora- baselines-run_v1
+    wandb_group: ccfa_standard_peft_strict_ours
+    wandb_mode: online
+    wandb_tags:
+    - ccfa_v2
+    - standard_peft_cl
+    - strict
+    - t5_large
+paper:
+  strict_ready: true
+  status: ready
+  metrics:
+  - final average accuracy
+  - forgetting
+  - BWT
+  postprocess: ccfa_postprocess/summary.json
+  notes: 'Strict O-LoRA standard CL order using official data/order stream and official
+    training hyperparameters where supported by the ours runner. Runtime memory knobs
+    reduced after prior Terminated: activation_batch_size=1, anchor_candidate_pool_size=128,
+    anchor_size=32; official lr/batch/order/epochs unchanged.'
+official_reference:
+  official_script: /root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/scripts/order_3.sh
+  model_name_or_path_in_official_script: initial_model/t5-large
+  local_model_path: /root/autodl-tmp/model_cache/hf_snapshots/t5-large
+  official_learning_rate: 1e-03
+  official_epochs: 1
+  official_train_batch_size: 8
+  official_eval_batch_size: 128
+  official_max_source_length: 512
+  official_max_target_length: 50
+  official_generation_max_length: 50
+drift:
+  anchor_candidate_pool_size: 128
+  anchor_size: 32

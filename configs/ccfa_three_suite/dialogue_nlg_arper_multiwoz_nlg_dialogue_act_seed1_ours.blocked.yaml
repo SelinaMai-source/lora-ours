@@ -1,0 +1,29 @@
+# ready: false
+# suite: Dialogue NLG
+# benchmark: ARPER MultiWOZ NLG dialogue-act
+# blocker: ARPER official resource stream generated, but ours still needs dialogue-NLG backbone selection, official SER scorer integration over generated outputs, and confirmation that WOZ3 resource is the intended MultiWOZ-2.0 comparison target.
+experiment_name: ccfa_v2_arper_multiwoz_nlg_dialogue_act_seed1_ours
+mode: ours
+seed: 1
+paths:
+  project_root: /root/Lora-Baselines
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/arper/arper_woz3_unique_dialogue_act.json
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results
+data:
+  suite: "Dialogue NLG"
+  benchmark: "ARPER MultiWOZ NLG dialogue-act"
+  stream_format: unified_ccfa_stream
+  ready: false
+model:
+  backbone: "TODO_ARPER_dialogue_NLG_backbone"
+  hf_model_name_or_path: "TODO_dialogue_nlg_checkpoint"
+output:
+  run_name: ccfa_v2_arper_multiwoz_nlg_dialogue_act_seed1_ours
+  tracking:
+    use_wandb: true
+    wandb_project: lora- baselines-run_v1
+    wandb_group: ccfa_v2_three_suite
+paper:
+  ready: false
+  metrics: ["BLEU-4", "SER", "forgetting"]
+  notes: "ARPER official resource stream generated, but ours still needs dialogue-NLG backbone selection, official SER scorer integration over generated outputs, and confirmation that WOZ3 resource is the intended MultiWOZ-2.0 comparison target."

@@ -1,0 +1,83 @@
+{
+  "run_id": "paper_instrdialog_ours_full_s123",
+  "start_time": "2026-06-25T03:06:55.740466+00:00",
+  "status": "failed",
+  "git_branch_name": "ours_v3",
+  "git_commit_sha": "109520d23ca7c3cb93d1f3f062917f840f7a8560",
+  "git_status_porcelain": [
+    "M baselines/__pycache__/__init__.cpython-312.pyc",
+    " M baselines/basic_baselines/sequential_lora/__pycache__/method.cpython-312.pyc",
+    " M core/__pycache__/causal_lm_metrics.cpython-312.pyc",
+    " M core/__pycache__/ccfa_metrics.cpython-312.pyc",
+    " M core/__pycache__/data.cpython-312.pyc",
+    " M core/__pycache__/evaluate.cpython-312.pyc",
+    " M core/__pycache__/formatting.cpython-312.pyc",
+    " M core/__pycache__/metrics_utils.cpython-312.pyc",
+    " M core/__pycache__/normalize_answer.cpython-312.pyc",
+    " M core/__pycache__/run_artifacts.cpython-312.pyc",
+    " M core/__pycache__/train_labels.cpython-312.pyc",
+    " M core/__pycache__/utils.cpython-312.pyc",
+    " M core/__pycache__/wandb_tracker.cpython-312.pyc",
+    " M core/methods/__pycache__/drift_detector.cpython-312.pyc",
+    " M core/methods/__pycache__/lora_bank.cpython-312.pyc",
+    " M core/methods/__pycache__/ours_spectral_replay.cpython-312.pyc",
+    " M core/methods/__pycache__/overlap_loss.cpython-312.pyc",
+    " M core/methods/__pycache__/router.cpython-312.pyc",
+    " M core/models/__pycache__/base_model.cpython-312.pyc",
+    " M core/models/__pycache__/lora_wrapper.cpython-312.pyc",
+    " M core/models/__pycache__/seq2seq_lora_wrapper.cpython-312.pyc",
+    "?? configs/ccfa_three_suite/",
+    "?? configs/debug_strict.yaml",
+    "?? results/",
+    "?? run_debug.py",
+    "?? test_gen.py",
+    "?? test_loss.py",
+    "?? test_real.py",
+    "?? test_t5.py",
+    "?? test_t5_gen.py",
+    "?? test_tokenization.py",
+    "?? test_train_batch.py"
+  ],
+  "git_is_dirty": true,
+  "mode": "ours",
+  "experiment_name": "paper_ours_instrdialog",
+  "benchmark_alias": "instrdialog",
+  "config_path": "/root/lora-ours-agent-workspace/lora-ours/configs/paper/instrdialog__ours_full__s123.yaml",
+  "config_snapshot_path": "results/runs/paper_instrdialog_ours_full_s123/config_snapshot.yaml",
+  "dataset_path": "data/processed",
+  "dataset_sha256": "",
+  "tokenizer_path_or_name": "assets/pretrained/meta-llama/Llama-3.1-8B-Instruct",
+  "model_path_or_name": "assets/pretrained/meta-llama/Llama-3.1-8B-Instruct",
+  "lora_config": {
+    "enabled": true,
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ]
+  },
+  "train_config": {
+    "epochs_per_segment": 5,
+    "batch_size": 1,
+    "lr": 0.0002,
+    "weight_decay": 0.0,
+    "grad_clip_norm": 1.0,
+    "log_every": 25
+  },
+  "modules_config": {
+    "use_drift_detector": true,
+    "use_lora_bank": true,
+    "use_router": true,
+    "use_overlap_loss": true
+  },
+  "run_dir": "results/runs/paper_instrdialog_ours_full_s123",
+  "artifacts_generated_in_run": [
+    "results/runs/paper_instrdialog_ours_full_s123/config_snapshot.yaml",
+    "results/logs/paper_instrdialog_ours_full_s123.log",
+    "results/runs/paper_instrdialog_ours_full_s123/run_manifest.json"
+  ],
+  "end_time": "2026-06-25T03:06:55.747303+00:00",
+  "error": "FileNotFoundError('Raw CITB root not found: data/raw/citb. Place raw data under data/raw/citb/ (see data/raw/README.md).')"
+}

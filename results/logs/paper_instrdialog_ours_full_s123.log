@@ -1,0 +1,4 @@
+[2026-06-25 11:06:55] Config: configs/paper/instrdialog__ours_full__s123.yaml
+[2026-06-25 11:06:55] Mode: ours
+[2026-06-25 11:06:55] Run ID: paper_instrdialog_ours_full_s123
+[2026-06-25 11:06:55] Requested processed stream alias='instrdialog' (auto_prepare_processed=True)

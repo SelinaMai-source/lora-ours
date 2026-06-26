@@ -753,6 +753,73 @@ def run_ours(
 
         # Decide which branch to use for training
         if lora_bank is not None and router is not None:
+            # V8: Assess-then-Update Subspace Decomposition
+            transient_name = "b_transient"
+            if transient_name in lora.list_adapters():
+                if hasattr(lora, "delete_adapter"):
+                    lora.delete_adapter(transient_name)
+            lora.create_adapter(transient_name)
+            lora.set_active_adapter(transient_name)
+            
+            logger.log(f"Training transient probe expert for segment {seg.segment_id}...")
+            _train_on_active_branch(
+                segment=seg_train,
+                model=backbone,
+                lora=lora,
+                lora_bank=lora_bank,
+                lr=lr,
+                epochs=1,
+                batch_size=batch_size,
+                use_overlap=False,
+                beta=0.0,
+                overlap_cfg={}
+            )
+            
+            from core.methods.assess_update import assess_transient_branch
+            existing_branches = lora_bank.list_branches()
+            assessment = assess_transient_branch(lora, transient_name, existing_branches, threshold=0.1)
+            logger.log(f"Transient assessment: {assessment}")
+            
+            if hasattr(lora, "delete_adapter"):
+                lora.delete_adapter(transient_name)
+                
+            if assessment["action"] == "spawn":
+                if bool(bank_cfg.get("freeze_old_branches", True)):
+                    lora_bank.freeze_current_branch()
+                new_b = lora_bank.spawn_new_branch(lora_wrapper=lora, segment_id=seg.segment_id)
+                logger.log(f"Spawned new branch {new_b} based on subspace energy.")
+                
+                # Initialize router prototype for the new branch
+                if drift_anchor_set is not None:
+                    spawn_proto = _maybe_init_spawn_prototype_from_anchors(
+                        router=router,
+                        model=backbone,
+                        lora=lora,
+                        lora_bank=lora_bank,
+                        new_branch=new_b,
+                        drift_anchor_set=drift_anchor_set,
+                    )
+                    if spawn_proto:
+                        logger.log(f"Spawn-sync prototype init: {json.dumps(spawn_proto, ensure_ascii=False)}")
+                
+                # Refresh anchor set after spawning
+                drift_anchor_set = _maybe_build_drift_anchor_set(
+                    stream=stream,
+                    source_segments=seen_segments[-anchor_refresh_segments:] if len(seen_segments) > 0 else [seg],
+                    drift=drift,
+                    cfg=cfg,
+                    run_paths=run_paths,
+                    logger=logger,
+                    reason=f"refresh_after_spawn_segment_{seg.segment_id}",
+                    model=backbone,
+                )
+            else:
+                target = assessment["target"]
+                logger.log(f"No new branch spawned. Subspace energy shared with {target}.")
+                if target is not None:
+                    lora.set_active_adapter(target)
+                    lora_bank._active = target
+
             # Route per example (hard routing); switch adapter before fit
             train_metrics = _train_with_router(
                 segment=seg_train,
@@ -889,34 +956,34 @@ def run_ours(
                 f"reason={drift_event.reason}"
             )
 
-        # Spawn branch on drift (if enabled)
-        if drift is not None and drift_event is not None and drift_event.triggered:
-            if lora_bank is not None and bool(bank_cfg.get("spawn_on_drift", True)):
-                if bool(bank_cfg.get("freeze_old_branches", True)):
-                    lora_bank.freeze_current_branch()
-                new_b = lora_bank.spawn_new_branch(lora_wrapper=lora, segment_id=seg.segment_id)
-                logger.log(f"Spawned new branch due to drift: {new_b}")
-                spawn_proto = _maybe_init_spawn_prototype_from_anchors(
-                    router=router,
-                    model=backbone,
-                    lora=lora,
-                    lora_bank=lora_bank,
-                    new_branch=new_b,
-                    drift_anchor_set=drift_anchor_set,
-                )
-                if spawn_proto:
-                    logger.log(f"Spawn-sync prototype init: {json.dumps(spawn_proto, ensure_ascii=False)}")
-            drift.reset(keep_history=True)
-            drift_anchor_set = _maybe_build_drift_anchor_set(
-                stream=stream,
-                source_segments=seen_segments[-anchor_refresh_segments:] or [seg],
-                drift=drift,
-                cfg=cfg,
-                run_paths=run_paths,
-                logger=logger,
-                reason=f"refresh_after_drift_segment_{seg.segment_id}",
-                model=backbone,
-            )
+        # Spawn branch on drift (if enabled) - DISABLED FOR V8 (Assess-then-Update Subspace Decomposition)
+        # if drift is not None and drift_event is not None and drift_event.triggered:
+        #     if lora_bank is not None and bool(bank_cfg.get("spawn_on_drift", True)):
+        #         if bool(bank_cfg.get("freeze_old_branches", True)):
+        #             lora_bank.freeze_current_branch()
+        #         new_b = lora_bank.spawn_new_branch(lora_wrapper=lora, segment_id=seg.segment_id)
+        #         logger.log(f"Spawned new branch due to drift: {new_b}")
+        #         spawn_proto = _maybe_init_spawn_prototype_from_anchors(
+        #             router=router,
+        #             model=backbone,
+        #             lora=lora,
+        #             lora_bank=lora_bank,
+        #             new_branch=new_b,
+        #             drift_anchor_set=drift_anchor_set,
+        #         )
+        #         if spawn_proto:
+        #             logger.log(f"Spawn-sync prototype init: {json.dumps(spawn_proto, ensure_ascii=False)}")
+        #     drift.reset(keep_history=True)
+        #     drift_anchor_set = _maybe_build_drift_anchor_set(
+        #         stream=stream,
+        #         source_segments=seen_segments[-anchor_refresh_segments:] or [seg],
+        #         drift=drift,
+        #         cfg=cfg,
+        #         run_paths=run_paths,
+        #         logger=logger,
+        #         reason=f"refresh_after_drift_segment_{seg.segment_id}",
+        #         model=backbone,
+        #     )
 
         row = {
             "run_id": run_paths.run_id,

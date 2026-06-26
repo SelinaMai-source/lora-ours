@@ -1,0 +1,29 @@
+# ready: false
+# suite: CITB
+# benchmark: InstrDialog++-order1
+# blocker: Official order/task files are present, but published long-stream scripts use max_num_instances_per_eval_task=25; reconcile against the requested 100/50/100 split before launch. Ours also needs T5-small LM-adapted + 100-SuperNI-init seq2seq loading and CITB ROUGE-L matrix export.
+experiment_name: ccfa_v2_instrdialogpp_order1_seed1_ours
+mode: ours
+seed: 1
+paths:
+  project_root: /root/Lora-Baselines
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb/citb_instrdialogpp_order1_train100_dev50_test100.json
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results
+data:
+  suite: "CITB"
+  benchmark: "InstrDialog++-order1"
+  stream_format: unified_ccfa_stream
+  ready: false
+model:
+  backbone: "google/t5-small-lm-adapt + 100 SuperNI init"
+  hf_model_name_or_path: "TODO_local_t5_small_lm_adapt_superni_init_checkpoint"
+output:
+  run_name: ccfa_v2_instrdialogpp_order1_seed1_ours
+  tracking:
+    use_wandb: true
+    wandb_project: lora- baselines-run_v1
+    wandb_group: ccfa_v2_three_suite
+paper:
+  ready: false
+  metrics: ["ROUGE-L AR", "FWT", "BWT", "Tinit", "Tunseen"]
+  notes: "Official order/task files are present, but published long-stream scripts use max_num_instances_per_eval_task=25; reconcile against the requested 100/50/100 split before launch. Ours also needs T5-small LM-adapted + 100-SuperNI-init seq2seq loading and CITB ROUGE-L matrix export."

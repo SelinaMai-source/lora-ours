@@ -1,0 +1,29 @@
+# ready: false
+# suite: Standard PEFT CL
+# benchmark: O-LoRA standard order1
+# blocker: Official O-LoRA data stream generated, but ours still lacks a T5-large seq2seq PEFT runner/checkpoint path and LFPT5/Progressive-Prompts sample-equivalence verification.
+experiment_name: ccfa_v2_o_lora_standard_order1_seed1_ours
+mode: ours
+seed: 1
+paths:
+  project_root: /root/Lora-Baselines
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft/olora_standard_order1_t5large.json
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results
+data:
+  suite: "Standard PEFT CL"
+  benchmark: "O-LoRA standard order1"
+  stream_format: unified_ccfa_stream
+  ready: false
+model:
+  backbone: "t5-large"
+  hf_model_name_or_path: "TODO_local_or_hf_t5_large_seq2seq_checkpoint"
+output:
+  run_name: ccfa_v2_o_lora_standard_order1_seed1_ours
+  tracking:
+    use_wandb: true
+    wandb_project: lora- baselines-run_v1
+    wandb_group: ccfa_v2_three_suite
+paper:
+  ready: false
+  metrics: ["final_average_accuracy", "forgetting", "BWT"]
+  notes: "Official O-LoRA data stream generated, but ours still lacks a T5-large seq2seq PEFT runner/checkpoint path and LFPT5/Progressive-Prompts sample-equivalence verification."

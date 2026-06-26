@@ -1,0 +1,100 @@
+__config_path__: /root/lora-ours-agent-workspace/lora-ours/configs/paper_ours.yaml
+bank:
+  freeze_old_branches: true
+  max_branches: 8
+  spawn_on_drift: true
+data:
+  auto_prepare_processed: true
+  max_eval_examples_per_segment: -1
+  max_segments: -1
+  max_train_examples_per_segment: -1
+  processed_stream_eval_instances_per_task: 10
+  processed_stream_limit_tasks: -1
+  processed_stream_train_instances_per_task: 50
+  stream_format: citb_processed
+  stream_name: instrdialog
+drift:
+  anchor_refresh_segments: 1
+  anchor_size: 64
+  calibration_window: 3
+  curriculum_strategy: easy_core_hard_probe
+  meta_threshold_enabled: true
+  meta_threshold_max: 1.0
+  meta_threshold_min: 0.05
+  meta_threshold_scale: 1.0
+  min_consecutive_probe_hits: 1
+  monitor_interval: 50
+  score_ema: 0.5
+  shift_stat: absolute
+  threshold: 0.1
+experiment_name: citb_paper_ours
+lora:
+  alpha: 32
+  dropout: 0.05
+  enabled: true
+  r: 16
+  target_modules:
+  - q_proj
+  - v_proj
+mode: ours
+model:
+  backbone_name: llama31-8b-instruct
+  device: auto
+  gen_do_sample: false
+  gen_max_new_tokens: 64
+  gen_num_beams: 1
+  hf_model_name_or_path: assets/pretrained/meta-llama/Llama-3.1-8B-Instruct
+  mask_eos_token_in_labels: true
+  max_seq_len: 512
+  torch_dtype: bfloat16
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_overlap_loss: true
+  use_router: true
+output:
+  run_name: ''
+  save_every_segment: true
+  write_logs: true
+  write_tables: true
+overlap:
+  activation_beta_ratio: 0.5
+  beta: 0.03
+  branch_scale: sqrt
+  min_branches: 2
+  warmup_segments: 2
+  weight_beta_ratio: 0.5
+  weight_similarity: cdma
+paper:
+  benchmark_alias: instrdialog
+  category: template
+  memory_budget: 0
+  method_variant: ours_full
+  track: paper
+paths:
+  assets_dir: assets
+  processed_stream_dir: data/processed
+  processed_stream_file: ''
+  project_root: .
+  raw_citb_root: data/raw/citb
+  results_dir: results
+router:
+  balance_beta: 0.01
+  hard_routing: true
+  learning_rate: 0.002
+  margin_filter_min_gap: 0.0
+  orthogonal_head_beta: 0.01
+  pseudo_label_strategy: self_consistency
+  router_warmup_segments: 1
+  temperature: 1.0
+  train_frozen_branches: false
+  training_fallback_to_active: true
+  training_strategy: learned_router
+seed: 2026
+train:
+  batch_size: 1
+  epochs_per_segment: 5
+  grad_clip_norm: 1.0
+  log_every: 25
+  lr: 0.0002
+  weight_decay: 0.0
