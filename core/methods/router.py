@@ -48,7 +48,7 @@ class Router:
         #   "prototype" – drift-anchored, NLL-verified branch prototypes with
         #                 cosine scoring (v6_sota_2+). Prototypes of frozen
         #                 branches are frozen as well, so old tasks stay routable.
-        self.routing_backend = str(cfg.get("routing_backend", "legacy")).strip() or "legacy"
+        self.routing_backend = str(cfg.get("routing_backend", "prototype")).strip() or "prototype"
         if self.routing_backend not in {"legacy", "prototype"}:
             raise ValueError("router.routing_backend must be one of: legacy | prototype")
         self.prototype_ema = float(cfg.get("prototype_ema", 0.8))
@@ -265,9 +265,8 @@ class Router:
             old_subspace = self._prototypes[branch_name].to(anchor_subspace.device)
             combined = torch.cat([(1.0 - beta) * old_subspace, beta * anchor_subspace], dim=1)
             U, S, Vh = torch.linalg.svd(combined, full_matrices=False)
-            V = Vh.mH
-            K = min(4, V.shape[1])
-            proto = V[:, :K]
+            K = min(4, U.shape[1])
+            proto = U[:, :K]
         else:
             proto = anchor_subspace
             
@@ -329,9 +328,8 @@ class Router:
                 old_subspace = self._prototypes[branch].to(new_subspace.device)
                 combined = torch.cat([self.prototype_ema * old_subspace, (1.0 - self.prototype_ema) * new_subspace], dim=1)
                 U, S, Vh = torch.linalg.svd(combined, full_matrices=False)
-                V = Vh.mH
-                K = min(4, V.shape[1])
-                proto = V[:, :K]
+                K = min(4, U.shape[1])
+                proto = U[:, :K]
                 
             self._prototypes[branch] = proto.detach().cpu()
             self._prototype_counts[branch] = self._prototype_counts.get(branch, 0) + len(idx)

@@ -388,20 +388,28 @@ class LoRAWrapper:
                     # onto the orthogonal complement of the current weights.
                     
                     # Compute projections
-                    # For A: project out the component parallel to b_A
-                    norm_sq_A = (b_A ** 2).sum()
-                    if norm_sq_A > 1e-8:
-                        proj_A = (delta_A * b_A).sum() / norm_sq_A * b_A
-                        rectified_delta_A = delta_A - 0.1 * proj_A # Soft rectification
-                    else:
+                    # For A (shape r x d_in): project rows of delta_A onto orthogonal complement of rows of b_A
+                    # delta_A_rect = delta_A - delta_A * b_A^T * (b_A * b_A^T + eps)^-1 * b_A
+                    eps = 1e-6
+                    b_A_flat = b_A.view(b_A.shape[0], -1)
+                    delta_A_flat = delta_A.view(delta_A.shape[0], -1)
+                    A_cov = torch.matmul(b_A_flat, b_A_flat.T) + eps * torch.eye(b_A_flat.shape[0], device=b_A_flat.device)
+                    try:
+                        A_cov_inv = torch.linalg.inv(A_cov)
+                        proj_A_flat = torch.matmul(torch.matmul(torch.matmul(delta_A_flat, b_A_flat.T), A_cov_inv), b_A_flat)
+                        rectified_delta_A = (delta_A_flat - 0.5 * proj_A_flat).view_as(delta_A)
+                    except RuntimeError:
                         rectified_delta_A = delta_A
                         
-                    # For B: project out the component parallel to b_B
-                    norm_sq_B = (b_B ** 2).sum()
-                    if norm_sq_B > 1e-8:
-                        proj_B = (delta_B * b_B).sum() / norm_sq_B * b_B
-                        rectified_delta_B = delta_B - 0.1 * proj_B # Soft rectification
-                    else:
+                    # For B (shape d_out x r): project columns of delta_B onto orthogonal complement of columns of b_B
+                    b_B_flat = b_B.view(-1, b_B.shape[-1])
+                    delta_B_flat = delta_B.view(-1, delta_B.shape[-1])
+                    B_cov = torch.matmul(b_B_flat.T, b_B_flat) + eps * torch.eye(b_B_flat.shape[-1], device=b_B_flat.device)
+                    try:
+                        B_cov_inv = torch.linalg.inv(B_cov)
+                        proj_B_flat = torch.matmul(b_B_flat, torch.matmul(B_cov_inv, torch.matmul(b_B_flat.T, delta_B_flat)))
+                        rectified_delta_B = (delta_B_flat - 0.5 * proj_B_flat).view_as(delta_B)
+                    except RuntimeError:
                         rectified_delta_B = delta_B
                         
                     # Apply rectified updates
