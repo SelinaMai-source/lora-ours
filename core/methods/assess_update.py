@@ -8,7 +8,7 @@ def set_adapter_vector(lora_wrapper: Any, name: str, vector: torch.Tensor) -> No
     offset = 0
     with torch.no_grad():
         for param_name, param in lora_wrapper.peft_model.named_parameters():
-            if f"lora_A.{name}." in param_name or f"lora_B.{name}." in param_name:
+            if f"lora_B.{name}." in param_name:
                 numel = param.numel()
                 param.copy_(vector[offset:offset+numel].view(param.shape))
                 offset += numel

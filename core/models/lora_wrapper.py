@@ -93,7 +93,11 @@ class LoRAWrapper:
             # PEFT parameter names typically include: "...lora_A.<adapter_name>..." / "...lora_B.<adapter_name>..."
             for param_name, param in self.peft_model.named_parameters():
                 if "lora_" in param_name:
-                    param.requires_grad = (name in param_name) and (name not in self._frozen_adapters)
+                    if "lora_A" in param_name:
+                        # Freeze lora_A so all branches strictly share the same projection basis
+                        param.requires_grad = False
+                    else:
+                        param.requires_grad = (name in param_name) and (name not in self._frozen_adapters)
                 else:
                     param.requires_grad = False
 
@@ -145,6 +149,17 @@ class LoRAWrapper:
         self._adapter_steps[name] = 0
         self._frozen_adapters.discard(name)
 
+        # Copy lora_A from the default adapter so all branches share the same A matrix
+        # This makes the B matrices strictly comparable for subspace decomposition!
+        if "default" in adapters and name != "default":
+            with torch.no_grad():
+                param_dict = dict(self.peft_model.named_parameters())
+                for param_name, param in self.peft_model.named_parameters():
+                    if f"lora_A.{name}." in param_name:
+                        default_name = param_name.replace(f"lora_A.{name}.", "lora_A.default.")
+                        if default_name in param_dict:
+                            param.copy_(param_dict[default_name])
+
         # New adapter adds new parameters, so rebuild optimizer param groups.
         self._rebuild_optimizer()
 
@@ -195,7 +210,7 @@ class LoRAWrapper:
             return torch.tensor([])
         tensors = []
         for param_name, param in self.peft_model.named_parameters():
-            if f"lora_A.{name}." in param_name or f"lora_B.{name}." in param_name:
+            if f"lora_B.{name}." in param_name:
                 tensor = param.detach() if detach else param
                 tensors.append(tensor.view(-1))
         if not tensors:
