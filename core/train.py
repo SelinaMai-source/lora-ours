@@ -789,7 +789,7 @@ def run_ours(
                 # Unfreeze the target branch so it can be updated
                 lora_bank.unfreeze_branch(target)
                 target_vec = lora.get_adapter_vector(target, detach=True)
-                set_adapter_vector(lora, target, target_vec + assessment["proj_vec"])
+                set_adapter_vector(lora, target, target_vec + assessment["proj_vec"].to(target_vec.device))
                 logger.log(f"Merged shared subspace into {target} and unfroze it.")
                 
             if assessment["action"] == "spawn":
@@ -806,7 +806,7 @@ def run_ours(
                 logger.log(f"Spawned new branch {new_b} based on subspace energy.")
                 
                 # Transfer the isolated subspace to the new branch
-                set_adapter_vector(lora, new_b, assessment["residual_vec"])
+                set_adapter_vector(lora, new_b, assessment["residual_vec"].to(lora.get_adapter_vector(new_b, detach=True).device))
                 logger.log(f"Transferred isolated subspace to {new_b}.")
                 
                 # Initialize router prototype for the new branch
@@ -841,7 +841,7 @@ def run_ours(
                     
                     # Merge the remaining isolated subspace (residual) into the target branch
                     target_vec = lora.get_adapter_vector(target, detach=True)
-                    set_adapter_vector(lora, target, target_vec + assessment["residual_vec"])
+                    set_adapter_vector(lora, target, target_vec + assessment["residual_vec"].to(target_vec.device))
                     logger.log(f"Merged remaining isolated subspace into {target}.")
 
             # Route per example (hard routing); switch adapter before fit
