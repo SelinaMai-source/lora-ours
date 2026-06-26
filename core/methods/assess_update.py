@@ -20,11 +20,25 @@ def assess_transient_branch(lora_wrapper: Any, transient_name: str, existing_bra
     """
     transient_vec = lora_wrapper.get_adapter_vector(transient_name, detach=True).float()
     if transient_vec.numel() == 0:
-        return {"action": "merge", "target": existing_branches[0] if existing_branches else None, "isolated_energy_ratio": 0.0}
+        return {
+            "action": "merge", 
+            "target": existing_branches[0] if existing_branches else None, 
+            "isolated_energy_ratio": 0.0,
+            "best_sim": 0.0,
+            "proj_vec": transient_vec,
+            "residual_vec": transient_vec
+        }
         
     total_energy = transient_vec.norm().item() ** 2
     if total_energy == 0:
-        return {"action": "merge", "target": existing_branches[0] if existing_branches else None, "isolated_energy_ratio": 0.0}
+        return {
+            "action": "merge", 
+            "target": existing_branches[0] if existing_branches else None, 
+            "isolated_energy_ratio": 0.0,
+            "best_sim": 0.0,
+            "proj_vec": transient_vec,
+            "residual_vec": transient_vec
+        }
 
     # Form a matrix of existing branches
     branch_vecs = []
@@ -42,7 +56,9 @@ def assess_transient_branch(lora_wrapper: Any, transient_name: str, existing_bra
                 "action": "merge",
                 "target": branch,
                 "isolated_energy_ratio": 0.0,
-                "best_sim": 1.0
+                "best_sim": 1.0,
+                "proj_vec": transient_vec,
+                "residual_vec": torch.zeros_like(transient_vec)
             }
             
         sim = F.cosine_similarity(transient_vec.unsqueeze(0), branch_vec.unsqueeze(0)).item()
@@ -53,7 +69,14 @@ def assess_transient_branch(lora_wrapper: Any, transient_name: str, existing_bra
         branch_vecs.append(branch_vec)
         
     if not branch_vecs:
-        return {"action": "merge", "target": None, "isolated_energy_ratio": 0.0, "best_sim": 0.0}
+        return {
+            "action": "merge", 
+            "target": None, 
+            "isolated_energy_ratio": 0.0, 
+            "best_sim": 0.0,
+            "proj_vec": torch.zeros_like(transient_vec),
+            "residual_vec": transient_vec
+        }
         
     # Project transient_vec onto the orthogonal complement of the subspace spanned by branch_vecs
     M = torch.stack(branch_vecs, dim=1) # Shape: (D, K)
