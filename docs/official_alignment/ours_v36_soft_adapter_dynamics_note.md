@@ -38,3 +38,23 @@ V36b completed with segment matrix task-aware `[0.53, 0.26, 0.28, 0.18]`, final 
 The full strict run `citb_instrdialog_order1_seed1_ours_v36b_strict` was launched on 2026-07-02 in tmux session `ours-v36b-full` after confirming no GPU/training conflict. W&B is online in project `lora-ours-v36b-full`, run `xprhio8d`; monitor output is `results/logs/ours_v36b_full_strict_status.md`.
 
 The first four full strict segment scores reproduce the smoke gate exactly: task-aware `[0.53, 0.26, 0.28, 0.18]`, seen task-aware AR `0.3125`, and task-aware BWT `0.0`. This clears the early stop check, so the run should continue through the remaining full strict segments unless a later collapse, stale monitor state, or `stop_and_diagnose` artifact appears.
+
+## Full Strict Stop
+
+The run was stopped after segment4 triggered the low-score gate. Segment4 (`task574_air_dialogue_sentence_generation`) produced current exact `0.0`, current task-aware `0.03`, seen exact AR `0.158`, and seen task-aware AR `0.236`. The segment trajectory became task-aware `[0.53, 0.26, 0.28, 0.08, 0.03]`, so the segment3 gain from the four-segment gate did not survive the next Dialogue-generation task.
+
+This is not a completed official full-strict run and must not be used for a SOTA claim. The saved `stop_and_diagnose.json` records the immediate failure evidence: segment4 routing had oracle agreement `0.498`, branch utilization `{"b0": 0.044, "b1": 0.356, "b2": 0.2, "b4": 0.4}`, and no `b3` utilization after segment3 had previously depended on `b3`.
+
+## Follow-Up V37
+
+`configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v37_smoke_strict.yaml` is a five-segment smoke, not a full run. It keeps v36b adapter and generation settings unchanged, raises router PLL recalibration from `oracle_pll_min_agreement=0.5` to `0.65`, increases `oracle_pll_bonus_steps` from `1` to `2`, and raises debug coverage to `125` examples so segment4 current-task outputs are auditable. The reason is concrete: v36b segment3 oracle agreement was only `0.6025`, below the new pre-segment4 trigger, and segment4 then collapsed while routing stopped using `b3`.
+
+Do not proceed to another full strict unless v37 keeps segment2/task1714 healthy and segment4 no longer collapses. The next SOTA plan also has to cover InstrDialog++/Standard/Dialogue explicitly rather than treating the four-segment InstrDialog smoke as sufficient.
+
+## V37 Result
+
+V37 completed the five-segment smoke, but did not fix the blocker. It reproduced the v36b four-segment trajectory through segment3 (`[0.53, 0.26, 0.28, 0.18]`) and then ended at task-aware `[0.53, 0.26, 0.28, 0.10, 0.03]`, seen task-aware AR `0.2400`, exact AR `0.158`, and current segment4 task-aware `0.03`.
+
+The router change had a real but insufficient effect: segment4 PLL recalibration triggered (`router_pll_prev_oracle_agreement=0.6025`, `router_pll_bonus_steps=2`) and oracle agreement improved from v36b `0.498` to v37 `0.546`, with `b3` used for `5%` of routes. However, task574 current debug examples were already mostly routed to `b4` with oracle `b4`, and generated generic speaker-prefixed responses such as `agent: No, we are here to assist you`, `customer: No, we didn't get a confirmation`, and `agent: I am a travel agent` instead of slot/content-specific dialogue turns.
+
+This rules out router PLL alone as the next full-strict fix. `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v38_smoke_strict.yaml` is prepared as the next small smoke: keep v37 unchanged, but add `agent` and `customer` to `generation_continuation_first_tokens` so speaker-prefixed Dialogue targets weight content tokens after the speaker label.

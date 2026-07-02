@@ -50,7 +50,11 @@ Updated: 2026-07-02
 - v36b smoke result: segment matrix task-aware `[0.53, 0.26, 0.28, 0.18]`; final task-aware AR `0.3125`, BWT `0.0`. LR-only softening kept adapter deltas meaningful but smaller (`~0.0027`-`0.0032`), restored segment2 to the v34 gate (`0.28`), and improved task1714 beyond v36 (`0.18` vs `0.16`). This clears the smoke gate for preparing full strict.
 - Current full strict candidate: `citb_instrdialog_order1_seed1_ours_v36b_strict`.
 - Full strict launch: started 2026-07-02 in tmux session `ours-v36b-full` (`train` + `monitor` windows) after confirming the GPU had no active training process. W&B is online in project `lora-ours-v36b-full`, run `xprhio8d`; monitor status is `results/logs/ours_v36b_full_strict_status.md`.
-- Full strict early gate: first four task-aware segment scores match the v36b smoke trajectory `[0.53, 0.26, 0.28, 0.18]`, with seen task-aware AR `0.3125` and task-aware BWT `0.0` at segment3. No collapse, traceback, OOM, or `stop_and_diagnose` artifact observed; continue the remaining full strict segments under monitoring.
+- Full strict stopped: first four task-aware segment scores matched the v36b smoke trajectory `[0.53, 0.26, 0.28, 0.18]`, but segment4 (`task574_air_dialogue_sentence_generation`) collapsed to exact `0.0` / task-aware `0.03`; seen task-aware AR fell to `0.236`, and task1714 dropped from `0.18` to `0.08`. A `stop_and_diagnose.json` artifact was written and the v36b full train process was stopped. Do not claim SOTA from v36b full.
+- Current v37 smoke candidate: `citb_instrdialog_order1_seed1_ours_v37_smoke_strict`.
+- v37 smoke result: five-segment smoke completed with task-aware `[0.53, 0.26, 0.28, 0.10, 0.03]`, seen task-aware AR `0.2400`, and exact AR `0.158`. Router PLL did trigger before segment4 and improved oracle agreement from v36b `0.498` to `0.546`, but task574 stayed at task-aware `0.03`; current debug shows mostly correctly speaker-prefixed but generic/wrong-content outputs (`agent: No...`, `customer: No...`, `agent: I am a travel agent`). Do not launch full strict.
+- Current v38 smoke candidate: `citb_instrdialog_order1_seed1_ours_v38_smoke_strict`.
+- Decision pending: v38 keeps v37 five-segment routing/generation settings and only adds `agent`/`customer` to `generation_continuation_first_tokens`, targeting speaker-prefixed Dialogue targets whose failure is now content learning rather than route selection. Gate remains segment4 health plus preservation of segment2/task1714; later SOTA planning must include InstrDialog, InstrDialog++, Standard, and Dialogue explicitly.
 
 ## Evidence
 
@@ -90,4 +94,4 @@ Updated: 2026-07-02
 
 ## Next Step
 
-Let `citb_instrdialog_order1_seed1_ours_v36b_strict` continue beyond the four-segment gate. Stop and diagnose if later task-aware scores collapse or the monitor reports a stale/failed run; otherwise wait for `final_metrics.json` before making any SOTA claim.
+Run `citb_instrdialog_order1_seed1_ours_v38_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved. If v38 still fails, the next diagnosis should focus on Dialogue-generation content supervision/overfit behavior rather than router-only changes; any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
