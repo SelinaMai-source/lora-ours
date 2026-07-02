@@ -58,3 +58,11 @@ V37 completed the five-segment smoke, but did not fix the blocker. It reproduced
 The router change had a real but insufficient effect: segment4 PLL recalibration triggered (`router_pll_prev_oracle_agreement=0.6025`, `router_pll_bonus_steps=2`) and oracle agreement improved from v36b `0.498` to v37 `0.546`, with `b3` used for `5%` of routes. However, task574 current debug examples were already mostly routed to `b4` with oracle `b4`, and generated generic speaker-prefixed responses such as `agent: No, we are here to assist you`, `customer: No, we didn't get a confirmation`, and `agent: I am a travel agent` instead of slot/content-specific dialogue turns.
 
 This rules out router PLL alone as the next full-strict fix. `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v38_smoke_strict.yaml` is prepared as the next small smoke: keep v37 unchanged, but add `agent` and `customer` to `generation_continuation_first_tokens` so speaker-prefixed Dialogue targets weight content tokens after the speaker label.
+
+## V38 Result
+
+V38 completed the five-segment smoke, but did not fix task574. The final task-aware trajectory was `[0.53, 0.26, 0.28, 0.10, 0.03]`, with seen task-aware AR `0.2400`, exact AR `0.158`, and BWT `-0.02`. Segment3/task1714 initially matched v36b/v37 at `0.18`, then fell to `0.10` after task574.
+
+The new continuation weighting was active and strong on task574: `train.continuation_weighted_token_ratio` was about `0.87`. The task574 debug subset also showed routing was not the immediate failure inside the current task: 25/25 debug examples selected `b4` and had oracle `b4`. The remaining failure is generic speaker-prefixed content generation, e.g. `agent: No, we are here for you.` or `customer: No, we didn't get a booking from you.` instead of slot/content-specific AIR dialogue turns.
+
+`configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v39_smoke_strict.yaml` is the next small smoke. It keeps v38 unchanged except for adding `agent` and `customer` to `balanced_generation_sampling.buckets`, because v38's sampling buckets (`no`/`yes`/`i`/`other`) made task574 speaker-prefixed targets collapse into the generic `other` bucket and therefore did not activate balanced generation sampling for the failing segment.
