@@ -32,3 +32,9 @@ V36b completed with segment matrix task-aware `[0.53, 0.26, 0.28, 0.18]`, final 
 ## Full Strict Candidate
 
 `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v36b_strict.yaml` is staged as the full strict candidate. It keeps the v36b method settings unchanged and removes the 4-segment smoke truncation.
+
+## Full Strict Launch
+
+The full strict run `citb_instrdialog_order1_seed1_ours_v36b_strict` was launched on 2026-07-02 in tmux session `ours-v36b-full` after confirming no GPU/training conflict. W&B is online in project `lora-ours-v36b-full`, run `xprhio8d`; monitor output is `results/logs/ours_v36b_full_strict_status.md`.
+
+The first four full strict segment scores reproduce the smoke gate exactly: task-aware `[0.53, 0.26, 0.28, 0.18]`, seen task-aware AR `0.3125`, and task-aware BWT `0.0`. This clears the early stop check, so the run should continue through the remaining full strict segments unless a later collapse, stale monitor state, or `stop_and_diagnose` artifact appears.

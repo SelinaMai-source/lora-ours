@@ -49,7 +49,8 @@ Updated: 2026-07-02
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v36b_smoke_strict`.
 - v36b smoke result: segment matrix task-aware `[0.53, 0.26, 0.28, 0.18]`; final task-aware AR `0.3125`, BWT `0.0`. LR-only softening kept adapter deltas meaningful but smaller (`~0.0027`-`0.0032`), restored segment2 to the v34 gate (`0.28`), and improved task1714 beyond v36 (`0.18` vs `0.16`). This clears the smoke gate for preparing full strict.
 - Current full strict candidate: `citb_instrdialog_order1_seed1_ours_v36b_strict`.
-- Decision pending: full strict is prepared but not launched in this status note; confirm no conflicting full strict run and monitor budget before launch.
+- Full strict launch: started 2026-07-02 in tmux session `ours-v36b-full` (`train` + `monitor` windows) after confirming the GPU had no active training process. W&B is online in project `lora-ours-v36b-full`, run `xprhio8d`; monitor status is `results/logs/ours_v36b_full_strict_status.md`.
+- Full strict early gate: first four task-aware segment scores match the v36b smoke trajectory `[0.53, 0.26, 0.28, 0.18]`, with seen task-aware AR `0.3125` and task-aware BWT `0.0` at segment3. No collapse, traceback, OOM, or `stop_and_diagnose` artifact observed; continue the remaining full strict segments under monitoring.
 
 ## Evidence
 
@@ -89,4 +90,4 @@ Updated: 2026-07-02
 
 ## Next Step
 
-V36b cleared the smoke gate. Prepare/launch `citb_instrdialog_order1_seed1_ours_v36b_strict` as the next full strict candidate with W&B online monitoring, but keep the run under strict gate review before any SOTA claim.
+Let `citb_instrdialog_order1_seed1_ours_v36b_strict` continue beyond the four-segment gate. Stop and diagnose if later task-aware scores collapse or the monitor reports a stale/failed run; otherwise wait for `final_metrics.json` before making any SOTA claim.
