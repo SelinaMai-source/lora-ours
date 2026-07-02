@@ -17,6 +17,7 @@ class HFSeq2SeqLMConfig:
     gen_max_new_tokens: int = 64
     gen_do_sample: bool = False
     gen_num_beams: int = 1
+    gen_min_new_tokens: int = 0
     gen_no_repeat_ngram_size: int = 0
     gen_encoder_no_repeat_ngram_size: int = 0
     gen_repetition_penalty: float = 1.0
@@ -254,6 +255,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         *,
         num_beams: Optional[int] = None,
         do_sample: Optional[bool] = None,
+        min_new_tokens: Optional[int] = None,
     ) -> List[str]:
         import torch
         from transformers import GenerationConfig
@@ -270,8 +272,11 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         nb = int(num_beams) if num_beams is not None else int(self.cfg.gen_num_beams)
         ds = bool(self.cfg.gen_do_sample) if do_sample is None else bool(do_sample)
+        min_nt = int(self.cfg.gen_min_new_tokens) if min_new_tokens is None else int(min_new_tokens)
+        min_nt = max(0, min(int(max_new_tokens), min_nt))
         gen_cfg = GenerationConfig(
             max_new_tokens=int(max_new_tokens),
+            min_new_tokens=min_nt,
             num_beams=max(1, nb),
             do_sample=ds,
             pad_token_id=self.tokenizer.pad_token_id,
@@ -361,6 +366,7 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         gen_max_new_tokens=int(model_cfg.get("gen_max_new_tokens", 64)),
         gen_do_sample=bool(model_cfg.get("gen_do_sample", False)),
         gen_num_beams=int(model_cfg.get("gen_num_beams", 1)),
+        gen_min_new_tokens=int(model_cfg.get("gen_min_new_tokens", 0)),
         gen_no_repeat_ngram_size=int(model_cfg.get("gen_no_repeat_ngram_size", 0)),
         gen_encoder_no_repeat_ngram_size=int(model_cfg.get("gen_encoder_no_repeat_ngram_size", 0)),
         gen_repetition_penalty=float(model_cfg.get("gen_repetition_penalty", 1.0)),

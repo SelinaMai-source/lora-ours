@@ -464,6 +464,11 @@ def _eval_segment(
         eval_examples=eval_examples,
         normalization_cfg=normalization_cfg,
     )
+    effective_min_new_tokens = _resolve_eval_min_new_tokens(
+        segment_name=segment.segment_name,
+        max_new_tokens=effective_max_new_tokens,
+        normalization_cfg=normalization_cfg,
+    )
 
     # If router/bank available, route per prompt (simplified hard routing).
     audited = enable_infer_token_audit and router is None and lora_bank is None and hasattr(model, "generate_with_ids")
@@ -489,6 +494,8 @@ def _eval_segment(
             ranked = sorted(prob_scores.items(), key=lambda kv: kv[1], reverse=True) if prob_scores else []
             margin = float(ranked[0][1] - ranked[1][1]) if len(ranked) > 1 else 1.0
             arbitrated_low_margin = False
+            cand_nlls: Dict[str, float] = {}
+            original_branch = ""
             # Verify-then-route: label-free prompt-NLL arbitration on low-margin
             # decisions. Works with soft routing too — uncertain cases hard-route
             # to the NLL winner instead of destructive parameter blending.
@@ -500,15 +507,16 @@ def _eval_segment(
                 and len(prob_scores) > 1
                 and margin < float(getattr(router, "arbitration_margin", 0.15))
             ):
+                original_branch = decision.branch_name
                 top_k = max(2, int(getattr(router, "arbitration_top_k", 3)))
                 candidates = [b for b, _ in ranked[:top_k]]
-                cand_nlls: Dict[str, float] = {}
                 for cand in candidates:
                     lora_bank.set_active_adapter(cand)
                     cand_nlls[cand] = float(model.score_prompt_nlls([p])[0])
                 arbitrated = min(cand_nlls, key=cand_nlls.get)
                 routing_stats["nll_arbitration_count"] = routing_stats.get("nll_arbitration_count", 0) + 1
-                if arbitrated != decision.branch_name:
+                routing_stats["nll_arbitration_changed"] = routing_stats.get("nll_arbitration_changed", 0)
+                if arbitrated != original_branch:
                     routing_stats["nll_arbitration_changed"] = routing_stats.get("nll_arbitration_changed", 0) + 1
                 decision.branch_name = arbitrated
                 decision.reason = f"{decision.reason}+nll_arbitration"
@@ -538,6 +546,9 @@ def _eval_segment(
                     "routing_oracle_margin": float(oracle["oracle_margin"]),
                     "routing_oracle_best_loss": float(oracle["oracle_best_loss"]),
                     "routing_reason": str(getattr(decision, "reason", "")),
+                    "routing_nll_arbitration_candidates": cand_nlls if arbitrated_low_margin else {},
+                    "routing_nll_arbitration_original_branch": original_branch if arbitrated_low_margin else "",
+                    "routing_nll_arbitration_changed": bool(arbitrated_low_margin and decision.branch_name != original_branch),
                 }
             )
             margin_gate_hard = bool(
@@ -608,7 +619,14 @@ def _eval_segment(
             elif hasattr(lora_bank, "set_active_adapter"):
                 lora_bank.set_active_adapter(decision.branch_name)
             
-            preds.extend(model.generate([p], max_new_tokens=effective_max_new_tokens))
+            preds.extend(
+                _generate_with_optional_min_new_tokens(
+                    model,
+                    [p],
+                    max_new_tokens=effective_max_new_tokens,
+                    min_new_tokens=effective_min_new_tokens,
+                )
+            )
             
             # Clear soft routing
             if getattr(router, "soft_routing", False) and hasattr(lora_bank, "set_soft_routing"):
@@ -619,7 +637,12 @@ def _eval_segment(
             preds = [x.get("raw_generated_text", "") for x in gen_audit]
         else:
             gen_audit = None
-            preds = model.generate(prompts, max_new_tokens=effective_max_new_tokens)
+            preds = _generate_with_optional_min_new_tokens(
+                model,
+                prompts,
+                max_new_tokens=effective_max_new_tokens,
+                min_new_tokens=effective_min_new_tokens,
+            )
         routing_details = [{} for _ in preds]
 
     details: List[Dict[str, Any]] = []
@@ -746,6 +769,7 @@ def _eval_segment(
                 "source_example_idx": int(example_idx),
                 "requested_max_new_tokens": int(max_new_tokens),
                 "effective_max_new_tokens": int(effective_max_new_tokens),
+                "effective_min_new_tokens": int(effective_min_new_tokens),
                 "raw_generated_output": pred,
                 "normalized_prediction": norm_pred,
                 "normalized_gold": norm_gold,
@@ -823,6 +847,39 @@ def _merge_routing_stats(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
             "oracle_num_examples",
         }:
             dst[key] = int(dst.get(key, 0)) + int(value or 0)
+
+
+def _resolve_eval_min_new_tokens(
+    *,
+    segment_name: str,
+    max_new_tokens: int,
+    normalization_cfg: Dict[str, Any],
+) -> int:
+    if not bool(normalization_cfg.get("enable_segment_min_new_tokens", False)):
+        return 0
+    patterns = normalization_cfg.get("segment_min_new_tokens_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    name = str(segment_name or "")
+    if not any(re.search(str(pattern), name, flags=re.IGNORECASE) for pattern in patterns):
+        return 0
+    min_new_tokens = int(normalization_cfg.get("segment_min_new_tokens", 0))
+    return max(0, min(int(max_new_tokens), min_new_tokens))
+
+
+def _generate_with_optional_min_new_tokens(
+    model: Any,
+    prompts: List[str],
+    *,
+    max_new_tokens: int,
+    min_new_tokens: int,
+) -> List[str]:
+    if int(min_new_tokens) <= 0:
+        return model.generate(prompts, max_new_tokens=max_new_tokens)
+    try:
+        return model.generate(prompts, max_new_tokens=max_new_tokens, min_new_tokens=int(min_new_tokens))
+    except TypeError:
+        return model.generate(prompts, max_new_tokens=max_new_tokens)
 
 
 def _resolve_eval_max_new_tokens(
