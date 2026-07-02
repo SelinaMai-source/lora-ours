@@ -1210,6 +1210,8 @@ def _train_on_active_branch(
     grad_norms: List[float] = []
     delta_norms: List[float] = []
     overlap_metric_sums: Dict[str, float] = {}
+    supervision_metric_sums: Dict[str, float] = {}
+    supervision_metric_steps = 0
     overlap_steps = 0
     total_tokens = 0
     supervised_tokens = 0
@@ -1257,6 +1259,13 @@ def _train_on_active_branch(
             batch_accs.append(float(out.get("train_batch_acc", 0.0)))
             batch_losses.append(float(out.get("train_loss", 0.0)))
             batch_ans_accs.append(float(out.get("train_answer_token_acc", 0.0)))
+            for key, value in out.items():
+                if str(key).startswith("train.") and str(key) not in {"train.loss", "train.answer_token_acc"}:
+                    try:
+                        supervision_metric_sums[str(key)] = supervision_metric_sums.get(str(key), 0.0) + float(value)
+                    except (TypeError, ValueError):
+                        continue
+            supervision_metric_steps += 1
             grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
             delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
             total_tokens += int(out.get("num_total_tokens", 0))
@@ -1276,6 +1285,8 @@ def _train_on_active_branch(
     if overlap_steps > 0:
         metrics.update({k: v / float(overlap_steps) for k, v in overlap_metric_sums.items()})
         metrics["anti_overlap_steps"] = int(overlap_steps)
+    if supervision_metric_steps > 0:
+        metrics.update({k: v / float(supervision_metric_steps) for k, v in supervision_metric_sums.items()})
     return metrics
 
 
@@ -1703,6 +1714,8 @@ def _train_with_routed_assignments(
     grad_norms: List[float] = []
     delta_norms: List[float] = []
     overlap_metric_sums: Dict[str, float] = {}
+    supervision_metric_sums: Dict[str, float] = {}
+    supervision_metric_steps = 0
     overlap_steps = 0
     total_tokens = 0
     supervised_tokens = 0
@@ -1767,6 +1780,13 @@ def _train_with_routed_assignments(
                     batch_accs.append(float(out.get("train_batch_acc", 0.0)))
                     batch_losses.append(float(out.get("train_loss", 0.0)))
                     batch_ans_accs.append(float(out.get("train_answer_token_acc", 0.0)))
+                    for key, value in out.items():
+                        if str(key).startswith("train.") and str(key) not in {"train.loss", "train.answer_token_acc"}:
+                            try:
+                                supervision_metric_sums[str(key)] = supervision_metric_sums.get(str(key), 0.0) + float(value)
+                            except (TypeError, ValueError):
+                                continue
+                    supervision_metric_steps += 1
                     grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
                     delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
                     total_tokens += int(out.get("num_total_tokens", 0))
@@ -1798,6 +1818,8 @@ def _train_with_routed_assignments(
     if overlap_steps > 0:
         metrics.update({k: v / float(overlap_steps) for k, v in overlap_metric_sums.items()})
         metrics["anti_overlap_steps"] = int(overlap_steps)
+    if supervision_metric_steps > 0:
+        metrics.update({k: v / float(supervision_metric_steps) for k, v in supervision_metric_sums.items()})
     return metrics
 
 

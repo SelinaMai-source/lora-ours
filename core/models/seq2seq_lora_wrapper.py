@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from core.formatting import format_for_infer
@@ -26,6 +27,10 @@ class HFSeq2SeqLMConfig:
     debug_print_tokenized_examples: bool = False
     debug_max_tokenized_examples: int = 2
     activation_batch_size: int = 4
+    target_supervision_guard_enabled: bool = False
+    generation_continuation_loss_weight: float = 1.0
+    generation_continuation_first_tokens: Tuple[str, ...] = ("no", "yes", "i")
+    generation_continuation_min_target_tokens: int = 4
 
 
 class HFSeq2SeqLMBackbone(BaseBackbone):
@@ -141,7 +146,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             self._debug_printed_tokenized = True
 
         outputs = self.model(**batch, return_dict=True)
-        loss = outputs.loss
+        loss, supervision_metrics = self._supervised_loss(outputs.logits, batch["labels"], targets)
         loss.backward()
 
         with torch.no_grad():
@@ -160,6 +165,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             "num_supervised_tokens": int(batch["labels"].ne(-100).sum().item()),
             "num_loss_tokens": int(batch["labels"].ne(-100).sum().item()),
             "lr": float(self._last_lr),
+            **supervision_metrics,
         }
 
     def score_answer_nlls(self, pairs: List[Tuple[str, str]], targets: List[str]) -> List[float]:
@@ -367,6 +373,63 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
     def _normalize(text: str) -> str:
         return str(text or "").strip().lower()
 
+    def _supervised_loss(self, logits: Any, labels: Any, targets: List[str]) -> Tuple[Any, Dict[str, float]]:
+        import torch
+        import torch.nn.functional as F
+
+        flat_loss = F.cross_entropy(
+            logits.reshape(-1, logits.size(-1)),
+            labels.reshape(-1),
+            ignore_index=-100,
+            reduction="none",
+        ).view(labels.shape)
+        supervised_mask = labels.ne(-100)
+        weights = torch.ones_like(flat_loss, dtype=flat_loss.dtype)
+
+        continuation_rows = 0
+        continuation_tokens = 0
+        if float(self.cfg.generation_continuation_loss_weight) > 1.0:
+            first_tokens = {str(x).strip().lower() for x in self.cfg.generation_continuation_first_tokens if str(x).strip()}
+            min_tokens = max(2, int(self.cfg.generation_continuation_min_target_tokens))
+            for row, target in enumerate(targets):
+                if row >= labels.size(0):
+                    break
+                words = re.findall(r"[A-Za-z0-9']+", str(target or "").lower())
+                if len(words) < min_tokens or not words or words[0] not in first_tokens:
+                    continue
+                idxs = torch.nonzero(supervised_mask[row], as_tuple=False).flatten()
+                if idxs.numel() <= 1:
+                    continue
+                cont = idxs[1:]
+                weights[row, cont] = float(self.cfg.generation_continuation_loss_weight)
+                continuation_rows += 1
+                continuation_tokens += int(cont.numel())
+
+        denom = (weights * supervised_mask.to(weights.dtype)).sum().clamp_min(1.0)
+        loss = (flat_loss * weights * supervised_mask.to(weights.dtype)).sum() / denom
+
+        eos_id = self.tokenizer.eos_token_id
+        pad_id = self.tokenizer.pad_token_id
+        supervised = int(supervised_mask.sum().detach().cpu().item())
+        eos_supervised = 0
+        pad_supervised = 0
+        if eos_id is not None:
+            eos_supervised = int(labels.eq(int(eos_id)).sum().detach().cpu().item())
+        if pad_id is not None:
+            pad_supervised = int(labels.eq(int(pad_id)).sum().detach().cpu().item())
+        metrics: Dict[str, float] = {
+            "train.target_supervision_guard_enabled": float(bool(self.cfg.target_supervision_guard_enabled)),
+            "train.supervised_eos_tokens": float(eos_supervised),
+            "train.supervised_pad_tokens": float(pad_supervised),
+            "train.continuation_loss_weight": float(self.cfg.generation_continuation_loss_weight),
+            "train.continuation_weighted_rows": float(continuation_rows),
+            "train.continuation_weighted_tokens": float(continuation_tokens),
+            "train.continuation_weighted_token_ratio": float(continuation_tokens / max(1, supervised)),
+        }
+        if bool(self.cfg.target_supervision_guard_enabled) and pad_supervised > 0:
+            raise ValueError("Seq2Seq target supervision guard failed: pad tokens are supervised in labels.")
+        return loss, metrics
+
 
 def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2SeqLMBackbone:
     hf_path = str(model_cfg.get("hf_model_name_or_path", "")).strip()
@@ -390,5 +453,9 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         debug_print_tokenized_examples=bool(model_cfg.get("debug_print_tokenized_examples", False)),
         debug_max_tokenized_examples=int(model_cfg.get("debug_max_tokenized_examples", 2)),
         activation_batch_size=int(model_cfg.get("activation_batch_size", 4)),
+        target_supervision_guard_enabled=bool(model_cfg.get("target_supervision_guard_enabled", False)),
+        generation_continuation_loss_weight=float(model_cfg.get("generation_continuation_loss_weight", 1.0)),
+        generation_continuation_first_tokens=tuple(model_cfg.get("generation_continuation_first_tokens", ["no", "yes", "i"])),
+        generation_continuation_min_target_tokens=int(model_cfg.get("generation_continuation_min_target_tokens", 4)),
     )
     return HFSeq2SeqLMBackbone(cfg, seed=seed)

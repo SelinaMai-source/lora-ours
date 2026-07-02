@@ -1,0 +1,171 @@
+experiment_name: citb_instrdialog_order1_seed1_ours_v33_smoke_strict
+mode: ours
+seed: 1
+strict_alignment:
+  status: smoke_from_v32_target_supervision_guard
+  blocker: ''
+  official_evidence: 'Keeps CITB/Tk-Instruct seq2seq prompt, target, decode, and scoring
+    protocol unchanged. V33 moves the task1714 fix from retry acceptance to training-time
+    target supervision: pad tokens stay masked, EOS remains supervised, and continuation
+    tokens after no/yes/i receive higher loss weight for open Dialogue Generation targets.'
+paths:
+  project_root: /root/lora-ours
+  raw_citb_root: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb
+  processed_task_order_file: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_tasks/order1.txt
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb
+  processed_stream_file: citb_instrdialog_order1_train500_dev50_test100_pos2_multiref_v28.json
+  results_dir: /root/lora-ours/results
+data:
+  suite: CITB
+  benchmark: InstrDialog-order1
+  stream_name: instrdialog
+  stream_format: unified_ccfa_stream
+  auto_prepare_processed: true
+  ready: true
+  processed_stream_train_instances_per_task: 500
+  processed_stream_dev_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 100
+  max_segments: 4
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  backbone: T5-small LM-adapted + 100 SuperNI init
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  base_model_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  format_style: citb_t5
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 1024
+  max_target_len: 128
+  gen_max_new_tokens: 128
+  gen_num_beams: 1
+  gen_min_new_tokens: 0
+  gen_do_sample: false
+  gen_no_repeat_ngram_size: 0
+  gen_encoder_no_repeat_ngram_size: 0
+  gen_repetition_penalty: 1.0
+  debug_print_formatted_examples: true
+  debug_print_tokenized_examples: true
+  debug_max_tokenized_examples: 1
+  target_supervision_guard_enabled: true
+  generation_continuation_loss_weight: 2.0
+  generation_continuation_first_tokens:
+  - 'no'
+  - 'yes'
+  - i
+  generation_continuation_min_target_tokens: 4
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+  - q
+  - v
+train:
+  lr: 1.0e-05
+  epochs_per_segment: 15
+  batch_size: 8
+  hard_early_stop_enabled: true
+  hard_early_stop_min_seen_avg: 0.1
+  early_stop_min_segment: 3
+  early_stop_min_task_aware_score: 0.1
+  ours_v10_early_stop: true
+  ours_v10_check_segments:
+  - 2
+  - 3
+  balanced_generation_sampling:
+    enabled: true
+    segment_name_patterns:
+    - task1714
+    - sentence_generation
+    buckets:
+    - 'no'
+    - 'yes'
+    - i
+    - other
+    max_total_multiplier: 1.5
+    downsample_majority: true
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+drift:
+  kalman_drift_enabled: true
+  kalman_process_var: 0.02
+  kalman_measure_var: 0.25
+  anchor_source: train
+  anchor_size: 64
+  anchor_candidate_pool_size: 256
+  calibration_window: 1
+  threshold: 0.005
+  probe_threshold_scale: 0.9
+  core_threshold_scale: 1.0
+assess_update:
+  isolated_energy_threshold: 0.12
+router:
+  routing_backend: prototype
+  training_strategy: learned_router
+  router_warmup_segments: 1
+  prototype_calibration: true
+  prototype_calibration_prior: 8.0
+  nll_arbitration: true
+  arbitration_margin: 0.2
+  arbitration_top_k: 2
+  spawn_sync_prototype_init: true
+  segment_anchor_prototype_refresh: true
+  anchor_prototype_refresh_beta: 0.35
+  prototype_update_steps: 2
+  margin_filter_min_gap: 0.005
+  task_aware_fallback: true
+  task_aware_fallback_force_assigned: true
+  task_aware_fallback_min_confidence: 0.78
+  task_aware_fallback_min_margin: 0.18
+  force_active_branch_on_spawn_segment: true
+  oracle_pll_recalibrate: true
+  oracle_pll_min_agreement: 0.5
+  oracle_pll_bonus_steps: 1
+spectral_replay:
+  enabled: true
+  buffer_size: 768
+  replay_ratio: 0.2
+  min_replay_per_segment: 8
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
+overlap:
+  beta: 0.12
+eval_normalization:
+  enable_task_aware_score: true
+  task_score_metric: auto_official
+  task_score_match_threshold: 0.35
+  auto_short_answer_max_new_tokens: false
+  enable_segment_min_new_tokens: false
+  enable_bucket_collapse_retry: false
+  debug_examples_per_segment: 25
+  debug_examples_max_total: 100
+output:
+  run_name: citb_instrdialog_order1_seed1_ours_v33_smoke_strict
+  tracking:
+    use_wandb: true
+    wandb_project: lora-ours-v33
+    wandb_group: ccfa_citb_strict_ours_v33_smoke
+    wandb_mode: online
+    wandb_tags:
+    - ccfa_v2
+    - citb
+    - strict-smoke
+    - ours_v33
+    - target-supervision-guard
+paper:
+  strict_ready: false
+  status: smoke_pending
+  method_variant: ours_v33_target_supervision_guard
+  metrics:
+  - official max-over-reference ROUGE-L task-aware score
+  - exact-match classification health
+  - current-task generation effectiveness
+  notes: 'Smoke run after v32 audit: task1714 targets are short open Dialogue Generation
+    responses, not labels; training labels are target-only with no target-length truncation.
+    V33 disables the brittle bucket-collapse retry and adds target supervision guard
+    metrics plus continuation-token weighting for no/yes/i generation targets.'

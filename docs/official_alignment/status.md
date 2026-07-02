@@ -4,7 +4,7 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v32-prompt-copy-resistant-retry`.
+- Active branch: `ours-v33-target-supervision-guard`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -25,6 +25,9 @@ Updated: 2026-07-02
 - W&B: project `lora-ours-v32`, run `fqjw2qzb`.
 - Monitor: status file `results/logs/ours_v32_strict_status.md`.
 - Decision: v32 keeps segment2 healthy but still improves task1714 by accepting prompt-template variants (`Now finish...`, `This is a concatenated...`). Do not launch full strict. Next step should move away from denylist-only retry acceptance toward a training-time generation supervision fix or a more principled official-compatible decode objective.
+- Current v33 smoke candidate: `citb_instrdialog_order1_seed1_ours_v33_smoke_strict`.
+- W&B: project `lora-ours-v33`.
+- Monitor: status file `results/logs/ours_v33_strict_status.md`.
 
 ## Evidence
 
@@ -54,7 +57,8 @@ Updated: 2026-07-02
 - v31 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.3433333333333333`). Segment3 retry triggered `99` times and accepted `94`, raising segment3 task-aware from `0.08` to `0.12` and final task-aware AR from `0.275` to `0.285`. However, current debug still started `25/25` with `no`; many accepted continuations were prompt-template artifacts such as `no Now complete the following example - Input...` or diagnostic-looking text such as `no if so. This is a concatenated string...`. This is not healthy enough for full strict.
 - v32 audit and small-step change: official Tk-Instruct decodes predictions with `skip_special_tokens=True` and scores the decoded prediction directly; there is no answer-only truncation that would turn `no Now complete...` into `no`. `task1714_convai3_sentence_generation` is open `Dialogue Generation` (`2295` outputs, `1959` unique normalized outputs, only `233` exact bare `yes`/`no`/`i`), so it is not a closed classification label set and no classification verbalizer/constrained label decoding was used. V32 kept scoring unchanged and made the retry prompt-copy resistant with retry-only bad-word blocking plus stricter template rejection.
 - v32 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.37`). Segment3 final task-aware stayed at `0.12` and final task-aware AR stayed `0.28500000000000003`; retry accepted count fell from v31 `94` to v32 `82`, but current debug still started `25/25` with `no`. Broad debug audit found `13/25` accepted current outputs were still template/definition variants such as `no Now finish the following sentence`, `no Now finish the following form`, and `no if so. This is a concatenated`. Do not launch full strict.
+- v33 audit before smoke: core seq2seq labels are tokenized from target only via `text_target`, pad is masked to `-100`, EOS is present in T5 target labels, and task1714 targets are not truncated (`max target tokens=31` vs `max_target_len=128`). Raw task1714 has no multi-reference instances; processed train has `500` examples, `434` unique normalized targets, no prompt-template targets, and only `53/500` exact bare `yes/no/i`. V33 disables the brittle bucket-collapse retry and adds training-time target supervision guard metrics plus continuation-token loss weighting for `no/yes/i` open-generation targets (`369/500` task1714 train rows affected).
 
 ## Next Step
 
-Do not launch full strict from v32. The next step should not rely on a larger prompt-template denylist alone; v32 showed the model can substitute nearby template variants. Prefer a training-time generation supervision fix, or a principled official-compatible decode objective that improves task1714 without accepting prompt-template/definition continuations, while keeping segment2 task-aware near `0.29`.
+Run v33 smoke only. Do not launch full strict unless segment2 stays healthy near `0.29` task-aware and segment3 improves without bucket-collapse retry acceptance or prompt-template continuations.
