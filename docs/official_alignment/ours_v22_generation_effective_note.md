@@ -32,3 +32,16 @@ This is an implementation and experiment-control note. It does not claim SOTA.
   - Current-task predictions should stop predominantly copying or restating the input question.
   - Segment 2 `current_task_aware_score` should clear the configured early gate before any full strict run is considered.
 - Full strict CITB remains blocked unless smoke proves generation effectiveness. Smoke results must not be reported as SOTA.
+
+## Smoke Result
+
+- 2026-07-02 local: v22 smoke `citb_instrdialog_order1_seed1_ours_v22_smoke_strict` completed the 4-segment strict-smoke run and synced to W&B project `lora-ours-v22`, run `k9wnkwza`.
+- The v22 branch-training fix worked as intended:
+  - Segment 1 spawned `b1` and trained all routed examples on `b1`: `routed_train_force_active_on_spawn_segment=true`, `routed_train_forced_active_branch=b1`.
+  - Segment 2 spawned `b2` and trained all routed examples on `b2`: `routed_train_branch_counts_json={"b2": 564}`, `task_aware_fallback_assignment_after_proto=b2`.
+  - Segment 2 router state preserved task mapping `{"0": "b0", "1": "b1", "2": "b2"}` and eval routed the current task to `b2=20/20` in debug examples.
+- The generation gate still failed:
+  - Segment 2: `current_score=0.0`, `current_task_aware_score=0.05`, `seen_avg_score=0.19333333333333333`.
+  - Final segment 3: `current_score=0.0`, `current_task_aware_score=0.05`, `seen_avg_score=0.145`, `seen_avg_task_aware_score=0.16749999999999998`.
+- Current-task segment 2 predictions remained non-empty but question-like/input-copying after training on `b2`, e.g. `Is it stressful all the time?`, `Will you be around for a while?`, and `You are given a question`, while gold outputs were answer utterances.
+- Diagnosis: v22 rules out eval routing collapse, label reversal, empty generation, and stale old-branch training as the primary cause. The remaining failure is generation behavior under the current seq2seq training/generation setup for answer-generation tasks. Do not launch v22 full strict.
