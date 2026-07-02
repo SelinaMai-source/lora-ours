@@ -8,6 +8,7 @@ Distinct from uniform replay (Replay LoRA) and prompt-pool methods (PP).
 from __future__ import annotations
 
 import random
+import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -22,6 +23,7 @@ class _ReplayItem:
     input_text: str
     target: str
     segment_id: int
+    segment_name: str = ""
 
 
 class SpectralSparseReplayGate:
@@ -48,6 +50,7 @@ class SpectralSparseReplayGate:
           input_text=ex.input,
           target=ex.output,
           segment_id=segment.segment_id,
+          segment_name=segment.segment_name,
         )
       )
     if len(self._buffer) > self.buffer_size:
@@ -112,6 +115,65 @@ class SpectralSparseReplayGate:
     self._last_metrics = metrics
     return aug, metrics
 
+  def retrieve_dialogue_examples(
+    self,
+    segment: Segment,
+    *,
+    name_patterns: Sequence[str],
+    max_examples: int,
+    min_overlap: int = 1,
+    speaker_prefixes: Sequence[str] = ("agent", "customer"),
+  ) -> Tuple[List[Example], Dict[str, Any]]:
+    """Retrieve previously seen dialogue-style replay examples for train-only warmup."""
+    metrics: Dict[str, Any] = {
+      "dialogue_replay_buffer_size": len(self._buffer),
+      "dialogue_replay_candidates": 0,
+      "dialogue_replay_selected": 0,
+      "dialogue_replay_mean_score": 0.0,
+    }
+    if not self._buffer or max_examples <= 0:
+      return [], metrics
+
+    compiled = [re.compile(str(p), flags=re.IGNORECASE) for p in name_patterns if str(p).strip()]
+    prefixes = tuple(str(p).strip().lower() for p in speaker_prefixes if str(p).strip())
+    query_terms = set()
+    for ex in segment.train[:64]:
+      query_terms.update(_word_set(ex.input))
+      query_terms.update(_word_set(ex.instruction))
+
+    scored: List[Tuple[float, int, _ReplayItem]] = []
+    for pos, item in enumerate(self._buffer):
+      target = str(item.target or "").strip()
+      if prefixes and not target.lower().startswith(prefixes):
+        continue
+      if compiled and not any(p.search(item.segment_name) for p in compiled):
+        continue
+      item_terms = _word_set(item.input_text) | _word_set(item.target)
+      overlap = len(query_terms & item_terms)
+      if overlap < int(min_overlap):
+        continue
+      # Favor lexical relevance but keep longer dialogue targets ahead of generic replies.
+      score = float(overlap) + min(40, len(target.split())) / 100.0
+      scored.append((score, -pos, item))
+
+    metrics["dialogue_replay_candidates"] = int(len(scored))
+    if not scored:
+      return [], metrics
+    scored.sort(key=lambda row: (row[0], row[1]), reverse=True)
+    selected = [item for _, _, item in scored[:max_examples]]
+    examples = [
+      Example(
+        instruction=it.instruction,
+        input=it.input_text,
+        output=it.target,
+        output_references=(it.target,),
+      )
+      for it in selected
+    ]
+    metrics["dialogue_replay_selected"] = int(len(examples))
+    metrics["dialogue_replay_mean_score"] = float(sum(row[0] for row in scored[:max_examples]) / max(1, len(examples)))
+    return examples, metrics
+
   def _spectral_gate_select(
     self,
     *,
@@ -164,3 +226,7 @@ class SpectralSparseReplayGate:
     self._last_metrics["ssrg_spectral_rank"] = rank
     top = [it for _, it in scores[:k]]
     return top
+
+
+def _word_set(text: str) -> set[str]:
+  return set(re.findall(r"[a-z0-9']+", str(text or "").lower()))

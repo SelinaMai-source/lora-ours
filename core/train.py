@@ -860,6 +860,18 @@ def run_ours(
                     set_adapter_vector(lora, target, target_vec + assessment["residual_vec"].to(target_vec.device))
                     logger.log(f"Merged remaining isolated subspace into {target}.")
 
+            warmup_metrics = _maybe_train_dialogue_replay_warmup(
+                segment=seg_train,
+                model=backbone,
+                lora=lora,
+                lora_bank=lora_bank,
+                spectral_replay=spectral_replay,
+                train_cfg=train_cfg,
+                lr=lr,
+                batch_size=batch_size,
+                logger=logger,
+            )
+
             # Route per example (hard routing); switch adapter before fit
             train_metrics = _train_with_router(
                 segment=seg_train,
@@ -876,6 +888,8 @@ def run_ours(
                 prev_eval_metrics=last_eval_metrics,
                 train_cfg=train_cfg,
             )
+            if warmup_metrics:
+                train_metrics.update(warmup_metrics)
             refresh_metrics = _maybe_refresh_segment_prototypes_from_anchors(
                 router=router,
                 model=backbone,
@@ -1287,6 +1301,87 @@ def _train_on_active_branch(
         metrics["anti_overlap_steps"] = int(overlap_steps)
     if supervision_metric_steps > 0:
         metrics.update({k: v / float(supervision_metric_steps) for k, v in supervision_metric_sums.items()})
+    return metrics
+
+
+def _maybe_train_dialogue_replay_warmup(
+    *,
+    segment: Segment,
+    model: Any,
+    lora: Any,
+    lora_bank: LoRABank,
+    spectral_replay: Optional[SpectralSparseReplayGate],
+    train_cfg: Dict[str, Any],
+    lr: float,
+    batch_size: int,
+    logger: SimpleLogger,
+) -> Dict[str, Any]:
+    cfg = train_cfg.get("dialogue_replay_warmup", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return {}
+    patterns = cfg.get("segment_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    segment_name = str(segment.segment_name or "")
+    if patterns and not any(re.search(str(p), segment_name, flags=re.IGNORECASE) for p in patterns):
+        return {}
+    if spectral_replay is None or not hasattr(spectral_replay, "retrieve_dialogue_examples"):
+        return {}
+
+    replay_patterns = cfg.get("replay_segment_name_patterns", ["task1714", "task565", "dialogue", "generation"])
+    if isinstance(replay_patterns, str):
+        replay_patterns = [replay_patterns]
+    prefixes = cfg.get("speaker_prefixes", ["agent", "customer"])
+    if isinstance(prefixes, str):
+        prefixes = [prefixes]
+    examples, retrieval_metrics = spectral_replay.retrieve_dialogue_examples(
+        segment,
+        name_patterns=replay_patterns,
+        max_examples=max(0, int(cfg.get("max_examples", 96))),
+        min_overlap=max(0, int(cfg.get("min_input_overlap", 1))),
+        speaker_prefixes=prefixes,
+    )
+
+    active_branch = lora_bank.get_active_branch()
+    metrics: Dict[str, Any] = {
+        "dialogue_replay_warmup_enabled": True,
+        "dialogue_replay_warmup_branch": active_branch,
+        **{f"dialogue_replay_warmup.{k}": v for k, v in retrieval_metrics.items()},
+    }
+    if not examples:
+        logger.log(f"Dialogue replay warmup skipped: {json.dumps(metrics, ensure_ascii=False)}")
+        return metrics
+
+    if active_branch in lora.list_adapters():
+        lora_bank.unfreeze_branch(active_branch)
+        lora.set_active_adapter(active_branch)
+    warmup_segment = Segment(
+        segment_id=segment.segment_id,
+        segment_name=f"{segment.segment_name}_dialogue_replay_warmup",
+        train=examples,
+        eval=[],
+    )
+    train_metrics = _train_on_active_branch(
+        segment=warmup_segment,
+        model=model,
+        lora=lora,
+        lora_bank=lora_bank,
+        lr=float(lr) * float(cfg.get("lr_scale", 0.75)),
+        epochs=max(1, int(cfg.get("epochs", 1))),
+        batch_size=max(1, int(cfg.get("batch_size", batch_size))),
+        use_overlap=False,
+        beta=0.0,
+        overlap_cfg={},
+    )
+    metrics.update(
+        {
+            "dialogue_replay_warmup_examples": int(len(examples)),
+            "dialogue_replay_warmup_batches": int(train_metrics.get("batches", 0)),
+            "dialogue_replay_warmup_loss": float(train_metrics.get("train.loss", 0.0)),
+            "dialogue_replay_warmup_answer_token_acc": float(train_metrics.get("train.answer_token_acc", 0.0)),
+        }
+    )
+    logger.log(f"Dialogue replay warmup: {json.dumps(metrics, ensure_ascii=False)}")
     return metrics
 
 

@@ -68,6 +68,9 @@ Updated: 2026-07-03
 - Current v42 smoke candidate: `citb_instrdialog_order1_seed1_ours_v42_smoke_strict`.
 - Decision pending: v42 removes v41 eval-time target prototype conditioning and keeps official eval prompts unchanged. The small-step change is training-only target-term emphasis: content words from speaker-prefixed Dialogue targets are matched as tokenizer subtoken spans before weighting supervised target loss, so multi-token entities/numbers such as airline names, fare values, and flight IDs can receive the existing content loss.
 - v42 launch: started 2026-07-03 in tmux session `ours-v42-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v42`, run `e51hqin7`; monitor status is `results/logs/ours_v42_strict_status.md`.
+- v42 smoke result: five-segment smoke completed. It confirms the clean no-leakage replacement path (`eval_normalization.target_prototype_conditioning.enabled=false`) but does not break task574: final task-aware trajectory was `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, exact AR `0.158`, and task574 stayed at task-aware `0.03`. Task574 debug outputs were real speaker-prefixed sentences and routed to `b4`, but remained generic flight-service templates (`agent: No, we are here to assist you.`, `customer: No, no flight found with my details.`) rather than slot/content-specific turns.
+- Current v43 smoke candidate: `citb_instrdialog_order1_seed1_ours_v43_smoke_strict`.
+- Decision pending: v43 keeps v42 evaluation clean and avoids another loss-weight-only change. It adds a train-only dialogue replay warmup for task574/air-dialogue adapters, retrieving previously seen speaker-prefixed generation examples from the allowed replay buffer before current-task fitting. This tests broader generation-task transfer without inserting train targets into eval prompts.
 
 ## Evidence
 
@@ -107,4 +110,4 @@ Updated: 2026-07-03
 
 ## Next Step
 
-Run `citb_instrdialog_order1_seed1_ours_v42_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
+Run `citb_instrdialog_order1_seed1_ours_v43_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
