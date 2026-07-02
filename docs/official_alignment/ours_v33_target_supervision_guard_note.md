@@ -34,3 +34,22 @@ Do not launch full strict unless v33 smoke verifies:
 - Segment2 remains healthy near the v32 task-aware score (`0.29`).
 - Segment3 improves without bucket-collapse retry acceptance.
 - Current task1714 debug outputs stop collapsing to bare `no` or prompt-template continuations.
+
+## V33 Smoke Result
+
+- Run: `citb_instrdialog_order1_seed1_ours_v33_smoke_strict`.
+- W&B: project `lora-ours-v33`, run `dehi1o9s`.
+- Segment2 stayed close to the v32 health gate:
+  - current task-aware score: `0.28` (v32 was `0.29`).
+  - seen task-aware after segment2: `0.33666666666666667`.
+- Target supervision guard behaved as intended:
+  - task1714 train logged `train.supervised_pad_tokens=0.0`.
+  - task1714 train logged `train.supervised_eos_tokens=8.0`.
+  - task1714 train logged `train.continuation_weighted_token_ratio=0.6446727978525381`.
+- Segment3 did not pass:
+  - current exact score: `0.06`.
+  - current task-aware score: `0.08`.
+  - final task-aware AR: `0.2725`.
+  - no bucket-collapse retry was enabled, so v33 removes v32's retry-assisted lift and exposes that continuation-token weighting alone is not enough.
+
+Conclusion: do not launch full strict. The next step should directly audit free-running vs teacher-forced behavior on trained task1714 `b3` and try a stronger generation sequence objective or focused length calibration.

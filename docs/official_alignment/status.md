@@ -26,8 +26,10 @@ Updated: 2026-07-02
 - Monitor: status file `results/logs/ours_v32_strict_status.md`.
 - Decision: v32 keeps segment2 healthy but still improves task1714 by accepting prompt-template variants (`Now finish...`, `This is a concatenated...`). Do not launch full strict. Next step should move away from denylist-only retry acceptance toward a training-time generation supervision fix or a more principled official-compatible decode objective.
 - Current v33 smoke candidate: `citb_instrdialog_order1_seed1_ours_v33_smoke_strict`.
-- W&B: project `lora-ours-v33`.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v33_smoke_strict`.
+- W&B: project `lora-ours-v33`, run `dehi1o9s`.
 - Monitor: status file `results/logs/ours_v33_strict_status.md`.
+- Decision: v33 confirms target-only supervision guard works, but continuation weighting alone does not fix task1714. Do not launch full strict.
 
 ## Evidence
 
@@ -58,7 +60,8 @@ Updated: 2026-07-02
 - v32 audit and small-step change: official Tk-Instruct decodes predictions with `skip_special_tokens=True` and scores the decoded prediction directly; there is no answer-only truncation that would turn `no Now complete...` into `no`. `task1714_convai3_sentence_generation` is open `Dialogue Generation` (`2295` outputs, `1959` unique normalized outputs, only `233` exact bare `yes`/`no`/`i`), so it is not a closed classification label set and no classification verbalizer/constrained label decoding was used. V32 kept scoring unchanged and made the retry prompt-copy resistant with retry-only bad-word blocking plus stricter template rejection.
 - v32 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.37`). Segment3 final task-aware stayed at `0.12` and final task-aware AR stayed `0.28500000000000003`; retry accepted count fell from v31 `94` to v32 `82`, but current debug still started `25/25` with `no`. Broad debug audit found `13/25` accepted current outputs were still template/definition variants such as `no Now finish the following sentence`, `no Now finish the following form`, and `no if so. This is a concatenated`. Do not launch full strict.
 - v33 audit before smoke: core seq2seq labels are tokenized from target only via `text_target`, pad is masked to `-100`, EOS is present in T5 target labels, and task1714 targets are not truncated (`max target tokens=31` vs `max_target_len=128`). Raw task1714 has no multi-reference instances; processed train has `500` examples, `434` unique normalized targets, no prompt-template targets, and only `53/500` exact bare `yes/no/i`. V33 disables the brittle bucket-collapse retry and adds training-time target supervision guard metrics plus continuation-token loss weighting for `no/yes/i` open-generation targets (`369/500` task1714 train rows affected).
+- v33 smoke result: segment2 remained near healthy (`current_task_aware_score=0.28`, vs v32 `0.29`) and the supervision guard logged `train.supervised_pad_tokens=0.0`, `train.supervised_eos_tokens=8.0`, and continuation weighting active on task1714 (`train.continuation_weighted_token_ratio=0.6447`). Segment3 failed the gate without retry: `current_task_aware_score=0.08`, final task-aware AR `0.2725`, below v32 retry-assisted `0.12` / `0.285`. This rules out simple continuation-token reweighting as sufficient.
 
 ## Next Step
 
-Run v33 smoke only. Do not launch full strict unless segment2 stays healthy near `0.29` task-aware and segment3 improves without bucket-collapse retry acceptance or prompt-template continuations.
+Do not launch full strict from v33. The next iteration should keep retry disabled for diagnosis and target a stronger training-time sequence behavior fix, likely by directly auditing task1714 teacher-forced vs free-running generation on the trained `b3` branch and then trying a focused overfit/length-calibration objective before another full smoke.
