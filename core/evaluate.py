@@ -619,14 +619,28 @@ def _eval_segment(
             elif hasattr(lora_bank, "set_active_adapter"):
                 lora_bank.set_active_adapter(decision.branch_name)
             
-            preds.extend(
-                _generate_with_optional_min_new_tokens(
-                    model,
-                    [p],
-                    max_new_tokens=effective_max_new_tokens,
-                    min_new_tokens=effective_min_new_tokens,
-                )
+            generated = _generate_with_optional_min_new_tokens(
+                model,
+                [p],
+                max_new_tokens=effective_max_new_tokens,
+                min_new_tokens=effective_min_new_tokens,
+            )[0]
+            generated, collapse_retry_detail = _maybe_retry_bucket_collapse_generation(
+                model,
+                prompt=p,
+                prediction=generated,
+                segment_name=segment.segment_name,
+                max_new_tokens=effective_max_new_tokens,
+                normalization_cfg=normalization_cfg,
             )
+            if collapse_retry_detail:
+                routing_details[-1].update(collapse_retry_detail)
+                routing_stats["bucket_collapse_retry_count"] = routing_stats.get("bucket_collapse_retry_count", 0) + 1
+                if collapse_retry_detail.get("bucket_collapse_retry_accepted"):
+                    routing_stats["bucket_collapse_retry_accepted_count"] = (
+                        routing_stats.get("bucket_collapse_retry_accepted_count", 0) + 1
+                    )
+            preds.append(generated)
             
             # Clear soft routing
             if getattr(router, "soft_routing", False) and hasattr(lora_bank, "set_soft_routing"):
@@ -880,6 +894,77 @@ def _generate_with_optional_min_new_tokens(
         return model.generate(prompts, max_new_tokens=max_new_tokens, min_new_tokens=int(min_new_tokens))
     except TypeError:
         return model.generate(prompts, max_new_tokens=max_new_tokens)
+
+
+def _maybe_retry_bucket_collapse_generation(
+    model: Any,
+    *,
+    prompt: str,
+    prediction: str,
+    segment_name: str,
+    max_new_tokens: int,
+    normalization_cfg: Dict[str, Any],
+) -> Tuple[str, Dict[str, Any]]:
+    if not bool(normalization_cfg.get("enable_bucket_collapse_retry", False)):
+        return prediction, {}
+    patterns = normalization_cfg.get("bucket_collapse_retry_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    name = str(segment_name or "")
+    if patterns and not any(re.search(str(pattern), name, flags=re.IGNORECASE) for pattern in patterns):
+        return prediction, {}
+
+    tokens = normalization_cfg.get("bucket_collapse_retry_tokens", ["no", "yes", "i"])
+    if isinstance(tokens, str):
+        tokens = [tokens]
+    collapse_tokens = {str(token).strip().lower() for token in tokens if str(token).strip()}
+    words = _prediction_words(prediction)
+    if len(words) != 1 or words[0] not in collapse_tokens:
+        return prediction, {}
+
+    retry_min_new_tokens = int(normalization_cfg.get("bucket_collapse_retry_min_new_tokens", 6))
+    retry_min_new_tokens = max(1, min(int(max_new_tokens), retry_min_new_tokens))
+    retry_prediction = _generate_with_optional_min_new_tokens(
+        model,
+        [prompt],
+        max_new_tokens=max_new_tokens,
+        min_new_tokens=retry_min_new_tokens,
+    )[0]
+    retry_words = _prediction_words(retry_prediction)
+    min_accept_tokens = int(normalization_cfg.get("bucket_collapse_retry_min_accept_tokens", 2))
+    accepted = (
+        len(retry_words) >= max(2, min_accept_tokens)
+        and retry_words[0] == words[0]
+        and not _looks_like_prompt_template_continuation(retry_words)
+    )
+    detail = {
+        "bucket_collapse_retry_triggered": True,
+        "bucket_collapse_retry_token": words[0],
+        "bucket_collapse_retry_min_new_tokens": retry_min_new_tokens,
+        "bucket_collapse_retry_output": retry_prediction,
+        "bucket_collapse_retry_accepted": bool(accepted),
+    }
+    return (retry_prediction if accepted else prediction), detail
+
+
+def _prediction_words(text: str) -> List[str]:
+    normalized = re.sub(r"[^a-z0-9]+", " ", str(text or "").strip().lower())
+    return [w for w in normalized.split() if w]
+
+
+def _looks_like_prompt_template_continuation(words: List[str]) -> bool:
+    if not words:
+        return False
+    template_starts = {
+        "definition",
+        "input",
+        "output",
+        "positive",
+        "negative",
+        "example",
+        "now",
+    }
+    return words[0] in template_starts
 
 
 def _resolve_eval_max_new_tokens(

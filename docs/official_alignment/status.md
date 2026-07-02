@@ -4,9 +4,9 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v30-task1714-balanced-assigned-branch`.
+- Active branch: `ours-v31-task1714-bucket-collapse-retry`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
-- Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
+- Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v30_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
 - W&B: project `lora-ours-v28`, run `fvdftnlw`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v29_smoke_strict`.
@@ -15,7 +15,10 @@ Updated: 2026-07-02
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v29_fixed_smoke_strict`.
 - W&B: project `lora-ours-v29-fixed`, run `89farydc`.
 - Monitor: status file `results/logs/ours_v29_fixed_strict_status.md`.
-- Decision: v29-fixed confirmed the bucket parsing fix and balanced sampling activation, but segment3 still failed. Do not launch full strict. Launch v30 smoke to test balanced-branch eval alignment.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v30_smoke_strict`.
+- W&B: project `lora-ours-v30`, run `y0hcae3k`.
+- Monitor: status file `results/logs/ours_v30_strict_status.md`.
+- Decision: v30 confirmed assigned-branch eval alignment, but segment3 still failed via single-token generation collapse. Do not launch full strict. Launch v31 smoke to test config-gated bucket-collapse retry.
 
 ## Evidence
 
@@ -40,7 +43,9 @@ Updated: 2026-07-02
 - v29 smoke result: segment2 stayed healthy at `0.29` task-aware, but segment3 stayed at `0.08` task-aware and current debug remained `25/25` pure `no`. The metric mapping fix worked and prompt-template continuations disappeared, but balanced sampling was misconfigured because YAML parsed unquoted `no` / `yes` buckets as booleans; a follow-up fix quotes the values and maps YAML booleans defensively.
 - v29-fixed smoke result: bucket parsing and balanced sampling are now active for `task1714_convai3_sentence_generation`; train metrics recorded original buckets `{"i": 80, "no": 250, "other": 57, "yes": 113}` and balanced buckets `{"i": 188, "no": 188, "other": 188, "yes": 188}`. Segment2 remained healthy at `0.29` task-aware, but segment3 stayed blocked at `0.08` task-aware with `25/25` current debug predictions still raw `no`. Current debug routed mostly to old `b2` (`b2=20`, `b3=5`) even though `b3` received balanced segment3 training.
 - v30 small-step change: keep v29-fixed scoring/data/sampling and restore `router.task_aware_fallback_force_assigned=true`, so task1714 eval is aligned to the freshly balanced segment branch instead of low-margin prompt-NLL routing back to older branches.
+- v30 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.3433333333333333`). Segment3 training used balanced sampling on `b3` and preserved assignment after prototype refresh; `segment_branch_map` ended as `{"0": "b0", "1": "b1", "2": "b2", "3": "b3"}`. Current task debug routed `24/25` task1714 examples to `b3`, proving eval no longer fell back to old `b2`; however, current debug still generated `25/25` raw `no`, and final segment3 task-aware stayed `0.08`.
+- v31 small-step change: keep v30 routing/sampling and add a label-free, config-gated eval retry only for task1714/sentence_generation when greedy decoding collapses to a single bucket token (`no`/`yes`/`i`). The retry is accepted only if it begins with the same bucket token and produces a longer non-template continuation.
 
 ## Next Step
 
-Do not launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v29_strict.yaml`. Launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v30_smoke_strict.yaml` first. If v30 still produces `25/25` pure `no`, move to segment-local generation supervision diagnostics rather than more routing-only changes.
+Do not launch full strict from v30. Launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v31_smoke_strict.yaml` first. The v31 gate must show segment2 health is preserved, task1714 current debug is no longer `25/25` raw `no`, and segment3 current task-aware improves over `0.08` before preparing a full strict run.
