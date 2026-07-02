@@ -4,7 +4,7 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v34-task-learnability-calibration`.
+- Active branch: `ours-v35-adapter-dynamics-calibration`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -36,6 +36,8 @@ Updated: 2026-07-02
 - Decision pending: v34 uses train-target length prior plus deterministic beam generation for sentence-generation tasks, with scoring unchanged and bucket-collapse retry still disabled.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v34_smoke_strict`.
 - v34 smoke result: segment matrix task-aware `[0.44, 0.29, 0.28, 0.12]`; final task-aware AR `0.2825`, BWT `-0.0067`. Segment2 stayed near healthy (`0.28`). Segment3 improved from v33 `0.08` to `0.12` without retry, matching v31/v32 retry-assisted levels. Generation calibration broke bare `no` collapse (`0/25` current debug bare `yes/no/i`), but outputs shifted to `if...` continuations with `0/25` prefix-1 match. Do not launch full strict.
+- Current v35 smoke candidate: `citb_instrdialog_order1_seed1_ours_v35_smoke_strict`.
+- Decision pending: v35 keeps v34 scoring/generation calibration and changes adapter dynamics only: train LoRA A, switch seq2seq LoRA optimization to AdamW, increase rank to 32, add attention `k/o` targets, and disable ODE rectification for this run.
 
 ## Evidence
 
@@ -72,4 +74,4 @@ Updated: 2026-07-02
 
 ## Next Step
 
-Do not launch full strict on v34. Next iteration should focus on why seq2seq LoRA overfit does not improve teacher-forced accuracy under the current adapter update path, rather than further decode-only calibration.
+Do not launch full strict on v34. Run v35 smoke and gate on segment2 staying healthy plus task1714 exceeding the v34 `0.12` task-aware level without returning to bare-token or prompt-template collapse.

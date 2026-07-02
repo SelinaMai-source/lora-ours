@@ -21,6 +21,10 @@ class LoRAConfig:
     dropout: float = 0.0
     # PEFT accepts a list of module names or strings like "all-linear".
     target_modules: Optional[Union[str, List[str]]] = None
+    train_lora_a: bool = False
+    optimizer: str = "sgd"
+    weight_decay: float = 0.0
+    ode_rectification_enabled: bool = True
 
 
 class LoRAWrapper:
@@ -94,8 +98,7 @@ class LoRAWrapper:
             for param_name, param in self.peft_model.named_parameters():
                 if "lora_" in param_name:
                     if "lora_A" in param_name:
-                        # Freeze lora_A so all branches strictly share the same projection basis
-                        param.requires_grad = False
+                        param.requires_grad = bool(self.cfg.train_lora_a) and (name in param_name) and (name not in self._frozen_adapters)
                     else:
                         param.requires_grad = (name in param_name) and (name not in self._frozen_adapters)
                 else:
@@ -390,59 +393,60 @@ class LoRAWrapper:
         self._optimizer.step()
         self._optimizer.zero_grad(set_to_none=True)
         
-        # 2. ODE Rectification
-        with torch.no_grad():
-            # Group parameters by layer to find matching A and B matrices
-            lora_A_params = {n: p for n, p in lora_named_params if "lora_A" in n}
-            lora_B_params = {n: p for n, p in lora_named_params if "lora_B" in n}
-            
-            for name_A, p_A in lora_A_params.items():
-                name_B = name_A.replace("lora_A", "lora_B")
-                if name_B in lora_B_params:
-                    p_B = lora_B_params[name_B]
-                    
-                    # Find original weights
-                    b_A = next(b for (n, _), b in zip(lora_named_params, before) if n == name_A)
-                    b_B = next(b for (n, _), b in zip(lora_named_params, before) if n == name_B)
-                    
-                    # Calculate unrectified updates
-                    delta_A = p_A - b_A
-                    delta_B = p_B - b_B
-                    
-                    # ODE Rectification formula (simplified Euler step for geodesic flow)
-                    # We want to adjust delta_A and delta_B such that they are orthogonal
-                    # to the historical subspace. A simple and robust way to approximate this
-                    # without crashing (like the previous agent) is to project the updates
-                    # onto the orthogonal complement of the current weights.
-                    
-                    # Compute projections
-                    # For A (shape r x d_in): project rows of delta_A onto orthogonal complement of rows of b_A
-                    # delta_A_rect = delta_A - delta_A * b_A^T * (b_A * b_A^T + eps)^-1 * b_A
-                    eps = 1e-6
-                    b_A_flat = b_A.view(b_A.shape[0], -1)
-                    delta_A_flat = delta_A.view(delta_A.shape[0], -1)
-                    A_cov = torch.matmul(b_A_flat, b_A_flat.T) + eps * torch.eye(b_A_flat.shape[0], device=b_A_flat.device)
-                    try:
-                        A_cov_inv = torch.linalg.inv(A_cov)
-                        proj_A_flat = torch.matmul(torch.matmul(torch.matmul(delta_A_flat, b_A_flat.T), A_cov_inv), b_A_flat)
-                        rectified_delta_A = (delta_A_flat - 0.5 * proj_A_flat).view_as(delta_A)
-                    except RuntimeError:
-                        rectified_delta_A = delta_A
+        if bool(self.cfg.ode_rectification_enabled):
+            # 2. ODE Rectification
+            with torch.no_grad():
+                # Group parameters by layer to find matching A and B matrices
+                lora_A_params = {n: p for n, p in lora_named_params if "lora_A" in n}
+                lora_B_params = {n: p for n, p in lora_named_params if "lora_B" in n}
+                
+                for name_A, p_A in lora_A_params.items():
+                    name_B = name_A.replace("lora_A", "lora_B")
+                    if name_B in lora_B_params:
+                        p_B = lora_B_params[name_B]
                         
-                    # For B (shape d_out x r): project columns of delta_B onto orthogonal complement of columns of b_B
-                    b_B_flat = b_B.view(-1, b_B.shape[-1])
-                    delta_B_flat = delta_B.view(-1, delta_B.shape[-1])
-                    B_cov = torch.matmul(b_B_flat.T, b_B_flat) + eps * torch.eye(b_B_flat.shape[-1], device=b_B_flat.device)
-                    try:
-                        B_cov_inv = torch.linalg.inv(B_cov)
-                        proj_B_flat = torch.matmul(b_B_flat, torch.matmul(B_cov_inv, torch.matmul(b_B_flat.T, delta_B_flat)))
-                        rectified_delta_B = (delta_B_flat - 0.5 * proj_B_flat).view_as(delta_B)
-                    except RuntimeError:
-                        rectified_delta_B = delta_B
+                        # Find original weights
+                        b_A = next(b for (n, _), b in zip(lora_named_params, before) if n == name_A)
+                        b_B = next(b for (n, _), b in zip(lora_named_params, before) if n == name_B)
                         
-                    # Apply rectified updates
-                    p_A.copy_(b_A + rectified_delta_A)
-                    p_B.copy_(b_B + rectified_delta_B)
+                        # Calculate unrectified updates
+                        delta_A = p_A - b_A
+                        delta_B = p_B - b_B
+                        
+                        # ODE Rectification formula (simplified Euler step for geodesic flow)
+                        # We want to adjust delta_A and delta_B such that they are orthogonal
+                        # to the historical subspace. A simple and robust way to approximate this
+                        # without crashing (like the previous agent) is to project the updates
+                        # onto the orthogonal complement of the current weights.
+                        
+                        # Compute projections
+                        # For A (shape r x d_in): project rows of delta_A onto orthogonal complement of rows of b_A
+                        # delta_A_rect = delta_A - delta_A * b_A^T * (b_A * b_A^T + eps)^-1 * b_A
+                        eps = 1e-6
+                        b_A_flat = b_A.view(b_A.shape[0], -1)
+                        delta_A_flat = delta_A.view(delta_A.shape[0], -1)
+                        A_cov = torch.matmul(b_A_flat, b_A_flat.T) + eps * torch.eye(b_A_flat.shape[0], device=b_A_flat.device)
+                        try:
+                            A_cov_inv = torch.linalg.inv(A_cov)
+                            proj_A_flat = torch.matmul(torch.matmul(torch.matmul(delta_A_flat, b_A_flat.T), A_cov_inv), b_A_flat)
+                            rectified_delta_A = (delta_A_flat - 0.5 * proj_A_flat).view_as(delta_A)
+                        except RuntimeError:
+                            rectified_delta_A = delta_A
+                            
+                        # For B (shape d_out x r): project columns of delta_B onto orthogonal complement of columns of b_B
+                        b_B_flat = b_B.view(-1, b_B.shape[-1])
+                        delta_B_flat = delta_B.view(-1, delta_B.shape[-1])
+                        B_cov = torch.matmul(b_B_flat.T, b_B_flat) + eps * torch.eye(b_B_flat.shape[-1], device=b_B_flat.device)
+                        try:
+                            B_cov_inv = torch.linalg.inv(B_cov)
+                            proj_B_flat = torch.matmul(b_B_flat, torch.matmul(B_cov_inv, torch.matmul(b_B_flat.T, delta_B_flat)))
+                            rectified_delta_B = (delta_B_flat - 0.5 * proj_B_flat).view_as(delta_B)
+                        except RuntimeError:
+                            rectified_delta_B = delta_B
+                            
+                        # Apply rectified updates
+                        p_A.copy_(b_A + rectified_delta_A)
+                        p_B.copy_(b_B + rectified_delta_B)
 
         delta_sq_sum = 0.0
         with torch.no_grad():
@@ -491,6 +495,10 @@ class LoRAWrapper:
             "alpha": self.cfg.alpha,
             "dropout": self.cfg.dropout,
             "target_modules": tm_out,
+            "train_lora_a": bool(self.cfg.train_lora_a),
+            "optimizer": str(self.cfg.optimizer),
+            "weight_decay": float(self.cfg.weight_decay),
+            "ode_rectification_enabled": bool(self.cfg.ode_rectification_enabled),
             "active_adapter": self._active_adapter_name,
             "adapters": dict(self._adapter_steps),
             "frozen_adapters": sorted(self._frozen_adapters),
@@ -504,14 +512,26 @@ class LoRAWrapper:
             self._optimizer = None
             return
 
-        # Include all LoRA parameters of all adapters currently registered.
+        # Include all LoRA parameters of all adapters currently registered; requires_grad
+        # is toggled per active adapter, so inactive params remain harmless in the optimizer.
         lora_params = [p for n, p in self.peft_model.named_parameters() if "lora_" in n]
         if not lora_params:
             self._optimizer = None
             return
 
-        # Use SGD instead of AdamW for ODE Gradient Rectification
-        self._optimizer = torch.optim.SGD(lora_params, lr=1e-4)
+        optimizer = str(self.cfg.optimizer or "sgd").strip().lower()
+        if optimizer == "adamw":
+            self._optimizer = torch.optim.AdamW(
+                lora_params,
+                lr=1e-4,
+                weight_decay=float(self.cfg.weight_decay),
+            )
+        elif optimizer == "adam":
+            self._optimizer = torch.optim.Adam(lora_params, lr=1e-4)
+        elif optimizer == "sgd":
+            self._optimizer = torch.optim.SGD(lora_params, lr=1e-4)
+        else:
+            raise ValueError(f"Unsupported LoRA optimizer: {self.cfg.optimizer!r}")
 
     @staticmethod
     def _resolve_peft_task_type(backbone: Any) -> TaskType:
@@ -675,6 +695,10 @@ def build_lora_wrapper(base_model: Any, lora_cfg_dict: Dict[str, Any]) -> LoRAWr
         alpha=int(lora_cfg_dict.get("alpha", 32)),
         dropout=float(lora_cfg_dict.get("dropout", 0.0)),
         target_modules=parsed_tm,
+        train_lora_a=bool(lora_cfg_dict.get("train_lora_a", False)),
+        optimizer=str(lora_cfg_dict.get("optimizer", "sgd")),
+        weight_decay=float(lora_cfg_dict.get("weight_decay", 0.0)),
+        ode_rectification_enabled=bool(lora_cfg_dict.get("ode_rectification_enabled", True)),
     )
     # Debug backbones (DebugTextModel) don't have PEFT hooks.
     if not hasattr(base_model, "attach_peft_model") or not hasattr(base_model, "model"):
