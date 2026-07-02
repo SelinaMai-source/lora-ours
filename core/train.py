@@ -1821,6 +1821,26 @@ def _assign_training_branches(
     strategy: str,
 ) -> tuple[List[str], Dict[str, Any]]:
     print(f"Entering _assign_training_branches with strategy={strategy}...", file=sys.stderr)
+    force_active_on_spawn = bool(getattr(router, "force_active_branch_on_spawn_segment", False))
+    active_created_at_segment = None
+    if active_branch in getattr(lora_bank, "_branches", {}):
+        active_created_at_segment = int(lora_bank._branches[active_branch].created_at_segment)
+    if (
+        force_active_on_spawn
+        and len(branch_names) > 1
+        and active_branch in branch_names
+        and not lora_bank.is_branch_frozen(active_branch)
+        and active_created_at_segment == int(segment.segment_id)
+    ):
+        return [active_branch for _ in pairs], {
+            "routed_train_num_branches": int(len(branch_names)),
+            "routed_train_fallback_to_active": int(len(pairs)),
+            "routed_train_branch_counts_json": json.dumps({active_branch: len(pairs)}, sort_keys=True),
+            "routed_train_raw_branch_counts_json": json.dumps({active_branch: len(pairs)}, sort_keys=True),
+            "routed_train_mean_margin": 0.0,
+            "routed_train_force_active_on_spawn_segment": True,
+            "routed_train_forced_active_branch": active_branch,
+        }
     if len(branch_names) <= 1:
         print("Returning early because len(branch_names) <= 1", file=sys.stderr)
         return [active_branch for _ in pairs], {

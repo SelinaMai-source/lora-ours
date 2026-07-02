@@ -84,6 +84,10 @@ class Router:
         self.task_aware_fallback_force_assigned = bool(cfg.get("task_aware_fallback_force_assigned", False))
         self.task_aware_fallback_min_confidence = float(cfg.get("task_aware_fallback_min_confidence", 0.72))
         self.task_aware_fallback_min_margin = float(cfg.get("task_aware_fallback_min_margin", 0.18))
+        # v22: when a segment spawns fresh capacity, train that segment on the
+        # fresh active branch before router/NLL assignment can pull it back to
+        # an older branch. This is config-gated to preserve previous runs.
+        self.force_active_branch_on_spawn_segment = bool(cfg.get("force_active_branch_on_spawn_segment", False))
         # Oracle PLL recalibration (sota-v1+): when eval oracle agreement drops below
         # threshold, next segment runs extra prototype passes with faster EMA snap.
         self.oracle_pll_recalibrate = bool(cfg.get("oracle_pll_recalibrate", False))
@@ -643,6 +647,7 @@ class Router:
             "prototype_branches": sorted(self._prototypes.keys()),
             "segment_branch_map": {str(k): v for k, v in sorted(self._segment_branch_map.items())},
             "task_aware_fallback": self.task_aware_fallback,
+            "force_active_branch_on_spawn_segment": self.force_active_branch_on_spawn_segment,
         }
         if self._head is not None:
             state["head"] = {
