@@ -1340,6 +1340,8 @@ def _maybe_train_dialogue_replay_warmup(
         max_examples=max(0, int(cfg.get("max_examples", 96))),
         min_overlap=max(0, int(cfg.get("min_input_overlap", 1))),
         speaker_prefixes=prefixes,
+        allow_prefixless_fallback=bool(cfg.get("allow_prefixless_fallback", False)),
+        fallback_min_target_words=max(1, int(cfg.get("fallback_min_target_words", 4))),
     )
 
     active_branch = lora_bank.get_active_branch()

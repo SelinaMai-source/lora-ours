@@ -123,11 +123,15 @@ class SpectralSparseReplayGate:
     max_examples: int,
     min_overlap: int = 1,
     speaker_prefixes: Sequence[str] = ("agent", "customer"),
+    allow_prefixless_fallback: bool = False,
+    fallback_min_target_words: int = 4,
   ) -> Tuple[List[Example], Dict[str, Any]]:
     """Retrieve previously seen dialogue-style replay examples for train-only warmup."""
     metrics: Dict[str, Any] = {
       "dialogue_replay_buffer_size": len(self._buffer),
       "dialogue_replay_candidates": 0,
+      "dialogue_replay_prefix_candidates": 0,
+      "dialogue_replay_fallback_used": False,
       "dialogue_replay_selected": 0,
       "dialogue_replay_mean_score": 0.0,
     }
@@ -141,20 +145,31 @@ class SpectralSparseReplayGate:
       query_terms.update(_word_set(ex.input))
       query_terms.update(_word_set(ex.instruction))
 
-    scored: List[Tuple[float, int, _ReplayItem]] = []
-    for pos, item in enumerate(self._buffer):
-      target = str(item.target or "").strip()
-      if prefixes and not target.lower().startswith(prefixes):
-        continue
-      if compiled and not any(p.search(item.segment_name) for p in compiled):
-        continue
-      item_terms = _word_set(item.input_text) | _word_set(item.target)
-      overlap = len(query_terms & item_terms)
-      if overlap < int(min_overlap):
-        continue
-      # Favor lexical relevance but keep longer dialogue targets ahead of generic replies.
-      score = float(overlap) + min(40, len(target.split())) / 100.0
-      scored.append((score, -pos, item))
+    def _score_candidates(*, require_prefix: bool) -> List[Tuple[float, int, _ReplayItem]]:
+      scored: List[Tuple[float, int, _ReplayItem]] = []
+      for pos, item in enumerate(self._buffer):
+        target = str(item.target or "").strip()
+        target_l = target.lower()
+        if require_prefix and prefixes and not target_l.startswith(prefixes):
+          continue
+        if not require_prefix and _target_word_count(target) < int(fallback_min_target_words):
+          continue
+        if compiled and not any(p.search(item.segment_name) for p in compiled):
+          continue
+        item_terms = _word_set(item.input_text) | _word_set(item.target)
+        overlap = len(query_terms & item_terms)
+        if overlap < int(min_overlap):
+          continue
+        # Favor lexical relevance but keep longer generation targets ahead of generic replies.
+        score = float(overlap) + min(40, len(target.split())) / 100.0
+        scored.append((score, -pos, item))
+      return scored
+
+    scored = _score_candidates(require_prefix=True)
+    metrics["dialogue_replay_prefix_candidates"] = int(len(scored))
+    if not scored and bool(allow_prefixless_fallback):
+      scored = _score_candidates(require_prefix=False)
+      metrics["dialogue_replay_fallback_used"] = bool(scored)
 
     metrics["dialogue_replay_candidates"] = int(len(scored))
     if not scored:
@@ -230,3 +245,7 @@ class SpectralSparseReplayGate:
 
 def _word_set(text: str) -> set[str]:
   return set(re.findall(r"[a-z0-9']+", str(text or "").lower()))
+
+
+def _target_word_count(text: str) -> int:
+  return len(re.findall(r"[a-z0-9']+", str(text or "").lower()))
