@@ -74,6 +74,7 @@ Updated: 2026-07-03
 - v43 smoke result: five-segment smoke completed with the same final task-aware trajectory as v42 `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, and exact AR `0.158`. Evaluation remained clean (`target_prototype_conditioning.enabled=false`), but the train-only dialogue replay warmup had `dialogue_replay_buffer_size=768` with `dialogue_replay_candidates=0` / `selected=0`; the allowed replay buffer contained prior generation tasks (`task565`, `task1714`), but none of their targets used `agent:`/`customer:` prefixes, so v43 did not actually warm up the adapter. Do not launch full strict from v43.
 - Current v44 smoke candidate: `citb_instrdialog_order1_seed1_ours_v44_smoke_strict`.
 - Decision pending: v44 keeps v42/v43 clean evaluation and v43 train-only replay mechanism, but fixes the failed candidate retrieval. It first tries strict speaker-prefixed replay; if that yields no candidates, it falls back to prior allowed generation-task replay targets with at least four target words. A local retrieval check on the same stream produced `prefix_candidates=0`, `fallback_used=true`, `candidates=637`, and `selected=96`, so the v44 smoke should verify whether broader generation-task transfer helps task574 without eval leakage.
+- v44 launch: started 2026-07-03 in tmux session `ours-v44-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v44`, run `1z0tjfkl`; monitor status is `results/logs/ours_v44_strict_status.md`.
 
 ## Evidence
 
