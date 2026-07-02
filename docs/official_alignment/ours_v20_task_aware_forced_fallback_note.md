@@ -29,3 +29,12 @@ This is an implementation and experiment-control note. It does not claim SOTA.
 - Start only v20 smoke first.
 - Required early signal: segment 2 must not repeat `current_score=0.0` with `b0=300/300` eval routing collapse.
 - Full strict CITB can be queued only after smoke clears the early gate; smoke results must not be reported as SOTA.
+
+## Smoke Result
+
+- 2026-07-02 local: v20 smoke `citb_instrdialog_order1_seed1_ours_v20_smoke_strict` reached segment 2 and was early-stopped.
+- Segment 0 and 1 matched the previous healthy prefix: `current_score=0.28` then `0.29`; `seen_avg_score=0.285` after segment 1.
+- Segment 2 reproduced the failure: `current_score=0.0`, `current_task_aware_score=0.05`, `seen_avg_score=0.19000000000000003`, `seen_avg_task_aware_score=0.20666666666666667`.
+- Eval routing still collapsed to `b0=300/300`; oracle-best counts were `b0=199`, `b1=52`, `b2=49`.
+- Training assignment for segment 2 was not collapsed: `task_aware_fallback_training_branch=b1`, `routed_train_branch_counts_json={"b1": 536, "b2": 28}`.
+- Diagnosis: forced fallback was present (`task_aware_fallback_count=202`) but the segment-to-branch assignment could be overwritten after routed training by post-train prototype pseudo-label refresh. V20 therefore does not clear the early gate and must not launch full strict.

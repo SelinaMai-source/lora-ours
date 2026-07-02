@@ -340,10 +340,22 @@ def evaluate_stream(
     )
     if save_debug_examples_dir:
         tok = getattr(model, "tokenizer", None)
+        debug_examples: List[Dict[str, Any]] = []
+        per_source_debug_counts: Dict[int, int] = {}
+        per_source_limit = int((normalization_cfg or {}).get("debug_examples_per_segment", 20))
+        total_debug_limit = max(5, int((normalization_cfg or {}).get("debug_examples_max_total", 80)))
+        for example in all_examples_for_dump:
+            sid = int(example.get("source_segment_id", -1))
+            if per_source_debug_counts.get(sid, 0) >= per_source_limit:
+                continue
+            debug_examples.append(example)
+            per_source_debug_counts[sid] = per_source_debug_counts.get(sid, 0) + 1
+            if len(debug_examples) >= total_debug_limit:
+                break
         _save_debug_examples(
             save_dir=save_debug_examples_dir,
             segment_id=segment_id,
-            examples=all_examples_for_dump[: max(5, min(50, len(all_examples_for_dump)))],
+            examples=debug_examples,
             normalization_cfg=normalization_cfg or {},
             generation_cfg={
                 "requested_max_new_tokens": max_new_tokens,

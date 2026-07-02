@@ -1618,6 +1618,18 @@ def _train_with_router(
         )
     if pll_bonus_steps > 0:
         router.prototype_ema = saved_proto_ema
+    training_assignment = str(train_metrics.get("task_aware_fallback_training_branch", "") or "")
+    if (
+        training_assignment
+        and bool(getattr(router, "task_aware_fallback_force_assigned", False))
+        and hasattr(router, "record_segment_assignment")
+    ):
+        # Keep forced task-aware eval aligned to the branch that actually received
+        # the segment's training updates; prototype pseudo-label refresh is only
+        # a router fit signal and can be noisy on early CITB segments.
+        router.record_segment_assignment(segment.segment_id, training_assignment)
+        train_metrics["task_aware_fallback_assignment_after_proto"] = training_assignment
+        train_metrics["task_aware_fallback_assignment_preserved"] = True
     train_metrics["router_prototype_update_steps"] = int(total_proto_steps)
     train_metrics["router_pll_bonus_steps"] = int(pll_bonus_steps)
     train_metrics.update(router_metrics)
