@@ -340,6 +340,7 @@ def evaluate_stream(
     )
     if save_debug_examples_dir:
         tok = getattr(model, "tokenizer", None)
+        model_cfg = getattr(model, "cfg", None)
         debug_examples: List[Dict[str, Any]] = []
         per_source_debug_counts: Dict[int, int] = {}
         per_source_limit = int((normalization_cfg or {}).get("debug_examples_per_segment", 20))
@@ -365,6 +366,9 @@ def evaluate_stream(
                     normalization_cfg=normalization_cfg or {},
                 ),
                 "do_sample": False,
+                "no_repeat_ngram_size": getattr(model_cfg, "gen_no_repeat_ngram_size", None),
+                "encoder_no_repeat_ngram_size": getattr(model_cfg, "gen_encoder_no_repeat_ngram_size", None),
+                "repetition_penalty": getattr(model_cfg, "gen_repetition_penalty", None),
                 "eos_token_id": getattr(tok, "eos_token_id", None),
                 "pad_token_id": getattr(tok, "pad_token_id", None),
             },

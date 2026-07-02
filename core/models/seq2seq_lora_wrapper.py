@@ -17,6 +17,9 @@ class HFSeq2SeqLMConfig:
     gen_max_new_tokens: int = 64
     gen_do_sample: bool = False
     gen_num_beams: int = 1
+    gen_no_repeat_ngram_size: int = 0
+    gen_encoder_no_repeat_ngram_size: int = 0
+    gen_repetition_penalty: float = 1.0
     format_style: str = "citb_t5"
     debug_print_formatted_examples: bool = False
     debug_print_tokenized_examples: bool = False
@@ -224,6 +227,9 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             pad_token_id=self.tokenizer.pad_token_id,
             eos_token_id=self.tokenizer.eos_token_id,
             decoder_start_token_id=self.model.config.decoder_start_token_id,
+            no_repeat_ngram_size=max(0, int(self.cfg.gen_no_repeat_ngram_size)),
+            encoder_no_repeat_ngram_size=max(0, int(self.cfg.gen_encoder_no_repeat_ngram_size)),
+            repetition_penalty=max(1.0, float(self.cfg.gen_repetition_penalty)),
             early_stopping=nb > 1,
         )
         with torch.no_grad():
@@ -305,6 +311,9 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         gen_max_new_tokens=int(model_cfg.get("gen_max_new_tokens", 64)),
         gen_do_sample=bool(model_cfg.get("gen_do_sample", False)),
         gen_num_beams=int(model_cfg.get("gen_num_beams", 1)),
+        gen_no_repeat_ngram_size=int(model_cfg.get("gen_no_repeat_ngram_size", 0)),
+        gen_encoder_no_repeat_ngram_size=int(model_cfg.get("gen_encoder_no_repeat_ngram_size", 0)),
+        gen_repetition_penalty=float(model_cfg.get("gen_repetition_penalty", 1.0)),
         format_style=str(model_cfg.get("format_style", "citb_t5")),
         debug_print_formatted_examples=bool(model_cfg.get("debug_print_formatted_examples", False)),
         debug_print_tokenized_examples=bool(model_cfg.get("debug_print_tokenized_examples", False)),

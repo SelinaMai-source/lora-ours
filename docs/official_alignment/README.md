@@ -39,5 +39,6 @@ data, real checkpoints, logs, and metrics.
 
 Recent ours strict-smoke notes:
 
+- `ours_v24_anti_copy_leakage_note.md`: records the v23b answer-generation copy/leakage audit and the v24 generation-only anti-copy smoke gate.
 - `ours_v23_seq2seq_protocol_note.md`: restores official CITB/Tk-Instruct two-positive-example seq2seq prompt protocol for a v23 smoke gate.
 - `ours_v22_generation_effective_note.md`: records the v22 active-branch training fix and the remaining generation/input-copying failure.
