@@ -1,16 +1,173 @@
 {
-  "updated_at": "2026-07-02T13:15:00",
+  "updated_at": "2026-07-02T13:41:20",
   "run_id": "citb_instrdialog_order1_seed1_ours_v25_smoke_strict",
   "classification": {
-    "state": "not_started",
-    "reason": "v25 supervision/metrics branch prepared"
+    "state": "running",
+    "reason": "train process present"
   },
-  "processes": [],
+  "processes": [
+    "235602 /bin/bash -O extglob -c snap=$(command cat <&3) && builtin shopt -s extglob && builtin eval -- \"$snap\" && { builtin set +u 2>/dev/null || true; builtin eval \"${__CURSOR_SANDBOX_ENV_RESTORE:-}\" 2>/dev/null; builtin export PWD=\"$(builtin pwd)\"; builtin shopt -s expand_aliases 2>/dev/null; builtin eval \"$1\" < /dev/null; }; COMMAND_EXIT_CODE=$?; dump_bash_state >&4; builtin exit $COMMAND_EXIT_CODE -- export WANDB_MODE=online; python core/train.py --config configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.yaml 2>&1 | tee results/logs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.log",
+    "235620 python core/train.py --config configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.yaml"
+  ],
+  "tmux": {
+    "panes": [
+      "lora-ours:0.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:1.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:2.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:4.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:10.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours-live-monitor:0.0 bash /root"
+    ],
+    "matching_panes": [
+      "lora-ours:0.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:1.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:2.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:4.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours:10.0 bash /root/autodl-tmp/Lora-code",
+      "lora-ours-live-monitor:0.0 bash /root"
+    ]
+  },
   "log": {
-    "latest_segment": null,
-    "latest_eval": {},
+    "latest_segment": 3,
+    "latest_eval": {
+      "current_score": 0.0,
+      "seen_avg_score": 0.24666666666666667,
+      "current_task_aware_score": 0.29,
+      "seen_avg_task_aware_score": 0.3433333333333333,
+      "forgetting": 0.0050000000000000044,
+      "task_aware_forgetting": 0.0050000000000000044,
+      "num_seen_segments": 3,
+      "token_f1_mean": 0.32881375614135744,
+      "lcs_overlap_mean": 0.3407598605098605,
+      "rouge_l_mean": 0.3398228338568896,
+      "bleu_mean": 0.5131298831300318,
+      "slot_error_rate": 0.0,
+      "extra": {
+        "per_segment_accuracy": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.45
+          },
+          {
+            "segment_id": 1,
+            "accuracy": 0.29
+          },
+          {
+            "segment_id": 2,
+            "accuracy": 0.0
+          }
+        ],
+        "per_segment_task_aware_accuracy": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.45
+          },
+          {
+            "segment_id": 1,
+            "task_aware_accuracy": 0.29
+          },
+          {
+            "segment_id": 2,
+            "task_aware_accuracy": 0.29
+          }
+        ],
+        "anytime_score": 0.24666666666666667,
+        "anytime_task_aware_score": 0.3433333333333333,
+        "forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.45,
+            "best_historical_accuracy": 0.46,
+            "forgetting": 0.010000000000000009
+          },
+          {
+            "segment_id": 1,
+            "accuracy": 0.29,
+            "best_historical_accuracy": 0.29,
+            "forgetting": 0.0
+          },
+          {
+            "segment_id": 2,
+            "accuracy": 0.0,
+            "best_historical_accuracy": 0.0,
+            "forgetting": 0.0
+          }
+        ],
+        "task_aware_forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.45,
+            "best_historical_task_aware_accuracy": 0.46,
+            "task_aware_forgetting": 0.010000000000000009
+          },
+          {
+            "segment_id": 1,
+            "task_aware_accuracy": 0.29,
+            "best_historical_task_aware_accuracy": 0.29,
+            "task_aware_forgetting": 0.0
+          },
+          {
+            "segment_id": 2,
+            "task_aware_accuracy": 0.29,
+            "best_historical_task_aware_accuracy": 0.29,
+            "task_aware_forgetting": 0.0
+          }
+        ],
+        "routing": {
+          "num_routed": 300,
+          "branch_counts": {
+            "b0": 100,
+            "b1": 100,
+            "b2": 100
+          },
+          "oracle_best_branch_counts": {
+            "b1": 84,
+            "b0": 163,
+            "b2": 53
+          },
+          "oracle_agreement_count": 79,
+          "oracle_num_examples": 300,
+          "confidence_sum": 212.99488049939234,
+          "entropy_sum": 205.87270582524096,
+          "oracle_margin_sum": 1.634765625,
+          "nll_arbitration_count": 84,
+          "task_aware_fallback_count": 216,
+          "branch_utilization": {
+            "b0": 0.3333333333333333,
+            "b1": 0.3333333333333333,
+            "b2": 0.3333333333333333
+          },
+          "decision_confidence_mean": 0.7099829349979745,
+          "decision_entropy_mean": 0.6862423527508031,
+          "oracle_agreement_rate": 0.2633333333333333,
+          "oracle_margin_mean": 0.00544921875
+        },
+        "token_f1_mean": 0.32881375614135744,
+        "lcs_overlap_mean": 0.3407598605098605,
+        "rouge_l_mean": 0.3398228338568896,
+        "bleu_mean": 0.5131298831300318,
+        "slot_error_rate": 0.0,
+        "slot_error_count": 0,
+        "task_aware_score_mean": 0.3398228338568896,
+        "task_score_type_counts": {
+          "exact_match": 200,
+          "rouge_l": 100
+        },
+        "prefix_1_match_mean": 0.4033333333333333,
+        "prefix_3_match_mean": 0.24666666666666667,
+        "prefix_5_match_mean": 0.24666666666666667,
+        "num_bad_prefix_mismatch": 226,
+        "likely_assistant_start_or_continuation_boundary": true
+      }
+    },
+    "log_mtime": 1782970880.772781,
+    "log_age_seconds": 0.0806884765625,
     "log_path": "/root/lora-ours/results/logs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.log",
-    "latest_eval_log_path": null
+    "latest_eval_log_path": "/root/lora-ours/results/runs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict/wandb/latest-run/files/output.log",
+    "log_candidates": [
+      "/root/lora-ours/results/logs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.log",
+      "/root/lora-ours/results/runs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict/wandb/latest-run/files/output.log"
+    ]
   },
   "artifacts": {}
 }

@@ -1,11 +1,11 @@
 # Ours v25 Strict Status
 
-- Updated: `2026-07-02T13:15:00`
+- Updated: `2026-07-02T13:41:20`
 - Run: `citb_instrdialog_order1_seed1_ours_v25_smoke_strict`
-- State: `not_started`
-- Reason: `v25 supervision/metrics branch prepared`
-- Latest segment: `n/a`
-- Latest seen/task-aware: `n/a` / `n/a`
-- Train processes: `0`
+- State: `running`
+- Reason: `train process present`
+- Latest segment: `3`
+- Latest seen/task-aware: `0.24666666666666667` / `0.3433333333333333`
+- Train processes: `2`
 - Log: `/root/lora-ours/results/logs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.log`
-- Latest eval source: `n/a`
+- Latest eval source: `/root/lora-ours/results/runs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict/wandb/latest-run/files/output.log`
