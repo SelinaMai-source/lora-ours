@@ -78,6 +78,7 @@ Updated: 2026-07-03
 - v44 smoke result: five-segment smoke completed with final task-aware trajectory `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, and exact AR `0.158`. The train-only replay fallback did run (`buffer=768`, `prefix_candidates=0`, `fallback_used=true`, `candidates=637`, `selected=96`) and evaluation remained clean (`target_prototype_conditioning.enabled=false`), but task574 stayed at task-aware `0.03`. Current task574 debug outputs were speaker-prefixed yet still generic (`agent: No, we are here to assist you.`, `customer: No, we didn't get a confirmation.`) rather than slot/entity-specific turns. Do not launch full strict from v44.
 - Current v45 smoke candidate: `citb_instrdialog_order1_seed1_ours_v45_smoke_strict`.
 - Decision pending: v45 keeps v44 clean eval and replay fallback unchanged, and adds train-only `slot_rich_generation_sampling` for `task574`/`air_dialogue`. It repeats current-task targets containing flight/date/airline/fare/class/reservation/name-style content within the assigned training branch, testing whether more update steps on slot-rich responses can move task574 above the repeated `0.03` blocker without eval-time target leakage.
+- v45 launch: started 2026-07-03 in tmux session `ours-v45-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v45`, run `zv6yq70l`; monitor status is `results/logs/ours_v45_strict_status.md`.
 
 ## Evidence
 
