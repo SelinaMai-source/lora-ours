@@ -38,3 +38,23 @@ Do not launch full strict unless v31 smoke verifies:
 - segment3 current debug is no longer `25/25` raw `no`.
 - segment3 current task-aware improves over `0.08`.
 - retry audit counters show whether the change was actually used and accepted.
+
+## V31 Smoke Result
+
+- Run: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
+- W&B: project `lora-ours-v31`, run `nz0uhi5b`.
+- Segment2 stayed healthy:
+  - current task-aware score: `0.29`.
+  - seen task-aware after segment2: `0.3433333333333333`.
+- Segment3 retry was active:
+  - retry count: `99`.
+  - accepted retry count: `94`.
+  - current task-aware score: `0.12` (up from v30 `0.08`).
+  - final task-aware AR: `0.285` (up from v30 `0.275`).
+- Segment3 is still not full-strict ready:
+  - current exact score: `0.0`.
+  - current debug first token: `25/25` still `no`.
+  - many accepted outputs are prompt-template continuations, e.g. `no Now complete the following example - Input...`.
+  - other accepted outputs include diagnostic-looking continuations such as `no if so. This is a concatenated string...`.
+
+Conclusion: v31 proves that the single-token `no` collapse can be nudged into longer generations, but the current retry acceptance is too permissive. Do not launch full strict from v31.

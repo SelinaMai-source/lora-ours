@@ -6,7 +6,7 @@ Updated: 2026-07-02
 
 - Active branch: `ours-v31-task1714-bucket-collapse-retry`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
-- Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v30_smoke_strict`.
+- Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
 - W&B: project `lora-ours-v28`, run `fvdftnlw`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v29_smoke_strict`.
@@ -18,7 +18,10 @@ Updated: 2026-07-02
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v30_smoke_strict`.
 - W&B: project `lora-ours-v30`, run `y0hcae3k`.
 - Monitor: status file `results/logs/ours_v30_strict_status.md`.
-- Decision: v30 confirmed assigned-branch eval alignment, but segment3 still failed via single-token generation collapse. Do not launch full strict. Launch v31 smoke to test config-gated bucket-collapse retry.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
+- W&B: project `lora-ours-v31`, run `nz0uhi5b`.
+- Monitor: status file `results/logs/ours_v31_strict_status.md`.
+- Decision: v31 improves task1714 task-aware but by accepting prompt-template continuations. Do not launch full strict. Next step should make any continuation retry prompt-copy resistant or move to a training-time generation fix.
 
 ## Evidence
 
@@ -45,7 +48,8 @@ Updated: 2026-07-02
 - v30 small-step change: keep v29-fixed scoring/data/sampling and restore `router.task_aware_fallback_force_assigned=true`, so task1714 eval is aligned to the freshly balanced segment branch instead of low-margin prompt-NLL routing back to older branches.
 - v30 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.3433333333333333`). Segment3 training used balanced sampling on `b3` and preserved assignment after prototype refresh; `segment_branch_map` ended as `{"0": "b0", "1": "b1", "2": "b2", "3": "b3"}`. Current task debug routed `24/25` task1714 examples to `b3`, proving eval no longer fell back to old `b2`; however, current debug still generated `25/25` raw `no`, and final segment3 task-aware stayed `0.08`.
 - v31 small-step change: keep v30 routing/sampling and add a label-free, config-gated eval retry only for task1714/sentence_generation when greedy decoding collapses to a single bucket token (`no`/`yes`/`i`). The retry is accepted only if it begins with the same bucket token and produces a longer non-template continuation.
+- v31 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.3433333333333333`). Segment3 retry triggered `99` times and accepted `94`, raising segment3 task-aware from `0.08` to `0.12` and final task-aware AR from `0.275` to `0.285`. However, current debug still started `25/25` with `no`; many accepted continuations were prompt-template artifacts such as `no Now complete the following example - Input...` or diagnostic-looking text such as `no if so. This is a concatenated string...`. This is not healthy enough for full strict.
 
 ## Next Step
 
-Do not launch full strict from v30. Launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v31_smoke_strict.yaml` first. The v31 gate must show segment2 health is preserved, task1714 current debug is no longer `25/25` raw `no`, and segment3 current task-aware improves over `0.08` before preparing a full strict run.
+Do not launch full strict from v31. The next small step should either add prompt-copy-resistant retry controls/rejection for task1714 continuation retry or switch to a training-time generation supervision fix. Any next smoke must keep segment2 task-aware near `0.29` while improving task1714 without `no Now complete...` style continuations.
