@@ -194,8 +194,58 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         return all_nlls
 
     def score_prompt_nlls(self, prompts: List[str]) -> List[float]:
-        # Seq2seq encoders do not define a label-free prompt LM likelihood.
-        return [0.0 for _ in prompts]
+        """Label-free prompt score for seq2seq router arbitration.
+
+        Encoder-decoder models do not expose a causal prompt likelihood, but
+        scoring prompt reconstruction gives branch-specific evidence without
+        touching the gold answer. This is intentionally used only for low-margin
+        routing arbitration.
+        """
+        import torch
+        import torch.nn.functional as F
+
+        if not prompts:
+            return []
+
+        all_nlls: List[float] = []
+        was_training = self.model.training
+        self.model.eval()
+        try:
+            for idx in range(0, len(prompts), 2):
+                chunk = [str(p) for p in prompts[idx : idx + 2]]
+                enc = self.tokenizer(
+                    chunk,
+                    return_tensors="pt",
+                    padding=True,
+                    truncation=True,
+                    max_length=int(self.cfg.max_source_len),
+                )
+                labels = self.tokenizer(
+                    text_target=chunk,
+                    return_tensors="pt",
+                    padding=True,
+                    truncation=True,
+                    max_length=int(self.cfg.max_target_len),
+                )["input_ids"]
+                pad_id = int(self.tokenizer.pad_token_id)
+                labels = labels.masked_fill(labels == pad_id, -100)
+                batch = {k: v.to(self.device) for k, v in enc.items()}
+                labels = labels.to(self.device)
+                with torch.no_grad():
+                    outputs = self.model(**batch, labels=labels, return_dict=True)
+                    token_losses = F.cross_entropy(
+                        outputs.logits.view(-1, outputs.logits.size(-1)),
+                        labels.view(-1),
+                        ignore_index=-100,
+                        reduction="none",
+                    ).view(labels.shape)
+                for i in range(labels.size(0)):
+                    mask = labels[i].ne(-100)
+                    all_nlls.append(float(token_losses[i][mask].mean().item()) if bool(mask.any().item()) else 0.0)
+        finally:
+            if was_training:
+                self.model.train()
+        return all_nlls
 
     def generate(
         self,
