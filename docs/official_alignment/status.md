@@ -34,6 +34,7 @@ Updated: 2026-07-02
 - W&B: project `lora-ours-v34`, run `6bobb6qt`.
 - Monitor: status file `results/logs/ours_v34_strict_status.md`.
 - Decision pending: v34 uses train-target length prior plus deterministic beam generation for sentence-generation tasks, with scoring unchanged and bucket-collapse retry still disabled.
+- v34 smoke interim (through segment2): segment0 task-aware `0.46`, segment1 `0.29`, segment2 `0.28` (seen task-aware `0.3367`). Segment3 (`task1714`) training in progress.
 
 ## Evidence
 

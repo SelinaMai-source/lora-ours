@@ -48,6 +48,7 @@ The length prior uses only training targets from the same segment and is config-
 - Run: `citb_instrdialog_order1_seed1_ours_v34_smoke_strict`.
 - W&B: project `lora-ours-v34`, run `6bobb6qt`.
 - Monitor: `results/logs/ours_v34_strict_status.md`.
+- Interim through segment2: `[0.46, 0.29, 0.28]` task-aware; seen task-aware after segment2 `0.3367`. Segment3 pending.
 - Do not launch full strict unless:
   - segment2 stays near healthy;
   - segment3 improves without retry acceptance;
