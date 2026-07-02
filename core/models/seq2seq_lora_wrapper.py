@@ -35,6 +35,7 @@ class HFSeq2SeqLMConfig:
     generation_content_loss_weight: float = 1.0
     generation_content_first_tokens: Tuple[str, ...] = ("agent", "customer")
     generation_content_min_target_tokens: int = 6
+    generation_content_subtoken_match: bool = False
 
 
 class HFSeq2SeqLMBackbone(BaseBackbone):
@@ -432,6 +433,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
 
         content_rows = 0
         content_tokens = 0
+        content_subtoken_tokens = 0
         if float(self.cfg.generation_content_loss_weight) > 1.0:
             content_first_tokens = {
                 str(x).strip().lower()
@@ -452,6 +454,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
                 idxs = torch.nonzero(supervised_mask[row], as_tuple=False).flatten()
                 if idxs.numel() == 0:
                     continue
+                row_content_mask = torch.zeros_like(supervised_mask[row], dtype=torch.bool)
                 matched = 0
                 for idx in idxs:
                     label_id = int(labels[row, idx].detach().cpu().item())
@@ -459,12 +462,30 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
                         continue
                     token_text = self._normalize_token_piece(self.tokenizer.decode([label_id], skip_special_tokens=True))
                     if token_text and token_text in content_terms:
-                        weights[row, idx] = torch.maximum(
-                            weights[row, idx],
-                            torch.as_tensor(float(self.cfg.generation_content_loss_weight), dtype=weights.dtype, device=weights.device),
-                        )
+                        row_content_mask[idx] = True
                         matched += 1
+                if bool(self.cfg.generation_content_subtoken_match):
+                    subtoken_idxs = self._content_term_token_positions(
+                        labels[row],
+                        content_terms,
+                    )
+                    for idx in subtoken_idxs:
+                        if 0 <= idx < labels.size(1) and bool(supervised_mask[row, idx].item()):
+                            if not bool(row_content_mask[idx].item()):
+                                content_subtoken_tokens += 1
+                            row_content_mask[idx] = True
+                    matched = int(row_content_mask.sum().detach().cpu().item())
                 if matched > 0:
+                    content_weight = torch.as_tensor(
+                        float(self.cfg.generation_content_loss_weight),
+                        dtype=weights.dtype,
+                        device=weights.device,
+                    )
+                    weights[row] = torch.where(
+                        row_content_mask,
+                        torch.maximum(weights[row], content_weight),
+                        weights[row],
+                    )
                     content_rows += 1
                     content_tokens += matched
 
@@ -492,6 +513,8 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             "train.content_weighted_rows": float(content_rows),
             "train.content_weighted_tokens": float(content_tokens),
             "train.content_weighted_token_ratio": float(content_tokens / max(1, supervised)),
+            "train.content_subtoken_match_enabled": float(bool(self.cfg.generation_content_subtoken_match)),
+            "train.content_subtoken_extra_tokens": float(content_subtoken_tokens),
         }
         if bool(self.cfg.target_supervision_guard_enabled) and pad_supervised > 0:
             raise ValueError("Seq2Seq target supervision guard failed: pad tokens are supervised in labels.")
@@ -520,6 +543,24 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             if (len(word) >= 4 or any(ch.isdigit() for ch in word)) and word not in stopwords
         }
         return {word for word in content if word}
+
+    def _content_term_token_positions(self, label_row: Any, content_terms: set) -> set:
+        positions = set()
+        label_ids = [int(x) for x in label_row.detach().cpu().tolist()]
+        if not label_ids or not content_terms:
+            return positions
+        for term in content_terms:
+            variants = {str(term), str(term).capitalize(), str(term).upper()}
+            for variant in variants:
+                token_ids = self.tokenizer.encode(variant, add_special_tokens=False)
+                token_ids = [int(x) for x in token_ids if int(x) >= 0]
+                if not token_ids:
+                    continue
+                width = len(token_ids)
+                for start in range(0, max(0, len(label_ids) - width + 1)):
+                    if label_ids[start : start + width] == token_ids:
+                        positions.update(range(start, start + width))
+        return positions
 
 
 def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2SeqLMBackbone:
@@ -552,5 +593,6 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         generation_content_loss_weight=float(model_cfg.get("generation_content_loss_weight", 1.0)),
         generation_content_first_tokens=tuple(model_cfg.get("generation_content_first_tokens", ["agent", "customer"])),
         generation_content_min_target_tokens=int(model_cfg.get("generation_content_min_target_tokens", 6)),
+        generation_content_subtoken_match=bool(model_cfg.get("generation_content_subtoken_match", False)),
     )
     return HFSeq2SeqLMBackbone(cfg, seed=seed)
