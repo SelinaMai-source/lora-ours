@@ -1801,6 +1801,11 @@ def _train_with_routed_assignments(
         branch_to_examples=branch_to_examples,
         train_cfg=train_cfg or {},
     )
+    slot_rich_metrics = _maybe_emphasize_slot_rich_generation_indices(
+        segment=segment,
+        branch_to_examples=branch_to_examples,
+        train_cfg=train_cfg or {},
+    )
     if hasattr(router, "record_segment_assignment") and branch_to_examples:
         majority_training_branch = max(branch_to_examples.items(), key=lambda kv: (len(kv[1]), kv[0]))[0]
         router.record_segment_assignment(segment.segment_id, majority_training_branch)
@@ -1911,6 +1916,7 @@ def _train_with_routed_assignments(
         else "",
         **assignment_metrics,
         **balance_metrics,
+        **slot_rich_metrics,
     }
     if overlap_steps > 0:
         metrics.update({k: v / float(overlap_steps) for k, v in overlap_metric_sums.items()})
@@ -2014,6 +2020,119 @@ def _generation_target_bucket(target: str, bucket_names: List[str]) -> str:
     normalized = re.sub(r"^[^a-z0-9]+|[^a-z0-9]+$", "", str(target or "").strip().lower())
     first = normalized.split()[0] if normalized.split() else "other"
     return first if first in set(bucket_names) and first != "other" else "other"
+
+
+def _maybe_emphasize_slot_rich_generation_indices(
+    *,
+    segment: Segment,
+    branch_to_examples: Dict[str, List[int]],
+    train_cfg: Dict[str, Any],
+) -> Dict[str, Any]:
+    cfg = train_cfg.get("slot_rich_generation_sampling", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return {}
+
+    patterns = cfg.get("segment_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    segment_name = str(segment.segment_name or "")
+    if patterns and not any(re.search(str(p), segment_name, flags=re.IGNORECASE) for p in patterns):
+        return {}
+    if not segment.train:
+        return {}
+
+    current_instruction = segment.train[0].instruction
+    min_score = max(1, int(cfg.get("min_slot_score", 2)))
+    repeat_factor = max(1, int(cfg.get("repeat_factor", 3)))
+    max_multiplier = max(1.0, float(cfg.get("max_total_multiplier", 2.0)))
+
+    original_total = 0
+    emphasized_total = 0
+    rich_total = 0
+    score_hist: Dict[str, int] = {}
+
+    for branch_name, idxs in list(branch_to_examples.items()):
+        current_idxs = [i for i in idxs if segment.train[i].instruction == current_instruction]
+        passthrough = [i for i in idxs if segment.train[i].instruction != current_instruction]
+        if not current_idxs:
+            continue
+
+        scored = [(i, _generation_slot_rich_score(segment.train[i].output)) for i in current_idxs]
+        rich_idxs = [i for i, score in scored if score >= min_score]
+        for _idx, score in scored:
+            key = str(min(score, 5))
+            score_hist[key] = score_hist.get(key, 0) + 1
+        if not rich_idxs:
+            continue
+
+        original_total += len(current_idxs)
+        rich_total += len(rich_idxs)
+        target_total = min(
+            int(math.ceil(len(current_idxs) * max_multiplier)),
+            len(current_idxs) + len(rich_idxs) * (repeat_factor - 1),
+        )
+        emphasized = list(current_idxs)
+        cursor = 0
+        while len(emphasized) < target_total:
+            emphasized.append(rich_idxs[cursor % len(rich_idxs)])
+            cursor += 1
+        branch_to_examples[branch_name] = emphasized + passthrough
+        emphasized_total += len(emphasized)
+
+    if original_total == 0:
+        return {}
+    return {
+        "slot_rich_generation_sampling_enabled": True,
+        "slot_rich_generation_sampling_segment": segment_name,
+        "slot_rich_generation_sampling_original_examples": int(original_total),
+        "slot_rich_generation_sampling_slot_rich_examples": int(rich_total),
+        "slot_rich_generation_sampling_examples": int(emphasized_total),
+        "slot_rich_generation_sampling_score_hist_json": json.dumps(score_hist, sort_keys=True),
+    }
+
+
+def _generation_slot_rich_score(target: str) -> int:
+    text = str(target or "").lower()
+    words = re.findall(r"[a-z0-9']+", text)
+    if len(words) < 4:
+        return 0
+    score = 0
+    if any(ch.isdigit() for ch in text):
+        score += 1
+    if re.search(r"\b\d{1,2}/\d{1,2}\b|\b\d{3,4}\b", text):
+        score += 1
+    slot_terms = {
+        "airline",
+        "airlines",
+        "american",
+        "delta",
+        "frontier",
+        "jetblue",
+        "southwest",
+        "ua",
+        "united",
+        "flight",
+        "fare",
+        "price",
+        "class",
+        "economy",
+        "business",
+        "connection",
+        "connecting",
+        "direct",
+        "reservation",
+        "booking",
+        "booked",
+        "cancel",
+        "cancelled",
+        "confirmed",
+        "proceed",
+        "name",
+    }
+    score += min(3, len(set(words) & slot_terms))
+    if re.search(r"\b[A-Z]{3}\b", str(target or "")):
+        score += 1
+    return score
 
 
 def _normalize_generation_bucket_name(raw: Any) -> str:

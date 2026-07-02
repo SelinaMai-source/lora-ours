@@ -75,6 +75,9 @@ Updated: 2026-07-03
 - Current v44 smoke candidate: `citb_instrdialog_order1_seed1_ours_v44_smoke_strict`.
 - Decision pending: v44 keeps v42/v43 clean evaluation and v43 train-only replay mechanism, but fixes the failed candidate retrieval. It first tries strict speaker-prefixed replay; if that yields no candidates, it falls back to prior allowed generation-task replay targets with at least four target words. A local retrieval check on the same stream produced `prefix_candidates=0`, `fallback_used=true`, `candidates=637`, and `selected=96`, so the v44 smoke should verify whether broader generation-task transfer helps task574 without eval leakage.
 - v44 launch: started 2026-07-03 in tmux session `ours-v44-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v44`, run `1z0tjfkl`; monitor status is `results/logs/ours_v44_strict_status.md`.
+- v44 smoke result: five-segment smoke completed with final task-aware trajectory `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, and exact AR `0.158`. The train-only replay fallback did run (`buffer=768`, `prefix_candidates=0`, `fallback_used=true`, `candidates=637`, `selected=96`) and evaluation remained clean (`target_prototype_conditioning.enabled=false`), but task574 stayed at task-aware `0.03`. Current task574 debug outputs were speaker-prefixed yet still generic (`agent: No, we are here to assist you.`, `customer: No, we didn't get a confirmation.`) rather than slot/entity-specific turns. Do not launch full strict from v44.
+- Current v45 smoke candidate: `citb_instrdialog_order1_seed1_ours_v45_smoke_strict`.
+- Decision pending: v45 keeps v44 clean eval and replay fallback unchanged, and adds train-only `slot_rich_generation_sampling` for `task574`/`air_dialogue`. It repeats current-task targets containing flight/date/airline/fare/class/reservation/name-style content within the assigned training branch, testing whether more update steps on slot-rich responses can move task574 above the repeated `0.03` blocker without eval-time target leakage.
 
 ## Evidence
 
@@ -114,4 +117,4 @@ Updated: 2026-07-03
 
 ## Next Step
 
-Run `citb_instrdialog_order1_seed1_ours_v44_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
+Run `citb_instrdialog_order1_seed1_ours_v45_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
