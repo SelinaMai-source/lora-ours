@@ -32,6 +32,9 @@ class HFSeq2SeqLMConfig:
     generation_continuation_loss_weight: float = 1.0
     generation_continuation_first_tokens: Tuple[str, ...] = ("no", "yes", "i")
     generation_continuation_min_target_tokens: int = 4
+    generation_content_loss_weight: float = 1.0
+    generation_content_first_tokens: Tuple[str, ...] = ("agent", "customer")
+    generation_content_min_target_tokens: int = 6
 
 
 class HFSeq2SeqLMBackbone(BaseBackbone):
@@ -427,6 +430,44 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
                 continuation_rows += 1
                 continuation_tokens += int(cont.numel())
 
+        content_rows = 0
+        content_tokens = 0
+        if float(self.cfg.generation_content_loss_weight) > 1.0:
+            content_first_tokens = {
+                str(x).strip().lower()
+                for x in self.cfg.generation_content_first_tokens
+                if str(x).strip()
+            }
+            min_tokens = max(2, int(self.cfg.generation_content_min_target_tokens))
+            for row, target in enumerate(targets):
+                if row >= labels.size(0):
+                    break
+                content_terms = self._dialogue_content_terms(
+                    target,
+                    first_tokens=content_first_tokens,
+                    min_tokens=min_tokens,
+                )
+                if not content_terms:
+                    continue
+                idxs = torch.nonzero(supervised_mask[row], as_tuple=False).flatten()
+                if idxs.numel() == 0:
+                    continue
+                matched = 0
+                for idx in idxs:
+                    label_id = int(labels[row, idx].detach().cpu().item())
+                    if label_id < 0:
+                        continue
+                    token_text = self._normalize_token_piece(self.tokenizer.decode([label_id], skip_special_tokens=True))
+                    if token_text and token_text in content_terms:
+                        weights[row, idx] = torch.maximum(
+                            weights[row, idx],
+                            torch.as_tensor(float(self.cfg.generation_content_loss_weight), dtype=weights.dtype, device=weights.device),
+                        )
+                        matched += 1
+                if matched > 0:
+                    content_rows += 1
+                    content_tokens += matched
+
         denom = (weights * supervised_mask.to(weights.dtype)).sum().clamp_min(1.0)
         loss = (flat_loss * weights * supervised_mask.to(weights.dtype)).sum() / denom
 
@@ -447,10 +488,38 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             "train.continuation_weighted_rows": float(continuation_rows),
             "train.continuation_weighted_tokens": float(continuation_tokens),
             "train.continuation_weighted_token_ratio": float(continuation_tokens / max(1, supervised)),
+            "train.content_loss_weight": float(self.cfg.generation_content_loss_weight),
+            "train.content_weighted_rows": float(content_rows),
+            "train.content_weighted_tokens": float(content_tokens),
+            "train.content_weighted_token_ratio": float(content_tokens / max(1, supervised)),
         }
         if bool(self.cfg.target_supervision_guard_enabled) and pad_supervised > 0:
             raise ValueError("Seq2Seq target supervision guard failed: pad tokens are supervised in labels.")
         return loss, metrics
+
+    @staticmethod
+    def _normalize_token_piece(text: str) -> str:
+        return re.sub(r"[^a-z0-9']+", "", str(text or "").strip().lower())
+
+    @classmethod
+    def _dialogue_content_terms(cls, target: str, *, first_tokens: set, min_tokens: int) -> set:
+        words = re.findall(r"[A-Za-z0-9']+", str(target or "").lower())
+        if len(words) < min_tokens or not words or words[0] not in first_tokens:
+            return set()
+        stopwords = {
+            "agent", "customer", "yes", "no", "ok", "okay", "hi", "hello", "thanks", "thank", "you",
+            "i", "we", "me", "my", "your", "our", "the", "a", "an", "and", "or", "to", "of", "for",
+            "in", "on", "at", "from", "with", "is", "are", "am", "be", "been", "being", "can", "could",
+            "will", "would", "do", "did", "does", "have", "has", "had", "it", "that", "this", "there",
+            "here", "please", "let", "know", "help", "assist", "booking", "book", "flight", "ticket",
+            "sure", "sorry", "not", "get", "got", "need", "want", "found",
+        }
+        content = {
+            cls._normalize_token_piece(word)
+            for word in words[1:]
+            if (len(word) >= 4 or any(ch.isdigit() for ch in word)) and word not in stopwords
+        }
+        return {word for word in content if word}
 
 
 def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2SeqLMBackbone:
@@ -480,5 +549,8 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         generation_continuation_loss_weight=float(model_cfg.get("generation_continuation_loss_weight", 1.0)),
         generation_continuation_first_tokens=tuple(model_cfg.get("generation_continuation_first_tokens", ["no", "yes", "i"])),
         generation_continuation_min_target_tokens=int(model_cfg.get("generation_continuation_min_target_tokens", 4)),
+        generation_content_loss_weight=float(model_cfg.get("generation_content_loss_weight", 1.0)),
+        generation_content_first_tokens=tuple(model_cfg.get("generation_content_first_tokens", ["agent", "customer"])),
+        generation_content_min_target_tokens=int(model_cfg.get("generation_content_min_target_tokens", 6)),
     )
     return HFSeq2SeqLMBackbone(cfg, seed=seed)

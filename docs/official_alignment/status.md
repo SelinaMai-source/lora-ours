@@ -1,10 +1,10 @@
 # Official Alignment Status
 
-Updated: 2026-07-02
+Updated: 2026-07-03
 
 ## Current Gate
 
-- Active branch: `ours-v36-soft-adapter-dynamics`.
+- Active branch: `ours-v40-dialogue-content-supervision`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -56,6 +56,9 @@ Updated: 2026-07-02
 - v38 smoke result: five-segment smoke completed, but did not improve the blocker. Final task-aware trajectory was `[0.53, 0.26, 0.28, 0.10, 0.03]`, seen task-aware AR `0.2400`, exact AR `0.158`, and BWT `-0.02`. Continuation weighting did hit task574 strongly (`train.continuation_weighted_token_ratio ~= 0.87`), and task574 debug routed 25/25 examples to `b4` with oracle `b4`, but outputs remained generic speaker-prefixed turns such as `agent: No, we are here for you.` and `customer: No, we didn't get a booking from you.` Do not launch full strict from v38.
 - Current v39 smoke candidate: `citb_instrdialog_order1_seed1_ours_v39_smoke_strict`.
 - Decision pending: v39 keeps v38 and only adds `agent`/`customer` to `balanced_generation_sampling.buckets` so task574 speaker-prefixed targets are not collapsed into the generic `other` bucket. Gate remains segment4 health plus preservation of segment2/task1714; later SOTA planning must include InstrDialog, InstrDialog++, Standard, and Dialogue explicitly.
+- v39 smoke result: five-segment smoke completed, but task574 stayed blocked at task-aware `0.03`; final task-aware trajectory was `[0.53, 0.26, 0.28, 0.10, 0.03]`, seen task-aware AR `0.2400`, exact AR `0.158`, and BWT `-0.02`. The speaker bucket was not the missing factor: task574 training was assigned to `b4`, continuation weighting remained active (`~0.87` weighted-token ratio), and task574 debug selected `b4` with oracle `b4` for 25/25 examples, yet all 25/25 outputs were generic `agent`/`customer` templates. Do not launch full strict from v39.
+- Current v40 smoke candidate: `citb_instrdialog_order1_seed1_ours_v40_smoke_strict`.
+- Decision pending: v40 keeps v39 routing/decoding/speaker buckets unchanged and adds config-gated content-token loss emphasis for speaker-prefixed Dialogue targets (`agent`/`customer`). This tests Dialogue content supervision directly without repeating router or first-token weighting changes.
 
 ## Evidence
 
@@ -95,4 +98,4 @@ Updated: 2026-07-02
 
 ## Next Step
 
-Run `citb_instrdialog_order1_seed1_ours_v39_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved. If v39 still fails, the next diagnosis should focus on Dialogue-generation content supervision/overfit behavior rather than router-only changes; any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
+Run `citb_instrdialog_order1_seed1_ours_v40_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved. If v40 still fails, the next diagnosis should focus on Dialogue-generation content supervision/overfit behavior rather than router-only changes; any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
