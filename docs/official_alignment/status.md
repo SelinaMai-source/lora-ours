@@ -67,6 +67,7 @@ Updated: 2026-07-03
 - v41 smoke result: five-segment smoke completed but did not break the task574 blocker. Final task-aware trajectory was `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, exact AR `0.158`, and BWT `-0.0175`. Task574 debug confirms target prototype conditioning was active and inserted same-segment train target strings into eval prompts, but outputs still stayed generic/wrong-content (`agent: No, I can't find your flight ticket.`, `customer: No, we didn't get a confirmation.`, `agent: I am a travel agent.`). Because v41 uses eval-time train-target prototypes, it is not acceptable as a main result even as a diagnostic ablation.
 - Current v42 smoke candidate: `citb_instrdialog_order1_seed1_ours_v42_smoke_strict`.
 - Decision pending: v42 removes v41 eval-time target prototype conditioning and keeps official eval prompts unchanged. The small-step change is training-only target-term emphasis: content words from speaker-prefixed Dialogue targets are matched as tokenizer subtoken spans before weighting supervised target loss, so multi-token entities/numbers such as airline names, fare values, and flight IDs can receive the existing content loss.
+- v42 launch: started 2026-07-03 in tmux session `ours-v42-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v42`, run `e51hqin7`; monitor status is `results/logs/ours_v42_strict_status.md`.
 
 ## Evidence
 
