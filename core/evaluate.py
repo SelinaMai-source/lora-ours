@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from core.causal_lm_metrics import count_supervised_label_tokens, teacher_forced_token_accuracy_shifted
 from core.data import Example, Segment
@@ -78,6 +78,34 @@ def _routing_entropy(prob_scores: Dict[str, float]) -> float:
     return float(entropy)
 
 
+def _example_references(ex: Example) -> List[str]:
+    refs = [str(x) for x in getattr(ex, "output_references", ()) if str(x) != ""]
+    if not refs:
+        refs = [str(ex.output or "")]
+    return refs
+
+
+def _best_reference_by_score(
+    *,
+    pred: str,
+    refs: Sequence[str],
+    metric_name: str,
+    normalize: bool = True,
+) -> Tuple[str, float]:
+    if not refs:
+        refs = [""]
+    pred_for_score = _basic_answer_normalize(pred) if normalize else str(pred or "")
+    best_ref = str(refs[0])
+    best_score = -1.0
+    for ref in refs:
+        ref_for_score = _basic_answer_normalize(ref) if normalize else str(ref or "")
+        score = _continuous_task_score(metric_name=metric_name, prediction=pred_for_score, gold=ref_for_score)
+        if score > best_score:
+            best_score = float(score)
+            best_ref = str(ref)
+    return best_ref, float(max(0.0, best_score))
+
+
 def _orthogonal_gate_blend_weights(
     adapters: List[str],
     weights: List[float],
@@ -136,14 +164,16 @@ def _orthogonal_gate_blend_weights(
 
 def _oracle_branch_for_example(model: Any, lora_bank: Any, ex: Example, branch_names: List[str]) -> Dict[str, Any]:
     pairs = [(ex.instruction, ex.input)]
-    targets = [ex.output]
+    refs = _example_references(ex)
     active_before = lora_bank.get_active_branch() if hasattr(lora_bank, "get_active_branch") else None
     losses: Dict[str, float] = {}
     try:
         for branch_name in branch_names:
             if hasattr(lora_bank, "set_active_adapter"):
                 lora_bank.set_active_adapter(branch_name)
-            losses[branch_name] = float(model.score_answer_nlls(pairs, targets)[0])
+            ref_pairs = pairs * max(1, len(refs))
+            ref_losses = model.score_answer_nlls(ref_pairs, refs)
+            losses[branch_name] = float(min(ref_losses)) if ref_losses else float("inf")
     finally:
         if active_before is not None and hasattr(lora_bank, "set_active_adapter") and lora_bank.has_adapter(active_before):
             lora_bank.set_active_adapter(active_before)
@@ -428,6 +458,7 @@ def _eval_segment(
 
     prompts = [format_for_infer(tok, ex.instruction, ex.input, add_generation_prompt=True) for ex in eval_examples]
     targets = [ex.output for ex in eval_examples]
+    target_refs = [_example_references(ex) for ex in eval_examples]
     effective_max_new_tokens = _resolve_eval_max_new_tokens(
         max_new_tokens=max_new_tokens,
         eval_examples=eval_examples,
@@ -592,19 +623,30 @@ def _eval_segment(
         routing_details = [{} for _ in preds]
 
     details: List[Dict[str, Any]] = []
-    for example_idx, (ex, p, pred, y, routing_detail) in enumerate(zip(eval_examples, prompts, preds, targets, routing_details)):
+    for example_idx, (ex, p, pred, y, refs, routing_detail) in enumerate(
+        zip(eval_examples, prompts, preds, targets, target_refs, routing_details)
+    ):
         total += 1
         norm_pred = _normalize(pred, prompt=p, cfg=normalization_cfg)
-        norm_gold = _normalize(y, prompt=p, cfg=normalization_cfg)
-        matched = norm_pred == norm_gold
-        token_f1 = _token_f1(norm_pred, norm_gold)
-        lcs_overlap = _lcs_overlap(norm_pred, norm_gold)
-        rouge_l = _rouge_l_fscore(norm_pred, norm_gold)
-        bleu = _sentence_bleu4(norm_pred, norm_gold)
+        norm_refs = [_normalize(ref, prompt=p, cfg=normalization_cfg) for ref in refs]
+        norm_gold = norm_refs[0] if norm_refs else _normalize(y, prompt=p, cfg=normalization_cfg)
+        official_norm_pred = _official_exact_normalize(pred)
+        official_norm_refs = [_official_exact_normalize(ref) for ref in refs]
+        matched = any(official_norm_pred == ref for ref in official_norm_refs)
+        token_f1 = max((_token_f1(norm_pred, ref) for ref in norm_refs), default=0.0)
+        lcs_overlap = max((_lcs_overlap(norm_pred, ref) for ref in norm_refs), default=0.0)
+        best_rouge_ref, rouge_l = _best_reference_by_score(
+            pred=pred,
+            refs=refs,
+            metric_name="rouge_l",
+            normalize=False,
+        )
+        bleu = max((_sentence_bleu4(norm_pred, ref) for ref in norm_refs), default=0.0)
         slot_error = _dialogue_slot_error_rate(ex.input, norm_pred)
         task_score = _score_task_aware(
             pred=pred,
             gold=y,
+            gold_references=refs,
             norm_pred=norm_pred,
             norm_gold=norm_gold,
             instruction=ex.instruction,
@@ -697,6 +739,8 @@ def _eval_segment(
                 "instruction": ex.instruction,
                 "input_text": ex.input,
                 "gold_output": y,
+                "gold_references": list(refs),
+                "best_rouge_reference": best_rouge_ref,
                 "source_segment_id": int(segment.segment_id),
                 "source_segment_name": str(segment.segment_name),
                 "source_example_idx": int(example_idx),
@@ -808,6 +852,7 @@ def _score_task_aware(
     *,
     pred: str,
     gold: str,
+    gold_references: Sequence[str],
     norm_pred: str,
     norm_gold: str,
     instruction: str,
@@ -824,15 +869,33 @@ def _score_task_aware(
             "prediction_for_scoring": norm_pred,
         }
 
+    refs = [str(ref) for ref in gold_references] or [str(gold or "")]
     pred_for_scoring = _truncate_prediction_for_scoring(pred, cfg)
     norm_pred_for_scoring = _basic_answer_normalize(pred_for_scoring)
-    norm_gold_basic = _basic_answer_normalize(gold)
     metric_name = str(cfg.get("task_score_metric", cfg.get("primary_score_metric", ""))).strip().lower()
+    if metric_name in {"", "auto", "auto_official", "official"}:
+        metric_name = _infer_official_metric_for_example(
+            gold_references=refs,
+            instruction=instruction,
+            input_text=input_text,
+        )
+    if metric_name in {"exact", "exact_match", "em", "accuracy"}:
+        pred_exact = _official_exact_normalize(pred_for_scoring)
+        matched = any(pred_exact == _official_exact_normalize(ref) for ref in refs)
+        return {
+            "task_aware_match": bool(matched),
+            "task_aware_score": float(matched),
+            "task_score_type": "exact_match",
+            "extracted_prediction": "",
+            "extracted_gold": "",
+            "prediction_for_scoring": norm_pred_for_scoring,
+        }
     if metric_name in {"rouge_l", "rouge-l", "rougel", "bleu", "bleu4", "token_f1", "lcs_overlap"}:
-        metric_score = _continuous_task_score(
+        best_ref, metric_score = _best_reference_by_score(
             metric_name=metric_name,
-            prediction=norm_pred_for_scoring,
-            gold=norm_gold_basic,
+            pred=pred_for_scoring,
+            refs=refs,
+            normalize=metric_name not in {"rouge_l", "rouge-l", "rougel"},
         )
         threshold = float(cfg.get("task_score_match_threshold", 0.5))
         return {
@@ -840,7 +903,7 @@ def _score_task_aware(
             "task_aware_score": float(metric_score),
             "task_score_type": metric_name,
             "extracted_prediction": "",
-            "extracted_gold": "",
+            "extracted_gold": best_ref,
             "prediction_for_scoring": norm_pred_for_scoring,
         }
 
@@ -858,15 +921,19 @@ def _score_task_aware(
         }
 
     pred_label = _extract_label_like_answer(pred_for_scoring, gold, instruction=instruction, input_text=input_text)
-    gold_label = _extract_label_like_answer(gold, gold, instruction=instruction, input_text=input_text)
+    gold_labels = [
+        _extract_label_like_answer(ref, ref, instruction=instruction, input_text=input_text) for ref in refs
+    ]
+    gold_labels = [label for label in gold_labels if label]
+    gold_label = gold_labels[0] if gold_labels else None
     if gold_label:
-        matched = pred_label == gold_label
+        matched = pred_label in set(gold_labels)
         return {
             "task_aware_match": bool(matched),
             "task_aware_score": float(matched),
             "task_score_type": "label_accuracy",
             "extracted_prediction": pred_label or "",
-            "extracted_gold": gold_label,
+            "extracted_gold": "|".join(gold_labels),
             "prediction_for_scoring": norm_pred_for_scoring,
         }
 
@@ -879,6 +946,48 @@ def _score_task_aware(
         "extracted_gold": "",
         "prediction_for_scoring": norm_pred_for_scoring or norm_pred,
     }
+
+
+def _official_exact_normalize(text: str) -> str:
+    # Mirrors Tk-Instruct compute_metrics.normalize_answer: lowercase, drop
+    # ASCII punctuation, then collapse whitespace. Articles are intentionally kept.
+    import string
+
+    out = str(text or "").lower()
+    out = "".join(ch for ch in out if ch not in set(string.punctuation))
+    return " ".join(out.split())
+
+
+def _infer_official_metric_for_example(
+    *,
+    gold_references: Sequence[str],
+    instruction: str,
+    input_text: str,
+) -> str:
+    refs = [str(ref) for ref in gold_references if str(ref).strip()]
+    context = f"{instruction}\n{input_text}".lower()
+    looks_classification = any(
+        key in context
+        for key in [
+            "classify",
+            "classification",
+            "label",
+            "category",
+            "sentiment",
+            "intent",
+            "choose",
+            "selecting the correct option",
+            "output '",
+        ]
+    )
+    label_like_refs = [
+        ref
+        for ref in refs
+        if _extract_label_like_answer(ref, ref, instruction=instruction, input_text=input_text)
+    ]
+    if refs and looks_classification and len(label_like_refs) == len(refs):
+        return "exact_match"
+    return "rouge_l"
 
 
 def _continuous_task_score(*, metric_name: str, prediction: str, gold: str) -> float:

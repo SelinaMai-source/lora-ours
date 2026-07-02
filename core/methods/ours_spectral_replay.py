@@ -94,6 +94,7 @@ class SpectralSparseReplayGate:
         instruction=it.instruction,
         input=it.input_text,
         output=it.target,
+        output_references=(it.target,),
       )
       for it in gated
     ]

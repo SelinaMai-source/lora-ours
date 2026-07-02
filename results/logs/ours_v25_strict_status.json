@@ -1,0 +1,16 @@
+{
+  "updated_at": "2026-07-02T13:15:00",
+  "run_id": "citb_instrdialog_order1_seed1_ours_v25_smoke_strict",
+  "classification": {
+    "state": "not_started",
+    "reason": "v25 supervision/metrics branch prepared"
+  },
+  "processes": [],
+  "log": {
+    "latest_segment": null,
+    "latest_eval": {},
+    "log_path": "/root/lora-ours/results/logs/citb_instrdialog_order1_seed1_ours_v25_smoke_strict.log",
+    "latest_eval_log_path": null
+  },
+  "artifacts": {}
+}

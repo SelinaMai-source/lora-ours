@@ -12,6 +12,7 @@ class Example:
     instruction: str
     input: str
     output: str
+    output_references: Tuple[str, ...] = ()
 
 
 @dataclass
@@ -105,6 +106,15 @@ def list_known_processed_streams() -> List[Dict[str, str]]:
     ]
 
 
+def _coerce_outputs(output_obj: Any) -> Tuple[str, ...]:
+    if output_obj is None:
+        return ("",)
+    if isinstance(output_obj, list):
+        refs = tuple(str(x) for x in output_obj if x is not None)
+        return refs or ("",)
+    return (str(output_obj),)
+
+
 def _parse_example(obj: Dict[str, Any]) -> Example:
     for k in ["instruction", "input", "output"]:
         if k not in obj:
@@ -113,10 +123,12 @@ def _parse_example(obj: Dict[str, Any]) -> Example:
         str(obj["instruction"]),
         _normalize_positive_examples(obj.get("positive_examples")),
     )
+    output_references = _coerce_outputs(obj.get("output_references", obj.get("output")))
     return Example(
         instruction=instruction,
         input=str(obj.get("input", "")),
-        output=str(obj["output"]),
+        output=output_references[0],
+        output_references=output_references,
     )
 
 
@@ -357,7 +369,7 @@ def prepare_processed_stream_path(
             processed_stream_name=processed_stream_name,
         )
     except FileNotFoundError:
-        if processed_stream_file or not auto_prepare_processed:
+        if not auto_prepare_processed:
             raise
 
     spec = get_processed_stream_spec(processed_stream_name)
@@ -367,7 +379,12 @@ def prepare_processed_stream_path(
             f"Known options: {[x['stream_name'] for x in list_known_processed_streams()]}"
         )
 
-    out_path = Path(processed_stream_dir) / spec.processed_file
+    if processed_stream_file:
+        out_path = Path(processed_stream_file)
+        if not out_path.is_absolute():
+            out_path = Path(processed_stream_dir) / out_path
+    else:
+        out_path = Path(processed_stream_dir) / spec.processed_file
     preprocess_citb_raw_to_processed(
         raw_root=str(raw_citb_root or Path("data/raw/citb")),
         processed_out_path=str(out_path),
@@ -460,28 +477,22 @@ def preprocess_citb_raw_to_processed(
 
     def to_outputs(output_obj: Any) -> List[str]:
         # CITB task json typically uses `output: [str, ...]` inside each instance.
-        if output_obj is None:
-            return [""]
-        if isinstance(output_obj, list):
-            return [str(x) for x in output_obj]
-        return [str(output_obj)]
+        return list(_coerce_outputs(output_obj))
 
-    def instance_to_examples(
+    def instance_to_example(
         task_instruction: str,
         inst: Dict[str, Any],
         positive_examples: List[Dict[str, str]],
-    ) -> List[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         in_text = str(inst.get("input", ""))
         outs = to_outputs(inst.get("output"))
-        return [
-            {
-                "instruction": task_instruction,
-                "input": in_text,
-                "output": o,
-                "positive_examples": positive_examples,
-            }
-            for o in outs
-        ]
+        return {
+            "instruction": task_instruction,
+            "input": in_text,
+            "output": outs,
+            "output_references": outs,
+            "positive_examples": positive_examples,
+        }
 
     segments: List[Dict[str, Any]] = []
     for seg_id, task_name in enumerate(task_order):
@@ -511,13 +522,13 @@ def preprocess_citb_raw_to_processed(
         rng.shuffle(remaining)
         train_instances = remaining[:max_train]
 
-        train_examples: List[Dict[str, str]] = []
+        train_examples: List[Dict[str, Any]] = []
         for inst in train_instances:
-            train_examples.extend(instance_to_examples(instruction, inst, positive_examples))
+            train_examples.append(instance_to_example(instruction, inst, positive_examples))
 
-        eval_examples: List[Dict[str, str]] = []
+        eval_examples: List[Dict[str, Any]] = []
         for inst in test_instances:
-            eval_examples.extend(instance_to_examples(instruction, inst, positive_examples))
+            eval_examples.append(instance_to_example(instruction, inst, positive_examples))
 
         segments.append(
             {
