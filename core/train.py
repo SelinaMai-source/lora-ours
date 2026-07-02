@@ -266,6 +266,7 @@ def _load_stream(cfg: Dict[str, Any], *, mode: str, logger: SimpleLogger) -> Con
     sample_stream_path = paths.get("sample_stream_path")
     processed_dir = paths.get("processed_stream_dir")
     processed_file = str(paths.get("processed_stream_file", "")).strip()
+    processed_task_order_file = str(paths.get("processed_task_order_file", "")).strip()
     raw_citb_root = str(paths.get("raw_citb_root", "data/raw/citb")).strip()
 
     if mode == "debug":
@@ -288,6 +289,7 @@ def _load_stream(cfg: Dict[str, Any], *, mode: str, logger: SimpleLogger) -> Con
     auto_prepare_processed = bool(data_cfg.get("auto_prepare_processed", False))
     processed_stream_train_instances_per_task = int(data_cfg.get("processed_stream_train_instances_per_task", 50))
     processed_stream_eval_instances_per_task = int(data_cfg.get("processed_stream_eval_instances_per_task", 10))
+    processed_stream_dev_instances_per_task = int(data_cfg.get("processed_stream_dev_instances_per_task", 50))
     processed_stream_limit_tasks = int(data_cfg.get("processed_stream_limit_tasks", -1))
     max_segments = int(data_cfg.get("max_segments", -1))
     max_train = int(data_cfg.get("max_train_examples_per_segment", -1))
@@ -308,11 +310,13 @@ def _load_stream(cfg: Dict[str, Any], *, mode: str, logger: SimpleLogger) -> Con
         processed_stream_dir=str(processed_dir),
         processed_stream_file=processed_file,
         processed_stream_name=processed_stream_name,
+        processed_task_order_file=processed_task_order_file,
         auto_prepare_processed=auto_prepare_processed,
         raw_citb_root=raw_citb_root,
         seed=int(cfg.get("seed", 0)),
         processed_stream_train_instances_per_task=processed_stream_train_instances_per_task,
         processed_stream_eval_instances_per_task=processed_stream_eval_instances_per_task,
+        processed_stream_dev_instances_per_task=processed_stream_dev_instances_per_task,
         processed_stream_limit_tasks=processed_stream_limit_tasks,
         max_segments=max_segments,
         max_train_examples_per_segment=max_train,

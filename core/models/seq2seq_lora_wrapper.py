@@ -41,6 +41,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         self.tokenizer = AutoTokenizer.from_pretrained(cfg.hf_model_name_or_path, use_fast=True)
         fmt_style = str(getattr(cfg, "format_style", "") or "citb_t5").strip().lower()
         setattr(self.tokenizer, "_ours_format_style", fmt_style)
+        setattr(self.tokenizer, "_ours_max_source_len", int(cfg.max_source_len))
         if self.tokenizer.pad_token_id is None and self.tokenizer.eos_token_id is not None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 

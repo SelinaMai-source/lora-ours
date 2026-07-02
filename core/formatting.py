@@ -40,6 +40,51 @@ def format_citb_t5(instruction: str, input_text: str) -> str:
     return definition + task_input
 
 
+def _split_embedded_positive_examples(instruction: str) -> tuple[str, List[str]]:
+    text = str(instruction or "").strip()
+    marker = "\n\n Positive Example "
+    if marker not in text:
+        return text, []
+    base, rest = text.split(marker, 1)
+    blocks: List[str] = []
+    for chunk in rest.split(marker):
+        block = " Positive Example " + chunk.strip()
+        if block:
+            blocks.append(block + "\n\n")
+    return base.strip(), blocks
+
+
+def format_citb_t5_len_aware(tokenizer: Any, instruction: str, input_text: str) -> str:
+    """
+    Official CITB/Tk-Instruct prompt with collator-style positive-example fitting.
+
+    The official collator tries to add each positive example only if the resulting
+    source still fits `max_source_length`. This prevents long examples from
+    truncating the actual eval/train input off the right edge.
+    """
+    base_instruction, positive_blocks = _split_embedded_positive_examples(instruction)
+    if not positive_blocks:
+        return format_citb_t5(base_instruction, input_text)
+
+    base_prompt = format_citb_t5(base_instruction, input_text)
+    definition, task_input = base_prompt.split("Now complete the following example -\n", 1)
+    task_input = "Now complete the following example -\n" + task_input
+    max_source_len = int(getattr(tokenizer, "_ours_max_source_len", 1024) or 1024)
+
+    selected: List[str] = []
+    for block in positive_blocks:
+        candidate = definition + "".join(selected) + block + task_input
+        try:
+            tokenized_len = len(tokenizer(candidate)["input_ids"])
+        except Exception:
+            tokenized_len = max_source_len + 1
+        if tokenized_len <= max_source_len:
+            selected.append(block)
+        else:
+            break
+    return definition + "".join(selected) + task_input
+
+
 def build_user_content(instruction: str, input_text: str) -> str:
     ins = str(instruction or "").strip()
     inp = str(input_text or "").strip()
@@ -71,7 +116,7 @@ def format_for_infer(
     style = _resolve_format_style(tokenizer, format_style=format_style)
     if style == "citb_t5":
         _ = add_generation_prompt
-        return format_citb_t5(instruction, input_text)
+        return format_citb_t5_len_aware(tokenizer, instruction, input_text)
     if style == "plain" or not _supports_chat_template(tokenizer):
         _ = add_generation_prompt
         return build_user_content(instruction, input_text)

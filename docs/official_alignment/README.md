@@ -36,3 +36,8 @@ RUN_PREFLIGHT=0 SESSION=lora-ours-v0-smoke bash scripts/phase1_tmux_launch.sh
 Do not claim SOTA or compare against baselines from this directory unless the
 corresponding official alignment audit records a completed strict run with real
 data, real checkpoints, logs, and metrics.
+
+Recent ours strict-smoke notes:
+
+- `ours_v23_seq2seq_protocol_note.md`: restores official CITB/Tk-Instruct two-positive-example seq2seq prompt protocol for a v23 smoke gate.
+- `ours_v22_generation_effective_note.md`: records the v22 active-branch training fix and the remaining generation/input-copying failure.

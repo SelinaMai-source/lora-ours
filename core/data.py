@@ -109,11 +109,62 @@ def _parse_example(obj: Dict[str, Any]) -> Example:
     for k in ["instruction", "input", "output"]:
         if k not in obj:
             raise ValueError(f"Example missing key '{k}': {obj}")
+    instruction = _augment_instruction_with_positive_examples(
+        str(obj["instruction"]),
+        _normalize_positive_examples(obj.get("positive_examples")),
+    )
     return Example(
-        instruction=str(obj["instruction"]),
+        instruction=instruction,
         input=str(obj.get("input", "")),
         output=str(obj["output"]),
     )
+
+
+def _ensure_terminal_punctuation(text: str) -> str:
+    out = str(text or "").strip()
+    if out and out[-1] not in ".?!,:;":
+        out += "."
+    return out
+
+
+def _normalize_positive_examples(raw_examples: Any, *, max_examples: int = 2) -> List[Dict[str, str]]:
+    if not isinstance(raw_examples, list):
+        return []
+    out: List[Dict[str, str]] = []
+    for raw in raw_examples:
+        if not isinstance(raw, dict):
+            continue
+        raw_output = raw.get("output", "")
+        if isinstance(raw_output, list):
+            output_text = str(raw_output[0]) if raw_output else ""
+        else:
+            output_text = str(raw_output)
+        out.append(
+            {
+                "input": str(raw.get("input", "")),
+                "output": output_text,
+            }
+        )
+        if len(out) >= int(max_examples):
+            break
+    return out
+
+
+def _augment_instruction_with_positive_examples(instruction: str, positive_examples: List[Dict[str, str]]) -> str:
+    """
+    Render the official CITB/Tk-Instruct two-example prompt inside the instruction
+    field so existing (instruction, input) training/eval APIs remain unchanged.
+    """
+    base = str(instruction or "").strip()
+    if not positive_examples or "Positive Example 1 -" in base:
+        return base
+    parts = [_ensure_terminal_punctuation(base)]
+    for idx, example in enumerate(positive_examples, start=1):
+        pos = f" Positive Example {idx} -\n"
+        pos += f"Input: {_ensure_terminal_punctuation(example.get('input', ''))}\n"
+        pos += f" Output: {_ensure_terminal_punctuation(example.get('output', ''))}\n"
+        parts.append(pos)
+    return "\n\n".join(parts)
 
 
 def _parse_stream_json(path: str) -> ContinualStream:
@@ -157,11 +208,13 @@ def load_continual_stream(
     processed_stream_dir: Optional[str],
     processed_stream_file: str = "",
     processed_stream_name: str = "",
+    processed_task_order_file: str = "",
     auto_prepare_processed: bool = False,
     raw_citb_root: Optional[str] = None,
     seed: int = 10,
     processed_stream_train_instances_per_task: int = 50,
     processed_stream_eval_instances_per_task: int = 10,
+    processed_stream_dev_instances_per_task: int = 50,
     processed_stream_limit_tasks: int = -1,
     max_segments: int = -1,
     max_train_examples_per_segment: int = -1,
@@ -185,11 +238,13 @@ def load_continual_stream(
             processed_stream_dir=processed_stream_dir,
             processed_stream_file=processed_stream_file,
             processed_stream_name=processed_stream_name,
+            processed_task_order_file=processed_task_order_file,
             auto_prepare_processed=auto_prepare_processed,
             raw_citb_root=raw_citb_root,
             seed=seed,
             max_train_instances_per_task=processed_stream_train_instances_per_task,
             max_eval_instances_per_task=processed_stream_eval_instances_per_task,
+            max_dev_instances_per_task=processed_stream_dev_instances_per_task,
             limit_tasks=processed_stream_limit_tasks,
         )
         stream = _parse_stream_json(stream_path)
@@ -286,11 +341,13 @@ def prepare_processed_stream_path(
     processed_stream_dir: str,
     processed_stream_file: str = "",
     processed_stream_name: str = "",
+    processed_task_order_file: str = "",
     auto_prepare_processed: bool = False,
     raw_citb_root: Optional[str] = None,
     seed: int = 10,
     max_train_instances_per_task: int = 50,
     max_eval_instances_per_task: int = 10,
+    max_dev_instances_per_task: int = 50,
     limit_tasks: int = -1,
 ) -> str:
     try:
@@ -317,9 +374,11 @@ def prepare_processed_stream_path(
         benchmark_name=spec.benchmark_name,
         version=spec.version,
         split_name=spec.split_name,
+        task_order_file=processed_task_order_file,
         seed=seed,
         max_train_instances_per_task=max_train_instances_per_task,
         max_eval_instances_per_task=max_eval_instances_per_task,
+        max_dev_instances_per_task=max_dev_instances_per_task,
         limit_tasks=limit_tasks,
     )
     return str(out_path)
@@ -332,9 +391,11 @@ def preprocess_citb_raw_to_processed(
     benchmark_name: str = "CITB",
     version: str = "unknown",
     split_name: str = "cl_dialogue_tasks",
+    task_order_file: str = "",
     seed: int = 10,
     max_train_instances_per_task: int = 50,
     max_eval_instances_per_task: int = 10,
+    max_dev_instances_per_task: int = 50,
     limit_tasks: int = -1,
 ) -> None:
     """
@@ -365,9 +426,14 @@ def preprocess_citb_raw_to_processed(
     tasks_dir = citb_root / "data" / "tasks"
     splits_dir = citb_root / "data" / "splits" / "CIT_splits"
 
-    split_txt_path = splits_dir / f"{split_name}.txt"
+    if task_order_file:
+        split_txt_path = Path(task_order_file)
+        if not split_txt_path.is_absolute():
+            split_txt_path = citb_root / split_txt_path
+    else:
+        split_txt_path = splits_dir / f"{split_name}.txt"
     if not split_txt_path.exists():
-        raise FileNotFoundError(f"CITB split txt not found: {split_txt_path}")
+        raise FileNotFoundError(f"CITB task order/split txt not found: {split_txt_path}")
     if not tasks_dir.exists():
         raise FileNotFoundError(f"CITB tasks dir not found: {tasks_dir}")
 
@@ -400,11 +466,20 @@ def preprocess_citb_raw_to_processed(
             return [str(x) for x in output_obj]
         return [str(output_obj)]
 
-    def instance_to_examples(task_instruction: str, inst: Dict[str, Any]) -> List[Dict[str, str]]:
+    def instance_to_examples(
+        task_instruction: str,
+        inst: Dict[str, Any],
+        positive_examples: List[Dict[str, str]],
+    ) -> List[Dict[str, Any]]:
         in_text = str(inst.get("input", ""))
         outs = to_outputs(inst.get("output"))
         return [
-            {"instruction": task_instruction, "input": in_text, "output": o}
+            {
+                "instruction": task_instruction,
+                "input": in_text,
+                "output": o,
+                "positive_examples": positive_examples,
+            }
             for o in outs
         ]
 
@@ -418,29 +493,31 @@ def preprocess_citb_raw_to_processed(
             obj = json.load(f)
 
         instruction = first_definition(obj.get("Definition"))
+        positive_examples = _normalize_positive_examples(obj.get("Positive Examples"))
         instances = obj.get("Instances") or []
         if not isinstance(instances, list) or not instances:
             raise ValueError(f"No Instances found in task json: {task_json_path}")
 
         max_eval = max(0, int(max_eval_instances_per_task))
+        max_dev = max(0, int(max_dev_instances_per_task))
         max_train = max(0, int(max_train_instances_per_task))
 
         # Mirror `train_dev_test_split_by_task(..., continual=False)` behavior:
         # - test: first max_eval instances
-        # - dev: next max_eval instances (ignored in our processed format)
-        # - remaining after max_eval*2: shuffle, then take max_train instances
+        # - dev: next max_dev instances (ignored in our processed format)
+        # - remaining after test+dev: shuffle, then take max_train instances
         test_instances = instances[:max_eval]
-        remaining = instances[max_eval * 2 :]
+        remaining = instances[max_eval + max_dev :]
         rng.shuffle(remaining)
         train_instances = remaining[:max_train]
 
         train_examples: List[Dict[str, str]] = []
         for inst in train_instances:
-            train_examples.extend(instance_to_examples(instruction, inst))
+            train_examples.extend(instance_to_examples(instruction, inst, positive_examples))
 
         eval_examples: List[Dict[str, str]] = []
         for inst in test_instances:
-            eval_examples.extend(instance_to_examples(instruction, inst))
+            eval_examples.extend(instance_to_examples(instruction, inst, positive_examples))
 
         segments.append(
             {
