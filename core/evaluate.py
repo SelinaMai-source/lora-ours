@@ -456,7 +456,13 @@ def _eval_segment(
     infer_token_audit_max_examples = int(normalization_cfg.get("infer_token_audit_max_examples", 8))
     teacher_forced_eval_max_examples = int(normalization_cfg.get("teacher_forced_eval_max_examples", 8))
 
-    prompts = [format_for_infer(tok, ex.instruction, ex.input, add_generation_prompt=True) for ex in eval_examples]
+    base_prompts = [format_for_infer(tok, ex.instruction, ex.input, add_generation_prompt=True) for ex in eval_examples]
+    prompts, conditioning_details = _condition_prompts_with_target_prototypes(
+        segment=segment,
+        eval_examples=eval_examples,
+        prompts=base_prompts,
+        normalization_cfg=normalization_cfg,
+    )
     targets = [ex.output for ex in eval_examples]
     target_refs = [_example_references(ex) for ex in eval_examples]
     effective_max_new_tokens = _resolve_eval_max_new_tokens(
@@ -484,10 +490,15 @@ def _eval_segment(
         branch_meta = lora_bank.state_dict()
         preds: List[str] = []
         routing_details: List[Dict[str, Any]] = []
-        for ex, p in zip(eval_examples, prompts):
-            features = _extract_router_feature_for_prompt(model, router, lora_bank, p)
+        for ex, route_prompt, generation_prompt, conditioning_detail in zip(
+            eval_examples,
+            base_prompts,
+            prompts,
+            conditioning_details,
+        ):
+            features = _extract_router_feature_for_prompt(model, router, lora_bank, route_prompt)
             decision = router.predict_branch(
-                prompt=p,
+                prompt=route_prompt,
                 branch_names=branch_names,
                 branch_meta=branch_meta,
                 segment_id=segment_id,
@@ -518,7 +529,7 @@ def _eval_segment(
                 candidates = [b for b, _ in ranked[:top_k]]
                 for cand in candidates:
                     lora_bank.set_active_adapter(cand)
-                    cand_nlls[cand] = float(model.score_prompt_nlls([p])[0])
+                    cand_nlls[cand] = float(model.score_prompt_nlls([route_prompt])[0])
                 arbitrated = min(cand_nlls, key=cand_nlls.get)
                 routing_stats["nll_arbitration_count"] = routing_stats.get("nll_arbitration_count", 0) + 1
                 routing_stats["nll_arbitration_changed"] = routing_stats.get("nll_arbitration_changed", 0)
@@ -555,6 +566,7 @@ def _eval_segment(
                     "routing_nll_arbitration_candidates": cand_nlls if arbitrated_low_margin else {},
                     "routing_nll_arbitration_original_branch": original_branch if arbitrated_low_margin else "",
                     "routing_nll_arbitration_changed": bool(arbitrated_low_margin and decision.branch_name != original_branch),
+                    **conditioning_detail,
                 }
             )
             margin_gate_hard = bool(
@@ -627,14 +639,14 @@ def _eval_segment(
             
             generated = _generate_with_optional_min_new_tokens(
                 model,
-                [p],
+                [generation_prompt],
                 max_new_tokens=effective_max_new_tokens,
                 min_new_tokens=effective_min_new_tokens,
                 generation_kwargs=generation_kwargs,
             )[0]
             generated, collapse_retry_detail = _maybe_retry_bucket_collapse_generation(
                 model,
-                prompt=p,
+                prompt=generation_prompt,
                 prediction=generated,
                 segment_name=segment.segment_name,
                 max_new_tokens=effective_max_new_tokens,
@@ -665,7 +677,7 @@ def _eval_segment(
                 min_new_tokens=effective_min_new_tokens,
                 generation_kwargs=generation_kwargs,
             )
-        routing_details = [{} for _ in preds]
+        routing_details = list(conditioning_details)
 
     details: List[Dict[str, Any]] = []
     for example_idx, (ex, p, pred, y, refs, routing_detail) in enumerate(
@@ -870,6 +882,95 @@ def _merge_routing_stats(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
             "oracle_num_examples",
         }:
             dst[key] = int(dst.get(key, 0)) + int(value or 0)
+
+
+def _condition_prompts_with_target_prototypes(
+    *,
+    segment: Segment,
+    eval_examples: List[Example],
+    prompts: List[str],
+    normalization_cfg: Dict[str, Any],
+) -> Tuple[List[str], List[Dict[str, Any]]]:
+    cfg = normalization_cfg.get("target_prototype_conditioning", {})
+    if not isinstance(cfg, dict):
+        cfg = {}
+    if not bool(cfg.get("enabled", False)):
+        return list(prompts), [{} for _ in prompts]
+
+    patterns = cfg.get("segment_name_patterns", cfg.get("name_patterns", []))
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    name = str(segment.segment_name or "")
+    if patterns and not any(re.search(str(pattern), name, flags=re.IGNORECASE) for pattern in patterns):
+        return list(prompts), [{} for _ in prompts]
+
+    candidates = [
+        {
+            "input_terms": set(_prediction_words(ex.input)),
+            "target_terms": set(_prediction_words(ex.output)),
+            "target": _truncate_target_prototype(ex.output, int(cfg.get("max_target_chars", 160))),
+        }
+        for ex in segment.train
+        if str(ex.output or "").strip()
+    ]
+    candidates = [c for c in candidates if c["target"]]
+    if not candidates:
+        return list(prompts), [{} for _ in prompts]
+
+    top_k = max(1, int(cfg.get("top_k", 2)))
+    min_overlap = max(0, int(cfg.get("min_input_overlap", 1)))
+    include_target_overlap = bool(cfg.get("include_target_term_overlap", True))
+    header = str(
+        cfg.get(
+            "header",
+            "Relevant response prototypes from similar training dialogues:",
+        )
+    ).strip()
+
+    conditioned_prompts: List[str] = []
+    details: List[Dict[str, Any]] = []
+    for ex, prompt in zip(eval_examples, prompts):
+        query_terms = set(_prediction_words(ex.input))
+        ranked: List[Tuple[float, str]] = []
+        for cand in candidates:
+            input_overlap = len(query_terms & cand["input_terms"])
+            target_overlap = len(query_terms & cand["target_terms"]) if include_target_overlap else 0
+            score = float(input_overlap) + 0.25 * float(target_overlap)
+            if input_overlap >= min_overlap or (min_overlap == 0 and score > 0.0):
+                ranked.append((score, str(cand["target"])))
+        ranked.sort(key=lambda item: (-item[0], item[1]))
+
+        selected: List[str] = []
+        seen = set()
+        for _, target in ranked:
+            key = target.lower()
+            if key in seen:
+                continue
+            selected.append(target)
+            seen.add(key)
+            if len(selected) >= top_k:
+                break
+
+        if selected:
+            block = header + "\n" + "\n".join(f"- {target}" for target in selected)
+            conditioned_prompts.append(f"{block}\n\n{prompt}")
+        else:
+            conditioned_prompts.append(prompt)
+        details.append(
+            {
+                "target_prototype_conditioning_enabled": bool(selected),
+                "target_prototype_conditioning_count": int(len(selected)),
+                "target_prototype_conditioning_targets": selected,
+            }
+        )
+    return conditioned_prompts, details
+
+
+def _truncate_target_prototype(text: str, max_chars: int) -> str:
+    target = re.sub(r"\s+", " ", str(text or "")).strip()
+    if max_chars <= 0 or len(target) <= max_chars:
+        return target
+    return target[: max(0, max_chars - 1)].rstrip() + "..."
 
 
 def _resolve_eval_min_new_tokens(

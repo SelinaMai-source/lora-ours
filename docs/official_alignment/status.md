@@ -60,6 +60,9 @@ Updated: 2026-07-03
 - Current v40 smoke candidate: `citb_instrdialog_order1_seed1_ours_v40_smoke_strict`.
 - Decision pending: v40 keeps v39 routing/decoding/speaker buckets unchanged and adds config-gated content-token loss emphasis for speaker-prefixed Dialogue targets (`agent`/`customer`). This tests Dialogue content supervision directly without repeating router or first-token weighting changes.
 - v40 launch: started 2026-07-03 in tmux session `ours-v40-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v40`, run `o3jyaf92`; monitor status is `results/logs/ours_v40_strict_status.md`.
+- v40 smoke result: five-segment smoke completed, but task574 stayed blocked at task-aware `0.03`; final task-aware trajectory was `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, exact AR `0.158`. Content loss did activate on task574 (`train.content_loss_weight=3.0`, weighted-token ratio `~0.15`), but the current debug subset still selected `b4`/oracle `b4` for 25/25 examples and kept producing generic `agent`/`customer` templates. Do not launch full strict from v40.
+- Current v41 smoke candidate: `citb_instrdialog_order1_seed1_ours_v41_smoke_strict`.
+- Decision pending: v41 keeps v40 training/routing/decoding unchanged and adds config-gated eval-time target prototype conditioning only for task574/air-dialogue generation. The conditioning retrieves short target prototypes from same-segment train examples using input overlap and prepends them to the generation prompt; routing still uses the original prompt.
 
 ## Evidence
 
@@ -99,4 +102,4 @@ Updated: 2026-07-03
 
 ## Next Step
 
-Run `citb_instrdialog_order1_seed1_ours_v40_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved. If v40 still fails, the next diagnosis should focus on Dialogue-generation content supervision/overfit behavior rather than router-only changes; any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
+Run `citb_instrdialog_order1_seed1_ours_v41_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
