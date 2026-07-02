@@ -30,3 +30,11 @@ This is an implementation and experiment-control note. It does not claim SOTA.
 - Required early signal: segment 2 must not repeat `current_score=0.0` with `b0=300/300` eval routing collapse.
 - Segment 2 train metrics should show `task_aware_fallback_training_branch=b1` and `task_aware_fallback_assignment_after_proto=b1`; eval routing should route the current segment away from the old all-`b0` collapse.
 - Full strict CITB can be queued only after smoke clears the early gate; smoke results must not be reported as SOTA.
+
+## Smoke Result
+
+- 2026-07-02 local: v21 smoke `citb_instrdialog_order1_seed1_ours_v21_smoke_strict` reached segment 2 and was early-stopped.
+- Segment 2 preserved the intended mapping: `task_aware_fallback_training_branch=b1`, `task_aware_fallback_assignment_after_proto=b1`, `task_aware_fallback_assignment_preserved=true`.
+- Eval routing no longer collapsed to all `b0`: aggregate branch counts were `b0=200`, `b1=100`; debug examples were stratified by source segment and showed source segment 2 routed to `b1=20/20`.
+- The score gate still failed: `current_score=0.0`, `current_task_aware_score=0.04`, `seen_avg_score=0.19000000000000003`, `seen_avg_task_aware_score=0.20333333333333334`.
+- Diagnosis: v21 fixed the eval-routing collapse, but the branch that received/routed the current task (`b1`) still generated zero exact matches on segment 2. Do not launch v21 full strict. The next iteration should focus on segment 2 training/generation effectiveness for the routed branch, not on task-aware routing.
