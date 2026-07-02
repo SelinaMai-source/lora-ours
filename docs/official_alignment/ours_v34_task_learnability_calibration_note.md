@@ -48,8 +48,7 @@ The length prior uses only training targets from the same segment and is config-
 - Run: `citb_instrdialog_order1_seed1_ours_v34_smoke_strict`.
 - W&B: project `lora-ours-v34`, run `6bobb6qt`.
 - Monitor: `results/logs/ours_v34_strict_status.md`.
-- Interim through segment2: `[0.46, 0.29, 0.28]` task-aware; seen task-aware after segment2 `0.3367`. Segment3 pending.
-- Do not launch full strict unless:
-  - segment2 stays near healthy;
-  - segment3 improves without retry acceptance;
-  - task1714 debug outputs are non-bare and not prompt-template continuations.
+- Final task-aware matrix: `[0.44, 0.29, 0.28, 0.12]`; final task-aware AR `0.2825`, BWT `-0.0067`.
+- Segment3 improved from v33 `0.08` to `0.12` without retry, but still below the old local `0.1825` reference and below the health gate.
+- Current-task debug audit (`25` task1714 examples): `0/25` bare `yes/no/i`; `12/25` start with `if`, `9/25` with `i`; `25/25` bad prefix mismatch. Generation overrides were active (`num_beams=4`, `min_new_tokens=5`).
+- Decision: do not launch full strict.
