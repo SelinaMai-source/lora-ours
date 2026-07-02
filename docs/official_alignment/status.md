@@ -4,7 +4,7 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v35-adapter-dynamics-calibration`.
+- Active branch: `ours-v36-soft-adapter-dynamics`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -40,6 +40,8 @@ Updated: 2026-07-02
 - Decision pending: v35 keeps v34 scoring/generation calibration and changes adapter dynamics only: train LoRA A, switch seq2seq LoRA optimization to AdamW, increase rank to 32, add attention `k/o` targets, and disable ODE rectification for this run.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v35_smoke_strict`.
 - v35 smoke result: segment matrix task-aware `[0.51, 0.26, 0.21, 0.09]`; final task-aware AR `0.2675`, BWT `0.0067`. Adapter updates are no longer stale (`lora_param_delta_l2` rose from v34 `~1e-5` to `~1.5e-2`-`1.9e-2`), confirming the optimizer/trainability issue was real. However, segment2 regressed from v34 `0.28` to `0.21`, segment3 regressed from `0.12` to `0.09`, and current task1714 debug shifted from `if...` to generic `I...` utterances (`20/25` first token `i`, `0/25` bare `yes/no/i`, `0/25` template continuations). Do not launch full strict.
+- Current v36 smoke candidate: `citb_instrdialog_order1_seed1_ours_v36_smoke_strict`.
+- Decision pending: v36 keeps the v35 finding that AdamW and trainable LoRA A are needed, but softens update dynamics by returning to v34 capacity/targets (`r16/alpha32/q,v/dropout0.05`), lowering LR to `2e-5`, and restoring ODE rectification. Gate: preserve segment2 near v34 health (`~0.28`) while lifting task1714 above v34 (`>0.12`) before any full strict.
 
 ## Evidence
 
@@ -77,4 +79,4 @@ Updated: 2026-07-02
 
 ## Next Step
 
-Do not launch full strict on v35. Next iteration should keep the v35 finding that AdamW/trainable adapter updates are necessary, but reduce the overcorrection: test a softer adapter-dynamics variant before any full strict, e.g. lower LR/capacity or isolate which of trainable LoRA A, AdamW, `k/o` targets, and rectification disablement caused segment2/task1714 regression.
+Do not launch full strict on v35/v36 until the smoke gate clears. Run v36 first as the minimal soft adapter-dynamics smoke; if it fails, use the observed update norms and segment2/3 scores to pick one more small isolation probe rather than a broad matrix.
