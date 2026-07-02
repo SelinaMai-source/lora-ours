@@ -1666,6 +1666,9 @@ def _train_with_routed_assignments(
     branch_to_examples: Dict[str, List[int]] = {}
     for idx, branch_name in enumerate(assignments):
         branch_to_examples.setdefault(branch_name, []).append(idx)
+    if hasattr(router, "record_segment_assignment") and branch_to_examples:
+        majority_training_branch = max(branch_to_examples.items(), key=lambda kv: (len(kv[1]), kv[0]))[0]
+        router.record_segment_assignment(segment.segment_id, majority_training_branch)
 
     batch_accs: List[float] = []
     batch_losses: List[float] = []
@@ -1759,6 +1762,9 @@ def _train_with_routed_assignments(
         "lr": float(lr),
         "router_training_strategy": strategy,
         "routed_train_examples": int(len(assignments)),
+        "task_aware_fallback_training_branch": max(branch_to_examples.items(), key=lambda kv: (len(kv[1]), kv[0]))[0]
+        if branch_to_examples
+        else "",
         **assignment_metrics,
     }
     if overlap_steps > 0:

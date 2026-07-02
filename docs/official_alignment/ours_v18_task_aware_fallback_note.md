@@ -53,3 +53,15 @@ This is an implementation and experiment-control note. It does not claim SOTA.
 
 - v18 is a small corrective iteration for router collapse and replay/overlap calibration.
 - The next allowed step is the CITB v18 smoke run. If it does not clear the early gate, stop and diagnose before launching full CITB or downstream suites.
+
+## Live Smoke Observation
+
+- 2026-07-02 10:26 local: `citb_instrdialog_order1_seed1_ours_v18_smoke_strict` reached the first eval after segment 0.
+- Segment 0 metrics from W&B/local output: `current_score=0.28`, `seen_avg_score=0.28`, `current_task_aware_score=0.28`, `seen_avg_task_aware_score=0.28`.
+- 2026-07-02 10:30 local: segment 1 eval reported `current_score=0.29`, `seen_avg_score=0.285`, `current_task_aware_score=0.29`, `seen_avg_task_aware_score=0.285`.
+- These first two evals clear the configured early-stop floor of `0.10`. They are only early health signals, not full strict CITB results or SOTA claims.
+- Routing still needs monitoring: after segment 1, predictions route all examples to `b0`, while oracle-best counts include `b1=57/200` and oracle agreement is `0.715`.
+- The v18 monitor now parses both the primary log and W&B `output.log` because eval lines are emitted to the W&B-local output during the active run; monitor refresh is `60s`.
+- 2026-07-02 10:36 local: segment 2 reproduced the old failure trajectory. `current_score=0.0`, `current_task_aware_score=0.05`, `seen_avg_score=0.19`, `seen_avg_task_aware_score=0.2067`.
+- Segment 2 eval routing collapsed to `b0=300/300`, while oracle-best counts were `b0=199`, `b1=52`, `b2=49`; training immediately before eval had assigned the segment mainly to trainable `b1` with some `b2`.
+- The run was manually early-stopped and `stop_and_diagnose.json` was written under the v18 smoke run directory. The next iteration is v19, focused on recording actual training assignment as the task-aware fallback target and auditing fallback hits.

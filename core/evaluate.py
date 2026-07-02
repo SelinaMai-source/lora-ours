@@ -465,6 +465,8 @@ def _eval_segment(
                 decision.reason = f"{decision.reason}+nll_arbitration"
                 arbitrated_low_margin = True
                 prob_scores = {b: (1.0 if b == arbitrated else 0.0) for b in prob_scores}
+            if "task_aware_fallback" in str(getattr(decision, "reason", "")):
+                routing_stats["task_aware_fallback_count"] = routing_stats.get("task_aware_fallback_count", 0) + 1
             routing_stats["num_routed"] += 1
             routing_stats["branch_counts"][decision.branch_name] = (
                 routing_stats["branch_counts"].get(decision.branch_name, 0) + 1
@@ -486,6 +488,7 @@ def _eval_segment(
                     "routing_oracle_branch": oracle["oracle_branch"],
                     "routing_oracle_margin": float(oracle["oracle_margin"]),
                     "routing_oracle_best_loss": float(oracle["oracle_best_loss"]),
+                    "routing_reason": str(getattr(decision, "reason", "")),
                 }
             )
             margin_gate_hard = bool(
@@ -749,6 +752,15 @@ def _merge_routing_stats(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
     dst["confidence_sum"] += float(src.get("confidence_sum", 0.0))
     dst["entropy_sum"] += float(src.get("entropy_sum", 0.0))
     dst["oracle_margin_sum"] += float(src.get("oracle_margin_sum", 0.0))
+    for key, value in src.items():
+        if key.endswith("_count") and key not in dst:
+            dst[key] = 0
+        if key.endswith("_count") and key not in {
+            "num_routed",
+            "oracle_agreement_count",
+            "oracle_num_examples",
+        }:
+            dst[key] = int(dst.get(key, 0)) + int(value or 0)
 
 
 def _resolve_eval_max_new_tokens(

@@ -1,0 +1,29 @@
+{
+  "recommendation": "stop_and_diagnose",
+  "reason": "manual_stop_repeated_router_collapse_current_segment_zero",
+  "segment_id": 2,
+  "config_path": "configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v18_smoke_strict.yaml",
+  "run_dir": "results/runs/citb_instrdialog_order1_seed1_ours_v18_smoke_strict",
+  "metrics": {
+    "current_score": 0.0,
+    "seen_avg_score": 0.19000000000000003,
+    "current_task_aware_score": 0.05,
+    "seen_avg_task_aware_score": 0.20666666666666667,
+    "num_seen_segments": 3
+  },
+  "routing": {
+    "branch_counts": {
+      "b0": 300
+    },
+    "oracle_best_branch_counts": {
+      "b0": 199,
+      "b1": 52,
+      "b2": 49
+    },
+    "oracle_agreement_rate": 0.6633333333333333,
+    "decision_confidence_mean": 0.724741435709545,
+    "decision_entropy_mean": 0.6462421732413065,
+    "oracle_margin_mean": 0.008951822916666666
+  },
+  "diagnosis": "Segment 2 repeated the v17 failure pattern: current score dropped to zero while eval routing collapsed to b0 even though training assignment used b1/b2. V19 records the actual majority training branch as the task-aware fallback target and audits fallback hits during eval."
+}
