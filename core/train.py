@@ -4,6 +4,8 @@ import sys
 import argparse
 import csv
 import json
+import math
+import re
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -872,6 +874,7 @@ def run_ours(
                 beta=beta,
                 overlap_cfg=overlap_cfg,
                 prev_eval_metrics=last_eval_metrics,
+                train_cfg=train_cfg,
             )
             refresh_metrics = _maybe_refresh_segment_prototypes_from_anchors(
                 router=router,
@@ -1560,6 +1563,7 @@ def _train_with_router(
     beta: float,
     overlap_cfg: Optional[Dict[str, Any]] = None,
     prev_eval_metrics: Optional[Dict[str, Any]] = None,
+    train_cfg: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     strategy = str(getattr(router, "training_strategy", "active_branch") or "active_branch")
     if strategy == "active_branch":
@@ -1591,6 +1595,7 @@ def _train_with_router(
             beta=beta,
             strategy=strategy,
             overlap_cfg=overlap_cfg,
+            train_cfg=train_cfg,
         )
     else:
         raise ValueError(f"Unknown router.training_strategy: {strategy}. Expected one of: active_branch | oracle_min_nll | learned_router")
@@ -1656,6 +1661,7 @@ def _train_with_routed_assignments(
     beta: float,
     strategy: str,
     overlap_cfg: Optional[Dict[str, Any]] = None,
+    train_cfg: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     from baselines.basic_baselines.sequential_lora.method import _batch
 
@@ -1682,6 +1688,11 @@ def _train_with_routed_assignments(
     branch_to_examples: Dict[str, List[int]] = {}
     for idx, branch_name in enumerate(assignments):
         branch_to_examples.setdefault(branch_name, []).append(idx)
+    balance_metrics = _maybe_balance_generation_training_indices(
+        segment=segment,
+        branch_to_examples=branch_to_examples,
+        train_cfg=train_cfg or {},
+    )
     if hasattr(router, "record_segment_assignment") and branch_to_examples:
         majority_training_branch = max(branch_to_examples.items(), key=lambda kv: (len(kv[1]), kv[0]))[0]
         router.record_segment_assignment(segment.segment_id, majority_training_branch)
@@ -1782,11 +1793,107 @@ def _train_with_routed_assignments(
         if branch_to_examples
         else "",
         **assignment_metrics,
+        **balance_metrics,
     }
     if overlap_steps > 0:
         metrics.update({k: v / float(overlap_steps) for k, v in overlap_metric_sums.items()})
         metrics["anti_overlap_steps"] = int(overlap_steps)
     return metrics
+
+
+def _maybe_balance_generation_training_indices(
+    *,
+    segment: Segment,
+    branch_to_examples: Dict[str, List[int]],
+    train_cfg: Dict[str, Any],
+) -> Dict[str, Any]:
+    cfg = train_cfg.get("balanced_generation_sampling", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return {}
+
+    patterns = cfg.get("segment_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    segment_name = str(segment.segment_name or "")
+    if patterns and not any(re.search(str(p), segment_name, flags=re.IGNORECASE) for p in patterns):
+        return {}
+    if not segment.train:
+        return {}
+
+    current_instruction = segment.train[0].instruction
+    bucket_names = [str(x).strip().lower() for x in cfg.get("buckets", ["no", "yes", "i", "other"]) if str(x).strip()]
+    if "other" not in bucket_names:
+        bucket_names.append("other")
+    max_multiplier = max(1.0, float(cfg.get("max_total_multiplier", 1.5)))
+    downsample_majority = bool(cfg.get("downsample_majority", True))
+
+    original_counts: Dict[str, int] = {}
+    balanced_counts: Dict[str, int] = {}
+    original_total = 0
+    balanced_total = 0
+
+    for branch_name, idxs in list(branch_to_examples.items()):
+        current_idxs = [i for i in idxs if segment.train[i].instruction == current_instruction]
+        passthrough = [i for i in idxs if segment.train[i].instruction != current_instruction]
+        if len(current_idxs) < 2:
+            continue
+
+        buckets: Dict[str, List[int]] = {name: [] for name in bucket_names}
+        for idx in current_idxs:
+            bucket = _generation_target_bucket(segment.train[idx].output, bucket_names)
+            buckets.setdefault(bucket, []).append(idx)
+        non_empty = {k: v for k, v in buckets.items() if v}
+        if len(non_empty) < 2:
+            continue
+
+        branch_orig_counts = {k: len(v) for k, v in non_empty.items()}
+        for k, v in branch_orig_counts.items():
+            original_counts[k] = original_counts.get(k, 0) + int(v)
+        original_total += len(current_idxs)
+
+        target_per_bucket = max(len(v) for v in non_empty.values())
+        capped_target = int(math.ceil(len(current_idxs) * max_multiplier / max(1, len(non_empty))))
+        target_per_bucket = max(1, min(target_per_bucket, capped_target))
+
+        balanced_by_bucket: Dict[str, List[int]] = {}
+        for bucket in bucket_names:
+            vals = list(non_empty.get(bucket, []))
+            if not vals:
+                continue
+            if len(vals) >= target_per_bucket:
+                balanced_vals = vals[:target_per_bucket] if downsample_majority else vals
+            else:
+                repeats = [vals[i % len(vals)] for i in range(target_per_bucket)]
+                balanced_vals = repeats
+            balanced_by_bucket[bucket] = balanced_vals
+            balanced_counts[bucket] = balanced_counts.get(bucket, 0) + len(balanced_vals)
+
+        interleaved: List[int] = []
+        max_len = max((len(v) for v in balanced_by_bucket.values()), default=0)
+        for pos in range(max_len):
+            for bucket in bucket_names:
+                vals = balanced_by_bucket.get(bucket, [])
+                if pos < len(vals):
+                    interleaved.append(vals[pos])
+        balanced_total += len(interleaved)
+        branch_to_examples[branch_name] = interleaved + passthrough
+
+    if original_total == 0:
+        return {}
+    return {
+        "balanced_generation_sampling_enabled": True,
+        "balanced_generation_sampling_segment": segment_name,
+        "balanced_generation_sampling_original_examples": int(original_total),
+        "balanced_generation_sampling_examples": int(balanced_total),
+        "balanced_generation_sampling_original_bucket_counts_json": json.dumps(original_counts, sort_keys=True),
+        "balanced_generation_sampling_bucket_counts_json": json.dumps(balanced_counts, sort_keys=True),
+    }
+
+
+def _generation_target_bucket(target: str, bucket_names: List[str]) -> str:
+    normalized = re.sub(r"^[^a-z0-9]+|[^a-z0-9]+$", "", str(target or "").strip().lower())
+    first = normalized.split()[0] if normalized.split() else "other"
+    return first if first in set(bucket_names) and first != "other" else "other"
 
 
 def _resolve_trainable_training_branch(

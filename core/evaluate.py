@@ -1023,6 +1023,30 @@ def _infer_official_metric_for_example(
 ) -> str:
     refs = [str(ref) for ref in gold_references if str(ref).strip()]
     context = f"{instruction}\n{input_text}".lower()
+    looks_generation = any(
+        key in context
+        for key in [
+            "generate",
+            "generation",
+            "write",
+            "produce",
+            "valid prediction",
+            "response to",
+        ]
+    )
+    explicit_classification = any(
+        key in context
+        for key in [
+            "classify",
+            "classification",
+            "label",
+            "category",
+            "sentiment",
+            "choose",
+            "selecting the correct option",
+            "output '",
+        ]
+    )
     looks_classification = any(
         key in context
         for key in [
@@ -1037,6 +1061,8 @@ def _infer_official_metric_for_example(
             "output '",
         ]
     )
+    if looks_generation and not explicit_classification:
+        return "rouge_l"
     label_like_refs = [
         ref
         for ref in refs
