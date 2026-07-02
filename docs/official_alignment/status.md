@@ -4,7 +4,7 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v29-segment3-calibration`.
+- Active branch: `ours-v30-task1714-balanced-assigned-branch`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -12,7 +12,10 @@ Updated: 2026-07-02
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v29_smoke_strict`.
 - W&B: project `lora-ours-v29`, run `t67uf51q`.
 - Monitor: status file `results/logs/ours_v29_strict_status.md`.
-- Decision: v29 smoke completed but failed the segment3 gate. Do not launch full strict. Re-run a corrected smoke after the bucket parsing fix before any full strict decision.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v29_fixed_smoke_strict`.
+- W&B: project `lora-ours-v29-fixed`, run `89farydc`.
+- Monitor: status file `results/logs/ours_v29_fixed_strict_status.md`.
+- Decision: v29-fixed confirmed the bucket parsing fix and balanced sampling activation, but segment3 still failed. Do not launch full strict. Launch v30 smoke to test balanced-branch eval alignment.
 
 ## Evidence
 
@@ -35,7 +38,9 @@ Updated: 2026-07-02
 - v28 segment3 audit: `task1714_convai3_sentence_generation` is a `Dialogue Generation` task and should be treated as ROUGE-L generation, not classification. Its processed train split has a real first-token prior (`no=250`, `yes=113`, `i=80` among 500 examples), positive examples include `yes` and `no ...`, and v28 training supervision was weak (`train.loss=3.4283`, `train.answer_token_acc=0.3953`).
 - v29 small-step change: remove task1714 minimum generation length, fix `auto_official` generation-vs-intent metric inference, and enable config-scoped first-token balanced sampling only for `task1714` / `sentence_generation`.
 - v29 smoke result: segment2 stayed healthy at `0.29` task-aware, but segment3 stayed at `0.08` task-aware and current debug remained `25/25` pure `no`. The metric mapping fix worked and prompt-template continuations disappeared, but balanced sampling was misconfigured because YAML parsed unquoted `no` / `yes` buckets as booleans; a follow-up fix quotes the values and maps YAML booleans defensively.
+- v29-fixed smoke result: bucket parsing and balanced sampling are now active for `task1714_convai3_sentence_generation`; train metrics recorded original buckets `{"i": 80, "no": 250, "other": 57, "yes": 113}` and balanced buckets `{"i": 188, "no": 188, "other": 188, "yes": 188}`. Segment2 remained healthy at `0.29` task-aware, but segment3 stayed blocked at `0.08` task-aware with `25/25` current debug predictions still raw `no`. Current debug routed mostly to old `b2` (`b2=20`, `b3=5`) even though `b3` received balanced segment3 training.
+- v30 small-step change: keep v29-fixed scoring/data/sampling and restore `router.task_aware_fallback_force_assigned=true`, so task1714 eval is aligned to the freshly balanced segment branch instead of low-margin prompt-NLL routing back to older branches.
 
 ## Next Step
 
-Do not launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v29_strict.yaml`. Re-run corrected smoke first, then inspect segment3 current debug. If it still produces `25/25` pure `no`, move to segment-local generation supervision diagnostics rather than more routing-only changes.
+Do not launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v29_strict.yaml`. Launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v30_smoke_strict.yaml` first. If v30 still produces `25/25` pure `no`, move to segment-local generation supervision diagnostics rather than more routing-only changes.
