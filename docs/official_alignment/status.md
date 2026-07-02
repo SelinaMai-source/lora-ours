@@ -63,6 +63,7 @@ Updated: 2026-07-03
 - v40 smoke result: five-segment smoke completed, but task574 stayed blocked at task-aware `0.03`; final task-aware trajectory was `[0.53, 0.26, 0.28, 0.11, 0.03]`, seen task-aware AR `0.242`, exact AR `0.158`. Content loss did activate on task574 (`train.content_loss_weight=3.0`, weighted-token ratio `~0.15`), but the current debug subset still selected `b4`/oracle `b4` for 25/25 examples and kept producing generic `agent`/`customer` templates. Do not launch full strict from v40.
 - Current v41 smoke candidate: `citb_instrdialog_order1_seed1_ours_v41_smoke_strict`.
 - Decision pending: v41 keeps v40 training/routing/decoding unchanged and adds config-gated eval-time target prototype conditioning only for task574/air-dialogue generation. The conditioning retrieves short target prototypes from same-segment train examples using input overlap and prepends them to the generation prompt; routing still uses the original prompt.
+- v41 launch: started 2026-07-03 in tmux session `ours-v41-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v41`, run `jusk41lr`; monitor status is `results/logs/ours_v41_strict_status.md`.
 
 ## Evidence
 
