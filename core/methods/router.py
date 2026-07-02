@@ -80,6 +80,9 @@ class Router:
         self.segment_anchor_prototype_refresh = bool(cfg.get("segment_anchor_prototype_refresh", False))
         self.anchor_prototype_refresh_beta = float(cfg.get("anchor_prototype_refresh_beta", 0.25))
         self.margin_filter_min_gap = float(cfg.get("margin_filter_min_gap", 0.0))
+        self.task_aware_fallback = bool(cfg.get("task_aware_fallback", False))
+        self.task_aware_fallback_min_confidence = float(cfg.get("task_aware_fallback_min_confidence", 0.72))
+        self.task_aware_fallback_min_margin = float(cfg.get("task_aware_fallback_min_margin", 0.18))
         # Oracle PLL recalibration (sota-v1+): when eval oracle agreement drops below
         # threshold, next segment runs extra prototype passes with faster EMA snap.
         self.oracle_pll_recalibrate = bool(cfg.get("oracle_pll_recalibrate", False))
@@ -88,6 +91,7 @@ class Router:
         self.oracle_pll_ema_override = float(cfg.get("oracle_pll_ema_override", 0.72))
         self._prototypes: Dict[str, torch.Tensor] = {}
         self._prototype_counts: Dict[str, int] = {}
+        self._segment_branch_map: Dict[int, str] = {}
 
         self._num_updates = 0
         self._branch_names: List[str] = []
@@ -124,6 +128,7 @@ class Router:
         branch_meta: Dict[str, Any],
         segment_id: int,
         features: Optional[Any] = None,
+        task_segment_id: Optional[int] = None,
     ) -> RoutingDecision:
         if segment_id < self.router_warmup_segments:
             latest = branch_names[-1]
@@ -134,7 +139,24 @@ class Router:
                 hard=True,
                 reason=f"warmup(<{self.router_warmup_segments})",
             )
-        return self.forward(prompt, branch_names, branch_meta, features=features)
+        decision = self.forward(prompt, branch_names, branch_meta, features=features)
+        fallback_key = int(segment_id if task_segment_id is None else task_segment_id)
+        fallback_branch = self._segment_branch_map.get(fallback_key)
+        if (
+            self.task_aware_fallback
+            and fallback_branch in branch_names
+            and fallback_branch != decision.branch_name
+            and self._should_use_task_fallback(decision.scores)
+        ):
+            scores = dict(decision.scores)
+            scores[fallback_branch] = max(float(scores.get(fallback_branch, 0.0)), 1.0)
+            return RoutingDecision(
+                branch_name=fallback_branch,
+                scores=scores,
+                hard=True,
+                reason=f"{decision.reason}+task_aware_fallback",
+            )
+        return decision
 
     def update_with_pseudo_labels(
         self,
@@ -275,6 +297,12 @@ class Router:
         if branch_name not in self._branch_names:
             self._branch_names.append(branch_name)
         return True
+
+    def record_segment_assignment(self, segment_id: int, branch_name: str) -> None:
+        """Remember the best observed branch for task-aware low-confidence fallback."""
+        if not branch_name:
+            return
+        self._segment_branch_map[int(segment_id)] = str(branch_name)
 
     def _update_prototypes(
         self,
@@ -575,6 +603,18 @@ class Router:
             scores[b] = 0.7 * age_bonus + 0.3 * base
         return scores, "heuristic_router"
 
+    def _should_use_task_fallback(self, scores: Dict[str, float]) -> bool:
+        if not scores:
+            return True
+        vals = sorted((float(v) for v in scores.values()), reverse=True)
+        total = sum(max(0.0, v) for v in vals)
+        if total > 0:
+            vals = [max(0.0, v) / total for v in vals]
+        top1 = vals[0] if vals else 0.0
+        top2 = vals[1] if len(vals) > 1 else 0.0
+        margin = float(top1 - top2)
+        return top1 < self.task_aware_fallback_min_confidence or margin < self.task_aware_fallback_min_margin
+
     def _to_feature_tensor(self, features: Any) -> torch.Tensor:
         if isinstance(features, torch.Tensor):
             feat_t = features
@@ -596,6 +636,8 @@ class Router:
             "routing_backend": self.routing_backend,
             "prototype_counts": dict(self._prototype_counts),
             "prototype_branches": sorted(self._prototypes.keys()),
+            "segment_branch_map": {str(k): v for k, v in sorted(self._segment_branch_map.items())},
+            "task_aware_fallback": self.task_aware_fallback,
         }
         if self._head is not None:
             state["head"] = {

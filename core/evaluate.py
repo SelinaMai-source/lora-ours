@@ -434,6 +434,7 @@ def _eval_segment(
                 branch_meta=branch_meta,
                 segment_id=segment_id,
                 features=features,
+                task_segment_id=segment.segment_id,
             )
             prob_scores = _normalized_routing_scores(decision.scores)
             use_nll_arbitration = bool(getattr(router, "nll_arbitration", False))

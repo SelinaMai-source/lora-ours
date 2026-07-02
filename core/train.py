@@ -1454,6 +1454,8 @@ def _update_router_with_segment_pseudo_labels(
             branch_names=branch_names,
             frozen_branches=frozen_branches,
         )
+        if hasattr(router, "record_segment_assignment"):
+            router.record_segment_assignment(segment.segment_id, branch_names[0])
         return {
             "router_feature_adapter": feature_adapter,
             "router_num_candidates": int(len(segment.train)),
@@ -1493,6 +1495,8 @@ def _update_router_with_segment_pseudo_labels(
         margins.append(margin)
 
     if not kept_indices:
+        if hasattr(router, "record_segment_assignment"):
+            router.record_segment_assignment(segment.segment_id, lora_bank.get_active_branch())
         return {
             "router_feature_adapter": feature_adapter,
             "router_num_candidates": int(len(pairs)),
@@ -1514,6 +1518,12 @@ def _update_router_with_segment_pseudo_labels(
         branch_names=branch_names,
         frozen_branches=frozen_branches,
     )
+    if hasattr(router, "record_segment_assignment") and pseudo_labels:
+        counts: Dict[str, int] = {}
+        for label in pseudo_labels:
+            counts[label] = counts.get(label, 0) + 1
+        majority_branch = max(counts.items(), key=lambda kv: (kv[1], kv[0]))[0]
+        router.record_segment_assignment(segment.segment_id, majority_branch)
     return {
         "router_feature_adapter": feature_adapter,
         "router_num_candidates": int(len(pairs)),
