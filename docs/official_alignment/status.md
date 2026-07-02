@@ -59,6 +59,7 @@ Updated: 2026-07-03
 - v39 smoke result: five-segment smoke completed, but task574 stayed blocked at task-aware `0.03`; final task-aware trajectory was `[0.53, 0.26, 0.28, 0.10, 0.03]`, seen task-aware AR `0.2400`, exact AR `0.158`, and BWT `-0.02`. The speaker bucket was not the missing factor: task574 training was assigned to `b4`, continuation weighting remained active (`~0.87` weighted-token ratio), and task574 debug selected `b4` with oracle `b4` for 25/25 examples, yet all 25/25 outputs were generic `agent`/`customer` templates. Do not launch full strict from v39.
 - Current v40 smoke candidate: `citb_instrdialog_order1_seed1_ours_v40_smoke_strict`.
 - Decision pending: v40 keeps v39 routing/decoding/speaker buckets unchanged and adds config-gated content-token loss emphasis for speaker-prefixed Dialogue targets (`agent`/`customer`). This tests Dialogue content supervision directly without repeating router or first-token weighting changes.
+- v40 launch: started 2026-07-03 in tmux session `ours-v40-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v40`, run `o3jyaf92`; monitor status is `results/logs/ours_v40_strict_status.md`.
 
 ## Evidence
 
