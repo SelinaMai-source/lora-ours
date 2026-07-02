@@ -5,10 +5,10 @@ strict_alignment:
   status: ready
   blocker: ''
 paths:
-  project_root: /root/autodl-tmp/Lora-code
+  project_root: /root/lora-ours
   processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb
   processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb/citb_instrdialog_order1_train500_dev50_test100.json
-  results_dir: /root/autodl-tmp/Lora-code/experiments/sota_campaign/v1_citb_kalman_drift/results
+  results_dir: /root/lora-ours/results
 data:
   suite: CITB
   benchmark: InstrDialog-order1
@@ -41,6 +41,13 @@ train:
   epochs_per_segment: 15
   batch_size: 8
   hard_early_stop_enabled: false
+  early_stop_min_segment: 1
+  early_stop_min_task_aware_score: 0.08
+  ours_v10_early_stop: true
+  ours_v10_check_segments:
+  - 1
+  - 2
+  - 3
 modules:
   use_drift_detector: true
   use_lora_bank: true
@@ -50,8 +57,42 @@ drift:
   kalman_drift_enabled: true
   kalman_process_var: 0.02
   kalman_measure_var: 0.25
+  anchor_source: train
+  anchor_size: 64
+  anchor_candidate_pool_size: 256
+  calibration_window: 1
+  threshold: 0.005
+  probe_threshold_scale: 0.9
+  core_threshold_scale: 1.0
+assess_update:
+  isolated_energy_threshold: 0.12
+router:
+  routing_backend: prototype
+  training_strategy: learned_router
+  router_warmup_segments: 1
+  prototype_calibration: true
+  prototype_calibration_prior: 8.0
+  nll_arbitration: true
+  arbitration_margin: 0.2
+  arbitration_top_k: 2
+  spawn_sync_prototype_init: true
+  segment_anchor_prototype_refresh: true
+  anchor_prototype_refresh_beta: 0.35
+  prototype_update_steps: 2
+  oracle_pll_recalibrate: true
+  oracle_pll_min_agreement: 0.5
+  oracle_pll_bonus_steps: 1
+spectral_replay:
+  enabled: true
+  buffer_size: 512
+  replay_ratio: 0.15
+  min_replay_per_segment: 8
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
 eval_normalization:
   enable_task_aware_score: true
+  task_score_metric: rouge_l
+  task_score_match_threshold: 0.35
   auto_short_answer_max_new_tokens: false
 output:
   run_name: citb_instrdialog_order1_seed1_ours_v1_strict

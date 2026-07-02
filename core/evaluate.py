@@ -796,6 +796,22 @@ def _score_task_aware(
     pred_for_scoring = _truncate_prediction_for_scoring(pred, cfg)
     norm_pred_for_scoring = _basic_answer_normalize(pred_for_scoring)
     norm_gold_basic = _basic_answer_normalize(gold)
+    metric_name = str(cfg.get("task_score_metric", cfg.get("primary_score_metric", ""))).strip().lower()
+    if metric_name in {"rouge_l", "rouge-l", "rougel", "bleu", "bleu4", "token_f1", "lcs_overlap"}:
+        metric_score = _continuous_task_score(
+            metric_name=metric_name,
+            prediction=norm_pred_for_scoring,
+            gold=norm_gold_basic,
+        )
+        threshold = float(cfg.get("task_score_match_threshold", 0.5))
+        return {
+            "task_aware_match": bool(metric_score >= threshold),
+            "task_aware_score": float(metric_score),
+            "task_score_type": metric_name,
+            "extracted_prediction": "",
+            "extracted_gold": "",
+            "prediction_for_scoring": norm_pred_for_scoring,
+        }
 
     pred_step = _extract_after_step(pred_for_scoring)
     gold_step = _extract_after_step(gold)
@@ -832,6 +848,18 @@ def _score_task_aware(
         "extracted_gold": "",
         "prediction_for_scoring": norm_pred_for_scoring or norm_pred,
     }
+
+
+def _continuous_task_score(*, metric_name: str, prediction: str, gold: str) -> float:
+    if metric_name in {"rouge_l", "rouge-l", "rougel"}:
+        return float(_rouge_l_fscore(prediction, gold))
+    if metric_name in {"bleu", "bleu4"}:
+        return float(_sentence_bleu4(prediction, gold))
+    if metric_name == "token_f1":
+        return float(_token_f1(prediction, gold))
+    if metric_name == "lcs_overlap":
+        return float(_lcs_overlap(prediction, gold))
+    return float(prediction == gold)
 
 
 def _truncate_prediction_for_scoring(text: str, cfg: Dict[str, Any]) -> str:

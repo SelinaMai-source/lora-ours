@@ -777,7 +777,14 @@ def run_ours(
             
             from core.methods.assess_update import assess_transient_branch, set_adapter_vector
             existing_branches = lora_bank.list_branches()
-            assessment = assess_transient_branch(lora, transient_name, existing_branches, threshold=0.2)
+            assess_cfg = cfg.get("assess_update", {}) if isinstance(cfg.get("assess_update", {}), dict) else {}
+            assessment_threshold = float(assess_cfg.get("isolated_energy_threshold", 0.2))
+            assessment = assess_transient_branch(
+                lora,
+                transient_name,
+                existing_branches,
+                threshold=assessment_threshold,
+            )
             logger.log(f"Transient assessment: {assessment['action']}, isolated_energy_ratio: {assessment['isolated_energy_ratio']:.4f}")
             
             if hasattr(lora, "delete_adapter"):
@@ -1050,10 +1057,11 @@ def run_ours(
             tracker.log_segment_row(row)
 
         # Early stopping defaults preserve legacy SOTA-chase behavior, but
-        # published-setting runs disable it to complete the full benchmark.
-        if seg.segment_id >= 3:
+        # strict benchmark runs should leave an auditable stop_and_diagnose file.
+        train_cfg = cfg.get("train", {}) if isinstance(cfg.get("train", {}), dict) else {}
+        min_segments_before_stop = int(train_cfg.get("early_stop_min_segment", 3))
+        if seg.segment_id >= min_segments_before_stop:
             seen_avg = float(eval_metrics.get("seen_avg_score", 0))
-            train_cfg = cfg.get("train", {}) if isinstance(cfg.get("train", {}), dict) else {}
             hard_stop_enabled = bool(train_cfg.get("hard_early_stop_enabled", True))
             hard_stop_min_seen_avg = float(train_cfg.get("hard_early_stop_min_seen_avg", 0.2))
             if hard_stop_enabled and seen_avg < hard_stop_min_seen_avg:
@@ -1061,15 +1069,57 @@ def run_ours(
                     f"Early stopping triggered: seen_avg_score {seen_avg} < {hard_stop_min_seen_avg} "
                     f"at segment {seg.segment_id}"
                 )
+                _write_stop_and_diagnose(
+                    run_paths=run_paths,
+                    cfg=cfg,
+                    segment_id=seg.segment_id,
+                    reason="hard_early_stop_min_seen_avg",
+                    eval_metrics=eval_metrics,
+                    extra={"threshold": hard_stop_min_seen_avg},
+                )
                 sys.exit(1)
+            min_task_aware = train_cfg.get("early_stop_min_task_aware_score")
+            if min_task_aware is not None:
+                task_seen = float(eval_metrics.get("seen_avg_task_aware_score", 0.0))
+                min_task_aware_f = float(min_task_aware)
+                if task_seen < min_task_aware_f:
+                    logger.log(
+                        f"Early stopping triggered: seen_avg_task_aware_score {task_seen} < "
+                        f"{min_task_aware_f} at segment {seg.segment_id}"
+                    )
+                    _write_stop_and_diagnose(
+                        run_paths=run_paths,
+                        cfg=cfg,
+                        segment_id=seg.segment_id,
+                        reason="early_stop_min_task_aware_score",
+                        eval_metrics=eval_metrics,
+                        extra={"threshold": min_task_aware_f},
+                    )
+                    sys.exit(42)
             traj_floor = _trajectory_early_stop_floor(cfg, seg.segment_id)
             if traj_floor is not None and seen_avg < traj_floor:
                 logger.log(
                     f"Trajectory early stopping: seen_avg_score {seen_avg} < baseline floor {traj_floor} "
                     f"at segment {seg.segment_id}"
                 )
+                _write_stop_and_diagnose(
+                    run_paths=run_paths,
+                    cfg=cfg,
+                    segment_id=seg.segment_id,
+                    reason="trajectory_early_stop_floor",
+                    eval_metrics=eval_metrics,
+                    extra={"threshold": traj_floor},
+                )
                 sys.exit(1)
             if _ours_v10_early_stop_triggered(cfg, seg.segment_id, eval_metrics, logger):
+                _write_stop_and_diagnose(
+                    run_paths=run_paths,
+                    cfg=cfg,
+                    segment_id=seg.segment_id,
+                    reason="ours_v10_sota_gap",
+                    eval_metrics=eval_metrics,
+                    extra={},
+                )
                 sys.exit(42)
 
     final = segment_metrics_rows[-1] if segment_metrics_rows else {}
@@ -1888,6 +1938,46 @@ def _train_bank_no_router(
     train_metrics["num_branches"] = len(lora_bank.list_branches())
     train_metrics["active_branch"] = lora_bank.get_active_branch() if lora_bank.list_branches() else ""
     return train_metrics
+
+
+def _write_stop_and_diagnose(
+    *,
+    run_paths: RunPaths,
+    cfg: Dict[str, Any],
+    segment_id: int,
+    reason: str,
+    eval_metrics: Dict[str, Any],
+    extra: Dict[str, Any],
+) -> None:
+    """Persist early-stop context before exiting an incomplete strict run."""
+    extra_metrics = eval_metrics.get("extra", {}) if isinstance(eval_metrics.get("extra"), dict) else {}
+    routing = extra_metrics.get("routing", {}) if isinstance(extra_metrics.get("routing"), dict) else {}
+    payload = {
+        "recommendation": "stop_and_diagnose",
+        "reason": reason,
+        "segment_id": int(segment_id),
+        "config_path": str(cfg.get("__config_path__", "")),
+        "run_dir": str(run_paths.run_dir),
+        "metrics": {
+            "seen_avg_score": float(eval_metrics.get("seen_avg_score", 0.0)),
+            "seen_avg_task_aware_score": float(eval_metrics.get("seen_avg_task_aware_score", 0.0)),
+            "rouge_l_mean": float(eval_metrics.get("rouge_l_mean", 0.0)),
+            "bleu_mean": float(eval_metrics.get("bleu_mean", 0.0)),
+            "token_f1_mean": float(eval_metrics.get("token_f1_mean", 0.0)),
+            "slot_error_rate": float(eval_metrics.get("slot_error_rate", 0.0)),
+            "forgetting": float(eval_metrics.get("forgetting", 0.0)),
+        },
+        "routing": {
+            "num_routed": int(routing.get("num_routed", 0) or 0),
+            "oracle_agreement_rate": float(routing.get("oracle_agreement_rate", 0.0) or 0.0),
+            "decision_confidence_mean": float(routing.get("decision_confidence_mean", 0.0) or 0.0),
+            "decision_entropy_mean": float(routing.get("decision_entropy_mean", 0.0) or 0.0),
+            "branch_utilization": routing.get("branch_utilization", {}),
+        },
+        "extra": extra,
+    }
+    out = Path(run_paths.run_dir) / "stop_and_diagnose.json"
+    save_json(str(out), payload)
 
 
 # v6_sota_2 seen_avg_score trajectory (s123) — reference for SOTA chase early stop.
