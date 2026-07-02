@@ -4,7 +4,7 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v33-target-supervision-guard`.
+- Active branch: `ours-v34-task-learnability-calibration`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -30,6 +30,10 @@ Updated: 2026-07-02
 - W&B: project `lora-ours-v33`, run `dehi1o9s`.
 - Monitor: status file `results/logs/ours_v33_strict_status.md`.
 - Decision: v33 confirms target-only supervision guard works, but continuation weighting alone does not fix task1714. Do not launch full strict.
+- Current v34 smoke candidate: `citb_instrdialog_order1_seed1_ours_v34_smoke_strict`.
+- W&B: project `lora-ours-v34`, run `6bobb6qt`.
+- Monitor: status file `results/logs/ours_v34_strict_status.md`.
+- Decision pending: v34 uses train-target length prior plus deterministic beam generation for sentence-generation tasks, with scoring unchanged and bucket-collapse retry still disabled.
 
 ## Evidence
 
@@ -61,7 +65,8 @@ Updated: 2026-07-02
 - v32 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.37`). Segment3 final task-aware stayed at `0.12` and final task-aware AR stayed `0.28500000000000003`; retry accepted count fell from v31 `94` to v32 `82`, but current debug still started `25/25` with `no`. Broad debug audit found `13/25` accepted current outputs were still template/definition variants such as `no Now finish the following sentence`, `no Now finish the following form`, and `no if so. This is a concatenated`. Do not launch full strict.
 - v33 audit before smoke: core seq2seq labels are tokenized from target only via `text_target`, pad is masked to `-100`, EOS is present in T5 target labels, and task1714 targets are not truncated (`max target tokens=31` vs `max_target_len=128`). Raw task1714 has no multi-reference instances; processed train has `500` examples, `434` unique normalized targets, no prompt-template targets, and only `53/500` exact bare `yes/no/i`. V33 disables the brittle bucket-collapse retry and adds training-time target supervision guard metrics plus continuation-token loss weighting for `no/yes/i` open-generation targets (`369/500` task1714 train rows affected).
 - v33 smoke result: segment2 remained near healthy (`current_task_aware_score=0.28`, vs v32 `0.29`) and the supervision guard logged `train.supervised_pad_tokens=0.0`, `train.supervised_eos_tokens=8.0`, and continuation weighting active on task1714 (`train.continuation_weighted_token_ratio=0.6447`). Segment3 failed the gate without retry: `current_task_aware_score=0.08`, final task-aware AR `0.2725`, below v32 retry-assisted `0.12` / `0.285`. This rules out simple continuation-token reweighting as sufficient.
+- v34 audit before smoke: processed task1714 train/eval are short open generation, not labels (`53/500` train and `11/100` eval exact bare `yes/no/i`; train/eval median target word length `9`). A small task1714 overfit probe (`8` train examples, `80` steps, `lr=2e-4`) stayed collapsed: teacher-forced token accuracy `0.2812`, open-loop exact `0/8`, prefix-3 `0/8`, and final predictions all bare `no`. Older local strict artifacts reached task1714 task-aware `0.1825`, so this is not clearly a natural task floor. V34 therefore adds config-gated per-segment generation overrides using train-target length priors and beam/no-repeat calibration for sentence-generation tasks, while keeping retry disabled and scoring unchanged.
 
 ## Next Step
 
-Do not launch full strict from v33. The next iteration should keep retry disabled for diagnosis and target a stronger training-time sequence behavior fix, likely by directly auditing task1714 teacher-forced vs free-running generation on the trained `b3` branch and then trying a focused overfit/length-calibration objective before another full smoke.
+Monitor v34 smoke. Do not launch full strict unless segment2 remains near healthy and task1714 improves without retry acceptance or prompt-template continuations. If v34 stays collapsed, the next step should investigate why seq2seq LoRA overfit does not improve teacher-forced accuracy under the current adapter update path.

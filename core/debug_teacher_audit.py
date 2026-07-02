@@ -15,6 +15,7 @@ from core.causal_lm_metrics import (
     teacher_forced_token_accuracy_shifted,
 )
 from core.data import Example
+from core.formatting import format_for_infer
 from core.train_labels import assert_first_supervised_matches_target_start, build_supervised_labels
 
 
@@ -143,26 +144,39 @@ def dump_overfit_teacher_audit(
     if tok is None or model is None or cfg is None:
         raise RuntimeError("backbone must expose tokenizer, model, cfg")
 
+    is_seq2seq = hasattr(cfg, "max_source_len") and hasattr(cfg, "max_target_len") and not hasattr(cfg, "max_seq_len")
     was_training = bool(model.training)
     model.eval()
     try:
         rows: List[Dict[str, Any]] = []
         for i, ex in enumerate(examples):
-            row = build_per_sample_teacher_audit_row(
-                tokenizer=tok,
-                model=model,
-                device=backbone.device,
-                instruction=ex.instruction,
-                input_text=ex.input,
-                target=str(ex.output),
-                max_len=int(cfg.max_seq_len),
-                min_target_tokens=int(cfg.min_target_tokens_for_loss),
-                mask_eos_token_in_labels=bool(cfg.mask_eos_token_in_labels),
-                mask_all_special_tokens_in_labels=bool(cfg.mask_all_special_tokens_in_labels),
-                labeling_mode=str(cfg.train_labeling_mode),
-                completion_only_response_template=str(cfg.completion_only_response_template),
-                strict_assertions=strict_assertions,
-            )
+            if is_seq2seq:
+                row = build_per_sample_seq2seq_teacher_audit_row(
+                    tokenizer=tok,
+                    model=model,
+                    device=backbone.device,
+                    instruction=ex.instruction,
+                    input_text=ex.input,
+                    target=str(ex.output),
+                    max_source_len=int(cfg.max_source_len),
+                    max_target_len=int(cfg.max_target_len),
+                )
+            else:
+                row = build_per_sample_teacher_audit_row(
+                    tokenizer=tok,
+                    model=model,
+                    device=backbone.device,
+                    instruction=ex.instruction,
+                    input_text=ex.input,
+                    target=str(ex.output),
+                    max_len=int(cfg.max_seq_len),
+                    min_target_tokens=int(cfg.min_target_tokens_for_loss),
+                    mask_eos_token_in_labels=bool(cfg.mask_eos_token_in_labels),
+                    mask_all_special_tokens_in_labels=bool(cfg.mask_all_special_tokens_in_labels),
+                    labeling_mode=str(cfg.train_labeling_mode),
+                    completion_only_response_template=str(cfg.completion_only_response_template),
+                    strict_assertions=strict_assertions,
+                )
             row["sample_index"] = i
             rows.append(row)
     finally:
@@ -171,6 +185,70 @@ def dump_overfit_teacher_audit(
 
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def build_per_sample_seq2seq_teacher_audit_row(
+    *,
+    tokenizer: Any,
+    model: Any,
+    device: Any,
+    instruction: str,
+    input_text: str,
+    target: str,
+    max_source_len: int,
+    max_target_len: int,
+) -> Dict[str, Any]:
+    import torch
+
+    source = format_for_infer(tokenizer, instruction, input_text, add_generation_prompt=False)
+    enc = tokenizer(
+        source,
+        return_tensors="pt",
+        padding=False,
+        truncation=True,
+        max_length=int(max_source_len),
+    )
+    target_enc = tokenizer(
+        text_target=str(target),
+        return_tensors="pt",
+        padding=False,
+        truncation=True,
+        max_length=int(max_target_len),
+    )
+    input_ids_t = enc["input_ids"].to(device)
+    attention_mask_t = enc["attention_mask"].to(device)
+    labels_t = target_enc["input_ids"].to(device)
+    pad_id = tokenizer.pad_token_id
+    if pad_id is not None:
+        labels_t = labels_t.masked_fill(labels_t == int(pad_id), -100)
+    with torch.no_grad():
+        outputs = model(input_ids=input_ids_t, attention_mask=attention_mask_t, labels=labels_t, return_dict=True)
+        logits = outputs.logits
+        loss = float(outputs.loss.detach().float().item())
+
+    pred_ids = torch.argmax(logits, dim=-1)
+    mask = labels_t.ne(-100)
+    n_loss = int(mask.sum().detach().cpu().item())
+    n_correct = int((pred_ids[mask] == labels_t[mask]).detach().cpu().sum().item()) if n_loss else 0
+    acc = float(n_correct / max(1, n_loss))
+    gold_ids = labels_t[0][mask[0]].detach().cpu().tolist()
+    pred_sup_ids = pred_ids[0][mask[0]].detach().cpu().tolist()
+    return {
+        "instruction": instruction,
+        "input": input_text,
+        "target": str(target),
+        "labeling_mode": "seq2seq_text_target",
+        "source_token_len": int(input_ids_t.shape[-1]),
+        "target_token_len": int(n_loss),
+        "decoded_supervised_gold_span": tokenizer.decode(gold_ids, skip_special_tokens=True),
+        "decoded_supervised_predicted_span": tokenizer.decode(pred_sup_ids, skip_special_tokens=True),
+        "teacher_forced_loss": loss,
+        "teacher_forced_answer_token_acc_shifted": acc,
+        "teacher_forced_answer_token_acc_seq2seq": acc,
+        "num_correct_shifted": int(n_correct),
+        "num_loss_tokens": int(n_loss),
+        "num_supervised_label_tokens": int(n_loss),
+    }
 
 
 def mean_teacher_forced_over_examples(
@@ -186,27 +264,40 @@ def mean_teacher_forced_over_examples(
     if tok is None or model is None or cfg is None:
         return 0.0, 0.0, 0
 
+    is_seq2seq = hasattr(cfg, "max_source_len") and hasattr(cfg, "max_target_len") and not hasattr(cfg, "max_seq_len")
     was_training = bool(model.training)
     model.eval()
     try:
         losses: List[float] = []
         accs: List[float] = []
         for (ins, inp), tgt in zip(pairs, targets):
-            row = build_per_sample_teacher_audit_row(
-                tokenizer=tok,
-                model=model,
-                device=backbone.device,
-                instruction=ins,
-                input_text=inp,
-                target=str(tgt),
-                max_len=int(cfg.max_seq_len),
-                min_target_tokens=int(cfg.min_target_tokens_for_loss),
-                mask_eos_token_in_labels=bool(cfg.mask_eos_token_in_labels),
-                mask_all_special_tokens_in_labels=bool(cfg.mask_all_special_tokens_in_labels),
-                labeling_mode=str(cfg.train_labeling_mode),
-                completion_only_response_template=str(cfg.completion_only_response_template),
-                strict_assertions=False,
-            )
+            if is_seq2seq:
+                row = build_per_sample_seq2seq_teacher_audit_row(
+                    tokenizer=tok,
+                    model=model,
+                    device=backbone.device,
+                    instruction=ins,
+                    input_text=inp,
+                    target=str(tgt),
+                    max_source_len=int(cfg.max_source_len),
+                    max_target_len=int(cfg.max_target_len),
+                )
+            else:
+                row = build_per_sample_teacher_audit_row(
+                    tokenizer=tok,
+                    model=model,
+                    device=backbone.device,
+                    instruction=ins,
+                    input_text=inp,
+                    target=str(tgt),
+                    max_len=int(cfg.max_seq_len),
+                    min_target_tokens=int(cfg.min_target_tokens_for_loss),
+                    mask_eos_token_in_labels=bool(cfg.mask_eos_token_in_labels),
+                    mask_all_special_tokens_in_labels=bool(cfg.mask_all_special_tokens_in_labels),
+                    labeling_mode=str(cfg.train_labeling_mode),
+                    completion_only_response_template=str(cfg.completion_only_response_template),
+                    strict_assertions=False,
+                )
             losses.append(float(row["teacher_forced_loss"]))
             accs.append(float(row["teacher_forced_answer_token_acc_shifted"]))
     finally:

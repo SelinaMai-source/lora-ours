@@ -469,6 +469,12 @@ def _eval_segment(
         max_new_tokens=effective_max_new_tokens,
         normalization_cfg=normalization_cfg,
     )
+    generation_kwargs = _resolve_eval_generation_kwargs(
+        segment=segment,
+        max_new_tokens=effective_max_new_tokens,
+        base_min_new_tokens=effective_min_new_tokens,
+        normalization_cfg=normalization_cfg,
+    )
 
     # If router/bank available, route per prompt (simplified hard routing).
     audited = enable_infer_token_audit and router is None and lora_bank is None and hasattr(model, "generate_with_ids")
@@ -624,6 +630,7 @@ def _eval_segment(
                 [p],
                 max_new_tokens=effective_max_new_tokens,
                 min_new_tokens=effective_min_new_tokens,
+                generation_kwargs=generation_kwargs,
             )[0]
             generated, collapse_retry_detail = _maybe_retry_bucket_collapse_generation(
                 model,
@@ -656,6 +663,7 @@ def _eval_segment(
                 prompts,
                 max_new_tokens=effective_max_new_tokens,
                 min_new_tokens=effective_min_new_tokens,
+                generation_kwargs=generation_kwargs,
             )
         routing_details = [{} for _ in preds]
 
@@ -784,6 +792,7 @@ def _eval_segment(
                 "requested_max_new_tokens": int(max_new_tokens),
                 "effective_max_new_tokens": int(effective_max_new_tokens),
                 "effective_min_new_tokens": int(effective_min_new_tokens),
+                "generation_kwargs": dict(generation_kwargs),
                 "raw_generated_output": pred,
                 "normalized_prediction": norm_pred,
                 "normalized_gold": norm_gold,
@@ -881,25 +890,98 @@ def _resolve_eval_min_new_tokens(
     return max(0, min(int(max_new_tokens), min_new_tokens))
 
 
+def _resolve_eval_generation_kwargs(
+    *,
+    segment: Segment,
+    max_new_tokens: int,
+    base_min_new_tokens: int,
+    normalization_cfg: Dict[str, Any],
+) -> Dict[str, Any]:
+    overrides = normalization_cfg.get("generation_overrides", [])
+    if not isinstance(overrides, list):
+        return {}
+    selected: Dict[str, Any] = {}
+    for raw in overrides:
+        if not isinstance(raw, dict):
+            continue
+        patterns = raw.get("segment_name_patterns", raw.get("name_patterns", []))
+        if isinstance(patterns, str):
+            patterns = [patterns]
+        name = str(segment.segment_name or "")
+        if patterns and not any(re.search(str(pattern), name, flags=re.IGNORECASE) for pattern in patterns):
+            continue
+        selected = raw
+        break
+    if not selected:
+        return {}
+
+    kwargs: Dict[str, Any] = {}
+    for src_key, dst_key, caster in [
+        ("num_beams", "num_beams", int),
+        ("min_new_tokens", "min_new_tokens", int),
+        ("length_penalty", "length_penalty", float),
+        ("no_repeat_ngram_size", "no_repeat_ngram_size", int),
+        ("encoder_no_repeat_ngram_size", "encoder_no_repeat_ngram_size", int),
+        ("repetition_penalty", "repetition_penalty", float),
+    ]:
+        if src_key in selected:
+            kwargs[dst_key] = caster(selected[src_key])
+
+    if bool(selected.get("use_train_target_length_prior", False)):
+        prior_min = _train_target_length_prior_min_new_tokens(
+            segment=segment,
+            quantile=float(selected.get("train_target_length_quantile", 0.25)),
+            min_value=int(selected.get("train_target_min_new_tokens_floor", 0)),
+            max_value=int(selected.get("train_target_min_new_tokens_ceiling", max_new_tokens)),
+        )
+        if prior_min > 0:
+            kwargs["min_new_tokens"] = max(int(kwargs.get("min_new_tokens", 0)), int(prior_min))
+
+    if "min_new_tokens" in kwargs:
+        kwargs["min_new_tokens"] = max(int(base_min_new_tokens), min(int(max_new_tokens), int(kwargs["min_new_tokens"])))
+    return kwargs
+
+
+def _train_target_length_prior_min_new_tokens(
+    *,
+    segment: Segment,
+    quantile: float,
+    min_value: int,
+    max_value: int,
+) -> int:
+    lengths = sorted(len(_prediction_words(ex.output)) for ex in segment.train if _prediction_words(ex.output))
+    if not lengths:
+        return 0
+    q = min(1.0, max(0.0, float(quantile)))
+    idx = int(round(q * (len(lengths) - 1)))
+    value = int(lengths[idx])
+    return max(0, min(int(max_value), max(int(min_value), value)))
+
+
 def _generate_with_optional_min_new_tokens(
     model: Any,
     prompts: List[str],
     *,
     max_new_tokens: int,
     min_new_tokens: int,
+    generation_kwargs: Optional[Dict[str, Any]] = None,
     bad_words_texts: Optional[List[str]] = None,
 ) -> List[str]:
+    kwargs = dict(generation_kwargs or {})
+    if "min_new_tokens" not in kwargs and int(min_new_tokens) > 0:
+        kwargs["min_new_tokens"] = int(min_new_tokens)
+    if bad_words_texts is not None:
+        kwargs["bad_words_texts"] = bad_words_texts
     if int(min_new_tokens) <= 0:
         try:
-            return model.generate(prompts, max_new_tokens=max_new_tokens, bad_words_texts=bad_words_texts)
+            return model.generate(prompts, max_new_tokens=max_new_tokens, **kwargs)
         except TypeError:
             return model.generate(prompts, max_new_tokens=max_new_tokens)
     try:
         return model.generate(
             prompts,
             max_new_tokens=max_new_tokens,
-            min_new_tokens=int(min_new_tokens),
-            bad_words_texts=bad_words_texts,
+            **kwargs,
         )
     except TypeError:
         return model.generate(prompts, max_new_tokens=max_new_tokens)

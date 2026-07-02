@@ -22,6 +22,7 @@ class HFSeq2SeqLMConfig:
     gen_no_repeat_ngram_size: int = 0
     gen_encoder_no_repeat_ngram_size: int = 0
     gen_repetition_penalty: float = 1.0
+    gen_length_penalty: float = 1.0
     format_style: str = "citb_t5"
     debug_print_formatted_examples: bool = False
     debug_print_tokenized_examples: bool = False
@@ -262,6 +263,10 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         num_beams: Optional[int] = None,
         do_sample: Optional[bool] = None,
         min_new_tokens: Optional[int] = None,
+        length_penalty: Optional[float] = None,
+        no_repeat_ngram_size: Optional[int] = None,
+        encoder_no_repeat_ngram_size: Optional[int] = None,
+        repetition_penalty: Optional[float] = None,
         bad_words_texts: Optional[List[str]] = None,
     ) -> List[str]:
         import torch
@@ -281,6 +286,22 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         ds = bool(self.cfg.gen_do_sample) if do_sample is None else bool(do_sample)
         min_nt = int(self.cfg.gen_min_new_tokens) if min_new_tokens is None else int(min_new_tokens)
         min_nt = max(0, min(int(max_new_tokens), min_nt))
+        length_pen = float(self.cfg.gen_length_penalty) if length_penalty is None else float(length_penalty)
+        no_repeat = (
+            int(self.cfg.gen_no_repeat_ngram_size)
+            if no_repeat_ngram_size is None
+            else int(no_repeat_ngram_size)
+        )
+        enc_no_repeat = (
+            int(self.cfg.gen_encoder_no_repeat_ngram_size)
+            if encoder_no_repeat_ngram_size is None
+            else int(encoder_no_repeat_ngram_size)
+        )
+        rep_penalty = (
+            float(self.cfg.gen_repetition_penalty)
+            if repetition_penalty is None
+            else float(repetition_penalty)
+        )
         bad_words_ids = None
         if bad_words_texts:
             bad_words_ids = []
@@ -299,12 +320,13 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             min_new_tokens=min_nt,
             num_beams=max(1, nb),
             do_sample=ds,
+            length_penalty=length_pen,
             pad_token_id=self.tokenizer.pad_token_id,
             eos_token_id=self.tokenizer.eos_token_id,
             decoder_start_token_id=self.model.config.decoder_start_token_id,
-            no_repeat_ngram_size=max(0, int(self.cfg.gen_no_repeat_ngram_size)),
-            encoder_no_repeat_ngram_size=max(0, int(self.cfg.gen_encoder_no_repeat_ngram_size)),
-            repetition_penalty=max(1.0, float(self.cfg.gen_repetition_penalty)),
+            no_repeat_ngram_size=max(0, no_repeat),
+            encoder_no_repeat_ngram_size=max(0, enc_no_repeat),
+            repetition_penalty=max(1.0, rep_penalty),
             bad_words_ids=bad_words_ids,
             early_stopping=nb > 1,
         )
@@ -448,6 +470,7 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         gen_no_repeat_ngram_size=int(model_cfg.get("gen_no_repeat_ngram_size", 0)),
         gen_encoder_no_repeat_ngram_size=int(model_cfg.get("gen_encoder_no_repeat_ngram_size", 0)),
         gen_repetition_penalty=float(model_cfg.get("gen_repetition_penalty", 1.0)),
+        gen_length_penalty=float(model_cfg.get("gen_length_penalty", 1.0)),
         format_style=str(model_cfg.get("format_style", "citb_t5")),
         debug_print_formatted_examples=bool(model_cfg.get("debug_print_formatted_examples", False)),
         debug_print_tokenized_examples=bool(model_cfg.get("debug_print_tokenized_examples", False)),

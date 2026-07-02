@@ -1,0 +1,116 @@
+experiment_name: citb_task1714_overfit_probe_v34
+mode: ours
+seed: 1
+paths:
+  project_root: /root/lora-ours
+  raw_citb_root: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb
+  processed_task_order_file: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_tasks/order1.txt
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb
+  processed_stream_file: citb_instrdialog_order1_train500_dev50_test100_pos2_multiref_v28.json
+  results_dir: /root/lora-ours/results
+data:
+  suite: CITB
+  benchmark: InstrDialog-order1
+  stream_name: instrdialog
+  stream_format: unified_ccfa_stream
+  auto_prepare_processed: true
+  ready: true
+  processed_stream_train_instances_per_task: 500
+  processed_stream_dev_instances_per_task: 50
+  processed_stream_eval_instances_per_task: 100
+  max_segments: 4
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  base_model_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  format_style: citb_t5
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 1024
+  max_target_len: 128
+  gen_max_new_tokens: 32
+  gen_num_beams: 1
+  gen_min_new_tokens: 0
+  gen_do_sample: false
+  gen_no_repeat_ngram_size: 0
+  gen_encoder_no_repeat_ngram_size: 0
+  gen_repetition_penalty: 1.0
+  target_supervision_guard_enabled: true
+  generation_continuation_loss_weight: 2.0
+  generation_continuation_first_tokens:
+    - 'no'
+    - 'yes'
+    - i
+  generation_continuation_min_target_tokens: 4
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+    - q
+    - v
+train:
+  lr: 2.0e-4
+  epochs_per_segment: 1
+  batch_size: 8
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+drift:
+  kalman_drift_enabled: true
+  kalman_process_var: 0.02
+  kalman_measure_var: 0.25
+  anchor_source: train
+  anchor_size: 64
+  anchor_candidate_pool_size: 256
+  calibration_window: 1
+  threshold: 0.005
+assess_update:
+  isolated_energy_threshold: 0.12
+router:
+  routing_backend: prototype
+  training_strategy: learned_router
+  router_warmup_segments: 1
+  prototype_calibration: true
+  prototype_calibration_prior: 8.0
+  task_aware_fallback: true
+  task_aware_fallback_force_assigned: true
+spectral_replay:
+  enabled: true
+  buffer_size: 768
+  replay_ratio: 0.2
+  min_replay_per_segment: 8
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
+overlap:
+  beta: 0.12
+eval_normalization:
+  enable_task_aware_score: true
+  task_score_metric: auto_official
+  task_score_match_threshold: 0.35
+  auto_short_answer_max_new_tokens: false
+  enable_segment_min_new_tokens: false
+  enable_bucket_collapse_retry: false
+debug_tools:
+  enable_overfit_8_mode: true
+  stop_after_overfit_mode: true
+  overfit_segment_index: 3
+  overfit_steps: 80
+  overfit_log_every: 20
+  overfit_batch_size: 2
+  overfit_checkpoint_every: 40
+  overfit_gen_max_new_tokens: 32
+  enable_sequence_behavior_diagnosis: false
+  overfit_fresh_start: true
+output:
+  run_name: citb_task1714_overfit_probe_v34
+  tracking:
+    use_wandb: false
+paper:
+  strict_ready: false
+  status: diagnostic_probe
+  method_variant: task1714_overfit_probe_v34
