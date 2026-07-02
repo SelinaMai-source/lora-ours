@@ -1,0 +1,5 @@
+time_index,trained_segment_id,eval_segment_id,eval_segment_name,accuracy,task_aware_accuracy,forgetting,task_aware_forgetting
+0,0,0,toy_weather,0.0,0.0,0.0,0.0
+0,0,1,toy_dialog_act,,,,
+1,1,0,toy_weather,0.0,0.0,0.0,0.0
+1,1,1,toy_dialog_act,0.0,0.0,0.0,0.0

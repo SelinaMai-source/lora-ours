@@ -1,0 +1,76 @@
+phase: v0_setup
+created_at: "2026-07-02T09:10:00+08:00"
+policy:
+  no_fake_results: true
+  require_preflight_before_training: true
+  require_tmux_session_prefix: lora-ours-
+  require_wandb_or_recorded_offline_mode: true
+  toy_smoke_never_counts_as_benchmark: true
+
+suites:
+  citb:
+    status: blocked_until_official_data_and_checkpoint
+    official_repo: https://github.com/hyintell/CITB
+    user_required_settings:
+      datasets:
+        instrdialog:
+          tasks: 19
+          train_dev_test_per_task: [500, 50, 100]
+        instrdialogpp:
+          tasks: 38
+          train_dev_test_per_task: [100, 50, 100]
+      seeds: 3
+      replay_agem_memory_per_task: [10, 50]
+      start_checkpoint: LM-adapted T5-small after 100 SuperNI task instruction tuning
+      metrics: [ROUGE-L_AR, FWT, BWT, Tinit_retention, Tunseen_retention]
+      baselines: [FT-init, L2, EWC, AGEM, Replay, Multi]
+    local_required_paths:
+      official_repo_dir: external/official_repos/CITB
+      raw_data_dir: data/raw/citb
+      processed_stream_dir: data/processed
+      checkpoint: assets/pretrained/citb/lm_adapted_t5_small
+
+  standard_t5_large_peft_cl:
+    status: blocked_until_task_order_seeds_and_t5_large_checkpoint_verified
+    official_repos:
+      o_lora: https://github.com/cmnfriend/O-LoRA
+      lfpt5: https://github.com/qcwthu/Lifelong-Fewshot-Language-Learning
+      progressive_prompts: https://github.com/arazd/ProgressivePrompts
+    user_required_baselines:
+      - SeqLoRA
+      - IncLoRA
+      - Replay
+      - LFPT5
+      - Progressive Prompts
+      - O-LoRA
+      - LB-CL
+      - MTL
+    user_target_baselines:
+      lb_cl: 76.7
+      o_lora: 75.8
+      progressive_prompts: 76.1
+    metrics: [final_average_accuracy, forgetting, BWT]
+    local_required_paths:
+      official_repo_dir: external/official_repos
+      checkpoint: assets/pretrained/t5-large
+      processed_stream_dir: data/processed
+
+  dialogue_nlg_multiwoz_cl:
+    status: blocked_until_multiwoz_or_tod37_raw_data_verified
+    official_repos:
+      arper: https://github.com/MiFei/Continual-Learning-for-NLG
+      todcl: https://github.com/andreamad8/ToDCL
+    user_required_settings:
+      arper_replay_exemplars: [250, 500]
+      arper_metrics: [BLEU-4, SER]
+      todcl_metrics: [BLEU, EER]
+      arper_target:
+        bleu4: 0.701
+        ser: 3.63
+      todcl_modular_nlg_adapter_target:
+        bleu: 21.7719
+        eer: 0.163975
+    local_required_paths:
+      raw_multiwoz_dir: data/raw/multiwoz
+      raw_tod37_dir: data/raw/tod37
+      processed_stream_dir: data/processed

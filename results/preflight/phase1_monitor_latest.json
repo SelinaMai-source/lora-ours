@@ -1,0 +1,200 @@
+{
+  "run_name": "phase1_ours_v0_debug_smoke",
+  "run_dir": "results/runs/phase1_ours_v0_debug_smoke",
+  "found": true,
+  "recommendation": "stop_and_diagnose",
+  "segments_observed": 2,
+  "last_segment": {
+    "run_id": "phase1_ours_v0_debug_smoke",
+    "mode": "debug",
+    "baseline_name": "sequential_lora",
+    "segment_id": 1,
+    "segment_name": "toy_dialog_act",
+    "train.batches": 2,
+    "train.mean_batch_acc": 0.0,
+    "train.train.loss": 0.0,
+    "train.train.answer_token_acc": 0.0,
+    "train.num_total_tokens": 0,
+    "train.num_supervised_tokens": 0,
+    "train.grad_norm": 0.0,
+    "train.lr": 0.0,
+    "train.active_adapter": "default",
+    "eval.current_score": 0.0,
+    "eval.seen_avg_score": 0.0,
+    "eval.current_task_aware_score": 0.0,
+    "eval.seen_avg_task_aware_score": 0.0,
+    "eval.forgetting": 0.0,
+    "eval.task_aware_forgetting": 0.0,
+    "eval.num_seen_segments": 2,
+    "eval.token_f1_mean": 0.0,
+    "eval.lcs_overlap_mean": 0.0,
+    "eval.rouge_l_mean": 0.0,
+    "eval.bleu_mean": 0.21221291988242888,
+    "eval.slot_error_rate": 0.0,
+    "eval.matrix.segment_000.accuracy": 0.0,
+    "eval.matrix.segment_001.accuracy": 0.0,
+    "eval.matrix.segment_000.task_aware_accuracy": 0.0,
+    "eval.matrix.segment_001.task_aware_accuracy": 0.0,
+    "eval.matrix.segment_000.forgetting": 0.0,
+    "eval.matrix.segment_001.forgetting": 0.0,
+    "eval.matrix.segment_000.task_aware_forgetting": 0.0,
+    "eval.matrix.segment_001.task_aware_forgetting": 0.0,
+    "eval.anytime_score": 0.0,
+    "eval.anytime_task_aware_score": 0.0,
+    "eval.task_aware_score_mean": 0.0,
+    "routing.num_routed": 0,
+    "routing.oracle_agreement_rate": 0.0,
+    "routing.decision_confidence_mean": 0.0,
+    "routing.decision_entropy_mean": 0.0,
+    "routing.oracle_margin_mean": 0.0,
+    "hook.active_adapter": "default",
+    "active_adapter": "default"
+  },
+  "final_metrics_present": true,
+  "final_metrics": {
+    "run_id": "phase1_ours_v0_debug_smoke",
+    "mode": "debug",
+    "baseline_name": "sequential_lora",
+    "final": {
+      "run_id": "phase1_ours_v0_debug_smoke",
+      "mode": "debug",
+      "baseline_name": "sequential_lora",
+      "segment_id": 1,
+      "segment_name": "toy_dialog_act",
+      "train.batches": 2,
+      "train.mean_batch_acc": 0.0,
+      "train.train.loss": 0.0,
+      "train.train.answer_token_acc": 0.0,
+      "train.num_total_tokens": 0,
+      "train.num_supervised_tokens": 0,
+      "train.grad_norm": 0.0,
+      "train.lr": 0.0,
+      "train.active_adapter": "default",
+      "eval.current_score": 0.0,
+      "eval.seen_avg_score": 0.0,
+      "eval.current_task_aware_score": 0.0,
+      "eval.seen_avg_task_aware_score": 0.0,
+      "eval.forgetting": 0.0,
+      "eval.task_aware_forgetting": 0.0,
+      "eval.num_seen_segments": 2,
+      "eval.token_f1_mean": 0.0,
+      "eval.lcs_overlap_mean": 0.0,
+      "eval.rouge_l_mean": 0.0,
+      "eval.bleu_mean": 0.21221291988242888,
+      "eval.slot_error_rate": 0.0,
+      "eval.matrix.segment_000.accuracy": 0.0,
+      "eval.matrix.segment_001.accuracy": 0.0,
+      "eval.matrix.segment_000.task_aware_accuracy": 0.0,
+      "eval.matrix.segment_001.task_aware_accuracy": 0.0,
+      "eval.matrix.segment_000.forgetting": 0.0,
+      "eval.matrix.segment_001.forgetting": 0.0,
+      "eval.matrix.segment_000.task_aware_forgetting": 0.0,
+      "eval.matrix.segment_001.task_aware_forgetting": 0.0,
+      "eval.anytime_score": 0.0,
+      "eval.anytime_task_aware_score": 0.0,
+      "eval.task_aware_score_mean": 0.0,
+      "routing.num_routed": 0,
+      "routing.oracle_agreement_rate": 0.0,
+      "routing.decision_confidence_mean": 0.0,
+      "routing.decision_entropy_mean": 0.0,
+      "routing.oracle_margin_mean": 0.0,
+      "hook.active_adapter": "default",
+      "active_adapter": "default"
+    },
+    "drift_quality": {},
+    "routing_quality": {
+      "num_routed": 0,
+      "branch_counts": {},
+      "oracle_best_branch_counts": {},
+      "oracle_agreement_count": 0,
+      "oracle_num_examples": 0,
+      "confidence_sum": 0.0,
+      "entropy_sum": 0.0,
+      "oracle_margin_sum": 0.0,
+      "branch_utilization": {},
+      "decision_confidence_mean": 0.0,
+      "decision_entropy_mean": 0.0,
+      "oracle_agreement_rate": 0.0,
+      "oracle_margin_mean": 0.0
+    },
+    "ccfa_postprocess_dir": "results/runs/phase1_ours_v0_debug_smoke/ccfa_postprocess",
+    "ccfa_summary_json": "results/runs/phase1_ours_v0_debug_smoke/ccfa_postprocess/summary.json",
+    "ccfa_score_matrix_json": "results/runs/phase1_ours_v0_debug_smoke/ccfa_postprocess/score_matrix.json",
+    "ccfa_per_task_time_metrics_csv": "results/runs/phase1_ours_v0_debug_smoke/ccfa_postprocess/per_task_time_metrics.csv",
+    "ccfa_summary": {
+      "suite": "",
+      "benchmark": "toy_smoke_do_not_report",
+      "version": "v0_pipeline_healthcheck",
+      "num_tasks": 2,
+      "task_ids": [
+        0,
+        1
+      ],
+      "task_names": [
+        "toy_weather",
+        "toy_dialog_act"
+      ],
+      "score_matrix": [
+        [
+          0.0,
+          null
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "task_aware_score_matrix": [
+        [
+          0.0,
+          null
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "final_average_accuracy": 0.0,
+      "final_average_task_aware_accuracy": 0.0,
+      "average_forgetting": 0.0,
+      "bwt": 0.0,
+      "official_metrics": {
+        "CITB": {
+          "ROUGE-L AR": 0.0,
+          "FWT": null,
+          "BWT": 0.0,
+          "Tinit": null,
+          "Tunseen": null
+        },
+        "Standard PEFT CL": {
+          "final average accuracy": 0.0,
+          "forgetting": 0.0,
+          "BWT": 0.0
+        },
+        "Dialogue NLG": {
+          "BLEU-4": null,
+          "SER": 0.0,
+          "forgetting": 0.0
+        }
+      },
+      "citb": {
+        "ar": 0.0,
+        "fwt": null,
+        "bwt": 0.0,
+        "tinit": null,
+        "tunseen": null,
+        "note": "AR/BWT use the exported ROUGE-L score matrix. FWT/Tinit/Tunseen remain null unless the run includes official pre-training or unseen-task probes."
+      },
+      "dialogue_nlg": {
+        "bleu4": null,
+        "ser": 0.0,
+        "missing_slots": null,
+        "required_slots": null,
+        "redundant_slots": null
+      }
+    },
+    "rouge_l_ar": 0.0,
+    "bwt": 0.0
+  },
+  "reason": "seen_avg_score=0.000000 below floor 0.010000 at segment 1"
+}

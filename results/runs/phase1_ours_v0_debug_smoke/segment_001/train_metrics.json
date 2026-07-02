@@ -1,0 +1,11 @@
+{
+  "batches": 2,
+  "mean_batch_acc": 0.0,
+  "train.loss": 0.0,
+  "train.answer_token_acc": 0.0,
+  "num_total_tokens": 0,
+  "num_supervised_tokens": 0,
+  "grad_norm": 0.0,
+  "lr": 0.0,
+  "active_adapter": "default"
+}

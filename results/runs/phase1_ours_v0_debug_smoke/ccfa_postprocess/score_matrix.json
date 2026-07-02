@@ -1,0 +1,30 @@
+{
+  "task_ids": [
+    0,
+    1
+  ],
+  "task_names": [
+    "toy_weather",
+    "toy_dialog_act"
+  ],
+  "score_matrix": [
+    [
+      0.0,
+      null
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "task_aware_score_matrix": [
+    [
+      0.0,
+      null
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ]
+}

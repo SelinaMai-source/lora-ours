@@ -1,0 +1,52 @@
+{
+  "benchmark": "toy_smoke_do_not_report",
+  "version": "v0_pipeline_healthcheck",
+  "stream": [
+    {
+      "segment_id": 0,
+      "segment_name": "toy_weather",
+      "train": [
+        {
+          "instruction": "Answer with the requested weather label.",
+          "input": "city=alpha",
+          "output": "sunny"
+        },
+        {
+          "instruction": "Answer with the requested weather label.",
+          "input": "city=beta",
+          "output": "rainy"
+        }
+      ],
+      "eval": [
+        {
+          "instruction": "Answer with the requested weather label.",
+          "input": "city=alpha",
+          "output": "sunny"
+        }
+      ]
+    },
+    {
+      "segment_id": 1,
+      "segment_name": "toy_dialog_act",
+      "train": [
+        {
+          "instruction": "Map the dialogue act to a short response.",
+          "input": "inform(food=italian)",
+          "output": "I found an Italian option."
+        },
+        {
+          "instruction": "Map the dialogue act to a short response.",
+          "input": "request(area)",
+          "output": "Which area do you prefer?"
+        }
+      ],
+      "eval": [
+        {
+          "instruction": "Map the dialogue act to a short response.",
+          "input": "request(area)",
+          "output": "Which area do you prefer?"
+        }
+      ]
+    }
+  ]
+}

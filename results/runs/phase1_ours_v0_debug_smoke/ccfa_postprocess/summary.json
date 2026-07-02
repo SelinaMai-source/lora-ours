@@ -1,0 +1,72 @@
+{
+  "suite": "",
+  "benchmark": "toy_smoke_do_not_report",
+  "version": "v0_pipeline_healthcheck",
+  "num_tasks": 2,
+  "task_ids": [
+    0,
+    1
+  ],
+  "task_names": [
+    "toy_weather",
+    "toy_dialog_act"
+  ],
+  "score_matrix": [
+    [
+      0.0,
+      null
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "task_aware_score_matrix": [
+    [
+      0.0,
+      null
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "final_average_accuracy": 0.0,
+  "final_average_task_aware_accuracy": 0.0,
+  "average_forgetting": 0.0,
+  "bwt": 0.0,
+  "official_metrics": {
+    "CITB": {
+      "ROUGE-L AR": 0.0,
+      "FWT": null,
+      "BWT": 0.0,
+      "Tinit": null,
+      "Tunseen": null
+    },
+    "Standard PEFT CL": {
+      "final average accuracy": 0.0,
+      "forgetting": 0.0,
+      "BWT": 0.0
+    },
+    "Dialogue NLG": {
+      "BLEU-4": null,
+      "SER": 0.0,
+      "forgetting": 0.0
+    }
+  },
+  "citb": {
+    "ar": 0.0,
+    "fwt": null,
+    "bwt": 0.0,
+    "tinit": null,
+    "tunseen": null,
+    "note": "AR/BWT use the exported ROUGE-L score matrix. FWT/Tinit/Tunseen remain null unless the run includes official pre-training or unseen-task probes."
+  },
+  "dialogue_nlg": {
+    "bleu4": null,
+    "ser": 0.0,
+    "missing_slots": null,
+    "required_slots": null,
+    "redundant_slots": null
+  }
+}

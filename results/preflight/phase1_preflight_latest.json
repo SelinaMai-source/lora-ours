@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-07-02T01:06:07.401307+00:00",
+  "repo": "/root/lora-ours",
+  "git": {
+    "status": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "## ours-v0-setup\n?? configs/phase1/\n?? data/\n?? docs/\n?? scripts/__pycache__/phase1_monitor_segments.cpython-312.pyc\n?? scripts/__pycache__/phase1_preflight.cpython-312.pyc\n?? scripts/__pycache__/phase1_prepare_data.cpython-312.pyc\n?? scripts/phase1_archive_version.sh\n?? scripts/phase1_monitor_segments.py\n?? scripts/phase1_preflight.py\n?? scripts/phase1_prepare_data.py\n?? scripts/phase1_tmux_launch.sh",
+      "stderr": ""
+    },
+    "head": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "88878d0f64b80694e7a4ff5e2dfd1fe22e377eb1",
+      "stderr": ""
+    },
+    "branch": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "ours-v0-setup",
+      "stderr": ""
+    },
+    "remote": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "origin\tgit@github.com:SelinaMai-source/lora-ours.git (fetch)\norigin\tgit@github.com:SelinaMai-source/lora-ours.git (push)",
+      "stderr": ""
+    }
+  },
+  "tools": {
+    "git": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "git version 2.34.1",
+      "stderr": ""
+    },
+    "tmux": {
+      "ok": true,
+      "returncode": 0,
+      "stdout": "tmux 3.2a",
+      "stderr": ""
+    },
+    "python": {
+      "executable": "/root/miniconda3/bin/python",
+      "version": "3.12.3 | packaged by Anaconda, Inc. | (main, May  6 2024, 19:46:43) [GCC 11.2.0]"
+    },
+    "torch": {
+      "import_ok": true,
+      "version": "2.8.0+cu128",
+      "cuda_available": true,
+      "cuda_device_count": 1,
+      "cuda_devices": [
+        "NVIDIA vGPU-48GB"
+      ]
+    },
+    "wandb": {
+      "cli": "/root/miniconda3/bin/wandb",
+      "status": {
+        "ok": true,
+        "returncode": 0,
+        "stdout": "Current Settings\n{\n  \"_extra_http_headers\": null,\n  \"_proxies\": null,\n  \"api_key\": null,\n  \"base_url\": \"https://api.wandb.ai\",\n  \"entity\": null,\n  \"git_remote\": \"origin\",\n  \"ignore_globs\": [],\n  \"organization\": null,\n  \"project\": null,\n  \"root_dir\": null,\n  \"section\": \"default\"\n}",
+        "stderr": ""
+      }
+    }
+  },
+  "official_repos": {
+    "citb.official_repo": {
+      "url": "https://github.com/hyintell/CITB",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "bf50533b5bced4c388691ecc75e26773da96b3fd\tHEAD",
+      "stderr": "",
+      "head": "bf50533b5bced4c388691ecc75e26773da96b3fd"
+    },
+    "standard_t5_large_peft_cl.o_lora": {
+      "url": "https://github.com/cmnfriend/O-LoRA",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "07117e1fc4a5f5ad9308a815a42cee8f46502dc8\tHEAD",
+      "stderr": "",
+      "head": "07117e1fc4a5f5ad9308a815a42cee8f46502dc8"
+    },
+    "standard_t5_large_peft_cl.lfpt5": {
+      "url": "https://github.com/qcwthu/Lifelong-Fewshot-Language-Learning",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "cf7d17ce7de6a707d929d0542b3d5e639569855f\tHEAD",
+      "stderr": "",
+      "head": "cf7d17ce7de6a707d929d0542b3d5e639569855f"
+    },
+    "standard_t5_large_peft_cl.progressive_prompts": {
+      "url": "https://github.com/arazd/ProgressivePrompts",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "01572d6a73c0576b070ceee00dbe4f5bc278423f\tHEAD",
+      "stderr": "",
+      "head": "01572d6a73c0576b070ceee00dbe4f5bc278423f"
+    },
+    "dialogue_nlg_multiwoz_cl.arper": {
+      "url": "https://github.com/MiFei/Continual-Learning-for-NLG",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "99019defe6bf35e8459ca6abd6f25882724bc956\tHEAD",
+      "stderr": "",
+      "head": "99019defe6bf35e8459ca6abd6f25882724bc956"
+    },
+    "dialogue_nlg_multiwoz_cl.todcl": {
+      "url": "https://github.com/andreamad8/ToDCL",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "e70c1edf937f6eb570296ea2897dbc8d6815bc6d\tHEAD",
+      "stderr": "",
+      "head": "e70c1edf937f6eb570296ea2897dbc8d6815bc6d"
+    }
+  },
+  "local_required_paths": {
+    "citb": {
+      "official_repo_dir": {
+        "path": "external/official_repos/CITB",
+        "exists": false,
+        "is_dir": false
+      },
+      "raw_data_dir": {
+        "path": "data/raw/citb",
+        "exists": false,
+        "is_dir": false
+      },
+      "processed_stream_dir": {
+        "path": "data/processed",
+        "exists": false,
+        "is_dir": false
+      },
+      "checkpoint": {
+        "path": "assets/pretrained/citb/lm_adapted_t5_small",
+        "exists": false,
+        "is_dir": false
+      }
+    },
+    "standard_t5_large_peft_cl": {
+      "official_repo_dir": {
+        "path": "external/official_repos",
+        "exists": false,
+        "is_dir": false
+      },
+      "checkpoint": {
+        "path": "assets/pretrained/t5-large",
+        "exists": false,
+        "is_dir": false
+      },
+      "processed_stream_dir": {
+        "path": "data/processed",
+        "exists": false,
+        "is_dir": false
+      }
+    },
+    "dialogue_nlg_multiwoz_cl": {
+      "raw_multiwoz_dir": {
+        "path": "data/raw/multiwoz",
+        "exists": false,
+        "is_dir": false
+      },
+      "raw_tod37_dir": {
+        "path": "data/raw/tod37",
+        "exists": false,
+        "is_dir": false
+      },
+      "processed_stream_dir": {
+        "path": "data/processed",
+        "exists": false,
+        "is_dir": false
+      }
+    }
+  },
+  "guardrail": {
+    "training_started": false,
+    "toy_smoke_counts_as_benchmark": false,
+    "strict_results_available": false
+  }
+}

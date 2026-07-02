@@ -1,0 +1,66 @@
+experiment_name: phase1_ours_v0_debug_smoke
+mode: debug
+seed: 123
+
+paths:
+  project_root: "."
+  sample_stream_path: "data/sample/ours_v0_smoke_stream.json"
+  assets_dir: "assets"
+  results_dir: "results"
+
+debug:
+  model_loading: dummy
+  max_segments: 2
+  max_train_examples_per_segment: 2
+  max_eval_examples_per_segment: 1
+
+model:
+  backbone_name: debug-text
+  hf_model_name_or_path: ""
+  torch_dtype: float32
+  device: cpu
+  max_seq_len: 128
+  gen_max_new_tokens: 32
+  gen_do_sample: false
+  gen_num_beams: 1
+
+lora:
+  enabled: false
+  r: 4
+  alpha: 8
+  dropout: 0.0
+  target_modules: []
+
+train:
+  epochs_per_segment: 1
+  batch_size: 1
+  lr: 0.001
+  weight_decay: 0.0
+  grad_clip_norm: 1.0
+  log_every: 1
+  hard_early_stop_enabled: true
+  hard_early_stop_min_seen_avg: 0.0
+  trajectory_early_stop: false
+
+output:
+  run_name: phase1_ours_v0_debug_smoke
+  save_every_segment: true
+  write_tables: true
+  write_logs: true
+  tracking:
+    use_wandb: false
+    wandb_project: lora-ours-phase1
+    wandb_group: v0_setup
+    wandb_mode: offline
+    wandb_tags:
+      - phase1
+      - debug_smoke
+      - not_benchmark
+
+paper:
+  track: phase1_setup
+  category: pipeline_healthcheck
+  benchmark_alias: toy_smoke
+  method_variant: debug_pipeline_only
+  strict_benchmark_result: false
+  note: "Toy smoke config for pipeline health only; never report as CITB/PEFT/MultiWOZ result."
