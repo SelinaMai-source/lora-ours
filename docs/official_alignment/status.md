@@ -4,7 +4,7 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v31-task1714-bucket-collapse-retry`.
+- Active branch: `ours-v32-prompt-copy-resistant-retry`.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
@@ -21,7 +21,10 @@ Updated: 2026-07-02
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - W&B: project `lora-ours-v31`, run `nz0uhi5b`.
 - Monitor: status file `results/logs/ours_v31_strict_status.md`.
-- Decision: v31 improves task1714 task-aware but by accepting prompt-template continuations. Do not launch full strict. Next step should make any continuation retry prompt-copy resistant or move to a training-time generation fix.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v32_smoke_strict`.
+- W&B: project `lora-ours-v32`, run `fqjw2qzb`.
+- Monitor: status file `results/logs/ours_v32_strict_status.md`.
+- Decision: v32 keeps segment2 healthy but still improves task1714 by accepting prompt-template variants (`Now finish...`, `This is a concatenated...`). Do not launch full strict. Next step should move away from denylist-only retry acceptance toward a training-time generation supervision fix or a more principled official-compatible decode objective.
 
 ## Evidence
 
@@ -49,7 +52,9 @@ Updated: 2026-07-02
 - v30 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.3433333333333333`). Segment3 training used balanced sampling on `b3` and preserved assignment after prototype refresh; `segment_branch_map` ended as `{"0": "b0", "1": "b1", "2": "b2", "3": "b3"}`. Current task debug routed `24/25` task1714 examples to `b3`, proving eval no longer fell back to old `b2`; however, current debug still generated `25/25` raw `no`, and final segment3 task-aware stayed `0.08`.
 - v31 small-step change: keep v30 routing/sampling and add a label-free, config-gated eval retry only for task1714/sentence_generation when greedy decoding collapses to a single bucket token (`no`/`yes`/`i`). The retry is accepted only if it begins with the same bucket token and produces a longer non-template continuation.
 - v31 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.3433333333333333`). Segment3 retry triggered `99` times and accepted `94`, raising segment3 task-aware from `0.08` to `0.12` and final task-aware AR from `0.275` to `0.285`. However, current debug still started `25/25` with `no`; many accepted continuations were prompt-template artifacts such as `no Now complete the following example - Input...` or diagnostic-looking text such as `no if so. This is a concatenated string...`. This is not healthy enough for full strict.
+- v32 audit and small-step change: official Tk-Instruct decodes predictions with `skip_special_tokens=True` and scores the decoded prediction directly; there is no answer-only truncation that would turn `no Now complete...` into `no`. `task1714_convai3_sentence_generation` is open `Dialogue Generation` (`2295` outputs, `1959` unique normalized outputs, only `233` exact bare `yes`/`no`/`i`), so it is not a closed classification label set and no classification verbalizer/constrained label decoding was used. V32 kept scoring unchanged and made the retry prompt-copy resistant with retry-only bad-word blocking plus stricter template rejection.
+- v32 smoke result: segment2 remained healthy (`current_task_aware_score=0.29`, seen task-aware after segment2 `0.37`). Segment3 final task-aware stayed at `0.12` and final task-aware AR stayed `0.28500000000000003`; retry accepted count fell from v31 `94` to v32 `82`, but current debug still started `25/25` with `no`. Broad debug audit found `13/25` accepted current outputs were still template/definition variants such as `no Now finish the following sentence`, `no Now finish the following form`, and `no if so. This is a concatenated`. Do not launch full strict.
 
 ## Next Step
 
-Do not launch full strict from v31. The next small step should either add prompt-copy-resistant retry controls/rejection for task1714 continuation retry or switch to a training-time generation supervision fix. Any next smoke must keep segment2 task-aware near `0.29` while improving task1714 without `no Now complete...` style continuations.
+Do not launch full strict from v32. The next step should not rely on a larger prompt-template denylist alone; v32 showed the model can substitute nearby template variants. Prefer a training-time generation supervision fix, or a principled official-compatible decode objective that improves task1714 without accepting prompt-template/definition continuations, while keeping segment2 task-aware near `0.29`.

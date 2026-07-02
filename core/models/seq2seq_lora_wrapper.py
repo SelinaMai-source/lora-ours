@@ -256,6 +256,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         num_beams: Optional[int] = None,
         do_sample: Optional[bool] = None,
         min_new_tokens: Optional[int] = None,
+        bad_words_texts: Optional[List[str]] = None,
     ) -> List[str]:
         import torch
         from transformers import GenerationConfig
@@ -274,6 +275,19 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         ds = bool(self.cfg.gen_do_sample) if do_sample is None else bool(do_sample)
         min_nt = int(self.cfg.gen_min_new_tokens) if min_new_tokens is None else int(min_new_tokens)
         min_nt = max(0, min(int(max_new_tokens), min_nt))
+        bad_words_ids = None
+        if bad_words_texts:
+            bad_words_ids = []
+            seen_bad_words = set()
+            for text in bad_words_texts:
+                token_ids = self.tokenizer(str(text), add_special_tokens=False)["input_ids"]
+                token_ids = [int(x) for x in token_ids if int(x) not in {self.tokenizer.pad_token_id, self.tokenizer.eos_token_id}]
+                key = tuple(token_ids)
+                if token_ids and key not in seen_bad_words:
+                    bad_words_ids.append(token_ids)
+                    seen_bad_words.add(key)
+            if not bad_words_ids:
+                bad_words_ids = None
         gen_cfg = GenerationConfig(
             max_new_tokens=int(max_new_tokens),
             min_new_tokens=min_nt,
@@ -285,6 +299,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             no_repeat_ngram_size=max(0, int(self.cfg.gen_no_repeat_ngram_size)),
             encoder_no_repeat_ngram_size=max(0, int(self.cfg.gen_encoder_no_repeat_ngram_size)),
             repetition_penalty=max(1.0, float(self.cfg.gen_repetition_penalty)),
+            bad_words_ids=bad_words_ids,
             early_stopping=nb > 1,
         )
         with torch.no_grad():

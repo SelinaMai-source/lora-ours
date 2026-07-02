@@ -887,11 +887,20 @@ def _generate_with_optional_min_new_tokens(
     *,
     max_new_tokens: int,
     min_new_tokens: int,
+    bad_words_texts: Optional[List[str]] = None,
 ) -> List[str]:
     if int(min_new_tokens) <= 0:
-        return model.generate(prompts, max_new_tokens=max_new_tokens)
+        try:
+            return model.generate(prompts, max_new_tokens=max_new_tokens, bad_words_texts=bad_words_texts)
+        except TypeError:
+            return model.generate(prompts, max_new_tokens=max_new_tokens)
     try:
-        return model.generate(prompts, max_new_tokens=max_new_tokens, min_new_tokens=int(min_new_tokens))
+        return model.generate(
+            prompts,
+            max_new_tokens=max_new_tokens,
+            min_new_tokens=int(min_new_tokens),
+            bad_words_texts=bad_words_texts,
+        )
     except TypeError:
         return model.generate(prompts, max_new_tokens=max_new_tokens)
 
@@ -924,25 +933,35 @@ def _maybe_retry_bucket_collapse_generation(
 
     retry_min_new_tokens = int(normalization_cfg.get("bucket_collapse_retry_min_new_tokens", 6))
     retry_min_new_tokens = max(1, min(int(max_new_tokens), retry_min_new_tokens))
+    retry_bad_words = _resolve_bucket_collapse_retry_bad_words(normalization_cfg)
     retry_prediction = _generate_with_optional_min_new_tokens(
         model,
         [prompt],
         max_new_tokens=max_new_tokens,
         min_new_tokens=retry_min_new_tokens,
+        bad_words_texts=retry_bad_words,
     )[0]
     retry_words = _prediction_words(retry_prediction)
     min_accept_tokens = int(normalization_cfg.get("bucket_collapse_retry_min_accept_tokens", 2))
+    template_reason = _prompt_template_continuation_reason(retry_words)
     accepted = (
         len(retry_words) >= max(2, min_accept_tokens)
         and retry_words[0] == words[0]
-        and not _looks_like_prompt_template_continuation(retry_words)
+        and not template_reason
     )
     detail = {
         "bucket_collapse_retry_triggered": True,
         "bucket_collapse_retry_token": words[0],
         "bucket_collapse_retry_min_new_tokens": retry_min_new_tokens,
+        "bucket_collapse_retry_bad_words_count": len(retry_bad_words),
         "bucket_collapse_retry_output": retry_prediction,
         "bucket_collapse_retry_accepted": bool(accepted),
+        "bucket_collapse_retry_rejection_reason": "" if accepted else _bucket_collapse_retry_rejection_reason(
+            retry_words=retry_words,
+            original_token=words[0],
+            min_accept_tokens=min_accept_tokens,
+            template_reason=template_reason,
+        ),
     }
     return (retry_prediction if accepted else prediction), detail
 
@@ -953,18 +972,78 @@ def _prediction_words(text: str) -> List[str]:
 
 
 def _looks_like_prompt_template_continuation(words: List[str]) -> bool:
+    return bool(_prompt_template_continuation_reason(words))
+
+
+def _prompt_template_continuation_reason(words: List[str]) -> str:
     if not words:
-        return False
-    template_starts = {
-        "definition",
-        "input",
-        "output",
-        "positive",
-        "negative",
-        "example",
-        "now",
-    }
-    return words[0] in template_starts
+        return ""
+    template_singletons = {"definition", "input", "output"}
+    for idx, word in enumerate(words):
+        if word in template_singletons:
+            return f"template_token:{word}@{idx}"
+    template_phrases = [
+        ("now", "complete"),
+        ("following", "example"),
+        ("positive", "example"),
+        ("negative", "example"),
+        ("concatenated", "string"),
+        ("newline", "character"),
+        ("valid", "prediction"),
+        ("initial", "question"),
+        ("clarifying", "question"),
+    ]
+    for idx in range(0, max(0, len(words) - 1)):
+        pair = (words[idx], words[idx + 1])
+        if pair in template_phrases:
+            return f"template_phrase:{pair[0]}_{pair[1]}@{idx}"
+    return ""
+
+
+def _bucket_collapse_retry_rejection_reason(
+    *,
+    retry_words: List[str],
+    original_token: str,
+    min_accept_tokens: int,
+    template_reason: str,
+) -> str:
+    if len(retry_words) < max(2, int(min_accept_tokens)):
+        return "too_short"
+    if not retry_words or retry_words[0] != original_token:
+        return "bucket_token_changed"
+    if template_reason:
+        return template_reason
+    return "unknown"
+
+
+def _resolve_bucket_collapse_retry_bad_words(normalization_cfg: Dict[str, Any]) -> List[str]:
+    if not bool(normalization_cfg.get("bucket_collapse_retry_block_prompt_template_tokens", True)):
+        return []
+    configured = normalization_cfg.get("bucket_collapse_retry_bad_words", None)
+    if configured is None:
+        configured = [
+            "Now complete",
+            "now complete",
+            "following example",
+            "Positive Example",
+            "positive example",
+            "Negative Example",
+            "negative example",
+            "Input",
+            "input",
+            "Output",
+            "output",
+            "Definition",
+            "definition",
+            "concatenated string",
+            "separated by a newline",
+            "valid prediction",
+            "initial question",
+            "clarifying question",
+        ]
+    if isinstance(configured, str):
+        configured = [configured]
+    return [str(text) for text in configured if str(text).strip()]
 
 
 def _resolve_eval_max_new_tokens(
