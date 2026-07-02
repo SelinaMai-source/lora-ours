@@ -9,7 +9,9 @@ Updated: 2026-07-02
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v25_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v25_smoke_strict`.
 - W&B: project `lora-ours-v25`, run `ntv3qpgq`.
-- Running smoke: `citb_instrdialog_order1_seed1_ours_v26_smoke_strict` (pending launch).
+- Running smoke: `citb_instrdialog_order1_seed1_ours_v26_smoke_strict`.
+- W&B: project `lora-ours-v26`, run `0oob88o4`.
+- Monitor: tmux session `lora-ours`, windows `v26_smoke` and `v26_monitor`; status file `results/logs/ours_v26_strict_status.md`.
 - Decision: v25 segment2 gate passed, but v25 full strict is blocked by segment3 generation collapse. Iterate v26 before any full strict launch.
 
 ## Evidence
