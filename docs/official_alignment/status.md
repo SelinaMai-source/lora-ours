@@ -4,12 +4,13 @@ Updated: 2026-07-02
 
 ## Current Gate
 
-- Active branch: `ours-v25-supervision-metrics`.
-- Latest pushed base before this branch: v24 `bcc5370` on `ours-v24-anti-copy-leakage`.
-- Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v24_smoke_strict`.
+- Active branch: `ours-v26-router-arbitration`.
+- Latest pushed base before this branch: v25 `665804c` on `ours-v25-supervision-metrics`.
+- Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v25_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v25_smoke_strict`.
 - W&B: project `lora-ours-v25`, run `ntv3qpgq`.
-- Decision: v25 smoke completed without early stop. Segment2 gate passed (`current_task_aware_score=0.29`); full strict is now a launch candidate after a full segment2 leakage audit, but not yet SOTA-ready.
+- Running smoke: `citb_instrdialog_order1_seed1_ours_v26_smoke_strict` (pending launch).
+- Decision: v25 segment2 gate passed, but v25 full strict is blocked by segment3 generation collapse. Iterate v26 before any full strict launch.
 
 ## Evidence
 
@@ -25,8 +26,10 @@ Updated: 2026-07-02
 - Official Tk-Instruct computes `exact_match`, `rouge1`, and `rougeL`; CL collection commonly reads `rougeL`, while category/task reporting uses exact match for classification-style categories. A strict exact `current_score=0` is therefore not a sufficient health signal for answer generation; task-aware ROUGE-L is the relevant early gate for segment2.
 - v25 smoke uses `auto_official`: classification/option tasks use exact-match task-aware health; generation tasks use max-over-reference ROUGE-L. Segment2 improved to `current_task_aware_score=0.29` and `seen_avg_task_aware_score=0.3433`, with `task_score_type_counts={"exact_match": 200, "rouge_l": 100}`.
 - Light segment2 debug audit over the saved current-task 25 examples found `0` exact/contained positive-example target leaks, `3` input-copy/contains cases, and `5` question-like template outputs. This is a clear improvement over v23b/v24 but still needs a full saved-output audit before any SOTA claim.
-- Final smoke summary (4 segments): `seen_avg_task_aware_score=0.27`, `ROUGE-L AR=0.27`, `BWT=-0.0067`, no `stop_and_diagnose`. Segment matrix task-aware: `[0.46, 0.29, 0.28, 0.06]`. Segment3 current-task drop to `0.06` is expected for a fresh generation segment and is not an early-gate failure.
+- Final v25 smoke summary (4 segments): `seen_avg_task_aware_score=0.27`, `ROUGE-L AR=0.27`, `BWT=-0.0067`, no `stop_and_diagnose`. Segment matrix task-aware: `[0.46, 0.29, 0.28, 0.06]`.
+- Segment3 (`task1714_convai3_sentence_generation`) is the blocker: current task-aware score dropped to `0.06`; saved current-task debug examples routed `25/25` examples to `b3` via `task_aware_fallback_forced` and generated `no` for all `25/25` current-task debug examples. This is a current generation collapse, so v25 full strict was not launched.
+- v26 small-step change: keep v25 official multi-reference/task-type-aware metrics, but set `router.task_aware_fallback_force_assigned=false` so low-margin generation routing can use NLL arbitration instead of being unconditionally forced to the newly spawned branch.
 
 ## Next Step
 
-Run a full segment2 leakage audit on saved `eval_debug/eval_segment_002.json`. If copied-output counts remain acceptable, launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v25_strict.yaml` with monitor/W&B; otherwise iterate on supervision/routing before full strict.
+Launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v26_smoke_strict.yaml` with W&B online and monitor. If segment2 remains near v25 and segment3 no longer collapses to repeated `no`, then consider `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v26_strict.yaml` for full strict.
