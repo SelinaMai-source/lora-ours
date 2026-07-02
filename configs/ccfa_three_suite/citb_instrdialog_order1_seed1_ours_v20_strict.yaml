@@ -1,0 +1,130 @@
+experiment_name: citb_instrdialog_order1_seed1_ours_v20_strict
+mode: ours
+seed: 1
+strict_alignment:
+  status: ready_after_smoke
+  blocker: pending_v20_smoke_gate
+  official_evidence: CITB README; scripts/run_initial_multitask_tuning.sh; scripts/*_stream_scripts/run_cit_ft_instr.sh; collect_results.py; data/CIT_data/task_orders
+paths:
+  project_root: /root/lora-ours
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb/citb_instrdialog_order1_train500_dev50_test100.json
+  results_dir: /root/lora-ours/results
+data:
+  suite: CITB
+  benchmark: InstrDialog-order1
+  stream_format: unified_ccfa_stream
+  ready: true
+  max_segments: -1
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  backbone: T5-small LM-adapted + 100 SuperNI init
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  base_model_path: /root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469
+  format_style: citb_t5
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 1024
+  max_target_len: 128
+  gen_max_new_tokens: 128
+  gen_num_beams: 1
+  gen_do_sample: false
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+    - q
+    - v
+train:
+  lr: 1.0e-05
+  epochs_per_segment: 15
+  batch_size: 8
+  hard_early_stop_enabled: true
+  hard_early_stop_min_seen_avg: 0.10
+  early_stop_min_segment: 3
+  early_stop_min_task_aware_score: 0.10
+  ours_v10_early_stop: true
+  ours_v10_check_segments:
+    - 2
+    - 3
+    - 4
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+drift:
+  kalman_drift_enabled: true
+  kalman_process_var: 0.02
+  kalman_measure_var: 0.25
+  anchor_source: train
+  anchor_size: 64
+  anchor_candidate_pool_size: 256
+  calibration_window: 1
+  threshold: 0.005
+  probe_threshold_scale: 0.9
+  core_threshold_scale: 1.0
+assess_update:
+  isolated_energy_threshold: 0.12
+router:
+  routing_backend: prototype
+  training_strategy: learned_router
+  router_warmup_segments: 1
+  prototype_calibration: true
+  prototype_calibration_prior: 8.0
+  nll_arbitration: true
+  arbitration_margin: 0.2
+  arbitration_top_k: 2
+  spawn_sync_prototype_init: true
+  segment_anchor_prototype_refresh: true
+  anchor_prototype_refresh_beta: 0.35
+  prototype_update_steps: 2
+  margin_filter_min_gap: 0.005
+  task_aware_fallback: true
+  task_aware_fallback_force_assigned: true
+  task_aware_fallback_min_confidence: 0.78
+  task_aware_fallback_min_margin: 0.18
+  oracle_pll_recalibrate: true
+  oracle_pll_min_agreement: 0.5
+  oracle_pll_bonus_steps: 1
+spectral_replay:
+  enabled: true
+  buffer_size: 768
+  replay_ratio: 0.2
+  min_replay_per_segment: 8
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
+overlap:
+  beta: 0.12
+eval_normalization:
+  enable_task_aware_score: true
+  task_score_metric: rouge_l
+  task_score_match_threshold: 0.35
+  auto_short_answer_max_new_tokens: false
+output:
+  run_name: citb_instrdialog_order1_seed1_ours_v20_strict
+  tracking:
+    use_wandb: true
+    wandb_project: lora-ours-v20
+    wandb_group: ccfa_citb_strict_ours_v20
+    wandb_mode: online
+    wandb_tags:
+      - ccfa_v2
+      - citb
+      - strict
+      - ours_v20
+paper:
+  strict_ready: false
+  status: ready_after_smoke_gate
+  method_variant: ours_v20_task_aware_forced_fallback
+  metrics:
+    - ROUGE-L AR
+    - FWT
+    - BWT
+    - Tinit
+    - Tunseen
+  postprocess: ccfa_postprocess/summary.json
+  notes: Official Stage-1 SuperNI checkpoint and InstrDialog order1 stream are preserved. V20 forces recorded task-aware branch assignments during eval routing. Launch only after v20 smoke clears the early gate.

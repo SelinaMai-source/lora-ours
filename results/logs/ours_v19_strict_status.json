@@ -1,0 +1,27 @@
+{
+  "updated_at": "2026-07-02T11:00:00",
+  "run_id": "citb_instrdialog_order1_seed1_ours_v19_smoke_strict",
+  "classification": {
+    "state": "gate_failed_stopped",
+    "reason": "segment 2 current_score=0.0, task-aware=0.05, eval routing b0=300/300"
+  },
+  "processes": [],
+  "gate": {
+    "segment_id": 2,
+    "current_score": 0.0,
+    "current_task_aware_score": 0.05,
+    "seen_avg_score": 0.19000000000000003,
+    "seen_avg_task_aware_score": 0.20666666666666667,
+    "branch_counts": {
+      "b0": 300
+    },
+    "oracle_best_branch_counts": {
+      "b0": 199,
+      "b2": 49,
+      "b1": 52
+    },
+    "task_aware_fallback_count": 202,
+    "nll_arbitration_count": 98
+  },
+  "decision": "Do not launch v19 full strict; proceed to v20 forced task-aware fallback smoke."
+}

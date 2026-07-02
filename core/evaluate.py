@@ -438,6 +438,7 @@ def _eval_segment(
             )
             prob_scores = _normalized_routing_scores(decision.scores)
             use_nll_arbitration = bool(getattr(router, "nll_arbitration", False))
+            forced_task_fallback = "task_aware_fallback_forced" in str(getattr(decision, "reason", ""))
             ranked = sorted(prob_scores.items(), key=lambda kv: kv[1], reverse=True) if prob_scores else []
             margin = float(ranked[0][1] - ranked[1][1]) if len(ranked) > 1 else 1.0
             arbitrated_low_margin = False
@@ -446,6 +447,7 @@ def _eval_segment(
             # to the NLL winner instead of destructive parameter blending.
             if (
                 use_nll_arbitration
+                and not forced_task_fallback
                 and hasattr(model, "score_prompt_nlls")
                 and hasattr(lora_bank, "set_active_adapter")
                 and len(prob_scores) > 1

@@ -81,6 +81,7 @@ class Router:
         self.anchor_prototype_refresh_beta = float(cfg.get("anchor_prototype_refresh_beta", 0.25))
         self.margin_filter_min_gap = float(cfg.get("margin_filter_min_gap", 0.0))
         self.task_aware_fallback = bool(cfg.get("task_aware_fallback", False))
+        self.task_aware_fallback_force_assigned = bool(cfg.get("task_aware_fallback_force_assigned", False))
         self.task_aware_fallback_min_confidence = float(cfg.get("task_aware_fallback_min_confidence", 0.72))
         self.task_aware_fallback_min_margin = float(cfg.get("task_aware_fallback_min_margin", 0.18))
         # Oracle PLL recalibration (sota-v1+): when eval oracle agreement drops below
@@ -146,15 +147,19 @@ class Router:
             self.task_aware_fallback
             and fallback_branch in branch_names
             and fallback_branch != decision.branch_name
-            and self._should_use_task_fallback(decision.scores)
+            and (
+                self.task_aware_fallback_force_assigned
+                or self._should_use_task_fallback(decision.scores)
+            )
         ):
             scores = dict(decision.scores)
             scores[fallback_branch] = max(float(scores.get(fallback_branch, 0.0)), 1.0)
+            suffix = "task_aware_fallback_forced" if self.task_aware_fallback_force_assigned else "task_aware_fallback"
             return RoutingDecision(
                 branch_name=fallback_branch,
                 scores=scores,
                 hard=True,
-                reason=f"{decision.reason}+task_aware_fallback",
+                reason=f"{decision.reason}+{suffix}",
             )
         return decision
 
