@@ -1821,7 +1821,8 @@ def _maybe_balance_generation_training_indices(
         return {}
 
     current_instruction = segment.train[0].instruction
-    bucket_names = [str(x).strip().lower() for x in cfg.get("buckets", ["no", "yes", "i", "other"]) if str(x).strip()]
+    bucket_names = [_normalize_generation_bucket_name(x) for x in cfg.get("buckets", ["no", "yes", "i", "other"])]
+    bucket_names = [name for name in bucket_names if name]
     if "other" not in bucket_names:
         bucket_names.append("other")
     max_multiplier = max(1.0, float(cfg.get("max_total_multiplier", 1.5)))
@@ -1894,6 +1895,12 @@ def _generation_target_bucket(target: str, bucket_names: List[str]) -> str:
     normalized = re.sub(r"^[^a-z0-9]+|[^a-z0-9]+$", "", str(target or "").strip().lower())
     first = normalized.split()[0] if normalized.split() else "other"
     return first if first in set(bucket_names) and first != "other" else "other"
+
+
+def _normalize_generation_bucket_name(raw: Any) -> str:
+    if isinstance(raw, bool):
+        return "yes" if raw else "no"
+    return str(raw).strip().lower()
 
 
 def _resolve_trainable_training_branch(

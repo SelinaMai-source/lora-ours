@@ -9,10 +9,10 @@ Updated: 2026-07-02
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
 - W&B: project `lora-ours-v28`, run `fvdftnlw`.
-- Running smoke: `citb_instrdialog_order1_seed1_ours_v29_smoke_strict` after v29 commit/push.
-- W&B: project `lora-ours-v29`.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v29_smoke_strict`.
+- W&B: project `lora-ours-v29`, run `t67uf51q`.
 - Monitor: status file `results/logs/ours_v29_strict_status.md`.
-- Decision: v28 confirmed NLL debug works but did not fix segment3. Do not launch full strict unless v29 smoke keeps segment2 healthy and improves task1714 current-task ROUGE-L without prompt-template continuations.
+- Decision: v29 smoke completed but failed the segment3 gate. Do not launch full strict. Re-run a corrected smoke after the bucket parsing fix before any full strict decision.
 
 ## Evidence
 
@@ -34,7 +34,8 @@ Updated: 2026-07-02
 - v27/v28 result: NLL arbitration debug is effective and v28 changed 5/25 task1714 current debug routes, but segment3 remained blocked with `current_score=0.0` and `current_task_aware_score=0.08`. V28 minimum generation length changed pure `no` into longer `no ...` / `no Now complete the following` outputs, so the issue is no longer primarily route observability.
 - v28 segment3 audit: `task1714_convai3_sentence_generation` is a `Dialogue Generation` task and should be treated as ROUGE-L generation, not classification. Its processed train split has a real first-token prior (`no=250`, `yes=113`, `i=80` among 500 examples), positive examples include `yes` and `no ...`, and v28 training supervision was weak (`train.loss=3.4283`, `train.answer_token_acc=0.3953`).
 - v29 small-step change: remove task1714 minimum generation length, fix `auto_official` generation-vs-intent metric inference, and enable config-scoped first-token balanced sampling only for `task1714` / `sentence_generation`.
+- v29 smoke result: segment2 stayed healthy at `0.29` task-aware, but segment3 stayed at `0.08` task-aware and current debug remained `25/25` pure `no`. The metric mapping fix worked and prompt-template continuations disappeared, but balanced sampling was misconfigured because YAML parsed unquoted `no` / `yes` buckets as booleans; a follow-up fix quotes the values and maps YAML booleans defensively.
 
 ## Next Step
 
-Launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v29_smoke_strict.yaml` with W&B online and monitor. If segment2 remains near `0.29` task-aware and segment3 current-task task-aware improves over v28 `0.08` without prompt-template continuations, then consider `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v29_strict.yaml` for full strict; otherwise stop and diagnose the next training-supervision issue.
+Do not launch `configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v29_strict.yaml`. Re-run corrected smoke first, then inspect segment3 current debug. If it still produces `25/25` pure `no`, move to segment-local generation supervision diagnostics rather than more routing-only changes.

@@ -47,3 +47,26 @@ Do not launch full strict unless v29 smoke verifies:
 - segment 3 current debug examples are no longer dominated by prompt-template continuations such as `no Now complete the following`.
 - segment 3 current-task task-aware ROUGE-L improves over v28 `0.08`.
 - train metrics include balanced sampling bucket counts for task1714, confirming the calibration path was active.
+
+## V29 Smoke Result
+
+- Run: `citb_instrdialog_order1_seed1_ours_v29_smoke_strict`.
+- W&B: project `lora-ours-v29`, run `t67uf51q`.
+- Status: completed smoke; do not launch full strict.
+- Segment2 gate passed:
+  - `task565_circa_answer_generation` current task-aware score stayed `0.29`.
+- Segment3 gate failed:
+  - `task1714_convai3_sentence_generation` current task-aware score stayed `0.08`.
+  - current exact improved from v28 `0.0` to `0.06`, but this came from exact `no` references, not a broad generation fix.
+  - current debug slice is still `25/25` pure `no`.
+  - prompt-template continuations disappeared after removing `min_new_tokens`, confirming v28's long `no ...` outputs were a generation-length artifact.
+- Metric mapping fix worked:
+  - current task debug examples now score as `rouge_l`, not exact-match classification.
+- Balanced sampling did not run as intended in this smoke:
+  - unquoted YAML `no` / `yes` bucket values were parsed as booleans.
+  - the recorded bucket metrics were `{"i": 80, "other": 420}` -> `{"i": 375, "other": 375}` instead of the intended `no/yes/i/other` buckets.
+  - follow-up fix quotes the config values and makes the helper map YAML booleans back to `yes`/`no`.
+
+## Next Step
+
+Do not run full strict from v29. Re-run a corrected smoke with the fixed bucket parsing first. If corrected bucketing still leaves task1714 at `25/25` pure `no`, the next evidence-backed direction is not routing or min generation length; it is stronger task1714 generation supervision, such as segment-local train-time decoding diagnostics, target-prefix loss/accuracy by first-token bucket, or a constrained current-task router override only if it is justified by branch-local generation quality.

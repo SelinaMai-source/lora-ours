@@ -70,8 +70,8 @@ train:
       - task1714
       - sentence_generation
     buckets:
-      - no
-      - yes
+      - "no"
+      - "yes"
       - i
       - other
     max_total_multiplier: 1.5
