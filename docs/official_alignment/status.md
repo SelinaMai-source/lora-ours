@@ -46,6 +46,10 @@ Updated: 2026-07-02
 - v36 smoke result: segment matrix task-aware `[0.51, 0.29, 0.25, 0.16]`; final task-aware AR `0.3025`, BWT `-0.0067`. Soft adapter dynamics fixed the v35 overcorrection on task1714 and gave meaningful but smaller adapter updates (`lora_param_delta_l2` around `0.0035`-`0.0042`), beating v34/v35 on segment3. However, segment2 stayed below v34 (`0.25` final / `0.26` at segment2 vs v34 `0.28`), so do not launch full strict yet.
 - Current v36b smoke candidate: `citb_instrdialog_order1_seed1_ours_v36b_smoke_strict`.
 - Decision pending: v36b keeps v36 unchanged except lowering LR from `2e-5` to `1.5e-5`, testing whether a slightly smaller AdamW/trainable-LoRA-A update restores segment2 while preserving the segment3 gain.
+- Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v36b_smoke_strict`.
+- v36b smoke result: segment matrix task-aware `[0.53, 0.26, 0.28, 0.18]`; final task-aware AR `0.3125`, BWT `0.0`. LR-only softening kept adapter deltas meaningful but smaller (`~0.0027`-`0.0032`), restored segment2 to the v34 gate (`0.28`), and improved task1714 beyond v36 (`0.18` vs `0.16`). This clears the smoke gate for preparing full strict.
+- Current full strict candidate: `citb_instrdialog_order1_seed1_ours_v36b_strict`.
+- Decision pending: full strict is prepared but not launched in this status note; confirm no conflicting full strict run and monitor budget before launch.
 
 ## Evidence
 
@@ -81,7 +85,8 @@ Updated: 2026-07-02
 - v34 smoke result: segment2 remained near healthy (`current_task_aware_score=0.28`). Segment3 rose from v33 `0.08` to `0.12` without retry; final task-aware AR `0.2825`. Current-task debug for task1714 no longer collapsed to bare `no` (`0/25`), but `25/25` still had bad prefix mismatch and mostly generated `if...` continuations (`12/25` first token `if`, `9/25` `i`). Generation overrides were active (`num_beams=4`, `min_new_tokens=5` from train-target prior). Do not launch full strict; next step should investigate why teacher-forced accuracy does not improve under the current seq2seq LoRA update path.
 - v35 smoke result: changing adapter dynamics fixed the stale-update symptom but overcorrected. Segment0 improved (`0.51`), branch/router confidence became much sharper, and LoRA parameter deltas became meaningful; generation tasks did not benefit. Segment2 dropped to `0.21` task-aware and task1714 dropped to `0.09`, with current debug producing fluent but generic `I...` requests rather than matching the target intent. This points to an optimization/capacity calibration problem, not a need for more decode-only constraints.
 - v36 smoke result: lowering capacity/targets and restoring rectification moved adapter updates into a useful middle range and improved task1714 to `0.16`; current debug had `0/25` bare `yes/no/i`, `0/25` template continuations, and `3/25` prefix-1 matches, but remained dominated by generic `i want...` utterances. Segment2 was only partially recovered (`0.25` final), so v36 is informative but not full-strict ready.
+- v36b smoke result: lowering only LR to `1.5e-5` recovered segment2 to `0.28` and lifted task1714 to `0.18`, with zero task-aware forgetting through the 4-segment smoke. This is the first v34+ smoke to satisfy both segment2 preservation and segment3 improvement gates without retry/template acceptance.
 
 ## Next Step
 
-Do not launch full strict on v35/v36 until the smoke gate clears. Run v36b as one small LR-only follow-up to v36; if segment2 remains below `~0.28` or segment3 falls back to `<=0.12`, record the failure and next isolate rectification vs AdamW rather than expanding to a broad matrix.
+V36b cleared the smoke gate. Prepare/launch `citb_instrdialog_order1_seed1_ours_v36b_strict` as the next full strict candidate with W&B online monitoring, but keep the run under strict gate review before any SOTA claim.

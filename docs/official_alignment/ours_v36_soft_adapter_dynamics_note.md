@@ -26,3 +26,9 @@ This is not full-strict ready because segment2 remains below the v34 gate (`0.25
 ## Follow-Up Smoke
 
 V36b changes only LR from `2e-5` to `1.5e-5`, leaving AdamW, trainable LoRA A, `q/v` targets, `r16/alpha32`, rectification, and generation calibration unchanged. The hypothesis is that a slightly smaller update may recover segment2 while preserving the task1714 gain.
+
+V36b completed with segment matrix task-aware `[0.53, 0.26, 0.28, 0.18]`, final task-aware AR `0.3125`, and task-aware BWT `0.0`. Adapter deltas were still meaningful but softer (`~0.0027`-`0.0032`). This clears the local smoke gate: segment2 returned to v34 health and task1714 improved beyond v34/v36 without retry/template acceptance.
+
+## Full Strict Candidate
+
+`configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v36b_strict.yaml` is staged as the full strict candidate. It keeps the v36b method settings unchanged and removes the 4-segment smoke truncation.
