@@ -6,15 +6,15 @@
 
 ## Recent Signals
 
-- `Train Loss: 1.497 | Time: 126.5`
-- `valid Loss: 1.360 | Slot error: 9.124 | BLEU4: 0.00000 | Time: 20.2`
-- `Task Inform Epoch 3 (n_layer 1)`
-- `Train Loss: 1.404 | Time: 127.8`
-- `valid Loss: 1.312 | Slot error: 6.421 | BLEU4: 0.00000 | Time: 20.9`
-- `Task Inform Epoch 4 (n_layer 1)`
-- `Train Loss: 1.345 | Time: 126.6`
-- `valid Loss: 1.282 | Slot error: 6.170 | BLEU4: 0.00000 | Time: 20.6`
-- `Task Inform Epoch 5 (n_layer 1)`
 - `Train Loss: 1.300 | Time: 125.2`
 - `valid Loss: 1.256 | Slot error: 4.348 | BLEU4: 0.00000 | Time: 20.6`
 - `Task Inform Epoch 6 (n_layer 1)`
+- `Train Loss: 1.266 | Time: 126.3`
+- `valid Loss: 1.243 | Slot error: 5.357 | BLEU4: 0.00000 | Time: 20.2`
+- `Task Inform Epoch 7 (n_layer 1)`
+- `Train Loss: 1.238 | Time: 125.6`
+- `valid Loss: 1.232 | Slot error: 3.846 | BLEU4: 0.00000 | Time: 20.3`
+- `Task Inform Epoch 8 (n_layer 1)`
+- `Train Loss: 1.216 | Time: 125.7`
+- `valid Loss: 1.225 | Slot error: 3.128 | BLEU4: 0.00000 | Time: 20.2`
+- `Task Inform Epoch 9 (n_layer 1)`
