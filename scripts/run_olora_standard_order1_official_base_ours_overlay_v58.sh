@@ -6,7 +6,7 @@ OFFICIAL_ROOT="${OLORA_OFFICIAL_ROOT:-/root/autodl-tmp/lora-baselines-run_v1/ext
 ENV_PREFIX="${OLORA_ENV_PREFIX:-/root/autodl-tmp/conda_envs/lora_v10_o_lora}"
 BASE_MODEL="${OLORA_T5_LARGE:-/root/autodl-tmp/model_cache/hf_snapshots/t5-large}"
 
-RUN_NAME="${RUN_NAME:-standard_olora_official_base_plus_ours_replay_overlay_order1_seed1_smoke_v58}"
+RUN_NAME="${RUN_NAME:-olora_official_base_ours_overlay_replay64_v58_smoke_order1_seed1}"
 WANDB_PROJECT="${WANDB_PROJECT:-lora-ours}"
 WANDB_GROUP="${WANDB_GROUP:-published-base-standard-olora-plus-ours-overlay-v58}"
 RUN_LABEL="${RUN_LABEL:-published_base_olora_official_runtime_plus_ours_limited_replay_overlay_v58}"
