@@ -130,7 +130,8 @@ class SimpleLogger:
 
     def log(self, msg: str) -> None:
         line = f"[{timestamp(compact=False)}] {msg}"
-        print(line)
+        print(line, flush=True)
         with open(self.log_path, "a", encoding="utf-8") as f:
             f.write(line + "\n")
+            f.flush()
 

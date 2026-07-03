@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import atexit
 import sys
 import argparse
 import csv
 import json
 import math
+import os
 import re
 import shutil
+import signal
+import time
+import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import yaml
@@ -71,6 +76,262 @@ def _summarize_lora_info(lora: Any) -> Dict[str, Any]:
     }
 
 
+class EvalTimeoutError(TimeoutError):
+    pass
+
+
+def _now_iso() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
+
+
+def _flush_runtime_outputs(tracker: Optional[WandbTracker] = None) -> None:
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.flush()
+        except Exception:
+            pass
+    if tracker is not None and hasattr(tracker, "flush"):
+        try:
+            tracker.flush()
+        except Exception:
+            pass
+
+
+def _write_runtime_json(path: Path, payload: Dict[str, Any]) -> None:
+    ensure_dir(str(path.parent))
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _diagnostics_cfg(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    diagnostics = cfg.get("diagnostics", {}) if isinstance(cfg.get("diagnostics", {}), dict) else {}
+    return diagnostics
+
+
+def _eval_timeout_seconds(cfg: Dict[str, Any]) -> int:
+    diagnostics = _diagnostics_cfg(cfg)
+    raw = diagnostics.get("per_segment_eval_timeout_seconds", diagnostics.get("eval_timeout_seconds", 0))
+    try:
+        return max(0, int(raw))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _write_process_exit_artifact(
+    *,
+    run_paths: RunPaths,
+    cfg: Dict[str, Any],
+    event: str,
+    status: str,
+    context: Dict[str, Any],
+    exit_code: Optional[int] = None,
+    error: str = "",
+    tb: str = "",
+) -> None:
+    payload = {
+        "updated_at": _now_iso(),
+        "event": str(event),
+        "status": str(status),
+        "pid": int(os.getpid()),
+        "ppid": int(os.getppid()),
+        "cwd": str(Path.cwd()),
+        "run_id": str(run_paths.run_id),
+        "config": str(cfg.get("__config_path__", "")),
+        "exit_code": exit_code,
+        "phase": str(context.get("phase", "")),
+        "current_segment_id": context.get("current_segment_id"),
+        "current_segment_name": context.get("current_segment_name"),
+        "error": str(error),
+        "traceback": str(tb),
+    }
+    for path in [
+        Path(run_paths.run_dir) / "process_exit.json",
+        Path(run_paths.log_file).with_suffix(".process_exit.json"),
+    ]:
+        try:
+            _write_runtime_json(path, payload)
+        except Exception:
+            pass
+
+
+def _install_process_exit_diagnostics(
+    *,
+    run_paths: RunPaths,
+    cfg: Dict[str, Any],
+    context: Dict[str, Any],
+    tracker_getter: Any,
+) -> Dict[str, Any]:
+    state: Dict[str, Any] = {"finalized": False}
+
+    def _record(event: str, status: str, exit_code: Optional[int] = None, error: str = "", tb: str = "") -> None:
+        _write_process_exit_artifact(
+            run_paths=run_paths,
+            cfg=cfg,
+            event=event,
+            status=status,
+            context=context,
+            exit_code=exit_code,
+            error=error,
+            tb=tb,
+        )
+        _flush_runtime_outputs(tracker_getter())
+
+    def _atexit_record() -> None:
+        if not state.get("finalized", False):
+            _record(event="atexit", status="unknown_atexit")
+
+    def _signal_handler(signum: int, _frame: Any) -> None:
+        signal_name = signal.Signals(signum).name if signum in {int(s) for s in signal.Signals} else str(signum)
+        state["signal_event"] = f"signal:{signal_name}"
+        state["finalized"] = True
+        _record(
+            event=str(state["signal_event"]),
+            status="signaled",
+            exit_code=128 + int(signum),
+            error=f"received {signal_name}",
+        )
+        raise SystemExit(128 + int(signum))
+
+    atexit.register(_atexit_record)
+    for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+        try:
+            signal.signal(sig, _signal_handler)
+        except Exception:
+            pass
+    return state
+
+
+def _run_eval_with_diagnostics(
+    *,
+    cfg: Dict[str, Any],
+    run_paths: RunPaths,
+    logger: SimpleLogger,
+    tracker: Optional[WandbTracker],
+    seg: Segment,
+    seen_segments: List[Segment],
+    model: Any,
+    max_new_tokens: int,
+    router: Optional[Any],
+    lora_bank: Optional[Any],
+    normalization_cfg: Dict[str, Any],
+    historical_best_per_segment: Dict[int, float],
+    historical_best_task_aware_per_segment: Dict[int, float],
+) -> Dict[str, Any]:
+    seg_dir = Path(ensure_dir(str(Path(run_paths.run_dir) / f"segment_{seg.segment_id:03d}")))
+    heartbeat_path = Path(run_paths.run_dir) / "eval_heartbeat.jsonl"
+    progress_path = Path(run_paths.run_dir) / "eval_progress.jsonl"
+    status_path = seg_dir / "eval_status.json"
+    timeout_seconds = _eval_timeout_seconds(cfg)
+    started_at = time.time()
+
+    def _status(event: str, extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        payload = {
+            "updated_at": _now_iso(),
+            "event": event,
+            "segment_id": int(seg.segment_id),
+            "segment_name": str(seg.segment_name),
+            "num_seen_segments": int(len(seen_segments)),
+            "seen_segment_ids": [int(s.segment_id) for s in seen_segments],
+            "total_seen_eval_examples": int(sum(len(s.eval) for s in seen_segments)),
+            "timeout_seconds": int(timeout_seconds),
+            "elapsed_seconds": float(time.time() - started_at),
+        }
+        if extra:
+            payload.update(extra)
+        _write_runtime_json(status_path, payload)
+        append_jsonl(str(heartbeat_path), payload)
+        return payload
+
+    def _progress(payload: Dict[str, Any]) -> None:
+        row = {
+            "updated_at": _now_iso(),
+            "segment_id": int(seg.segment_id),
+            "segment_name": str(seg.segment_name),
+            "elapsed_seconds": float(time.time() - started_at),
+            **payload,
+        }
+        append_jsonl(str(progress_path), row)
+        _write_runtime_json(status_path, {**row, "timeout_seconds": int(timeout_seconds)})
+        _flush_runtime_outputs(tracker)
+
+    _status("eval_start")
+    logger.log(
+        "Eval start heartbeat: "
+        + json.dumps(
+            {
+                "segment_id": int(seg.segment_id),
+                "segment_name": str(seg.segment_name),
+                "num_seen_segments": int(len(seen_segments)),
+                "timeout_seconds": int(timeout_seconds),
+            },
+            ensure_ascii=False,
+        )
+    )
+    _flush_runtime_outputs(tracker)
+
+    old_alarm_handler = None
+    alarm_enabled = timeout_seconds > 0 and hasattr(signal, "SIGALRM")
+    if alarm_enabled:
+        old_alarm_handler = signal.getsignal(signal.SIGALRM)
+
+        def _alarm_handler(_signum: int, _frame: Any) -> None:
+            raise EvalTimeoutError(
+                f"segment {seg.segment_id} eval exceeded {timeout_seconds}s timeout"
+            )
+
+        signal.signal(signal.SIGALRM, _alarm_handler)
+        signal.alarm(timeout_seconds)
+    try:
+        eval_metrics = evaluate_stream(
+            model=model,
+            segments_seen=seen_segments,
+            max_new_tokens=max_new_tokens,
+            router=router,
+            lora_bank=lora_bank,
+            segment_id=seg.segment_id,
+            normalization_cfg=normalization_cfg,
+            save_debug_examples_dir=str(Path(run_paths.run_dir) / "eval_debug"),
+            historical_best_per_segment=historical_best_per_segment,
+            historical_best_task_aware_per_segment=historical_best_task_aware_per_segment,
+            progress_callback=_progress,
+        )
+    except BaseException as exc:
+        tb = traceback.format_exc()
+        event = "eval_timeout" if isinstance(exc, EvalTimeoutError) else "eval_exception"
+        payload = _status(
+            event,
+            {
+                "status": "failed",
+                "error_type": type(exc).__name__,
+                "error": repr(exc),
+                "traceback": tb,
+            },
+        )
+        _write_runtime_json(seg_dir / f"{event}.json", payload)
+        logger.log(f"Eval failed artifact: {seg_dir / f'{event}.json'}")
+        _flush_runtime_outputs(tracker)
+        raise
+    finally:
+        if alarm_enabled:
+            signal.alarm(0)
+            if old_alarm_handler is not None:
+                signal.signal(signal.SIGALRM, old_alarm_handler)
+
+    _status("eval_end", {"status": "completed"})
+    logger.log(
+        "Eval end heartbeat: "
+        + json.dumps(
+            {
+                "segment_id": int(seg.segment_id),
+                "segment_name": str(seg.segment_name),
+                "elapsed_seconds": float(time.time() - started_at),
+            },
+            ensure_ascii=False,
+        )
+    )
+    _flush_runtime_outputs(tracker)
+    return eval_metrics
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Unified continual instruction tuning pipeline")
     parser.add_argument("--config", type=str, required=True, help="Path to YAML config")
@@ -95,6 +356,17 @@ def main() -> None:
         run_id=run_paths.run_id,
         config_path=str(cfg.get("__config_path__", "")),
         run_dir=run_paths.run_dir,
+    )
+    process_context: Dict[str, Any] = {
+        "phase": "startup",
+        "current_segment_id": None,
+        "current_segment_name": None,
+    }
+    exit_state = _install_process_exit_diagnostics(
+        run_paths=run_paths,
+        cfg=cfg,
+        context=process_context,
+        tracker_getter=lambda: tracker,
     )
     tracking_cfg = parse_tracking_cfg(cfg)
     if tracking_cfg["use_wandb"]:
@@ -129,10 +401,12 @@ def main() -> None:
     _flush_run_manifest(status="running")
 
     try:
+        process_context["phase"] = "load_stream"
         stream = _load_stream(cfg, mode=mode, logger=logger)
         logger.log(f"Loaded stream: benchmark={stream.benchmark} version={stream.version} segments={len(stream.stream)}")
 
         debug_loading = str(cfg.get("debug", {}).get("model_loading", "dummy")) if isinstance(cfg.get("debug", {}), dict) else "dummy"
+        process_context["phase"] = "build_model"
         print("Calling build_backbone...", file=sys.stderr)
         backbone = build_backbone(cfg.get("model", {}), mode=mode, seed=seed, debug_loading=debug_loading)
         print("Calling build_lora_wrapper...", file=sys.stderr)
@@ -196,6 +470,7 @@ def main() -> None:
                 tracker=tracker,
             )
         else:
+            process_context["phase"] = "run_ours"
             final_metrics = run_ours(
                 cfg=cfg,
                 stream=stream,
@@ -205,8 +480,10 @@ def main() -> None:
                 logger=logger,
                 segment_metrics_rows=segment_metrics_rows,
                 tracker=tracker,
+                process_context=process_context,
             )
 
+        process_context["phase"] = "postprocess"
         ccfa_outputs = write_ccfa_postprocess_outputs(
             run_dir=run_paths.run_dir,
             cfg=cfg,
@@ -257,9 +534,39 @@ def main() -> None:
         tracker.log_final(final_metrics)
         tracker.finish(success=True)
         _flush_run_manifest(status="completed")
-    except Exception as exc:
+        exit_state["finalized"] = True
+        _write_process_exit_artifact(
+            run_paths=run_paths,
+            cfg=cfg,
+            event="main_completed",
+            status="completed",
+            context=process_context,
+            exit_code=0,
+        )
+    except BaseException as exc:
+        tb = traceback.format_exc()
+        is_system_exit = isinstance(exc, SystemExit)
+        exit_code: Optional[int]
+        if is_system_exit:
+            code = exc.code
+            exit_code = int(code) if isinstance(code, int) else 1
+            status = "signaled" if exit_state.get("signal_event") else "system_exit"
+        else:
+            exit_code = 1
+            status = "failed"
+        exit_state["finalized"] = True
+        _write_process_exit_artifact(
+            run_paths=run_paths,
+            cfg=cfg,
+            event=str(exit_state.get("signal_event") or "main_exit"),
+            status=status,
+            context=process_context,
+            exit_code=exit_code,
+            error=repr(exc),
+            tb=tb,
+        )
         tracker.finish(success=False, error=repr(exc))
-        _flush_run_manifest(status="failed", error=repr(exc))
+        _flush_run_manifest(status=status, error=repr(exc))
         raise
 
 
@@ -676,6 +983,7 @@ def run_ours(
     logger: SimpleLogger,
     segment_metrics_rows: List[Dict[str, Any]],
     tracker: Optional[WandbTracker] = None,
+    process_context: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     modules = cfg.get("modules", {}) if isinstance(cfg.get("modules", {}), dict) else {}
     use_drift = bool(modules.get("use_drift_detector", True))
@@ -729,6 +1037,14 @@ def run_ours(
     last_eval_metrics: Dict[str, Any] = {}
     print("Starting segment loop...", file=sys.stderr)
     for seg in stream.stream:
+        if process_context is not None:
+            process_context.update(
+                {
+                    "phase": "segment_train",
+                    "current_segment_id": int(seg.segment_id),
+                    "current_segment_name": str(seg.segment_name),
+                }
+            )
         print(f"Inside loop for segment {seg.segment_id}...", file=sys.stderr)
         logger.log(f"=== Segment {seg.segment_id}: {seg.segment_name} ===")
 
@@ -971,15 +1287,20 @@ def run_ours(
         # Evaluate
         seen_segments.append(seg)
         active_adapter_before_eval = lora.get_active_adapter_name()
-        eval_metrics = evaluate_stream(
+        if process_context is not None:
+            process_context["phase"] = "segment_eval"
+        eval_metrics = _run_eval_with_diagnostics(
+            cfg=cfg,
+            run_paths=run_paths,
+            logger=logger,
+            tracker=tracker,
+            seg=seg,
+            seen_segments=seen_segments,
             model=backbone,
-            segments_seen=seen_segments,
             max_new_tokens=eval_max_new_tokens,
             router=router if (router is not None and lora_bank is not None) else None,
             lora_bank=lora_bank if (router is not None and lora_bank is not None) else None,
-            segment_id=seg.segment_id,
             normalization_cfg=normalization_cfg,
-            save_debug_examples_dir=str(Path(run_paths.run_dir) / "eval_debug"),
             historical_best_per_segment=historical_best_per_segment,
             historical_best_task_aware_per_segment=historical_best_task_aware_per_segment,
         )

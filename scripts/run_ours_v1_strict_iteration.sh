@@ -17,6 +17,48 @@ PY
 LOG_DIR="$ROOT/results/logs"
 mkdir -p "$LOG_DIR"
 EXIT_STATUS_PATH="$LOG_DIR/${RUN_NAME}.exit.json"
+LAUNCHER_PID="$$"
+STARTED_AT="$(date -Is)"
+
+write_exit_json() {
+  local event="$1"
+  local launcher_status="$2"
+  local train_status="${3:-}"
+  local tee_status="${4:-}"
+  python - "$RUN_NAME" "$CONFIG" "$EXIT_STATUS_PATH" "$event" "$launcher_status" "$train_status" "$tee_status" "$LAUNCHER_PID" "$STARTED_AT" <<'PY'
+import json
+import os
+import sys
+from datetime import datetime
+from pathlib import Path
+
+run_name, config, output_path, event, launcher_status, train_status, tee_status, launcher_pid, started_at = sys.argv[1:]
+
+def _maybe_int(value):
+    if value == "":
+        return None
+    return int(value)
+
+payload = {
+    "started_at": started_at,
+    "updated_at": datetime.now().isoformat(timespec="seconds"),
+    "event": event,
+    "run_name": run_name,
+    "config": config,
+    "launcher_pid": int(launcher_pid),
+    "launcher_ppid": os.getppid(),
+    "launcher_exit_status": int(launcher_status),
+    "train_exit_status": _maybe_int(train_status),
+    "tee_exit_status": _maybe_int(tee_status),
+}
+Path(output_path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+PY
+}
+
+trap 'status=$?; if [[ ! -f "$EXIT_STATUS_PATH" ]]; then write_exit_json launcher_exit_trap "$status"; fi' EXIT
+trap 'write_exit_json signal:SIGHUP 129; exit 129' HUP
+trap 'write_exit_json signal:SIGINT 130; exit 130' INT
+trap 'write_exit_json signal:SIGTERM 143; exit 143' TERM
 
 echo "Starting ours v1 strict iteration: $CONFIG"
 set +e
@@ -25,20 +67,5 @@ PIPE_STATUSES=("${PIPESTATUS[@]}")
 TRAIN_STATUS="${PIPE_STATUSES[0]}"
 TEE_STATUS="${PIPE_STATUSES[1]:-0}"
 set -e
-python - "$RUN_NAME" "$CONFIG" "$TRAIN_STATUS" "$TEE_STATUS" "$EXIT_STATUS_PATH" <<'PY'
-import json
-import sys
-from datetime import datetime
-from pathlib import Path
-
-run_name, config, train_status, tee_status, output_path = sys.argv[1:]
-payload = {
-    "updated_at": datetime.now().isoformat(timespec="seconds"),
-    "run_name": run_name,
-    "config": config,
-    "train_exit_status": int(train_status),
-    "tee_exit_status": int(tee_status),
-}
-Path(output_path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-PY
+write_exit_json pipeline_exit "$TRAIN_STATUS" "$TRAIN_STATUS" "$TEE_STATUS"
 exit "$TRAIN_STATUS"

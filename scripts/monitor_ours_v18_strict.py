@@ -111,25 +111,61 @@ def _last_eval_from_log() -> Dict[str, Any]:
 
 def _run_artifacts() -> Dict[str, Any]:
     out: Dict[str, Any] = {}
-    for name in ["final_metrics.json", "stop_and_diagnose.json"]:
+    for name in ["final_metrics.json", "stop_and_diagnose.json", "process_exit.json"]:
         path = RUN_DIR / name
         if path.is_file():
             try:
                 out[name] = json.loads(path.read_text(encoding="utf-8"))
             except Exception as exc:
                 out[name] = {"error": repr(exc)}
+    eval_statuses: List[Dict[str, Any]] = []
+    for path in sorted(RUN_DIR.glob("segment_*/eval_status.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            payload = {"path": str(path), "error": repr(exc)}
+        else:
+            payload["path"] = str(path)
+        eval_statuses.append(payload)
+    if eval_statuses:
+        out["eval_statuses"] = eval_statuses
+        out["latest_eval_status"] = eval_statuses[-1]
+    eval_failures: List[Dict[str, Any]] = []
+    for pattern in ["segment_*/eval_timeout.json", "segment_*/eval_exception.json"]:
+        for path in sorted(RUN_DIR.glob(pattern)):
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                payload = {"path": str(path), "error": repr(exc)}
+            else:
+                payload["path"] = str(path)
+            eval_failures.append(payload)
+    if eval_failures:
+        out["eval_failures"] = eval_failures
     return out
 
 
 def _classify(log_info: Dict[str, Any], artifacts: Dict[str, Any], processes: List[str]) -> Dict[str, Any]:
     if "stop_and_diagnose.json" in artifacts:
         return {"state": "stopped_low_or_failed", "reason": artifacts["stop_and_diagnose.json"].get("reason", "stop_and_diagnose")}
+    if artifacts.get("eval_failures"):
+        latest_failure = artifacts["eval_failures"][-1]
+        return {
+            "state": "eval_failed",
+            "reason": f"{latest_failure.get('event', 'eval_failure')}: {latest_failure.get('error', '')}",
+        }
     if LOG_PATH.is_file() and log_info.get("log_age_seconds", 0.0) > STALE_SECONDS and processes:
         return {"state": "stale", "reason": f"log older than {STALE_SECONDS}s while process exists"}
     if processes:
         return {"state": "running", "reason": "train process present"}
     if "final_metrics.json" in artifacts:
         return {"state": "completed", "reason": "final_metrics_present"}
+    if "process_exit.json" in artifacts:
+        process_exit = artifacts["process_exit.json"]
+        return {
+            "state": "exited_with_artifact",
+            "reason": f"{process_exit.get('status')} at {process_exit.get('phase')}",
+        }
     latest_eval = log_info.get("latest_eval", {}) if isinstance(log_info.get("latest_eval"), dict) else {}
     latest_segment = int(log_info.get("latest_segment") or -1)
     if latest_segment >= LOW_SCORE_MIN_SEGMENT:
@@ -193,6 +229,8 @@ def write_status() -> None:
     approx_bwt = -float(forgetting) if isinstance(forgetting, (int, float)) else "n/a"
     approx_task_bwt = -float(task_forgetting) if isinstance(task_forgetting, (int, float)) else "n/a"
     final_metrics = status.get("artifacts", {}).get("final_metrics.json", {})
+    latest_eval_status = status.get("artifacts", {}).get("latest_eval_status", {})
+    process_exit = status.get("artifacts", {}).get("process_exit.json", {})
     ccfa_summary = final_metrics.get("ccfa_summary", {}) if isinstance(final_metrics, dict) else {}
     final_bwt = ccfa_summary.get("bwt", "n/a") if isinstance(ccfa_summary, dict) else "n/a"
     lines = [
@@ -211,6 +249,8 @@ def write_status() -> None:
         f"- Train processes: `{len(status.get('processes', []))}`",
         f"- Log: `{status.get('log', {}).get('log_path', LOG_PATH)}`",
         f"- Latest eval source: `{status.get('log', {}).get('latest_eval_log_path', 'n/a')}`",
+        f"- Latest eval heartbeat: `{latest_eval_status.get('event', 'n/a')}` segment `{latest_eval_status.get('segment_id', 'n/a')}` elapsed `{latest_eval_status.get('elapsed_seconds', 'n/a')}`",
+        f"- Process exit artifact: `{process_exit.get('status', 'n/a')}` event `{process_exit.get('event', 'n/a')}` phase `{process_exit.get('phase', 'n/a')}`",
         "",
         "## Watched Standard Order1 Metrics",
         "",

@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from core.causal_lm_metrics import count_supervised_label_tokens, teacher_forced_token_accuracy_shifted
 from core.data import Example, Segment
@@ -201,6 +201,7 @@ def evaluate_stream(
     save_debug_examples_dir: Optional[str] = None,
     historical_best_per_segment: Optional[Dict[int, float]] = None,
     historical_best_task_aware_per_segment: Optional[Dict[int, float]] = None,
+    progress_callback: Optional[Callable[[Dict[str, Any]], None]] = None,
 ) -> Dict[str, Any]:
     """
     Unified evaluation for continual instruction tuning.
@@ -244,6 +245,16 @@ def evaluate_stream(
     all_prefix5: List[int] = []
     num_bad_prefix = 0
     for seg in segments_seen:
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "event": "eval_segment_start",
+                    "outer_segment_id": int(segment_id),
+                    "eval_segment_id": int(seg.segment_id),
+                    "eval_segment_name": str(seg.segment_name),
+                    "num_eval_examples": int(len(seg.eval)),
+                }
+            )
         acc, task_aware_acc, seg_routing, seg_examples = _eval_segment(
             model=model,
             segment=seg,
@@ -272,6 +283,18 @@ def evaluate_stream(
         all_prefix1.extend([int(bool(x.get("prefix_1_match", False))) for x in seg_examples])
         all_prefix3.extend([int(bool(x.get("prefix_3_match", False))) for x in seg_examples])
         all_prefix5.extend([int(bool(x.get("prefix_5_match", False))) for x in seg_examples])
+        if progress_callback is not None:
+            progress_callback(
+                {
+                    "event": "eval_segment_end",
+                    "outer_segment_id": int(segment_id),
+                    "eval_segment_id": int(seg.segment_id),
+                    "eval_segment_name": str(seg.segment_name),
+                    "num_eval_examples": int(len(seg.eval)),
+                    "accuracy": float(acc),
+                    "task_aware_accuracy": float(task_aware_acc),
+                }
+            )
 
     # current segment is the last in segments_seen
     current_score = per_seg_acc[-1][1] if per_seg_acc else 0.0

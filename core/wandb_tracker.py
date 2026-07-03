@@ -140,6 +140,17 @@ class WandbTracker:
                 continue
         wandb.log(metrics, step=step)
 
+    def flush(self) -> None:
+        if not self.enabled or self._run is None:
+            return
+        import wandb
+
+        run = getattr(wandb, "run", None)
+        if run is not None and hasattr(run, "log_code"):
+            # W&B does not expose a public flush for every backend version.
+            # A zero-key commit nudges the sender without adding metric values.
+            wandb.log({}, commit=True)
+
     def log_final(self, final_doc: Dict[str, Any]) -> None:
         if not self.enabled or self._run is None:
             return
@@ -174,4 +185,5 @@ class WandbTracker:
         wandb.run.summary["success"] = bool(success)
         if error:
             wandb.run.summary["error"] = error
+        self.flush()
         wandb.finish(exit_code=0 if success else 1)
