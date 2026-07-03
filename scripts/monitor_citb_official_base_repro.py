@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_RUN_NAME = "citb_instrdialog_order1_seed1_official_script_500_50_50_ft_instr_stage1_v53"
+DEFAULT_RUN_NAME = "citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54"
 DEFAULT_OUTPUT_BASE = Path("/root/autodl-tmp/citb_official_base_repro")
 FAILURE_MARKERS = (
     "Traceback (most recent call last)",
@@ -88,18 +88,23 @@ def _derive_state(
     result_dirs: List[Path],
     all_results: Dict[str, Any],
     trainer_state: Dict[str, Any],
+    diagnosis: Dict[str, Any],
     failure_signals: List[Dict[str, str]],
     latest_activity: Dict[str, Any],
     stale_minutes: Optional[float],
     expected_tasks: Optional[int],
     train_process_count: int,
 ) -> str:
+    if diagnosis:
+        return "failed"
     if failure_signals:
         return "failed"
     if expected_tasks is not None and len(result_dirs) >= expected_tasks and all_results:
         return "completed"
     if train_process_count > 0:
         return "running_or_recently_active"
+    if expected_tasks is not None and result_dirs and len(result_dirs) < expected_tasks:
+        return "stopped_incomplete"
     if all_results:
         age_seconds = latest_activity.get("age_seconds")
         if stale_minutes is not None and age_seconds is not None and age_seconds <= stale_minutes * 60:
@@ -142,6 +147,7 @@ def build_status(
     latest_metrics = _load_json(latest_dir / "metrics.json") if latest_dir else {}
     train_state = _load_json(output_dir / "trainer_state.json")
     all_results = _load_json(output_dir / "all_results.json")
+    diagnosis = _load_json(output_dir / "manual_stop_diagnosis.json") or _load_json(output_dir / "stop_and_diagnose.json")
     activity = _latest_activity(output_dir)
     failures = _failure_signals(output_dir)
     train_processes = _train_process_count(output_dir)
@@ -150,6 +156,7 @@ def build_status(
         result_dirs=result_dirs,
         all_results=all_results,
         trainer_state=train_state,
+        diagnosis=diagnosis,
         failure_signals=failures,
         latest_activity=activity,
         stale_minutes=stale_minutes,
@@ -167,6 +174,7 @@ def build_status(
         "latest_result_dir": str(latest_dir) if latest_dir else "",
         "latest_activity": activity,
         "failure_signals": failures,
+        "diagnosis": diagnosis,
         "latest_metric_keys": sorted(latest_metrics.keys())[:40],
         "latest_metrics": {
             key: latest_metrics.get(key)
@@ -224,6 +232,13 @@ def write_status(status: Dict[str, Any], basename: str) -> None:
         lines.extend(["", "## Failure Signals"])
         for signal in failures:
             lines.append(f"- `{signal.get('marker')}` in `{signal.get('path')}`")
+    diagnosis = status.get("diagnosis") or {}
+    if diagnosis:
+        lines.extend(["", "## Diagnosis"])
+        for key in ("reason", "root_cause", "action", "evidence"):
+            value = diagnosis.get(key)
+            if value:
+                lines.append(f"- `{key}`: {value}")
     lines.extend(["", "## RED FLAG"])
     for flag in status["red_flags"]:
         lines.append(f"- {flag}")
@@ -249,7 +264,7 @@ def main() -> int:
     )
     write_status(status, args.basename)
     print(json.dumps(status, ensure_ascii=False, indent=2))
-    if args.emit_sentinel and status["state"] in {"failed", "stalled"}:
+    if args.emit_sentinel and status["state"] in {"failed", "stalled", "stopped_incomplete"}:
         payload = {
             "scope": "citb_official_base_repro",
             "state": status["state"],

@@ -41,9 +41,15 @@ hooks, MCP servers, npm packages, dashboards, or autonomous loops.
 
 ## Current CITB Official-Base Decision
 
-- Launch allowed now if GPU is idle: official-script smoke using
-  `500` train, `50` dev, and `50` per-task test via the unmodified short-stream
-  Stage-2 split parameter.
+- Previous official-script smoke `citb_instrdialog_order1_seed1_official_script_500_50_50_ft_instr_stage1_v53`
+  is failed, not a baseline: it was stopped at 11/19 result dirs after saved
+  predictions showed repeated garbage tokens caused by old-transformers loading
+  the Stage-1 T5 v1.1 checkpoint with `tie_word_embeddings=true`.
+- Relaunch is allowed only with a fresh run name after the launcher runtime-config
+  override (`tie_word_embeddings=false`) passes dry-run/preflight. Keep the
+  failed v53 W&B run visible as a reproduction failure, not a method score.
+- Launch scope remains official-script smoke using `500` train, `50` dev, and
+  `50` per-task test via the unmodified short-stream Stage-2 split parameter.
 - Required run-name marker: `official_script_500_50_50`.
 - Claim boundary: report it only as an official-script reproduction smoke, not
   as the final paper-aligned InstrDialog result.
@@ -62,3 +68,11 @@ and audited. The follow-up should:
 4. Run a 1-step dry-run before any full strict launch.
 5. Label any local code patch as `paper_target_500_50_100_strict` and keep it
    separate from `official_script_500_50_50` results.
+6. Keep `AUTO_LAUNCH_FORMAL=0` unless a human explicitly enables the strict run;
+   the monitor must not auto-promote a failed or stopped-incomplete smoke.
+
+Implementation note: `scripts/preflight_citb_official_split_counts.py` now
+provides the no-GPU count audit for the official task order and raw task JSONs.
+It should be run before strict launch and its JSON output kept under
+`results/logs/`; if any task is short, report the exception rather than
+synthesizing examples.
