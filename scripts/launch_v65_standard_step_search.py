@@ -42,6 +42,19 @@ def core_train_processes() -> list[str]:
     return [line.strip() for line in proc.stdout.splitlines() if any(marker in line for marker in markers)]
 
 
+def gpu_compute_processes() -> list[str]:
+    info = run_text(
+        [
+            "nvidia-smi",
+            "--query-compute-apps=pid,process_name,used_memory",
+            "--format=csv,noheader",
+        ]
+    )
+    if info.get("returncode") != 0:
+        return []
+    return [line.strip() for line in str(info.get("stdout", "")).splitlines() if line.strip()]
+
+
 def isolated_child() -> None:
     os.setsid()
     signal.signal(signal.SIGHUP, signal.SIG_IGN)
@@ -384,12 +397,14 @@ def main() -> int:
         return 0
 
     existing = core_train_processes()
-    if existing and not args.force:
+    existing_gpu = gpu_compute_processes()
+    if (existing or existing_gpu) and not args.force:
         payload = {
             "updated_at": now(),
             "state": "blocked",
-            "decision": "existing core.train process visible",
+            "decision": "existing training or GPU compute process visible",
             "existing_core_train": existing,
+            "existing_gpu_compute": existing_gpu,
             "results": [],
         }
         write_status(payload)
@@ -412,8 +427,16 @@ def main() -> int:
         if accum != 8 and accum8_nonzero:
             continue
         existing = core_train_processes()
-        if existing and not args.force:
-            results.append({"candidate_id": cid, "state": "blocked_existing_core_train", "existing_core_train": existing})
+        existing_gpu = gpu_compute_processes()
+        if (existing or existing_gpu) and not args.force:
+            results.append(
+                {
+                    "candidate_id": cid,
+                    "state": "blocked_existing_process",
+                    "existing_core_train": existing,
+                    "existing_gpu_compute": existing_gpu,
+                }
+            )
             break
         run_name, config_path, cfg = build_candidate_config(base_cfg, candidate)
         print(f"[{now()}] launching {cid}: {run_name}", flush=True)

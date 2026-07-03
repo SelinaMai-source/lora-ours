@@ -9,6 +9,7 @@ purpose: >
   SIGTERM during amazon train backward.
 policy:
   serial_only: true
+  block_existing_gpu_compute: true
   stop_on_sigterm: true
   target: dbpedia/amazon eval not all zero without SIGTERM
   record:
