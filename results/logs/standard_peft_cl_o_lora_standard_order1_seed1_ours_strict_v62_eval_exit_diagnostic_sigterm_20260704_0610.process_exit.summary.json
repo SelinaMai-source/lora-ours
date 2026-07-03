@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-07-04T06:10:02+0800",
+  "event": "signal:SIGTERM",
+  "status": "signaled",
+  "pid": 558675,
+  "ppid": 558660,
+  "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic",
+  "config": "/root/lora-ours/configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic.yaml",
+  "exit_code": 143,
+  "phase": "segment_train",
+  "current_segment_id": 0,
+  "current_segment_name": "dbpedia",
+  "error": "SystemExit(143)",
+  "launcher_exit_artifact": {
+    "started_at": "2026-07-04T06:08:35+08:00",
+    "updated_at": "2026-07-04T06:10:05",
+    "event": "signal:SIGHUP",
+    "launcher_exit_status": 129,
+    "train_exit_status": null,
+    "tee_exit_status": null
+  },
+  "note": "Final controller-launched replay-preserving diagnostic attempt exited during segment0 training before any dbpedia or amazon eval metric."
+}

@@ -1,0 +1,13 @@
+{
+  "started_at": "2026-07-04T05:57:20+08:00",
+  "updated_at": "2026-07-04T05:57:50",
+  "event": "signal:SIGHUP",
+  "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic",
+  "config": "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic.yaml",
+  "launcher_pid": 554460,
+  "launcher_ppid": 554460,
+  "launcher_exit_status": 129,
+  "train_exit_status": null,
+  "tee_exit_status": null,
+  "note": "Preserved audit copy before restarting the replay-preserving v62 eval-exit diagnostic; the fixed launcher exit path is reused by subsequent attempts."
+}
