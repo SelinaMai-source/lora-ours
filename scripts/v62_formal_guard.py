@@ -51,6 +51,11 @@ def command_output(cmd: list[str]) -> str:
         return exc.output.strip()
 
 
+def tmux_sessions() -> set[str]:
+    out = command_output(["tmux", "list-sessions", "-F", "#{session_name}"])
+    return {line.strip() for line in out.splitlines() if line.strip() and not line.startswith("no server")}
+
+
 def write_decision(payload: dict[str, Any]) -> None:
     payload = dict(payload)
     payload["updated_at"] = now()
@@ -59,7 +64,7 @@ def write_decision(payload: dict[str, Any]) -> None:
 
 
 def session_exists(name: str) -> bool:
-    return subprocess.run(["tmux", "has-session", "-t", name], cwd=str(REPO)).returncode == 0
+    return name in tmux_sessions()
 
 
 def pane_text(name: str) -> str:
@@ -136,9 +141,7 @@ def any_core_train() -> bool:
 
 def protect_formal_path() -> None:
     kill_session(DIAGNOSTIC_SESSION, "formal guard blocks v62 diagnostic before formal gate decision")
-    legacy_text = pane_text(LEGACY_GATE_SESSION)
-    if "v62_gate_controller.py" in legacy_text and "v62_formal_guard.py" not in legacy_text:
-        kill_session(LEGACY_GATE_SESSION, "legacy gate controller points away from formal path")
+    kill_session(LEGACY_GATE_SESSION, "formal guard is the authoritative v62 gate controller")
 
 
 def launch_formal() -> bool:
