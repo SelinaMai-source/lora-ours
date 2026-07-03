@@ -74,6 +74,11 @@ hooks, MCP servers, npm packages, dashboards, or autonomous loops.
 - v61 gate: after segment1, dbpedia retention and amazon current must clearly
   beat v60 (`dbpedia=0.1517`, `amazon=0.0233`, seen average `0.0875`,
   BWT `-0.8332`) before launching any full four-task Standard PEFT Ours run.
+- v61 decision: `standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v61_earlygate`
+  cleared this gate with dbpedia retention `0.9825`, amazon current `0.4517`,
+  seen average `0.7171`, forgetting `0.0024`, and BWT `-0.0024`. A full
+  four-task follow-up is allowed as a diagnostic only; keep the adapted-Ours
+  label and do not mix it into official O-LoRA base rows.
 
 ## Current CITB Official-Base Decision
 
