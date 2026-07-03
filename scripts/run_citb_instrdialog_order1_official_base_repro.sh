@@ -4,6 +4,8 @@ set -euo pipefail
 # Fixed, auditable launcher for the CITB official Stage-2 FT_INSTR base on
 # InstrDialog order1. Outputs are kept outside this repo by default.
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 # The hyintell/CITB checkout under external_sources has an untracked
 # Tk-Instruct copy whose collator lacks add_task_id. This tracked local
 # official-baseline tree matches the CL entrypoint's collator contract.
@@ -11,16 +13,18 @@ CITB_ROOT="${CITB_ROOT:-/root/autodl-tmp/Lora-code/external_baselines/citb_offic
 MODEL_PATH="${MODEL_PATH:-/root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469}"
 TOKENIZER_NAME="${TOKENIZER_NAME:-/root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt}"
 OUTPUT_BASE="${OUTPUT_BASE:-/root/autodl-tmp/citb_official_base_repro}"
-RUN_NAME="${RUN_NAME:-citb_instrdialog_order1_seed1_official_ft_instr_stage1_v53}"
+RUN_NAME="${RUN_NAME:-citb_instrdialog_order1_seed1_official_script_500_50_50_ft_instr_stage1_v53}"
 OUTPUT_DIR="${OUTPUT_DIR:-${OUTPUT_BASE}/${RUN_NAME}}"
 ORDER="${ORDER:-1}"
 SEED="${SEED:-1}"
 MAX_TRAIN_INSTANCES="${MAX_TRAIN_INSTANCES:-500}"
 PYTHON_BIN="${PYTHON_BIN:-/root/autodl-tmp/conda_envs/lora_v10_citb/bin/python}"
+CITB_GPT2_TOKENIZER_NAME="${CITB_GPT2_TOKENIZER_NAME:-/root/autodl-tmp/Lora-code/external_baselines/o_lora/data/gpt2tokenizer}"
 
 # The unmodified CITB Stage-2 script exposes one value for both dev and per-task
-# test split size. Keeping it at 50 is script-strict; 500/50/100 needs a local
-# split-policy patch and should be reported as a comparability RED FLAG.
+# test split size. Keeping it at 50 is script-strict official-script smoke
+# behavior; 500/50/100 needs a local split-policy patch and should be reported
+# separately as paper-target strict, not as this run.
 MAX_EVAL_INSTANCES="${MAX_EVAL_INSTANCES:-50}"
 
 DRY_RUN="${DRY_RUN:-0}"
@@ -68,7 +72,8 @@ export WANDB_RUN_GROUP="${WANDB_RUN_GROUP:-citb_instrdialog_order1_official_base
 export WANDB_NAME="${WANDB_NAME:-${RUN_NAME}}"
 export WANDB_DIR="${WANDB_DIR:-${OUTPUT_BASE}/wandb}"
 export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
-export PYTHONPATH="${CITB_ROOT}/Tk-Instruct/src:${CITB_ROOT}/continual_learning:${PYTHONPATH:-}"
+export CITB_GPT2_TOKENIZER_NAME
+export PYTHONPATH="${REPO_ROOT}/scripts/citb_runtime_shims:${CITB_ROOT}/Tk-Instruct/src:${CITB_ROOT}/continual_learning:${PYTHONPATH:-}"
 
 cd "${CITB_ROOT}"
 
