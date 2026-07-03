@@ -118,6 +118,8 @@ def _run_artifacts() -> Dict[str, Any]:
 def _classify(log_info: Dict[str, Any], artifacts: Dict[str, Any], processes: List[str]) -> Dict[str, Any]:
     if "stop_and_diagnose.json" in artifacts:
         return {"state": "stopped_low_or_failed", "reason": artifacts["stop_and_diagnose.json"].get("reason", "stop_and_diagnose")}
+    if processes:
+        return {"state": "running", "reason": "train process present"}
     if "final_metrics.json" in artifacts:
         return {"state": "completed", "reason": "final_metrics_present"}
     if LOG_PATH.is_file() and log_info.get("log_age_seconds", 0.0) > STALE_SECONDS and processes:
@@ -132,8 +134,6 @@ def _classify(log_info: Dict[str, Any], artifacts: Dict[str, Any], processes: Li
                 "state": "low_score_gate",
                 "reason": f"segment {latest_segment}: seen={seen:.4f}, task_aware={task_seen:.4f}",
             }
-    if processes:
-        return {"state": "running", "reason": "train process present"}
     if LOG_PATH.is_file():
         return {"state": "unknown_not_running", "reason": "log exists but process/final status absent"}
     return {"state": "not_started", "reason": "no v18 log found"}
