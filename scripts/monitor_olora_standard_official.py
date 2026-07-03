@@ -13,6 +13,15 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 TASKS = ["dbpedia", "amazon", "yahoo", "agnews"]
+FAILURE_MARKERS = [
+    "Traceback (most recent call last)",
+    "RuntimeError:",
+    "CUDA out of memory",
+    "ROUND_EXIT_CODE:1",
+    "ROUND_EXIT_CODE:2",
+    "ROUND_EXIT_CODE:137",
+    "ROUND_EXIT_CODE:143",
+]
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -35,6 +44,16 @@ def _gpu_snapshot() -> str:
     except Exception as exc:  # pragma: no cover - diagnostic only
         return f"unavailable: {exc}"
     return out or "unavailable"
+
+
+def _read_tail(path: Path, max_bytes: int = 12000) -> str:
+    if not path.is_file():
+        return ""
+    with path.open("rb") as handle:
+        handle.seek(0, 2)
+        size = handle.tell()
+        handle.seek(max(0, size - max_bytes))
+        return handle.read().decode("utf-8", errors="replace")
 
 
 def _round_dirs(output_root: Path) -> list[Path]:
@@ -101,6 +120,21 @@ def main() -> int:
             rounds.append((round_dir.name, metrics))
 
     round_lines, summary = _summarize(rounds)
+    log_file = REPO / "results" / "logs" / f"{args.run_name}.log"
+    log_tail = _read_tail(log_file)
+    marker = next((item for item in FAILURE_MARKERS if item.lower() in log_tail.lower()), "")
+    tmux_present = bool(
+        subprocess.run(
+            ["bash", "-lc", "tmux ls 2>/dev/null | rg -q 'olora-standard-official-base-formal'"],
+            check=False,
+        ).returncode
+        == 0
+    )
+    sentinel = ""
+    if marker or manifest.get("state") in {"failed", "blocked"}:
+        sentinel = f"AGENT_LOOP_WAKE_LORA_OURS standard_olora_failed state={manifest.get('state')} marker={marker}"
+    elif not tmux_present and manifest.get("state") not in {"completed", "failed", "blocked"}:
+        sentinel = f"AGENT_LOOP_WAKE_LORA_OURS standard_olora_stopped_incomplete state={manifest.get('state')}"
     status_file = REPO / "results" / "logs" / f"{args.run_name}_monitor.md"
     status_file.parent.mkdir(parents=True, exist_ok=True)
     lines = [
@@ -113,6 +147,8 @@ def main() -> int:
         f"- task_order: {' -> '.join(manifest.get('task_order', TASKS))}",
         f"- smoke_limits: {manifest.get('smoke_limits', {})}",
         f"- gpu: {_gpu_snapshot()}",
+        f"- tmux_present: {tmux_present}",
+        f"- log_marker: {marker}",
         f"- completed_rounds: {summary['completed_rounds']}/4",
         f"- observed_avg_exact: {summary['observed_avg_exact']}",
         f"- observed_avg_forgetting: {summary['observed_avg_forgetting']}",
@@ -132,6 +168,8 @@ def main() -> int:
             "",
         ]
     )
+    if sentinel:
+        lines.extend(["", sentinel])
     status_file.write_text("\n".join(lines), encoding="utf-8")
     print(status_file)
     return 0
