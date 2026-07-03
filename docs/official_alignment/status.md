@@ -143,4 +143,9 @@ Updated: 2026-07-03
 
 ## Next Step
 
-Next GPU step, when clear, should be the v50 InstrDialog++ skip-empty 6-segment smoke. Keep Standard T5-large order1 and ARPER WOZ3 ready as follow-up baselines, but do not start them concurrently with the v50 CITB run; ToDCL still needs processed stream export/preparation.
+v52 published-method-base update: every suite must first reproduce or explicitly preflight a published method base before Ours is layered on top. The detailed route is in `docs/official_alignment/published_method_bases.md`, and the no-GPU checker is `scripts/preflight_published_method_bases.py`.
+
+- CITB base: official CITB/Tk-Instruct with LM-adapted T5-small plus SuperNI Stage-1 checkpoint. Next GPU step, when clear, should be an InstrDialog order1 official-base reproduction/strict-equivalent run before another InstrDialog++ decode-calibration iteration.
+- Standard base: official O-LoRA T5-large standard order. The Ours converted-stream runner is not by itself an official O-LoRA reproduction; keep task order, T5-large checkpoint, and accuracy/forgetting/BWT metric surface fixed before layering Ours.
+- Dialogue base: official ARPER WOZ3 SCLSTM Path B first, with ARPER BLEU/SER scorer. Ours T5 Path A is an adapted variant until the SCLSTM base is reproduced; ToDCL remains blocked until processed TOD37/MultiWOZ stream export exists.
+- Do not repeat v51 or launch GPU work while another worker owns the single GPU.

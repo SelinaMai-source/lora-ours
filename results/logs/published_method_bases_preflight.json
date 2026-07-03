@@ -1,0 +1,1047 @@
+{
+  "generated_by": "scripts/preflight_published_method_bases.py",
+  "gpu_safe": true,
+  "recommendation": {
+    "do_not_run": "Do not repeat v51 or launch any GPU job while another worker owns the single GPU.",
+    "first_experiment_to_run": "CITB InstrDialog order1 official-base reproduction",
+    "reason": "It is the main lora-ours target and the Stage-1/strict runner assets are already closest to ready."
+  },
+  "red_flags": [
+    "InstrDialog++ 100/50/100 is a CCF-A aligned variant; official long-stream script evidence records eval count 25.",
+    "skip_empty_segments changes the effective long-stream task set and must be reported explicitly.",
+    "v36b/v50/v51 are diagnostic smokes, not published-base reproduction results.",
+    "Ours runner on converted O-LoRA streams is not itself an official O-LoRA reproduction.",
+    "LFPT5 and Progressive Prompts are backup/evidence bases here; they are not the selected standard-suite base.",
+    "memory/runtime changes must be labeled as engineering changes, not official hyperparameters.",
+    "ARPER Path A Ours T5 is not the official SCLSTM architecture.",
+    "ToDCL is not runnable as strict base until official data download/preprocess/export is complete.",
+    "ARPER WOZ3 and ToDCL TOD37/MultiWOZ NLG must not be treated as interchangeable baselines."
+  ],
+  "repo": "/root/lora-ours",
+  "starts_training": false,
+  "suites": [
+    {
+      "assets": {
+        "superni_stage1_checkpoint": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469"
+        },
+        "t5_small_lm_adapt": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt"
+        }
+      },
+      "config": {
+        "data": {
+          "auto_prepare_processed": false,
+          "benchmark": "InstrDialog++-order1",
+          "max_eval_examples_per_segment": -1,
+          "max_segments": 6,
+          "max_train_examples_per_segment": -1,
+          "official_num_tasks": 38,
+          "processed_stream_dev_instances_per_task": 50,
+          "processed_stream_eval_instances_per_task": 100,
+          "processed_stream_shortfall_note": "Full 38-task stream has short official tasks; v51 keeps only segments with non-empty train/eval and does not synthesize examples.",
+          "processed_stream_train_instances_per_task": 100,
+          "ready": true,
+          "skip_empty_segments": true,
+          "stream_format": "unified_ccfa_stream",
+          "stream_name": "instrdialog++",
+          "suite": "CITB"
+        },
+        "exists": true,
+        "experiment_name": "citb_instrdialogpp_order1_seed1_ours_v51_decodecal_skipempty6_smoke_strict",
+        "model": {
+          "architecture": "seq2seq_lm",
+          "backbone": "T5-small LM-adapted + 100 SuperNI init",
+          "base_model_path": "/root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469",
+          "debug_max_tokenized_examples": 1,
+          "debug_print_formatted_examples": true,
+          "debug_print_tokenized_examples": true,
+          "device": "auto",
+          "format_style": "citb_t5",
+          "gen_do_sample": false,
+          "gen_encoder_no_repeat_ngram_size": 0,
+          "gen_length_penalty": 1.0,
+          "gen_max_new_tokens": 128,
+          "gen_min_new_tokens": 0,
+          "gen_no_repeat_ngram_size": 0,
+          "gen_num_beams": 1,
+          "gen_repetition_penalty": 1.0,
+          "generation_continuation_first_tokens": [
+            "no",
+            "yes",
+            "i"
+          ],
+          "generation_continuation_loss_weight": 2.0,
+          "generation_continuation_min_target_tokens": 4,
+          "hf_model_name_or_path": "/root/autodl-tmp/model_cache/citb_superni_stage1/base_epoch15_lr1e-05_seed469",
+          "max_source_len": 1024,
+          "max_target_len": 128,
+          "target_supervision_guard_enabled": true,
+          "task_type": "seq2seq_lm",
+          "torch_dtype": "bfloat16"
+        },
+        "official_reference": {},
+        "paper": {
+          "method_variant": "ours_v51_v50_skip_empty_task_family_decode_calibration",
+          "metrics": [
+            "official max-over-reference ROUGE-L task-aware score",
+            "exact-match classification health",
+            "broad Dialogue generation calibration signal"
+          ],
+          "notes": "v51 keeps v50 data policy and v36b model behavior, but adds general task-family decode calibration for short-answer QA, summarization, and dialogue generation based on v50 eval-debug failures. It does not add task-specific synthetic examples or AirDialogue-only slot hooks.",
+          "status": "smoke_ready",
+          "strict_ready": false
+        },
+        "path": "/root/lora-ours/configs/ccfa_three_suite/citb_instrdialogpp_order1_seed1_ours_v51_decodecal_skipempty6_smoke_strict.yaml",
+        "strict_alignment": {
+          "blocker_resolved": "Full order1 stream can be loaded with data.skip_empty_segments=true; official zero train/eval tasks are excluded instead of synthesized.",
+          "official_evidence": "CITB README; SuperNI stage-1 checkpoint; cl_dialogue_long_tasks order1; processed stream built from official tasks with requested 100/50/100 target counts where raw instances allow.",
+          "status": "broad_instrdialogpp_skipempty6_decodecal_smoke_ready"
+        },
+        "train": {
+          "balanced_generation_sampling": {
+            "buckets": [
+              "no",
+              "yes",
+              "i",
+              "other"
+            ],
+            "downsample_majority": true,
+            "enabled": true,
+            "max_total_multiplier": 1.5,
+            "segment_name_patterns": [
+              "task1714",
+              "sentence_generation"
+            ]
+          },
+          "batch_size": 8,
+          "early_stop_min_segment": 3,
+          "early_stop_min_task_aware_score": 0.1,
+          "epochs_per_segment": 15,
+          "hard_early_stop_enabled": true,
+          "hard_early_stop_min_seen_avg": 0.1,
+          "lr": 1.5e-05,
+          "ours_v10_check_segments": [
+            2,
+            3,
+            4
+          ],
+          "ours_v10_early_stop": true
+        }
+      },
+      "minimal_ours_overlay": [
+        "start from official Stage-1 checkpoint and official task order",
+        "verify official-equivalent score matrix before adding Ours",
+        "enable Ours only through drift/bank/router/overlap config switches"
+      ],
+      "official_sources": {
+        "collect_results": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/collect_results.py"
+        },
+        "long_order1": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_long_tasks/order1.txt"
+        },
+        "readme": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/README.md"
+        },
+        "repo": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb"
+        },
+        "short_order1": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_tasks/order1.txt"
+        }
+      },
+      "readiness": "base-assets-present; strict result still blocked by official reproduction and split policy audit",
+      "recent_status": {
+        "v49": {
+          "exists": true,
+          "fields": {
+            "Latest eval source": "/root/lora-ours/results/runs/citb_instrdialogpp_order1_seed1_ours_v49_prefix3_smoke_strict/wandb/latest-run/files/output.log",
+            "Latest seen/task-aware": "0.006666666666666667` / `0.25666666666666665",
+            "Latest segment": "2",
+            "Log": "/root/lora-ours/results/logs/citb_instrdialogpp_order1_seed1_ours_v49_prefix3_smoke_strict.log",
+            "Reason": "final_metrics_present",
+            "Run": "citb_instrdialogpp_order1_seed1_ours_v49_prefix3_smoke_strict",
+            "State": "completed",
+            "Train processes": "0",
+            "Updated": "2026-07-03T13:19:16"
+          },
+          "path": "/root/lora-ours/results/logs/ours_v49_instrdialogpp_prefix3_strict_status.md"
+        },
+        "v50": {
+          "exists": true,
+          "fields": {
+            "Latest eval source": "/root/lora-ours/results/runs/citb_instrdialogpp_order1_seed1_ours_v50_skipempty6_smoke_strict/wandb/latest-run/files/output.log",
+            "Latest seen/task-aware": "0.0075` / `0.2",
+            "Latest segment": "4",
+            "Log": "/root/lora-ours/results/logs/citb_instrdialogpp_order1_seed1_ours_v50_skipempty6_smoke_strict.log",
+            "Reason": "hard_early_stop_min_seen_avg",
+            "Run": "citb_instrdialogpp_order1_seed1_ours_v50_skipempty6_smoke_strict",
+            "State": "stopped_low_or_failed",
+            "Train processes": "0",
+            "Updated": "2026-07-03T13:18:54"
+          },
+          "path": "/root/lora-ours/results/logs/ours_v50_instrdialogpp_skipempty6_strict_status.md"
+        },
+        "v51": {
+          "exists": true,
+          "fields": {
+            "Latest eval source": "/root/lora-ours/results/runs/citb_instrdialogpp_order1_seed1_ours_v51_decodecal_skipempty6_smoke_strict/wandb/latest-run/files/output.log",
+            "Latest seen/task-aware": "0.0075` / `0.2",
+            "Latest segment": "4",
+            "Log": "/root/lora-ours/results/logs/citb_instrdialogpp_order1_seed1_ours_v51_decodecal_skipempty6_smoke_strict.log",
+            "Reason": "hard_early_stop_min_seen_avg",
+            "Run": "citb_instrdialogpp_order1_seed1_ours_v51_decodecal_skipempty6_smoke_strict",
+            "State": "stopped_low_or_failed",
+            "Train processes": "0",
+            "Updated": "2026-07-03T13:18:23"
+          },
+          "path": "/root/lora-ours/results/logs/ours_v51_instrdialogpp_decodecal_skipempty6_strict_status.md"
+        }
+      },
+      "red_flags": [
+        "InstrDialog++ 100/50/100 is a CCF-A aligned variant; official long-stream script evidence records eval count 25.",
+        "skip_empty_segments changes the effective long-stream task set and must be reported explicitly.",
+        "v36b/v50/v51 are diagnostic smokes, not published-base reproduction results."
+      ],
+      "selected_published_base": "CITB official repo / Tk-Instruct protocol",
+      "stream": {
+        "benchmark": "CITB-InstrDialog++",
+        "exists": true,
+        "first_segments": [
+          {
+            "dev": 50,
+            "name": "task864_asdiv_singleop_question_answering",
+            "test": 100,
+            "train": 100
+          },
+          {
+            "dev": 50,
+            "name": "task967_ruletaker_incorrect_fact_generation_based_on_given_paragraph",
+            "test": 100,
+            "train": 100
+          },
+          {
+            "dev": 50,
+            "name": "task1553_cnn_dailymail_summarization",
+            "test": 100,
+            "train": 100
+          },
+          {
+            "dev": 0,
+            "name": "task1549_wiqa_answer_generation_missing_step",
+            "test": 92,
+            "train": 0
+          },
+          {
+            "dev": 50,
+            "name": "task639_multi_woz_user_utterance_generation",
+            "test": 100,
+            "train": 28
+          },
+          {
+            "dev": 50,
+            "name": "task766_craigslist_bargains_classification",
+            "test": 100,
+            "train": 50
+          },
+          {
+            "dev": 50,
+            "name": "task636_extract_and_sort_unique_alphabets_in_a_list",
+            "test": 100,
+            "train": 100
+          },
+          {
+            "dev": 50,
+            "name": "task1501_dstc3_answer_generation",
+            "test": 100,
+            "train": 100
+          }
+        ],
+        "metadata": {
+          "citb_root": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb",
+          "official_paper": "https://aclanthology.org/2023.findings-emnlp.633/",
+          "official_repo": "https://github.com/hyintell/CITB",
+          "order_file": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_long_tasks/order1.txt",
+          "split_counts": [
+            {
+              "available_instances": 939,
+              "dev": 50,
+              "task": "task864_asdiv_singleop_question_answering",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 296,
+              "dev": 50,
+              "task": "task967_ruletaker_incorrect_fact_generation_based_on_given_paragraph",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 950,
+              "dev": 50,
+              "task": "task1553_cnn_dailymail_summarization",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 92,
+              "dev": 0,
+              "task": "task1549_wiqa_answer_generation_missing_step",
+              "test": 92,
+              "train": 0
+            },
+            {
+              "available_instances": 178,
+              "dev": 50,
+              "task": "task639_multi_woz_user_utterance_generation",
+              "test": 100,
+              "train": 28
+            },
+            {
+              "available_instances": 200,
+              "dev": 50,
+              "task": "task766_craigslist_bargains_classification",
+              "test": 100,
+              "train": 50
+            },
+            {
+              "available_instances": 6499,
+              "dev": 50,
+              "task": "task636_extract_and_sort_unique_alphabets_in_a_list",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 1450,
+              "dev": 50,
+              "task": "task1501_dstc3_answer_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 98,
+              "dev": 0,
+              "task": "task459_matres_static_classification",
+              "test": 98,
+              "train": 0
+            },
+            {
+              "available_instances": 6494,
+              "dev": 50,
+              "task": "task1203_atomic_classification_xreact",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 951,
+              "dev": 50,
+              "task": "task1500_dstc3_classification",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6500,
+              "dev": 50,
+              "task": "task611_mutual_multi_turn_dialogue",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6495,
+              "dev": 50,
+              "task": "task347_hybridqa_incorrect_answer_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6500,
+              "dev": 50,
+              "task": "task574_air_dialogue_sentence_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 407,
+              "dev": 50,
+              "task": "task598_cuad_answer_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6497,
+              "dev": 50,
+              "task": "task379_agnews_topic_classification",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 4209,
+              "dev": 50,
+              "task": "task1384_deal_or_no_dialog_classification",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6232,
+              "dev": 50,
+              "task": "task1360_numer_sense_multiple_choice_qa_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 2295,
+              "dev": 50,
+              "task": "task1714_convai3_sentence_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6463,
+              "dev": 50,
+              "task": "task576_curiosity_dialogs_answer_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 992,
+              "dev": 50,
+              "task": "task082_babi_t1_single_supporting_fact_question_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 158,
+              "dev": 50,
+              "task": "task1590_diplomacy_text_generation",
+              "test": 100,
+              "train": 8
+            },
+            {
+              "available_instances": 6499,
+              "dev": 50,
+              "task": "task1729_personachat_generate_next",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 2943,
+              "dev": 50,
+              "task": "task565_circa_answer_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6495,
+              "dev": 50,
+              "task": "task1730_personachat_choose_next",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 2779,
+              "dev": 50,
+              "task": "task1603_smcalflow_sentence_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6497,
+              "dev": 50,
+              "task": "task301_record_question_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 3769,
+              "dev": 50,
+              "task": "task298_storycloze_correct_end_classification",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6499,
+              "dev": 50,
+              "task": "task306_jeopardy_answer_generation_double",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 1029,
+              "dev": 50,
+              "task": "task1600_smcalflow_sentence_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 237,
+              "dev": 50,
+              "task": "task1427_country_region_in_world",
+              "test": 100,
+              "train": 87
+            },
+            {
+              "available_instances": 6499,
+              "dev": 50,
+              "task": "task848_pubmedqa_classification",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 182,
+              "dev": 50,
+              "task": "task1713_convai3_sentence_generation",
+              "test": 100,
+              "train": 32
+            },
+            {
+              "available_instances": 200,
+              "dev": 50,
+              "task": "task1151_swap_max_min",
+              "test": 100,
+              "train": 50
+            },
+            {
+              "available_instances": 493,
+              "dev": 50,
+              "task": "task927_yelp_negative_to_positive_style_transfer",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 6500,
+              "dev": 50,
+              "task": "task294_storycommonsense_motiv_text_generation",
+              "test": 100,
+              "train": 100
+            },
+            {
+              "available_instances": 171,
+              "dev": 50,
+              "task": "task1607_ethos_text_classification",
+              "test": 100,
+              "train": 21
+            },
+            {
+              "available_instances": 2635,
+              "dev": 50,
+              "task": "task573_air_dialogue_classification",
+              "test": 100,
+              "train": 100
+            }
+          ],
+          "split_policy": "test first, dev second, train shuffled from remaining; counts follow requested CCF-A alignment target",
+          "target_split": {
+            "dev": 50,
+            "test": 100,
+            "train": 100
+          }
+        },
+        "num_segments": 38,
+        "path": "/root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb/citb_instrdialogpp_order1_train100_dev50_test100.json",
+        "version": "ccfa_official_order_v1",
+        "zero_or_empty_splits": [
+          {
+            "dev": 0,
+            "name": "task1549_wiqa_answer_generation_missing_step",
+            "test": 92,
+            "train": 0
+          },
+          {
+            "dev": 0,
+            "name": "task459_matres_static_classification",
+            "test": 98,
+            "train": 0
+          }
+        ]
+      },
+      "suite": "CITB"
+    },
+    {
+      "assets": {
+        "t5_large": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/model_cache/hf_snapshots/t5-large"
+        }
+      },
+      "config": {
+        "data": {
+          "auto_prepare_processed": false,
+          "benchmark": "O-LoRA standard order1",
+          "max_eval_examples_per_segment": -1,
+          "max_segments": -1,
+          "max_train_examples_per_segment": -1,
+          "ready": true,
+          "stream_format": "unified_ccfa_stream",
+          "stream_name": "standard_peft",
+          "suite": "Standard PEFT CL"
+        },
+        "exists": true,
+        "experiment_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict",
+        "model": {
+          "activation_batch_size": 1,
+          "architecture": "seq2seq_lm",
+          "backbone": "T5-large",
+          "base_model_path": "/root/autodl-tmp/model_cache/hf_snapshots/t5-large",
+          "device": "auto",
+          "gen_do_sample": false,
+          "gen_max_new_tokens": 50,
+          "gen_num_beams": 1,
+          "hf_model_name_or_path": "/root/autodl-tmp/model_cache/hf_snapshots/t5-large",
+          "max_source_len": 512,
+          "max_target_len": 50,
+          "task_type": "seq2seq_lm",
+          "torch_dtype": "bfloat16"
+        },
+        "official_reference": {
+          "local_model_path": "/root/autodl-tmp/model_cache/hf_snapshots/t5-large",
+          "model_name_or_path_in_official_script": "initial_model/t5-large",
+          "official_epochs": 1,
+          "official_eval_batch_size": 128,
+          "official_generation_max_length": 50,
+          "official_learning_rate": "1e-03",
+          "official_max_source_length": 512,
+          "official_max_target_length": 50,
+          "official_script": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/scripts/order_1.sh",
+          "official_train_batch_size": 8
+        },
+        "paper": {
+          "metrics": [
+            "final average accuracy",
+            "forgetting",
+            "BWT"
+          ],
+          "notes": "Strict O-LoRA standard CL order using official data/order stream and official training hyperparameters where supported by the ours runner. Runtime memory knobs reduced after prior Terminated: activation_batch_size=1, anchor_candidate_pool_size=128, anchor_size=32; official lr/batch/order/epochs unchanged.",
+          "postprocess": "ccfa_postprocess/summary.json",
+          "status": "ready",
+          "strict_ready": true
+        },
+        "path": "/root/lora-ours/configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict.yaml",
+        "strict_alignment": {
+          "blocker": "",
+          "official_evidence": "O-LoRA README; scripts/order_1.sh; configs/order1_configs; CL_Benchmark; order dbpedia -> amazon -> yahoo -> agnews; src/run_uie_lora.py",
+          "status": "ready"
+        },
+        "train": {
+          "batch_size": 8,
+          "epochs_per_segment": 1,
+          "grad_clip_norm": 1.0,
+          "hard_early_stop_enabled": false,
+          "log_every": 25,
+          "lr": 0.001
+        }
+      },
+      "minimal_ours_overlay": [
+        "preserve O-LoRA order/checkpoint/metric surface",
+        "first parse or reproduce official O-LoRA outputs",
+        "add Ours modules in seq2seq PEFT runner with unchanged task stream"
+      ],
+      "official_sources": {
+        "cl_benchmark": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/CL_Benchmark"
+        },
+        "order1_configs": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/configs/order1_configs"
+        },
+        "order_1_script": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/scripts/order_1.sh"
+        },
+        "readme": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/README.md"
+        },
+        "repo": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora"
+        }
+      },
+      "readiness": "ready for no-GPU official/source preflight; GPU run should wait",
+      "red_flags": [
+        "Ours runner on converted O-LoRA streams is not itself an official O-LoRA reproduction.",
+        "LFPT5 and Progressive Prompts are backup/evidence bases here; they are not the selected standard-suite base.",
+        "memory/runtime changes must be labeled as engineering changes, not official hyperparameters."
+      ],
+      "selected_published_base": "O-LoRA official standard T5-large setup",
+      "stream": {
+        "benchmark": "O-LoRA-standard-T5-large-CL",
+        "exists": true,
+        "first_segments": [
+          {
+            "dev": 7600,
+            "name": "dbpedia",
+            "test": 7600,
+            "train": 14000
+          },
+          {
+            "dev": 7600,
+            "name": "amazon",
+            "test": 7600,
+            "train": 5000
+          },
+          {
+            "dev": 7600,
+            "name": "yahoo",
+            "test": 7600,
+            "train": 10000
+          },
+          {
+            "dev": 7600,
+            "name": "agnews",
+            "test": 7600,
+            "train": 4000
+          }
+        ],
+        "metadata": {
+          "official_paper": "https://aclanthology.org/2023.findings-emnlp.715/",
+          "official_repo": "https://github.com/cmnfriend/O-LoRA",
+          "olora_root": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora",
+          "order": [
+            "dbpedia",
+            "amazon",
+            "yahoo",
+            "agnews"
+          ],
+          "paper_setting_notes": "T5-large, official O-LoRA CL_Benchmark/configs/order*_configs, 1 epoch per task in scripts/order_*.sh.",
+          "split_counts": [
+            {
+              "dev": 7600,
+              "task": "dbpedia",
+              "test": 7600,
+              "train": 14000
+            },
+            {
+              "dev": 7600,
+              "task": "amazon",
+              "test": 7600,
+              "train": 5000
+            },
+            {
+              "dev": 7600,
+              "task": "yahoo",
+              "test": 7600,
+              "train": 10000
+            },
+            {
+              "dev": 7600,
+              "task": "agnews",
+              "test": 7600,
+              "train": 4000
+            }
+          ]
+        },
+        "num_segments": 4,
+        "path": "/root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft/olora_standard_order1_t5large.json",
+        "version": "ccfa_olora_standard_v1",
+        "zero_or_empty_splits": []
+      },
+      "suite": "Standard T5-large PEFT CL"
+    },
+    {
+      "config": {
+        "data": {
+          "benchmark": "ARPER WOZ3 dialogue-act",
+          "ready": true,
+          "stream_format": "unified_ccfa_stream",
+          "suite": "Dialogue NLG"
+        },
+        "exists": true,
+        "experiment_name": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict",
+        "model": {
+          "architecture": "seq2seq_lm",
+          "backbone": "Path A: ours T5 seq2seq on ARPER WOZ3 + official-equivalent ARPER BLEU/SER scorer; Path B wrapper available for official SCLSTM baseline",
+          "base_model_path": "/root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt",
+          "device": "auto",
+          "gen_do_sample": false,
+          "gen_max_new_tokens": 96,
+          "gen_num_beams": 1,
+          "hf_model_name_or_path": "/root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt",
+          "max_source_len": 512,
+          "max_target_len": 128,
+          "task_type": "seq2seq_lm",
+          "torch_dtype": "bfloat16"
+        },
+        "official_reference": {
+          "official_config": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/config/config.cfg",
+          "official_decoder": "sclstm",
+          "official_exemplar_size": 250,
+          "official_metric_code": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/run_woz3.py",
+          "official_model_type": "lm",
+          "official_run_script": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/run.sh"
+        },
+        "paper": {
+          "metrics": [
+            "BLEU-4",
+            "SER",
+            "forgetting"
+          ],
+          "notes": "Path A is runnable with ours T5 seq2seq generation and official-equivalent ARPER BLEU/SER scorer over WOZ3 slot features; CPU runtime avoids contention with CITB Stage-1 on the single GPU. Official SCLSTM remains as Path B baseline wrapper. Runtime device changed from CPU to auto/GPU after repeated external CPU SIGTERM; official data/order/metrics unchanged.",
+          "postprocess": "ccfa_postprocess/summary.json",
+          "status": "ready",
+          "strict_ready": true
+        },
+        "path": "/root/lora-ours/configs/ccfa_three_suite/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict.yaml",
+        "strict_alignment": {
+          "blocker": "",
+          "official_evidence": "ARPER config/config.cfg; run.sh; run_woz3.py evaluate(); bleu.py; resource/woz3 unique DA split",
+          "status": "ready"
+        },
+        "train": {
+          "batch_size": 1,
+          "epochs_per_segment": 1,
+          "hard_early_stop_enabled": false,
+          "lr": "1e-04"
+        }
+      },
+      "minimal_ours_overlay": [
+        "preflight/run ARPER official SCLSTM Path B first",
+        "validate BLEU/SER scorer on official-style .res outputs",
+        "then run Ours T5 on the same stream as an adapted variant"
+      ],
+      "official_sources": {
+        "arper_bleu": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/bleu.py"
+        },
+        "arper_config": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/config/config.cfg"
+        },
+        "arper_repo": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper"
+        },
+        "arper_run": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/run.sh"
+        },
+        "arper_run_woz3": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/run_woz3.py"
+        },
+        "todcl_data_download": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/data/download.sh"
+        },
+        "todcl_readme": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/README.md"
+        },
+        "todcl_repo": {
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl"
+        },
+        "todcl_scorer": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "path": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/scorer.py"
+        }
+      },
+      "readiness": "ARPER source/scorer/stream ready; ToDCL data preprocessing blocked",
+      "red_flags": [
+        "ARPER Path A Ours T5 is not the official SCLSTM architecture.",
+        "ToDCL is not runnable as strict base until official data download/preprocess/export is complete.",
+        "ARPER WOZ3 and ToDCL TOD37/MultiWOZ NLG must not be treated as interchangeable baselines."
+      ],
+      "selected_published_base": "ARPER official WOZ3 SCLSTM first; ToDCL AdapterCL NLG backup after data export",
+      "stream": {
+        "benchmark": "ARPER-WOZ3-unique-dialogue_act",
+        "exists": true,
+        "first_segments": [
+          {
+            "dev": 510,
+            "name": "Book",
+            "test": 501,
+            "train": 3910
+          },
+          {
+            "dev": 3351,
+            "name": "Inform",
+            "test": 3442,
+            "train": 25037
+          },
+          {
+            "dev": 27,
+            "name": "NoBook",
+            "test": 31,
+            "train": 257
+          },
+          {
+            "dev": 202,
+            "name": "NoOffer",
+            "test": 176,
+            "train": 1484
+          },
+          {
+            "dev": 42,
+            "name": "OfferBook",
+            "test": 44,
+            "train": 354
+          },
+          {
+            "dev": 312,
+            "name": "OfferBooked",
+            "test": 289,
+            "train": 1621
+          },
+          {
+            "dev": 393,
+            "name": "Recommend",
+            "test": 401,
+            "train": 3363
+          },
+          {
+            "dev": 917,
+            "name": "Request",
+            "test": 900,
+            "train": 6574
+          }
+        ],
+        "metadata": {
+          "arper_root": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper",
+          "official_paper": "https://aclanthology.org/2020.findings-emnlp.310/",
+          "official_repo": "https://github.com/MiFei/Continual-Learning-for-NLG",
+          "paper_setting_notes": "ARPER resource/woz3 provides default preprocessed unique-domain/unique-dialogue-act splits and official BLEU/SER utilities.",
+          "split_counts": [
+            {
+              "dev": 510,
+              "task": "Book",
+              "test": 501,
+              "train": 3910
+            },
+            {
+              "dev": 3351,
+              "task": "Inform",
+              "test": 3442,
+              "train": 25037
+            },
+            {
+              "dev": 27,
+              "task": "NoBook",
+              "test": 31,
+              "train": 257
+            },
+            {
+              "dev": 202,
+              "task": "NoOffer",
+              "test": 176,
+              "train": 1484
+            },
+            {
+              "dev": 42,
+              "task": "OfferBook",
+              "test": 44,
+              "train": 354
+            },
+            {
+              "dev": 312,
+              "task": "OfferBooked",
+              "test": 289,
+              "train": 1621
+            },
+            {
+              "dev": 393,
+              "task": "Recommend",
+              "test": 401,
+              "train": 3363
+            },
+            {
+              "dev": 917,
+              "task": "Request",
+              "test": 900,
+              "train": 6574
+            },
+            {
+              "dev": 111,
+              "task": "Select",
+              "test": 84,
+              "train": 895
+            },
+            {
+              "dev": 526,
+              "task": "bye",
+              "test": 509,
+              "train": 4336
+            },
+            {
+              "dev": 41,
+              "task": "greet",
+              "test": 57,
+              "train": 450
+            },
+            {
+              "dev": 173,
+              "task": "reqmore",
+              "test": 177,
+              "train": 1287
+            },
+            {
+              "dev": 95,
+              "task": "welcome",
+              "test": 79,
+              "train": 688
+            }
+          ]
+        },
+        "num_segments": 13,
+        "path": "/root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/arper/arper_woz3_unique_dialogue_act.json",
+        "version": "ccfa_arper_official_resource_v1",
+        "zero_or_empty_splits": []
+      },
+      "suite": "Dialogue NLG / MultiWOZ"
+    }
+  ]
+}
