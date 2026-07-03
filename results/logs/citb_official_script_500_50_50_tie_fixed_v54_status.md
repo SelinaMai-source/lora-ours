@@ -1,0 +1,89 @@
+# CITB Official Base Repro Status
+
+- Updated: `2026-07-03T16:44:32`
+- Run: `citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54`
+- State: `completed`
+- Output dir: `/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54`
+- Result dirs: `19`
+- Expected tasks: `19`
+- Train processes: `0`
+- Latest result dir: `/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54/results/18_task573_air_dialogue_classification`
+- Latest activity: `/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54/results/18_task573_air_dialogue_classification/predicted_initial_multi_examples.jsonl`
+- Latest activity age seconds: `236.46377682685852`
+
+## Latest Metrics
+- `epoch`: `7.0`
+- `predict_1919_exact_match`: `92.0`
+- `predict_1919_rougeL`: `92.0`
+- `predict_1919_samples`: `50`
+- `predict_initial_multi_exact_match`: `27.84`
+- `predict_initial_multi_rougeL`: `38.0874`
+- `predict_initial_multi_samples`: `2500`
+- `predict_official_exact_match`: `21.0756`
+- `predict_official_rougeL`: `33.109`
+- `predict_official_samples`: `2975`
+- `predict_seen_1910_exact_match`: `0.0`
+- `predict_seen_1910_rougeL`: `19.9687`
+- `predict_seen_1910_samples`: `50`
+- `predict_seen_1911_exact_match`: `76.0`
+- `predict_seen_1911_rougeL`: `76.0`
+- `predict_seen_1911_samples`: `50`
+- `predict_seen_1912_exact_match`: `0.0`
+- `predict_seen_1912_rougeL`: `8.7653`
+- `predict_seen_1912_samples`: `50`
+- `predict_seen_1913_exact_match`: `0.0`
+- `predict_seen_1913_rougeL`: `14.4328`
+- `predict_seen_1913_samples`: `50`
+- `predict_seen_1914_exact_match`: `40.0`
+- `predict_seen_1914_rougeL`: `40.0`
+- `predict_seen_1914_samples`: `50`
+- `predict_seen_1915_exact_match`: `2.0`
+- `predict_seen_1915_rougeL`: `50.5464`
+- `predict_seen_1915_samples`: `50`
+- `predict_seen_1916_exact_match`: `20.0`
+- `predict_seen_1916_rougeL`: `20.0`
+- `predict_seen_1916_samples`: `50`
+- `predict_seen_1917_exact_match`: `0.0`
+- `predict_seen_1917_rougeL`: `15.2657`
+- `predict_seen_1917_samples`: `50`
+- `predict_seen_1918_exact_match`: `86.0`
+- `predict_seen_1918_rougeL`: `86.0`
+- `predict_seen_1918_samples`: `50`
+- `predict_seen_191_exact_match`: `58.0`
+- `predict_seen_191_rougeL`: `58.0`
+- `predict_seen_191_samples`: `50`
+- `predict_seen_192_exact_match`: `30.0`
+- `predict_seen_192_rougeL`: `30.0`
+- `predict_seen_192_samples`: `50`
+- `predict_seen_193_exact_match`: `0.0`
+- `predict_seen_193_rougeL`: `26.6976`
+- `predict_seen_193_samples`: `50`
+- `predict_seen_194_exact_match`: `2.0`
+- `predict_seen_194_rougeL`: `18.3247`
+- `predict_seen_194_samples`: `50`
+- `predict_seen_195_exact_match`: `0.0`
+- `predict_seen_195_rougeL`: `20.2073`
+- `predict_seen_195_samples`: `50`
+- `predict_seen_196_exact_match`: `0.0`
+- `predict_seen_196_rougeL`: `7.1452`
+- `predict_seen_196_samples`: `50`
+- `predict_seen_197_exact_match`: `16.0`
+- `predict_seen_197_rougeL`: `26.0631`
+- `predict_seen_197_samples`: `50`
+- `predict_seen_198_exact_match`: `12.0`
+- `predict_seen_198_rougeL`: `12.0`
+- `predict_seen_198_samples`: `50`
+- `predict_seen_199_exact_match`: `52.0`
+- `predict_seen_199_rougeL`: `70.5551`
+- `predict_seen_199_samples`: `50`
+- `train_runtime`: `63.1803`
+- `train_samples`: `500`
+
+## RED FLAG
+- CITB paper states InstrDialog uses 500/50/100 train/dev/test instances, but the official short-stream FT_INSTR script sets max_num_instances_per_eval_task=50.
+- Official CITB Stage-2 code uses one max_num_instances_per_eval_task for both dev and per-task test split size, yielding script-strict 500/50/50 unless split code is patched.
+- Default launcher keeps the official-script 500/50/50 smoke policy; requested 500/50/100 remains blocked unless split code is patched and audited.
+- Official dry-run currently requires the lora_v10_citb Python 3.9 environment; base Python lacks datasets.load_metric.
+- Stage-1 tokenizer files are incompatible with the old official stack, so the launcher uses the local google__t5-small-lm-adapt tokenizer as a compatibility override.
+- Tk-Instruct metric code imports AutoTokenizer.from_pretrained('gpt2'); launcher redirects only that tokenizer lookup to a local GPT-2 tokenizer cache via project-local sitecustomize because this environment cannot reach Hugging Face.
+- The hyintell/CITB checkout has an untracked Tk-Instruct copy whose collator lacks add_task_id; launcher now defaults to the tracked local citb_official tree whose collator matches the CL entrypoint.

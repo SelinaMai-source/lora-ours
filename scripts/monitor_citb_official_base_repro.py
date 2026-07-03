@@ -22,6 +22,8 @@ FAILURE_MARKERS = (
     "TypeError:",
     "CUDA out of memory",
     "CITB/Tk-Instruct collator mismatch",
+    "Blocked paper_target_500_50_100",
+    "FORMAL_RETRY_EXIT_CODE:3",
     "error:",
 )
 
@@ -58,10 +60,15 @@ def _read_tail(path: Path, max_bytes: int = 20000) -> str:
         return ""
 
 
-def _latest_activity(output_dir: Path) -> Dict[str, Any]:
+def _latest_activity(output_dir: Path, log_paths: Optional[List[Path]] = None) -> Dict[str, Any]:
+    log_paths = [path for path in (log_paths or []) if path.is_file()]
     if not output_dir.exists():
-        return {"path": "", "mtime": 0.0, "age_seconds": None}
-    candidates = [p for p in output_dir.rglob("*") if p.is_file()]
+        if not log_paths:
+            return {"path": "", "mtime": 0.0, "age_seconds": None}
+        latest_log = max(log_paths, key=lambda p: p.stat().st_mtime)
+        age = max(0.0, datetime.now().timestamp() - latest_log.stat().st_mtime)
+        return {"path": str(latest_log), "mtime": latest_log.stat().st_mtime, "age_seconds": age}
+    candidates = [p for p in output_dir.rglob("*") if p.is_file()] + log_paths
     if not candidates:
         return {"path": "", "mtime": 0.0, "age_seconds": None}
     latest = max(candidates, key=lambda p: p.stat().st_mtime)
@@ -69,11 +76,13 @@ def _latest_activity(output_dir: Path) -> Dict[str, Any]:
     return {"path": str(latest), "mtime": latest.stat().st_mtime, "age_seconds": age}
 
 
-def _failure_signals(output_dir: Path) -> List[Dict[str, str]]:
-    if not output_dir.exists():
-        return []
+def _failure_signals(output_dir: Path, log_paths: Optional[List[Path]] = None) -> List[Dict[str, str]]:
     signals: List[Dict[str, str]] = []
-    for path in sorted(output_dir.rglob("*")):
+    candidate_paths: List[Path] = []
+    if output_dir.exists():
+        candidate_paths.extend(sorted(output_dir.rglob("*")))
+    candidate_paths.extend(path for path in (log_paths or []) if path.is_file())
+    for path in candidate_paths:
         if not path.is_file() or path.suffix not in {".log", ".txt", ".err", ".out"}:
             continue
         tail = _read_tail(path)
@@ -146,6 +155,7 @@ def build_status(
     run_name: str,
     stale_minutes: Optional[float] = None,
     expected_tasks: Optional[int] = None,
+    log_paths: Optional[List[Path]] = None,
 ) -> Dict[str, Any]:
     result_dirs = _result_dirs(output_dir)
     latest_dir = result_dirs[-1] if result_dirs else None
@@ -153,8 +163,8 @@ def build_status(
     train_state = _load_json(output_dir / "trainer_state.json")
     all_results = _load_json(output_dir / "all_results.json")
     diagnosis = _load_json(output_dir / "manual_stop_diagnosis.json") or _load_json(output_dir / "stop_and_diagnose.json")
-    activity = _latest_activity(output_dir)
-    failures = _failure_signals(output_dir)
+    activity = _latest_activity(output_dir, log_paths)
+    failures = _failure_signals(output_dir, log_paths)
     train_processes = _train_process_count(output_dir)
     state = _derive_state(
         output_dir=output_dir,
@@ -257,6 +267,7 @@ def main() -> int:
     parser.add_argument("--basename", default="citb_official_base_repro_v53_status")
     parser.add_argument("--stale-minutes", type=float, default=10.0)
     parser.add_argument("--expected-tasks", type=int, default=None)
+    parser.add_argument("--log-path", action="append", default=[])
     parser.add_argument("--emit-sentinel", action="store_true")
     args = parser.parse_args()
 
@@ -266,6 +277,7 @@ def main() -> int:
         run_name=args.run_name,
         stale_minutes=args.stale_minutes,
         expected_tasks=args.expected_tasks,
+        log_paths=[Path(path) for path in args.log_path],
     )
     write_status(status, args.basename)
     print(json.dumps(status, ensure_ascii=False, indent=2))
