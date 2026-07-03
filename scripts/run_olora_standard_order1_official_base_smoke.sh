@@ -15,10 +15,12 @@ if [[ "${FORMAL}" == "1" ]]; then
   MAX_STEPS="${MAX_STEPS:--1}"
   MAX_TRAIN_SAMPLES="${MAX_TRAIN_SAMPLES:-}"
   MAX_PREDICT_SAMPLES="${MAX_PREDICT_SAMPLES:-}"
+  GRADIENT_ACCUMULATION_STEPS="${GRADIENT_ACCUMULATION_STEPS:-8}"
 else
   MAX_STEPS="${MAX_STEPS:-1}"
   MAX_TRAIN_SAMPLES="${MAX_TRAIN_SAMPLES:-8}"
   MAX_PREDICT_SAMPLES="${MAX_PREDICT_SAMPLES:-16}"
+  GRADIENT_ACCUMULATION_STEPS="${GRADIENT_ACCUMULATION_STEPS:-1}"
 fi
 PER_DEVICE_TRAIN_BATCH_SIZE="${PER_DEVICE_TRAIN_BATCH_SIZE:-8}"
 PER_DEVICE_EVAL_BATCH_SIZE="${PER_DEVICE_EVAL_BATCH_SIZE:-16}"
@@ -41,7 +43,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -59,6 +61,7 @@ from pathlib import Path
     max_steps,
     max_train_samples,
     max_predict_samples,
+    gradient_accumulation_steps,
 ) = sys.argv[1:]
 
 limits = []
@@ -85,7 +88,8 @@ lines = [
     f"- log: {log_file}",
     f"- manifest: {manifest_file}",
     f"- setting: {setting}",
-    "- engineering notes: single-GPU runtime; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present",
+    f"- gradient_accumulation_steps: {gradient_accumulation_steps}",
+    "- engineering notes: formal single-GPU runtime uses gradient accumulation to match the official 8-GPU global batch; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present",
     "",
 ]
 Path(status_file).write_text("\n".join(lines), encoding="utf-8")
@@ -95,7 +99,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -116,6 +120,7 @@ from pathlib import Path
     max_train_samples,
     max_predict_samples,
     run_label,
+    gradient_accumulation_steps,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -137,6 +142,8 @@ manifest = {
         "learning_rate": "1e-3",
         "epochs_source": "official order_1.sh; formal uses one epoch, diagnostic runs may use max_steps/sample caps",
         "train_batch_size": "8",
+        "gradient_accumulation_steps": gradient_accumulation_steps,
+        "effective_global_batch_note": "official script launches 8 GPUs with per-device batch 8 and grad accumulation 1; single-GPU formal uses grad accumulation 8 to match global batch 64",
         "max_source_length": "512",
         "max_target_length": "50",
         "generation_max_length": "50",
@@ -150,7 +157,7 @@ manifest = {
     },
     "engineering_changes": [
         "run official entry from a runtime copy that respects WANDB_DISABLED instead of hard-disabling W&B",
-        "single-GPU process instead of official 8-GPU deepspeed launcher",
+        "single-GPU process instead of official 8-GPU deepspeed launcher, with gradient accumulation used in formal mode to match effective global batch",
         "reduced eval batch and optional sample/step caps for non-paper-comparable diagnostics",
     ],
     "wandb": {"project": wandb_project, "group": wandb_group, "mode": "online"},
@@ -234,7 +241,7 @@ run_round() {
     --output_dir "$output_dir" \
     --per_device_train_batch_size "$PER_DEVICE_TRAIN_BATCH_SIZE" \
     --per_device_eval_batch_size "$PER_DEVICE_EVAL_BATCH_SIZE" \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps "$GRADIENT_ACCUMULATION_STEPS" \
     --learning_rate 1e-03 \
     --num_train_epochs 1 \
     --run_name "$round_name" \
