@@ -16,6 +16,8 @@ OUTPUT_BASE="${OUTPUT_BASE:-/root/autodl-tmp/citb_official_base_repro}"
 SPLIT_POLICY="${SPLIT_POLICY:-official_script_500_50_50}"
 MODEL_CONFIG_NAME="${MODEL_CONFIG_NAME:-}"
 FIX_STAGE1_TIE_WORD_EMBEDDINGS="${FIX_STAGE1_TIE_WORD_EMBEDDINGS:-1}"
+ALLOW_PAPER_TARGET_SHORT_TASKS="${ALLOW_PAPER_TARGET_SHORT_TASKS:-0}"
+PAPER_TARGET_PREFLIGHT_OUTPUT="${PAPER_TARGET_PREFLIGHT_OUTPUT:-${REPO_ROOT}/results/logs/citb_official_split_counts_500_50_100_v54.json}"
 if [[ "${SPLIT_POLICY}" == "paper_target_500_50_100" ]]; then
   RUN_NAME="${RUN_NAME:-citb_instrdialog_order1_seed1_paper_target_500_50_100_ft_instr_stage1}"
 else
@@ -33,6 +35,19 @@ CITB_GPT2_TOKENIZER_NAME="${CITB_GPT2_TOKENIZER_NAME:-/root/autodl-tmp/Lora-code
 # behavior; 500/50/100 needs a local split-policy patch and should be reported
 # separately as paper-target strict, not as this run.
 if [[ "${SPLIT_POLICY}" == "paper_target_500_50_100" ]]; then
+  if ! python "${REPO_ROOT}/scripts/preflight_citb_official_split_counts.py" \
+    --citb-root "${CITB_ROOT}" \
+    --order "${ORDER}" \
+    --train "${MAX_TRAIN_INSTANCES}" \
+    --dev 50 \
+    --test 100 \
+    --output "${PAPER_TARGET_PREFLIGHT_OUTPUT}"; then
+    if [[ "${ALLOW_PAPER_TARGET_SHORT_TASKS}" != "1" ]]; then
+      echo "Blocked paper_target_500_50_100: one or more order${ORDER} tasks cannot provide 500/50/100 instances. See ${PAPER_TARGET_PREFLIGHT_OUTPUT}. Set ALLOW_PAPER_TARGET_SHORT_TASKS=1 only for a separately labeled non-paper-comparable diagnostic." >&2
+      exit 3
+    fi
+    echo "WARNING: continuing paper_target_500_50_100 despite short tasks because ALLOW_PAPER_TARGET_SHORT_TASKS=1; this is not paper-comparable." >&2
+  fi
   MAX_EVAL_INSTANCES="${MAX_EVAL_INSTANCES:-100}"
   CITB_ROOT="$(python "${REPO_ROOT}/scripts/prepare_citb_paper_target_runtime.py" \
     --source "${CITB_ROOT}" \

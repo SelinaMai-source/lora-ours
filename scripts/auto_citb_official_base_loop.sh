@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Autonomous CITB official-base loop:
 # 1. monitor the script-strict 500/50/50 smoke;
-# 2. launch the paper-target 500/50/100 run automatically after smoke success;
+# 2. launch the paper-target 500/50/100 run only when explicitly opted in;
 # 3. emit AGENT_LOOP_WAKE_LORA_OURS only on blockers/failures/stalls.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -12,11 +12,11 @@ LOG_DIR="${OUTPUT_BASE}/logs"
 mkdir -p "${LOG_DIR}"
 
 SMOKE_RUN="${SMOKE_RUN:-citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54}"
-SMOKE_STATUS_BASENAME="${SMOKE_STATUS_BASENAME:-citb_official_script_500_50_50_status}"
+SMOKE_STATUS_BASENAME="${SMOKE_STATUS_BASENAME:-citb_official_script_500_50_50_tie_fixed_status}"
 FORMAL_RUN="${FORMAL_RUN:-citb_instrdialog_order1_seed1_paper_target_500_50_100_ft_instr_stage1_v54}"
 FORMAL_SESSION="${FORMAL_SESSION:-citb-paper-target-500-50-100-v54}"
 CHECK_INTERVAL_SECONDS="${CHECK_INTERVAL_SECONDS:-60}"
-AUTO_LAUNCH_FORMAL="${AUTO_LAUNCH_FORMAL:-1}"
+AUTO_LAUNCH_FORMAL="${AUTO_LAUNCH_FORMAL:-0}"
 
 cd "${REPO_ROOT}"
 

@@ -39,7 +39,12 @@ def _result_dirs(output_dir: Path) -> List[Path]:
     results = output_dir / "results"
     if not results.is_dir():
         return []
-    return sorted([p for p in results.iterdir() if p.is_dir()], key=lambda p: p.name)
+
+    def sort_key(path: Path) -> tuple[int, str]:
+        prefix = path.name.split("_", 1)[0]
+        return (int(prefix), path.name) if prefix.isdigit() else (10**9, path.name)
+
+    return sorted([p for p in results.iterdir() if p.is_dir()], key=sort_key)
 
 
 def _read_tail(path: Path, max_bytes: int = 20000) -> str:
@@ -99,10 +104,10 @@ def _derive_state(
         return "failed"
     if failure_signals:
         return "failed"
-    if expected_tasks is not None and len(result_dirs) >= expected_tasks and all_results:
-        return "completed"
     if train_process_count > 0:
         return "running_or_recently_active"
+    if expected_tasks is not None and len(result_dirs) >= expected_tasks and all_results:
+        return "completed"
     if expected_tasks is not None and result_dirs and len(result_dirs) < expected_tasks:
         return "stopped_incomplete"
     if all_results:

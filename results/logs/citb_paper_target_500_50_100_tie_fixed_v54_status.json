@@ -1,0 +1,30 @@
+{
+  "updated": "2026-07-03T16:43:34",
+  "run_name": "citb_instrdialog_order1_seed1_paper_target_500_50_100_tie_fixed_ft_instr_stage1_v54",
+  "output_dir": "/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_paper_target_500_50_100_tie_fixed_ft_instr_stage1_v54",
+  "state": "stopped_incomplete",
+  "num_result_dirs": 1,
+  "expected_tasks": 19,
+  "train_process_count": 0,
+  "latest_result_dir": "/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_paper_target_500_50_100_tie_fixed_ft_instr_stage1_v54/results/0_task848_pubmedqa_classification",
+  "latest_activity": {
+    "path": "/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_paper_target_500_50_100_tie_fixed_ft_instr_stage1_v54/checkpoint-63/rng_state.pth",
+    "mtime": 1783068141.3561416,
+    "age_seconds": 73.03696131706238
+  },
+  "failure_signals": [],
+  "diagnosis": {},
+  "latest_metric_keys": [],
+  "latest_metrics": {},
+  "trainer_state_exists": false,
+  "all_results": {},
+  "red_flags": [
+    "CITB paper states InstrDialog uses 500/50/100 train/dev/test instances, but the official short-stream FT_INSTR script sets max_num_instances_per_eval_task=50.",
+    "Official CITB Stage-2 code uses one max_num_instances_per_eval_task for both dev and per-task test split size, yielding script-strict 500/50/50 unless split code is patched.",
+    "Default launcher keeps the official-script 500/50/50 smoke policy; requested 500/50/100 remains blocked unless split code is patched and audited.",
+    "Official dry-run currently requires the lora_v10_citb Python 3.9 environment; base Python lacks datasets.load_metric.",
+    "Stage-1 tokenizer files are incompatible with the old official stack, so the launcher uses the local google__t5-small-lm-adapt tokenizer as a compatibility override.",
+    "Tk-Instruct metric code imports AutoTokenizer.from_pretrained('gpt2'); launcher redirects only that tokenizer lookup to a local GPT-2 tokenizer cache via project-local sitecustomize because this environment cannot reach Hugging Face.",
+    "The hyintell/CITB checkout has an untracked Tk-Instruct copy whose collator lacks add_task_id; launcher now defaults to the tracked local citb_official tree whose collator matches the CL entrypoint."
+  ]
+}
