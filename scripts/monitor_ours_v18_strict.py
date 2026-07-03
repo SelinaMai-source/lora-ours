@@ -118,12 +118,12 @@ def _run_artifacts() -> Dict[str, Any]:
 def _classify(log_info: Dict[str, Any], artifacts: Dict[str, Any], processes: List[str]) -> Dict[str, Any]:
     if "stop_and_diagnose.json" in artifacts:
         return {"state": "stopped_low_or_failed", "reason": artifacts["stop_and_diagnose.json"].get("reason", "stop_and_diagnose")}
+    if LOG_PATH.is_file() and log_info.get("log_age_seconds", 0.0) > STALE_SECONDS and processes:
+        return {"state": "stale", "reason": f"log older than {STALE_SECONDS}s while process exists"}
     if processes:
         return {"state": "running", "reason": "train process present"}
     if "final_metrics.json" in artifacts:
         return {"state": "completed", "reason": "final_metrics_present"}
-    if LOG_PATH.is_file() and log_info.get("log_age_seconds", 0.0) > STALE_SECONDS and processes:
-        return {"state": "stale", "reason": f"log older than {STALE_SECONDS}s while process exists"}
     latest_eval = log_info.get("latest_eval", {}) if isinstance(log_info.get("latest_eval"), dict) else {}
     latest_segment = int(log_info.get("latest_segment") or -1)
     if latest_segment >= LOW_SCORE_MIN_SEGMENT:

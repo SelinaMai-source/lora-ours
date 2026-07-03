@@ -16,6 +16,29 @@ PY
 )"
 LOG_DIR="$ROOT/results/logs"
 mkdir -p "$LOG_DIR"
+EXIT_STATUS_PATH="$LOG_DIR/${RUN_NAME}.exit.json"
 
 echo "Starting ours v1 strict iteration: $CONFIG"
+set +e
 python -m core.train --config "$CONFIG" 2>&1 | tee "$LOG_DIR/${RUN_NAME}.log"
+PIPE_STATUSES=("${PIPESTATUS[@]}")
+TRAIN_STATUS="${PIPE_STATUSES[0]}"
+TEE_STATUS="${PIPE_STATUSES[1]:-0}"
+set -e
+python - "$RUN_NAME" "$CONFIG" "$TRAIN_STATUS" "$TEE_STATUS" "$EXIT_STATUS_PATH" <<'PY'
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+
+run_name, config, train_status, tee_status, output_path = sys.argv[1:]
+payload = {
+    "updated_at": datetime.now().isoformat(timespec="seconds"),
+    "run_name": run_name,
+    "config": config,
+    "train_exit_status": int(train_status),
+    "tee_exit_status": int(tee_status),
+}
+Path(output_path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+PY
+exit "$TRAIN_STATUS"
