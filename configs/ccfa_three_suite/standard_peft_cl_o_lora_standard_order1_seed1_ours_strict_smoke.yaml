@@ -1,11 +1,10 @@
-experiment_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict
+experiment_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58
 mode: ours
 seed: 1
 strict_alignment:
-  status: ready
+  status: smoke
   blocker: ''
-  official_evidence: O-LoRA README; scripts/order_1.sh; configs/order1_configs; CL_Benchmark;
-    order dbpedia -> amazon -> yahoo -> agnews; src/run_uie_lora.py
+  official_evidence: O-LoRA order1 stream; smoke limits make this diagnostic-only.
 paths:
   project_root: /root/Lora-Baselines/methods/ours/source/project_local
   processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft/olora_standard_order1_t5large.json
@@ -18,9 +17,9 @@ data:
   ready: true
   stream_name: standard_peft
   auto_prepare_processed: false
-  max_segments: -1
-  max_train_examples_per_segment: -1
-  max_eval_examples_per_segment: -1
+  max_segments: 1
+  max_train_examples_per_segment: 8
+  max_eval_examples_per_segment: 16
 model:
   architecture: seq2seq_lm
   task_type: seq2seq_lm
@@ -50,7 +49,7 @@ train:
   gradient_accumulation_steps: 8
   hard_early_stop_enabled: false
   grad_clip_norm: 1.0
-  log_every: 25
+  log_every: 1
 modules:
   use_drift_detector: true
   use_lora_bank: true
@@ -60,29 +59,27 @@ eval_normalization:
   enable_task_aware_score: true
   auto_short_answer_max_new_tokens: true
 output:
-  run_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict
+  run_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58
   tracking:
     use_wandb: true
     wandb_project: lora-ours
-    wandb_group: ccfa_standard_peft_strict_ours
+    wandb_group: ccfa_standard_peft_strict_ours_smoke
     wandb_mode: online
     wandb_tags:
     - ccfa_v2
     - standard_peft_cl
     - strict
+    - smoke
     - t5_large
 paper:
-  strict_ready: true
-  status: ready
+  strict_ready: false
+  status: smoke
   metrics:
   - final average accuracy
   - forgetting
   - BWT
   postprocess: ccfa_postprocess/summary.json
-  notes: 'Strict O-LoRA standard CL order using official data/order stream and official
-    training hyperparameters where supported by the ours runner. Runtime memory knobs
-    reduced after prior Terminated: activation_batch_size=1, anchor_candidate_pool_size=128,
-    anchor_size=32; official lr/batch/order/epochs unchanged.'
+  notes: Diagnostic smoke for Standard PEFT CL ours with official order/model and single-GPU effective batch alignment via gradient_accumulation_steps=8.
 official_reference:
   official_script: /root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/scripts/order_1.sh
   model_name_or_path_in_official_script: initial_model/t5-large
@@ -95,5 +92,5 @@ official_reference:
   official_max_target_length: 50
   official_generation_max_length: 50
 drift:
-  anchor_candidate_pool_size: 128
-  anchor_size: 32
+  anchor_candidate_pool_size: 16
+  anchor_size: 8

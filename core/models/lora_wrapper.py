@@ -463,6 +463,15 @@ class LoRAWrapper:
             "lr": float(lr),
         }
 
+    def scale_active_gradients(self, scale: float) -> None:
+        """Scale accumulated LoRA gradients before an optimizer step."""
+        if not self.cfg.enabled or self.peft_model is None:
+            return
+        factor = float(scale)
+        for name, param in self.peft_model.named_parameters():
+            if "lora_" in name and param.requires_grad and param.grad is not None:
+                param.grad.mul_(factor)
+
     def get_active_adapter_name(self) -> str:
         return self._active_adapter_name
 

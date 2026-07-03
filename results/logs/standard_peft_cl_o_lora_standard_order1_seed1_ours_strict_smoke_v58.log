@@ -1,0 +1,88 @@
+wandb: WARNING `start_method` is deprecated and will be removed in a future version of wandb. This setting is currently non-functional and safely ignored.
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /root/.netrc.
+wandb: Currently logged in as: sheungyingmai (sheungyingmai-the-university-of-hong-kong) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run sjpakuim
+wandb: Tracking run with wandb version 0.27.0
+wandb: Run data is saved locally in /root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58/wandb/run-20260703_182508-sjpakuim
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58
+wandb: ⭐️ View project at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours
+wandb: 🚀 View run at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/sjpakuim
+[2026-07-03 18:25:09] W&B enabled: project=lora-ours group=ccfa_standard_peft_strict_ours_smoke mode=online
+[2026-07-03 18:25:09] Config: configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke.yaml
+[2026-07-03 18:25:09] Mode: ours
+[2026-07-03 18:25:09] Run ID: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58
+[2026-07-03 18:25:09] Requested processed stream alias='standard_peft' (auto_prepare_processed=False)
+[2026-07-03 18:25:10] Loaded stream: benchmark=O-LoRA-standard-T5-large-CL version=ccfa_olora_standard_v1 segments=1
+Calling build_backbone...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/509 [00:00<?, ?it/s]Loading weights:  46%|████▌     | 233/509 [00:00<00:00, 2317.53it/s]Loading weights:  91%|█████████▏| 465/509 [00:00<00:00, 1098.47it/s]Loading weights: 100%|██████████| 509/509 [00:00<00:00, 1058.89it/s]
+Calling build_lora_wrapper...
+Done build_lora_wrapper.
+[2026-07-03 18:25:11] LoRA: {"enabled": true, "r": 16, "alpha": 32, "dropout": 0.05, "target_modules": ["q", "v"], "active_adapter": "default", "num_adapters": 1, "frozen_adapters": [], "total_parameters": 742386688, "trainable_parameters": 2359296, "num_trainable_parameter_tensors": 144, "trainable_parameter_name_preview": ["base_model.model.encoder.block.0.layer.0.SelfAttention.q.lora_B.default.weight", "base_model.model.encoder.block.0.layer.0.SelfAttention.v.lora_B.default.weight", "base_model.model.encoder.block.1.layer.0.SelfAttention.q.lora_B.default.weight", "base_model.model.encoder.block.1.layer.0.SelfAttention.v.lora_B.default.weight", "base_model.model.encoder.block.2.layer.0.SelfAttention.q.lora_B.default.weight", "base_model.model.encoder.block.2.layer.0.SelfAttention.v.lora_B.default.weight", "base_model.model.encoder.block.3.layer.0.SelfAttention.q.lora_B.default.weight", "base_model.model.encoder.block.3.layer.0.SelfAttention.v.lora_B.default.weight"]}
+[2026-07-03 18:25:11] Ours modules: {"use_drift_detector": true, "use_lora_bank": true, "use_router": true, "use_overlap_loss": true}
+Initializing LoRABank...
+Done initializing LoRABank.
+Starting segment loop...
+Inside loop for segment 0...
+[2026-07-03 18:25:12] === Segment 0: dbpedia ===
+Building drift anchor set...
+[2026-07-03 18:25:12] Built drift anchor set (bootstrap_segment_0): {"num_core": 4, "num_probe": 4, "num_total": 8, "core_segment_ids": [0], "probe_segment_ids": [0], "source_segment_ids": [0]}
+Done building drift anchor set.
+[2026-07-03 18:25:12] Training transient probe expert for segment 0...
+[2026-07-03 18:25:13] Transient assessment: merge, isolated_energy_ratio: 0.0000
+/root/miniconda3/lib/python3.12/site-packages/peft/tuners/tuners_utils.py:1466: UserWarning: Adapter b_transient was active which is now deleted. Setting active adapter to b0.
+  warnings.warn(
+[2026-07-03 18:25:13] Merged shared subspace into b0 and unfroze it.
+[2026-07-03 18:25:13] No new branch spawned. Subspace energy shared with b0.
+[2026-07-03 18:25:13] Merged remaining isolated subspace into b0.
+Entering _train_with_routed_assignments...
+Calling _assign_training_branches...
+Entering _assign_training_branches with strategy=learned_router...
+Returning early because len(branch_names) <= 1
+Done _assign_training_branches...
+Calling model.fit_batch...
+Done model.fit_batch.
+[2026-07-03 18:25:13] Train metrics: {"batches": 1, "optimizer_steps": 1, "gradient_accumulation_steps": 8, "mean_batch_acc": 0.0, "train.loss": 10.4375, "train.answer_token_acc": 0.1111111119389534, "num_total_tokens": 1348, "num_supervised_tokens": 18, "grad_norm": 34.049079904461436, "lora_param_delta_l2": 0.03405410912784988, "lr": 0.001, "router_training_strategy": "learned_router", "routed_train_examples": 8, "task_aware_fallback_training_branch": "b0", "routed_train_num_branches": 1, "routed_train_fallback_to_active": 8, "routed_train_branch_counts_json": "{\"b0\": 8}", "routed_train_mean_margin": 0.0, "train.target_supervision_guard_enabled": 0.0, "train.supervised_eos_tokens": 8.0, "train.supervised_pad_tokens": 0.0, "train.continuation_loss_weight": 1.0, "train.continuation_weighted_rows": 0.0, "train.continuation_weighted_tokens": 0.0, "train.continuation_weighted_token_ratio": 0.0, "train.content_loss_weight": 1.0, "train.content_weighted_rows": 0.0, "train.content_weighted_tokens": 0.0, "train.content_weighted_token_ratio": 0.0, "train.content_subtoken_match_enabled": 0.0, "train.content_subtoken_extra_tokens": 0.0, "train.speaker_loss_weight": 1.0, "train.speaker_weighted_rows": 0.0, "train.speaker_weighted_tokens": 0.0, "train.speaker_weighted_token_ratio": 0.0, "train.slot_copy_loss_weight": 1.0, "train.slot_copy_weighted_rows": 0.0, "train.slot_copy_weighted_tokens": 0.0, "train.slot_copy_weighted_token_ratio": 0.0, "train.slot_copy_terms": 0.0, "train.target_slot_loss_weight": 1.0, "train.target_slot_weighted_rows": 0.0, "train.target_slot_weighted_tokens": 0.0, "train.target_slot_weighted_token_ratio": 0.0, "train.target_slot_terms": 0.0, "router_prototype_update_steps": 1, "router_pll_bonus_steps": 0, "router_feature_adapter": "default", "router_num_candidates": 8, "router_num_labels": 8, "router_num_skipped_low_margin": 0, "router_mean_margin": 0.0, "router_loss": 0.0, "router_train_acc": 0.0, "num_branches": 1, "num_trainable_branches": 1, "overlap_loss_proxy": 0.0, "overlap_mean_cosine": 0.0}
+[2026-07-03 18:25:16] Eval metrics: {"current_score": 0.0, "seen_avg_score": 0.0, "current_task_aware_score": 0.0, "seen_avg_task_aware_score": 0.0, "forgetting": 0.0, "task_aware_forgetting": 0.0, "num_seen_segments": 1, "token_f1_mean": 0.0, "lcs_overlap_mean": 0.0, "rouge_l_mean": 0.0, "bleu_mean": 0.3544566228207896, "slot_error_rate": 0.0, "extra": {"per_segment_accuracy": [{"segment_id": 0, "accuracy": 0.0}], "per_segment_task_aware_accuracy": [{"segment_id": 0, "task_aware_accuracy": 0.0}], "anytime_score": 0.0, "anytime_task_aware_score": 0.0, "forgetting_by_segment": [{"segment_id": 0, "accuracy": 0.0, "best_historical_accuracy": 0.0, "forgetting": 0.0}], "task_aware_forgetting_by_segment": [{"segment_id": 0, "task_aware_accuracy": 0.0, "best_historical_task_aware_accuracy": 0.0, "task_aware_forgetting": 0.0}], "routing": {"num_routed": 16, "branch_counts": {"b0": 16}, "oracle_best_branch_counts": {"b0": 16}, "oracle_agreement_count": 16, "oracle_num_examples": 16, "confidence_sum": 16.0, "entropy_sum": -1.600142240930945e-11, "oracle_margin_sum": 0.0, "branch_utilization": {"b0": 1.0}, "decision_confidence_mean": 1.0, "decision_entropy_mean": -1.0000889005818406e-12, "oracle_agreement_rate": 1.0, "oracle_margin_mean": 0.0}, "token_f1_mean": 0.0, "lcs_overlap_mean": 0.0, "rouge_l_mean": 0.0, "bleu_mean": 0.3544566228207896, "slot_error_rate": 0.0, "slot_error_count": 0, "task_aware_score_mean": 0.0, "task_score_type_counts": {"exact_match": 16}, "prefix_1_match_mean": 0.0, "prefix_3_match_mean": 0.0, "prefix_5_match_mean": 0.0, "num_bad_prefix_mismatch": 16, "likely_assistant_start_or_continuation_boundary": true}}
+[2026-07-03 18:25:16] Drift detector: triggered=False calibrated=True probe_mean_nll=6.2031 core_mean_nll=8.6641 probe_cusum=0.0000 threshold=0.0100 reason=calibration_complete
+[2026-07-03 18:25:16] Saved final metrics: /root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58/final_metrics.json
+[2026-07-03 18:25:16] Saved per-segment table: /root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/tables/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58_segment_metrics.csv
+wandb: WARNING Symlinked 1 file into the W&B run directory; call wandb.save again to sync new files.
+wandb: WARNING Symlinked 1 file into the W&B run directory; call wandb.save again to sync new files.
+wandb: WARNING Symlinked 1 file into the W&B run directory; call wandb.save again to sync new files.
+wandb: updating run metadata
+wandb: uploading config.yaml; uploading final_metrics.json; uploading standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58_segment_metrics.csv; uploading config_snapshot.yaml; uploading output.log (+ 1 more)
+wandb: uploading output.log
+wandb: uploading history steps 0-0, summary, console lines 0-42
+wandb: 
+wandb: Run history:
+wandb:              drift.core_cusum ▁
+wandb:           drift.core_mean_nll ▁
+wandb:             drift.probe_cusum ▁
+wandb:          drift.probe_mean_nll ▁
+wandb:                   drift.score ▁
+wandb:               drift.triggered ▁
+wandb:            eval.anytime_score ▁
+wandb: eval.anytime_task_aware_score ▁
+wandb:                eval.bleu_mean ▁
+wandb:            eval.current_score ▁
+wandb:                           +78 ...
+wandb: 
+wandb: Run summary:
+wandb:                        config_path /root/lora-ours/conf...
+wandb:                   drift.core_cusum 0
+wandb:                drift.core_mean_nll 8.66406
+wandb:                  drift.probe_cusum 0
+wandb:               drift.probe_mean_nll 6.20312
+wandb:                        drift.score 0
+wandb:                    drift.triggered 0
+wandb: drift_quality/detection_delay_mean -1
+wandb:    drift_quality/false_alarm_count 0
+wandb:     drift_quality/false_alarm_rate 0
+wandb:                               +191 ...
+wandb: 
+wandb: 🚀 View run standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58 at: https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/sjpakuim
+wandb: ⭐️ View project at: https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 3 other file(s)
+wandb: Find logs at: /root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_smoke_v58/wandb/run-20260703_182508-sjpakuim/logs

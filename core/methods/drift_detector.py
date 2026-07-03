@@ -116,6 +116,7 @@ def build_anchor_set(stream: ContinualStream, cfg: Dict[str, Any], *, seed: int,
         
         with torch.no_grad():
             features = model.get_activations_tensor(prompts, with_grad=False)
+            features = features.float()
             
         # K-Center Greedy
         selected_indices = [rng.randint(0, len(candidate_items) - 1)]

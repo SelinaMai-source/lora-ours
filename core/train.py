@@ -780,7 +780,8 @@ def run_ours(
                 batch_size=batch_size,
                 use_overlap=False,
                 beta=0.0,
-                overlap_cfg={}
+                overlap_cfg={},
+                train_cfg=train_cfg,
             )
             
             from core.methods.assess_update import assess_transient_branch, set_adapter_vector
@@ -914,6 +915,7 @@ def run_ours(
                 use_overlap=use_overlap,
                 beta=beta,
                 overlap_cfg=overlap_cfg,
+                train_cfg=train_cfg,
             )
         else:
             # No bank: fall back to single default adapter
@@ -930,6 +932,7 @@ def run_ours(
                 use_overlap=use_overlap,
                 beta=beta,
                 overlap_cfg=overlap_cfg,
+                train_cfg=train_cfg,
             )
 
         if spectral_replay is not None:
@@ -1214,6 +1217,7 @@ def _train_on_active_branch(
     use_overlap: bool,
     beta: float,
     overlap_cfg: Optional[Dict[str, Any]] = None,
+    train_cfg: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     from baselines.basic_baselines.sequential_lora.method import _batch
 
@@ -1232,9 +1236,13 @@ def _train_on_active_branch(
     total_tokens = 0
     supervised_tokens = 0
     batches = 0
+    accum_steps = max(1, int((train_cfg or {}).get("gradient_accumulation_steps", 1)))
+    pending_accum = 0
+    optimizer_steps = 0
     for _ in range(max(1, epochs)):
         for b_pairs, b_targets in _batch(pairs, targets, batch_size):
             out = model.fit_batch(b_pairs, b_targets, lr=lr)
+            pending_accum += 1
 
             # Anti-overlap regularization integrated into the training step.
             if (
@@ -1271,7 +1279,13 @@ def _train_on_active_branch(
                     overlap_metric_sums[key] = overlap_metric_sums.get(key, 0.0) + float(value)
                 overlap_steps += 1
 
-            step_stats = lora.step_adapter()
+            step_stats: Dict[str, Any] = {}
+            if pending_accum >= accum_steps:
+                if hasattr(lora, "scale_active_gradients"):
+                    lora.scale_active_gradients(1.0 / float(pending_accum))
+                step_stats = lora.step_adapter()
+                optimizer_steps += 1
+                pending_accum = 0
             batch_accs.append(float(out.get("train_batch_acc", 0.0)))
             batch_losses.append(float(out.get("train_loss", 0.0)))
             batch_ans_accs.append(float(out.get("train_answer_token_acc", 0.0)))
@@ -1282,13 +1296,23 @@ def _train_on_active_branch(
                     except (TypeError, ValueError):
                         continue
             supervision_metric_steps += 1
-            grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
-            delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
+            if step_stats:
+                grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
+                delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
             total_tokens += int(out.get("num_total_tokens", 0))
             supervised_tokens += int(out.get("num_supervised_tokens", 0))
             batches += 1
+    if pending_accum > 0:
+        if hasattr(lora, "scale_active_gradients"):
+            lora.scale_active_gradients(1.0 / float(pending_accum))
+        step_stats = lora.step_adapter()
+        optimizer_steps += 1
+        grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
+        delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
     metrics = {
         "batches": batches,
+        "optimizer_steps": optimizer_steps,
+        "gradient_accumulation_steps": accum_steps,
         "mean_batch_acc": sum(batch_accs) / max(1, len(batch_accs)),
         "train.loss": sum(batch_losses) / max(1, len(batch_losses)),
         "train.answer_token_acc": sum(batch_ans_accs) / max(1, len(batch_ans_accs)),
@@ -1376,6 +1400,7 @@ def _maybe_train_dialogue_replay_warmup(
         use_overlap=False,
         beta=0.0,
         overlap_cfg={},
+        train_cfg=train_cfg,
     )
     metrics.update(
         {
@@ -1688,6 +1713,7 @@ def _train_with_router(
             use_overlap=use_overlap,
             beta=beta,
             overlap_cfg=overlap_cfg,
+            train_cfg=train_cfg,
         )
         train_metrics["router_training_strategy"] = strategy
         train_metrics["routed_train_examples"] = 0
@@ -1832,6 +1858,8 @@ def _train_with_routed_assignments(
     total_tokens = 0
     supervised_tokens = 0
     batches = 0
+    accum_steps = max(1, int((train_cfg or {}).get("gradient_accumulation_steps", 1)))
+    optimizer_steps = 0
     active_before = lora.get_active_adapter_name()
     try:
         for _ in range(max(1, epochs)):
@@ -1842,10 +1870,12 @@ def _train_with_routed_assignments(
                 idxs = branch_to_examples[branch_name]
                 routed_pairs = [pairs[i] for i in idxs]
                 routed_targets = [targets[i] for i in idxs]
+                pending_accum = 0
                 for b_pairs, b_targets in _batch(routed_pairs, routed_targets, batch_size):
                     print("Calling model.fit_batch...", file=sys.stderr)
                     out = model.fit_batch(b_pairs, b_targets, lr=lr)
                     print("Done model.fit_batch.", file=sys.stderr)
+                    pending_accum += 1
                     if (
                         use_overlap
                         and beta > 0
@@ -1888,7 +1918,13 @@ def _train_with_routed_assignments(
                             overlap_metric_sums[key] = overlap_metric_sums.get(key, 0.0) + float(value)
                         overlap_steps += 1
 
-                    step_stats = lora.step_adapter()
+                    step_stats: Dict[str, Any] = {}
+                    if pending_accum >= accum_steps:
+                        if hasattr(lora, "scale_active_gradients"):
+                            lora.scale_active_gradients(1.0 / float(pending_accum))
+                        step_stats = lora.step_adapter()
+                        optimizer_steps += 1
+                        pending_accum = 0
                     batch_accs.append(float(out.get("train_batch_acc", 0.0)))
                     batch_losses.append(float(out.get("train_loss", 0.0)))
                     batch_ans_accs.append(float(out.get("train_answer_token_acc", 0.0)))
@@ -1899,11 +1935,19 @@ def _train_with_routed_assignments(
                             except (TypeError, ValueError):
                                 continue
                     supervision_metric_steps += 1
-                    grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
-                    delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
+                    if step_stats:
+                        grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
+                        delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
                     total_tokens += int(out.get("num_total_tokens", 0))
                     supervised_tokens += int(out.get("num_supervised_tokens", 0))
                     batches += 1
+                if pending_accum > 0:
+                    if hasattr(lora, "scale_active_gradients"):
+                        lora.scale_active_gradients(1.0 / float(pending_accum))
+                    step_stats = lora.step_adapter()
+                    optimizer_steps += 1
+                    grad_norms.append(float(step_stats.get("grad_norm", 0.0)))
+                    delta_norms.append(float(step_stats.get("lora_param_delta_l2", 0.0)))
     finally:
         restore_branch = active_branch if active_branch in lora.list_adapters() else active_before
         if restore_branch in lora.list_adapters():
@@ -1911,6 +1955,8 @@ def _train_with_routed_assignments(
 
     metrics = {
         "batches": batches,
+        "optimizer_steps": optimizer_steps,
+        "gradient_accumulation_steps": accum_steps,
         "mean_batch_acc": sum(batch_accs) / max(1, len(batch_accs)),
         "train.loss": sum(batch_losses) / max(1, len(batch_losses)),
         "train.answer_token_acc": sum(batch_ans_accs) / max(1, len(batch_ans_accs)),
