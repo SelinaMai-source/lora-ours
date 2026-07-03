@@ -1778,6 +1778,10 @@ def _train_with_routed_assignments(
         segment=segment,
         train_cfg=train_cfg or {},
     )
+    segment, target_slot_metrics = _maybe_add_target_slot_alignment_examples(
+        segment=segment,
+        train_cfg=train_cfg or {},
+    )
     pairs = [(ex.instruction, ex.input) for ex in segment.train]
     targets = [ex.output for ex in segment.train]
     branch_names = lora_bank.list_branches()
@@ -1922,6 +1926,7 @@ def _train_with_routed_assignments(
         **balance_metrics,
         **slot_rich_metrics,
         **slot_plan_metrics,
+        **target_slot_metrics,
     }
     if overlap_steps > 0:
         metrics.update({k: v / float(overlap_steps) for k, v in overlap_metric_sums.items()})
@@ -2295,6 +2300,201 @@ def _build_slot_aware_planned_response(input_text: str, target: str) -> tuple[st
         prefix = "customer: "
         body = "Please keep these travel details " + ", ".join(parts) + "."
     return prefix + body, slot_keys
+
+
+def _maybe_add_target_slot_alignment_examples(
+    *,
+    segment: Segment,
+    train_cfg: Dict[str, Any],
+) -> tuple[Segment, Dict[str, Any]]:
+    cfg = train_cfg.get("target_slot_alignment", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return segment, {}
+
+    patterns = cfg.get("segment_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    segment_name = str(segment.segment_name or "")
+    if patterns and not any(re.search(str(p), segment_name, flags=re.IGNORECASE) for p in patterns):
+        return segment, {}
+    if not segment.train:
+        return segment, {}
+
+    min_slots = max(1, int(cfg.get("min_slot_count", 1)))
+    repeat_factor = max(1, int(cfg.get("repeat_factor", 1)))
+    max_examples = max(0, int(cfg.get("max_examples", 240)))
+    max_values_per_slot = max(1, int(cfg.get("max_values_per_slot", 3)))
+
+    added: List[Example] = []
+    slot_hist: Dict[str, int] = {}
+    target_only_hist: Dict[str, int] = {}
+    source_overlap_hist: Dict[str, int] = {}
+    for ex in segment.train:
+        if len(added) >= max_examples:
+            break
+        aligned, slots, target_only_slots, source_overlap_slots = _build_target_slot_alignment_response(
+            ex.input,
+            ex.output,
+            max_values_per_slot=max_values_per_slot,
+        )
+        if not aligned or len(slots) < min_slots:
+            continue
+        for key in slots:
+            slot_hist[key] = slot_hist.get(key, 0) + 1
+        for key in target_only_slots:
+            target_only_hist[key] = target_only_hist.get(key, 0) + 1
+        for key in source_overlap_slots:
+            source_overlap_hist[key] = source_overlap_hist.get(key, 0) + 1
+        for _ in range(repeat_factor):
+            if len(added) >= max_examples:
+                break
+            added.append(
+                Example(
+                    instruction=ex.instruction,
+                    input=ex.input,
+                    output=aligned,
+                    output_references=(aligned,),
+                )
+            )
+
+    if not added:
+        return segment, {}
+
+    expanded = Segment(
+        segment_id=segment.segment_id,
+        segment_name=segment.segment_name,
+        train=list(segment.train) + added,
+        eval=segment.eval,
+    )
+    return expanded, {
+        "target_slot_alignment_enabled": True,
+        "target_slot_alignment_segment": segment_name,
+        "target_slot_alignment_original_examples": int(len(segment.train)),
+        "target_slot_alignment_added_examples": int(len(added)),
+        "target_slot_alignment_slot_hist_json": json.dumps(slot_hist, sort_keys=True),
+        "target_slot_alignment_target_only_hist_json": json.dumps(target_only_hist, sort_keys=True),
+        "target_slot_alignment_source_overlap_hist_json": json.dumps(source_overlap_hist, sort_keys=True),
+    }
+
+
+def _build_target_slot_alignment_response(
+    input_text: str,
+    target: str,
+    *,
+    max_values_per_slot: int,
+) -> tuple[str, List[str], List[str], List[str]]:
+    source_slots = _extract_dialogue_slot_values(str(input_text or ""))
+    target_slots = _extract_dialogue_slot_values(str(target or ""))
+    speaker_match = re.match(r"\s*(agent|customer)\s*:\s*", str(target or ""), flags=re.IGNORECASE)
+    speaker = speaker_match.group(1).lower() if speaker_match else "response"
+
+    ordered_keys = [
+        "name",
+        "airport",
+        "date",
+        "flight",
+        "airline",
+        "fare",
+        "class",
+        "booking",
+        "connect",
+    ]
+    parts: List[str] = []
+    slot_keys: List[str] = []
+    target_only_keys: List[str] = []
+    source_overlap_keys: List[str] = []
+    for key in ordered_keys:
+        values = target_slots.get(key, [])
+        if not values:
+            continue
+        limited = values[:max_values_per_slot]
+        source_canon = {_canonical_slot_value(v) for v in source_slots.get(key, [])}
+        target_only = [v for v in limited if _canonical_slot_value(v) not in source_canon]
+        overlapping = [v for v in limited if _canonical_slot_value(v) in source_canon]
+        slot_keys.append(key)
+        if target_only:
+            target_only_keys.append(key)
+        if overlapping:
+            source_overlap_keys.append(key)
+        parts.append(f"{key}=" + "/".join(str(v) for v in limited))
+
+    if not parts:
+        return "", [], [], []
+    prefix = f"{speaker}: " if speaker in {"agent", "customer"} else ""
+    aligned = prefix + "slot alignment " + "; ".join(parts) + "."
+    return aligned, slot_keys, target_only_keys, source_overlap_keys
+
+
+def _extract_dialogue_slot_values(text: str) -> Dict[str, List[str]]:
+    raw = str(text or "")
+
+    def unique(values: List[Any]) -> List[str]:
+        out: List[str] = []
+        seen = set()
+        for value in values:
+            if isinstance(value, tuple):
+                value = next((part for part in value if part), "")
+            cleaned = str(value or "").strip(" .,;:")
+            if not cleaned:
+                continue
+            key = cleaned.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(cleaned)
+        return out
+
+    month = (
+        "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec|"
+        "January|February|March|April|May|June|July|August|September|October|November|December"
+    )
+    slots: Dict[str, List[str]] = {
+        "airport": unique(re.findall(r"\b[A-Z]{3}\b", raw)),
+        "date": unique(
+            re.findall(
+                rf"\b(?:\d{{1,2}}/\d{{1,2}}|(?:{month})\s*,?\s*\d{{1,2}}(?:st|nd|rd|th)?)\b",
+                raw,
+            )
+        ),
+        "flight": unique(
+            [m.group(1) for m in re.finditer(r"\bflight\s*(?:number\s*)?(\d{3,4})\b", raw, re.IGNORECASE)]
+        ),
+        "fare": unique(
+            [m.group(1) for m in re.finditer(r"\b(?:fare|price)\s*(?:is|of)?\s*(\d{2,5})\b", raw, re.IGNORECASE)]
+        ),
+        "airline": unique(
+            re.findall(
+                r"\b(?:American Airlines|American|Delta|Frontier|JetBlue|Southwest|United|UA)\b",
+                raw,
+                re.IGNORECASE,
+            )
+        ),
+        "class": unique(
+            [a or b for a, b in re.findall(r"\b(economy|business|first)\s+class\b|\b(economy|business)\b", raw, re.IGNORECASE)]
+        ),
+        "name": unique(
+            [
+                m.group(1)
+                for m in re.finditer(
+                    r"\b(?:my name is|i am|myself|name of|with the name of)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b",
+                    raw,
+                )
+            ]
+        ),
+        "booking": unique(
+            re.findall(
+                r"\b(?:booking|booked|reservation|reserved|confirmation|confirmed|ticket|cancelled|canceled|cancel)\b",
+                raw,
+                re.IGNORECASE,
+            )
+        ),
+        "connect": unique(re.findall(r"\b(?:connecting|connection|direct|halt|break)\b", raw, re.IGNORECASE)),
+    }
+    return {key: values for key, values in slots.items() if values}
+
+
+def _canonical_slot_value(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
 
 
 def _normalize_generation_bucket_name(raw: Any) -> str:

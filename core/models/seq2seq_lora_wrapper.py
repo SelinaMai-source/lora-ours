@@ -37,6 +37,7 @@ class HFSeq2SeqLMConfig:
     generation_content_min_target_tokens: int = 6
     generation_content_subtoken_match: bool = False
     generation_slot_copy_loss_weight: float = 1.0
+    generation_target_slot_loss_weight: float = 1.0
     generation_speaker_loss_weight: float = 1.0
 
 
@@ -527,6 +528,31 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         slot_copy_rows = 0
         slot_copy_tokens = 0
         slot_copy_terms_total = 0
+        target_slot_rows = 0
+        target_slot_tokens = 0
+        target_slot_terms_total = 0
+        if float(self.cfg.generation_target_slot_loss_weight) > 1.0:
+            target_slot_weight = torch.as_tensor(
+                float(self.cfg.generation_target_slot_loss_weight),
+                dtype=weights.dtype,
+                device=weights.device,
+            )
+            for row, target in enumerate(targets):
+                if row >= labels.size(0):
+                    break
+                target_terms = self._target_slot_terms(target)
+                if not target_terms:
+                    continue
+                target_slot_terms_total += len(target_terms)
+                row_slot_mask = torch.zeros_like(supervised_mask[row], dtype=torch.bool)
+                for idx in self._content_term_token_positions(labels[row], target_terms):
+                    if 0 <= idx < labels.size(1) and bool(supervised_mask[row, idx].item()):
+                        row_slot_mask[idx] = True
+                if bool(row_slot_mask.any().item()):
+                    weights[row] = torch.where(row_slot_mask, torch.maximum(weights[row], target_slot_weight), weights[row])
+                    target_slot_rows += 1
+                    target_slot_tokens += int(row_slot_mask.sum().detach().cpu().item())
+
         if float(self.cfg.generation_slot_copy_loss_weight) > 1.0 and sources:
             slot_copy_weight = torch.as_tensor(
                 float(self.cfg.generation_slot_copy_loss_weight),
@@ -584,6 +610,11 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             "train.slot_copy_weighted_tokens": float(slot_copy_tokens),
             "train.slot_copy_weighted_token_ratio": float(slot_copy_tokens / max(1, supervised)),
             "train.slot_copy_terms": float(slot_copy_terms_total),
+            "train.target_slot_loss_weight": float(self.cfg.generation_target_slot_loss_weight),
+            "train.target_slot_weighted_rows": float(target_slot_rows),
+            "train.target_slot_weighted_tokens": float(target_slot_tokens),
+            "train.target_slot_weighted_token_ratio": float(target_slot_tokens / max(1, supervised)),
+            "train.target_slot_terms": float(target_slot_terms_total),
         }
         if bool(self.cfg.target_supervision_guard_enabled) and pad_supervised > 0:
             raise ValueError("Seq2Seq target supervision guard failed: pad tokens are supervised in labels.")
@@ -649,6 +680,20 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
         return {term for term in terms if str(term).strip()}
 
     @classmethod
+    def _target_slot_terms(cls, target: str) -> set:
+        terms = set()
+        for values in cls._dialogue_slot_spans(target).values():
+            for value in values:
+                text = str(value or "").strip()
+                if not text:
+                    continue
+                terms.add(text)
+                normalized = cls._normalize_token_piece(text)
+                if normalized:
+                    terms.add(normalized)
+        return {term for term in terms if str(term).strip()}
+
+    @classmethod
     def _dialogue_slot_spans(cls, text: str) -> Dict[str, List[str]]:
         raw = str(text or "")
 
@@ -704,6 +749,13 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
                 ]
             ),
             "connect": unique(re.findall(r"\b(?:connecting|connection|direct|halt|break)\b", raw, re.IGNORECASE)),
+            "booking": unique(
+                re.findall(
+                    r"\b(?:booking|booked|reservation|reserved|confirmation|confirmed|ticket|cancelled|canceled|cancel)\b",
+                    raw,
+                    re.IGNORECASE,
+                )
+            ),
         }
         return {key: values for key, values in slots.items() if values}
 
@@ -744,6 +796,7 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         generation_content_min_target_tokens=int(model_cfg.get("generation_content_min_target_tokens", 6)),
         generation_content_subtoken_match=bool(model_cfg.get("generation_content_subtoken_match", False)),
         generation_slot_copy_loss_weight=float(model_cfg.get("generation_slot_copy_loss_weight", 1.0)),
+        generation_target_slot_loss_weight=float(model_cfg.get("generation_target_slot_loss_weight", 1.0)),
         generation_speaker_loss_weight=float(model_cfg.get("generation_speaker_loss_weight", 1.0)),
     )
     return HFSeq2SeqLMBackbone(cfg, seed=seed)
