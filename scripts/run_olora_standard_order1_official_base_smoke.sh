@@ -74,6 +74,10 @@ if max_predict_samples:
 setting = "dbpedia -> amazon -> yahoo -> agnews"
 if limits:
     setting = f"{setting}; " + "; ".join(limits)
+if gradient_accumulation_steps == "8":
+    engineering_note = "formal single-GPU runtime uses gradient accumulation to match the official 8-GPU global batch; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present"
+else:
+    engineering_note = "single-GPU diagnostic runtime; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present"
 
 lines = [
     f"# {run_name}",
@@ -89,7 +93,7 @@ lines = [
     f"- manifest: {manifest_file}",
     f"- setting: {setting}",
     f"- gradient_accumulation_steps: {gradient_accumulation_steps}",
-    "- engineering notes: formal single-GPU runtime uses gradient accumulation to match the official 8-GPU global batch; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present",
+    f"- engineering notes: {engineering_note}",
     "",
 ]
 Path(status_file).write_text("\n".join(lines), encoding="utf-8")
@@ -223,6 +227,7 @@ run_round() {
     limit_args+=(--max_predict_samples "${MAX_PREDICT_SAMPLES}")
   fi
 
+  set +e
   CUDA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" \
   WANDB_DISABLED=False \
   WANDB_MODE=online \
@@ -264,6 +269,10 @@ run_round() {
     --seed 1 \
     --report_to wandb \
     "${limit_args[@]}"
+  local code=$?
+  set -e
+  echo "ROUND_EXIT_CODE:${code} round=${index} task=${task}"
+  return "$code"
 }
 
 main() {

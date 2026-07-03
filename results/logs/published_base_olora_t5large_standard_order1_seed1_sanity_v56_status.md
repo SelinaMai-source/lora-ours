@@ -11,4 +11,4 @@
 - manifest: /root/lora-ours/results/runs/published_base_olora_t5large_standard_order1_seed1_sanity_v56/run_manifest.json
 - setting: dbpedia -> amazon -> yahoo -> agnews; max_steps=20; max_train_samples=160; max_predict_samples=200
 - gradient_accumulation_steps: 1
-- engineering notes: formal single-GPU runtime uses gradient accumulation to match the official 8-GPU global batch; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present
+- engineering notes: single-GPU diagnostic runtime; runtime copy only unblocks W&B env handling; sample/step caps are non-paper-comparable when present
