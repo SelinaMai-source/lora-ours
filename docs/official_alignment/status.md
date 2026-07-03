@@ -4,7 +4,15 @@ Updated: 2026-07-03
 
 ## Current Gate
 
-- Active branch: `ours-v49-broad-dialogue-preflight`.
+- Active branch: `ours-v53-citb-official-base-repro`.
+- Latest pushed roadmap branch: `ours-v52-published-base-roadmap` at `3711d3b`.
+- Current v53 priority: CITB InstrDialog order1 official-base reproduction before any further Ours-only InstrDialog++ decode-calibration work.
+- v51 status: `citb_instrdialogpp_order1_seed1_ours_v51_decodecal_skipempty6_smoke_strict` is no longer training; GPU process count was `0`, monitor reported `stopped_low_or_failed`, reason `hard_early_stop_min_seen_avg`, latest seen/task-aware `0.0075` / `0.2` at segment4. W&B run: `lora-ours-v51-instrdialogpp/5dat8dsu`.
+- v53 official-base preflight: local CITB official repo, short order1, official test dataset, LM-adapted T5-small asset, and SuperNI Stage-1 checkpoint are present. CPU preflight wrote `results/logs/published_method_bases_preflight_v53.json`.
+- v53 launch status: not launched yet as a full GPU run because the unmodified official CITB Stage-2 script exposes one `max_num_instances_per_eval_task` for both dev and per-task test split size. Its script-strict setting is 500 train / 50 dev / 50 per-task test, while the requested CCF-A boundary is 500 / 50 / 100. The fixed launcher `scripts/run_citb_instrdialog_order1_official_base_repro.sh` and monitor `scripts/monitor_citb_official_base_repro.py` are prepared; run only after a dry-run passes and the split policy is explicitly accepted or patched.
+- v53 dry-run blockers observed: base Python 3.12 has `datasets 5.0.0` and lacks official-required `datasets.load_metric`; use `/root/autodl-tmp/conda_envs/lora_v10_citb` for official requirements (`datasets 2.8.0`, `transformers 4.25.1`, `wandb 0.13.7`). The Stage-1 checkpoint tokenizer files are not readable by that old stack (`tokenizer.json` fast-tokenizer parse error; slow tokenizer `spiece.model` path resolves non-string), so the launcher explicitly uses the local `google__t5-small-lm-adapt` tokenizer while loading Stage-1 weights. Treat this as a runtime compatibility RED FLAG until audited against the original Stage-1 tokenizer artifact.
+- v53 latest dry-run result: after dependency and tokenizer fixes, the official entrypoint loads the order1 dry-run task, splits the official short stream, loads Stage-1 weights, and confirms full-model FT (`tunable params: 1.0`). It then fails before training because `run_continual_instruct_tuning.py` passes `add_task_id` to `DataCollatorForNI`, but the checked-out `Tk-Instruct/src/ni_collator.py` dataclass has no `add_task_id` field. This is an official-source compatibility blocker; do not start the full GPU job until the correct collator version is recovered or the patch is explicitly labeled.
+- Current comparability boundary: v36b-v51 are Ours-runner diagnostic smokes and must not be treated as a CITB official/Tk-Instruct published-base reproduction. v53 must use the official CITB Stage-2 FT_INSTR path or explicitly carry a RED FLAG if any local split/runtime patch is used.
 - Latest pushed base before this branch: v28 `537d16c` on `ours-v28-segment-min-generation-debug-nll`.
 - Latest completed smoke reviewed: `citb_instrdialog_order1_seed1_ours_v31_smoke_strict`.
 - Latest completed smoke: `citb_instrdialog_order1_seed1_ours_v28_smoke_strict`.
