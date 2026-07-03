@@ -134,11 +134,12 @@ def launch_formal() -> bool:
         write_decision({"state": "waiting_gpu_for_formal", "run_id": EARLY_RUN, "formal_run": FORMAL_RUN})
         return False
 
-    train_cmd = f"cd {REPO} && ALLOW_V62_FORMAL=1 PYTHONUNBUFFERED=1 bash scripts/run_ours_v1_strict_iteration.sh {FORMAL_CONFIG}"
+    train_cmd = f"cd {REPO} && PYTHONUNBUFFERED=1 python scripts/launch_v62_isolated_formal.py --config {FORMAL_CONFIG}"
     run(["tmux", "new-session", "-d", "-s", FORMAL_SESSION, "-n", "train", train_cmd])
     monitor_cmd = (
         f"cd {REPO} && while true; do "
         f"OURS_MONITOR_RUN_ID={FORMAL_RUN} "
+        f"OURS_MONITOR_RUN_DIR=/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/{FORMAL_RUN} "
         f"OURS_MONITOR_STATUS_BASENAME=standard_peft_ours_v62_formal_status "
         f"OURS_MONITOR_STATUS_TITLE='Standard PEFT Ours v62 Formal Status' "
         f"python scripts/monitor_ours_v18_strict.py; sleep 60; done"
@@ -150,7 +151,7 @@ def launch_formal() -> bool:
             "formal_run": FORMAL_RUN,
             "formal_config": FORMAL_CONFIG,
             "source_run": EARLY_RUN,
-            "note": "v62 early-gate passed; formal-only controller blocks diagnostic path",
+            "note": "v62 early-gate passed; formal child is isolated from tmux/session SIGHUP",
         }
     )
     return True
