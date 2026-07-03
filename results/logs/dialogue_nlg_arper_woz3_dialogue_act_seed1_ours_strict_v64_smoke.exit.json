@@ -1,0 +1,12 @@
+{
+  "started_at": "2026-07-04T06:41:18+08:00",
+  "updated_at": "2026-07-04T06:43:30",
+  "event": "signal:SIGHUP",
+  "run_name": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke",
+  "config": "configs/ccfa_three_suite/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke.yaml",
+  "launcher_pid": 570548,
+  "launcher_ppid": 570548,
+  "launcher_exit_status": 129,
+  "train_exit_status": null,
+  "tee_exit_status": null
+}

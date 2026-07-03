@@ -1,0 +1,150 @@
+{
+  "updated_at": "2026-07-04T06:42:18",
+  "run_id": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke",
+  "classification": {
+    "state": "running",
+    "reason": "train process present"
+  },
+  "processes": [
+    "570564 python -m core.train --config configs/ccfa_three_suite/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke.yaml"
+  ],
+  "tmux": {
+    "panes": [
+      "dialogue-arper-woz3-v64-smoke:0.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v64-smoke:1.0 bash /root/lora-ours",
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours"
+    ],
+    "matching_panes": [
+      "dialogue-arper-woz3-v64-smoke:0.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v64-smoke:1.0 bash /root/lora-ours",
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours"
+    ]
+  },
+  "log": {
+    "latest_segment": 1,
+    "latest_eval": {
+      "current_score": 0.0,
+      "seen_avg_score": 0.0,
+      "current_task_aware_score": 0.3125,
+      "seen_avg_task_aware_score": 0.3125,
+      "forgetting": 0.0,
+      "task_aware_forgetting": 0.0,
+      "num_seen_segments": 1,
+      "token_f1_mean": 0.0,
+      "lcs_overlap_mean": 0.0,
+      "rouge_l_mean": 0.32839765453536235,
+      "bleu_mean": 0.0009870713977823662,
+      "slot_error_rate": 0.0,
+      "extra": {
+        "per_segment_accuracy": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.0
+          }
+        ],
+        "per_segment_task_aware_accuracy": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.3125
+          }
+        ],
+        "anytime_score": 0.0,
+        "anytime_task_aware_score": 0.3125,
+        "forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.0,
+            "best_historical_accuracy": 0.0,
+            "forgetting": 0.0
+          }
+        ],
+        "task_aware_forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.3125,
+            "best_historical_task_aware_accuracy": 0.3125,
+            "task_aware_forgetting": 0.0
+          }
+        ],
+        "routing": {
+          "num_routed": 64,
+          "branch_counts": {
+            "b0": 64
+          },
+          "oracle_best_branch_counts": {
+            "b0": 64
+          },
+          "oracle_agreement_count": 64,
+          "oracle_num_examples": 64,
+          "confidence_sum": 64.0,
+          "entropy_sum": -6.400568963723785e-11,
+          "oracle_margin_sum": 0.0,
+          "branch_utilization": {
+            "b0": 1.0
+          },
+          "decision_confidence_mean": 1.0,
+          "decision_entropy_mean": -1.0000889005818414e-12,
+          "oracle_agreement_rate": 1.0,
+          "oracle_margin_mean": 0.0
+        },
+        "token_f1_mean": 0.0,
+        "lcs_overlap_mean": 0.0,
+        "rouge_l_mean": 0.32839765453536235,
+        "bleu_mean": 0.0009870713977823662,
+        "slot_error_rate": 0.0,
+        "slot_error_count": 0,
+        "task_aware_score_mean": 0.32839765453536235,
+        "task_score_type_counts": {
+          "rouge_l": 64
+        },
+        "prefix_1_match_mean": 0.0,
+        "prefix_3_match_mean": 0.0,
+        "prefix_5_match_mean": 0.0,
+        "num_bad_prefix_mismatch": 50,
+        "likely_assistant_start_or_continuation_boundary": true
+      }
+    },
+    "log_mtime": 1783118536.227264,
+    "log_age_seconds": 2.1296353340148926,
+    "log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke/wandb/latest-run/files/output.log",
+    "latest_eval_log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke/wandb/latest-run/files/output.log",
+    "log_candidates": [
+      "/root/lora-ours/results/logs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke.log",
+      "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke/wandb/latest-run/files/output.log"
+    ]
+  },
+  "artifacts": {
+    "eval_statuses": [
+      {
+        "updated_at": "2026-07-04T06:42:11+0800",
+        "event": "eval_end",
+        "segment_id": 0,
+        "segment_name": "Book",
+        "num_seen_segments": 1,
+        "seen_segment_ids": [
+          0
+        ],
+        "total_seen_eval_examples": 64,
+        "timeout_seconds": 0,
+        "elapsed_seconds": 14.020535230636597,
+        "status": "completed",
+        "path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke/segment_000/eval_status.json"
+      }
+    ],
+    "latest_eval_status": {
+      "updated_at": "2026-07-04T06:42:11+0800",
+      "event": "eval_end",
+      "segment_id": 0,
+      "segment_name": "Book",
+      "num_seen_segments": 1,
+      "seen_segment_ids": [
+        0
+      ],
+      "total_seen_eval_examples": 64,
+      "timeout_seconds": 0,
+      "elapsed_seconds": 14.020535230636597,
+      "status": "completed",
+      "path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v64_smoke/segment_000/eval_status.json"
+    }
+  }
+}
