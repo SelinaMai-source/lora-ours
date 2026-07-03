@@ -33,6 +33,8 @@ class SpectralSparseReplayGate:
     self.spectral_top_k = int(cfg.get("spectral_top_k", 8))
     self.spectral_energy_threshold = float(cfg.get("spectral_energy_threshold", 0.85))
     self.min_replay_per_segment = int(cfg.get("min_replay_per_segment", 4))
+    self.selection_strategy = str(cfg.get("selection_strategy", "spectral")).strip().lower()
+    self.max_replay_per_label = int(cfg.get("max_replay_per_label", 0))
     self._buffer: List[_ReplayItem] = []
     self._last_metrics: Dict[str, Any] = {}
 
@@ -69,6 +71,8 @@ class SpectralSparseReplayGate:
       "ssrg_replay_added": 0,
       "ssrg_spectral_rank": 0,
       "ssrg_mean_gate_score": 0.0,
+      "ssrg_selection_strategy": self.selection_strategy,
+      "ssrg_label_buckets": 0,
     }
     if segment.segment_id == 0 or not self._buffer or self.replay_ratio <= 0:
       self._last_metrics = metrics
@@ -84,11 +88,15 @@ class SpectralSparseReplayGate:
       self._last_metrics = metrics
       return segment, metrics
 
-    gated = self._spectral_gate_select(
-      model=model,
-      prompt_fn=prompt_fn,
-      k=num_replay,
-    )
+    if self.selection_strategy in {"label_balanced", "balanced", "label-balanced"}:
+      gated = self._label_balanced_select(k=num_replay)
+      metrics["ssrg_label_buckets"] = len({_label_key(it.target) for it in self._buffer})
+    else:
+      gated = self._spectral_gate_select(
+        model=model,
+        prompt_fn=prompt_fn,
+        k=num_replay,
+      )
     if not gated:
       gated = random.sample(self._buffer, k=num_replay)
 
@@ -114,6 +122,40 @@ class SpectralSparseReplayGate:
     )
     self._last_metrics = metrics
     return aug, metrics
+
+  def _label_balanced_select(self, *, k: int) -> List[_ReplayItem]:
+    buckets: Dict[str, List[_ReplayItem]] = {}
+    for item in self._buffer:
+      buckets.setdefault(_label_key(item.target), []).append(item)
+    if not buckets:
+      return []
+
+    for items in buckets.values():
+      random.shuffle(items)
+
+    selected: List[_ReplayItem] = []
+    per_label_counts: Dict[str, int] = {label: 0 for label in buckets}
+    labels = sorted(buckets, key=lambda label: (len(buckets[label]), label))
+    while len(selected) < k and labels:
+      progressed = False
+      for label in list(labels):
+        if len(selected) >= k:
+          break
+        if self.max_replay_per_label > 0 and per_label_counts[label] >= self.max_replay_per_label:
+          labels.remove(label)
+          continue
+        items = buckets.get(label, [])
+        if not items:
+          labels.remove(label)
+          continue
+        item = items.pop()
+        item._gate_score = 1.0  # type: ignore[attr-defined]
+        selected.append(item)
+        per_label_counts[label] += 1
+        progressed = True
+      if not progressed:
+        break
+    return selected
 
   def retrieve_dialogue_examples(
     self,
@@ -249,3 +291,7 @@ def _word_set(text: str) -> set[str]:
 
 def _target_word_count(text: str) -> int:
   return len(re.findall(r"[a-z0-9']+", str(text or "").lower()))
+
+
+def _label_key(text: str) -> str:
+  return re.sub(r"\s+", " ", str(text or "").strip().lower())

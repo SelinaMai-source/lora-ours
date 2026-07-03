@@ -1,6 +1,6 @@
 # CCFA Experiment Gate For Published-Base Runs
 
-Updated: 2026-07-03
+Updated: 2026-07-04
 
 ## Source And Scope
 
@@ -59,6 +59,21 @@ hooks, MCP servers, npm packages, dashboards, or autonomous loops.
   them in `docs/official_alignment/status.md`, run manifests, and W&B notes.
 - Commit hygiene: commit only small scripts/config/docs. Do not commit generated
   `results/runs/`, large logs, `wandb/`, `__pycache__/`, or model artifacts.
+
+## Standard PEFT Ours Earlygate
+
+- v61 scope: run only the `dbpedia -> amazon` earlygate before any full Standard
+  PEFT Ours formal retry. Preserve the official order, converted-stream mapping,
+  T5-large checkpoint, LR `1e-3`, one epoch, batch/effective batch, 512/50/50
+  length settings, and final average accuracy/forgetting/BWT metrics.
+- v61 allowed change: an Ours-runner retention diagnostic only. Disable the
+  prompt-NLL arbitration path that v60 debug showed was branch-inverting both
+  tasks, and enable label-balanced prior-task replay inside the existing replay
+  buffer. Do not change eval prompts, label verbalizers, task order, scorer, or
+  postprocess metric export.
+- v61 gate: after segment1, dbpedia retention and amazon current must clearly
+  beat v60 (`dbpedia=0.1517`, `amazon=0.0233`, seen average `0.0875`,
+  BWT `-0.8332`) before launching any full four-task Standard PEFT Ours run.
 
 ## Current CITB Official-Base Decision
 
