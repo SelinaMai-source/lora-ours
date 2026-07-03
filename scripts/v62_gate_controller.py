@@ -26,6 +26,7 @@ PASS_THRESHOLDS = {
     "min_amazon_current": 0.45,
     "max_forgetting": 0.10,
 }
+FORMAL_AUTOLAUNCH_ENV = "ALLOW_V62_GATE_CONTROLLER_FORMAL"
 
 
 def now() -> str:
@@ -126,6 +127,21 @@ def kill_diagnostic_session() -> None:
 
 
 def launch_formal() -> bool:
+    if os.environ.get(FORMAL_AUTOLAUNCH_ENV) != "1":
+        write_decision(
+            {
+                "state": "formal_autolaunch_disabled",
+                "formal_run": FORMAL_RUN,
+                "formal_config": FORMAL_CONFIG,
+                "required_env": FORMAL_AUTOLAUNCH_ENV,
+                "note": "disabled while Standard safe-short SIGTERM diagnostics run",
+            }
+        )
+        print(
+            f"[{now()}] refusing formal autolaunch; set {FORMAL_AUTOLAUNCH_ENV}=1 to override",
+            flush=True,
+        )
+        return True
     kill_diagnostic_session()
     if session_exists(FORMAL_SESSION):
         write_decision({"state": "formal_already_running", "formal_run": FORMAL_RUN})
