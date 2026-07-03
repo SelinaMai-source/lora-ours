@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-04T06:58:06+0800",
+  "updated_at": "2026-07-04T07:05:06+0800",
   "run_id": "arper_woz3_official_sclstm_formal_v66",
   "state": "running",
   "processes": [
@@ -8,12 +8,15 @@
     "573640 bash -c cd /root/lora-ours && while true; do python - <<'PY' import json, subprocess, time from pathlib import Path log=Path('results/logs/arper_woz3_official_sclstm_formal_v66.log') status=Path('results/logs/arper_woz3_official_sclstm_formal_v66_status.json') text=log.read_text(encoding='utf-8', errors='replace') if log.exists() else '' lines=text.splitlines() proc=subprocess.run(['pgrep','-af','run_woz3.py.*arper_woz3_official_sclstm_formal_v66.cfg'],text=True,capture_output=True).stdout.strip().splitlines() state='running' if proc else ('completed_or_stopped' if text else 'not_started') last=[l for l in lines[-80:] if 'test Loss=' in l or 'Slot error=' in l or 'BLEU4=' in l or 'Start training' in l or 'Task' in l] payload={'updated_at':time.strftime('%Y-%m-%dT%H:%M:%S%z'),'run_id':'arper_woz3_official_sclstm_formal_v66','state':state,'processes':proc,'log_path':str(log),'log_size':log.stat().st_size if log.exists() else 0,'last_signals':last[-20:]} status.write_text(json.dumps(payload,indent=2)+'\\n',encoding='utf-8') Path('results/logs/arper_woz3_official_sclstm_formal_v66_status.md').write_text('# ARPER WOZ3 Official SCLSTM Formal v66\\n\\n- State: '+state+'\\n- Log: \\n',encoding='utf-8') print(json.dumps({'state':state,'last':last[-3:]}, ensure_ascii=False), flush=True) PY sleep 60; done"
   ],
   "log_path": "results/logs/arper_woz3_official_sclstm_formal_v66.log",
-  "log_size": 1535,
+  "log_size": 2282,
   "last_signals": [
     "Start training",
     "Task Inform Epoch 0 (n_layer 1)",
     "Task Inform Epoch 1 (n_layer 1)",
     "Task Inform Epoch 2 (n_layer 1)",
-    "Task Inform Epoch 3 (n_layer 1)"
+    "Task Inform Epoch 3 (n_layer 1)",
+    "Task Inform Epoch 4 (n_layer 1)",
+    "Task Inform Epoch 5 (n_layer 1)",
+    "Task Inform Epoch 6 (n_layer 1)"
   ]
 }
