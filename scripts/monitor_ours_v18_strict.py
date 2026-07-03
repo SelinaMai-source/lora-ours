@@ -50,7 +50,12 @@ def _train_processes() -> List[str]:
     out = _run(["pgrep", "-af", "core.train|core/train.py"])
     if out.startswith("ERROR:"):
         return []
-    return [line for line in out.splitlines() if RUN_ID in line]
+    train_markers = ("python -m core.train", "python core/train.py", "python -u core/train.py")
+    return [
+        line
+        for line in out.splitlines()
+        if RUN_ID in line and any(marker in line for marker in train_markers)
+    ]
 
 
 def _last_eval_from_log() -> Dict[str, Any]:
