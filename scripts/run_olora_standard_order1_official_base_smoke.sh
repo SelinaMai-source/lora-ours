@@ -7,11 +7,18 @@ ENV_PREFIX="${OLORA_ENV_PREFIX:-/root/autodl-tmp/conda_envs/lora_v10_o_lora}"
 BASE_MODEL="${OLORA_T5_LARGE:-/root/autodl-tmp/model_cache/hf_snapshots/t5-large}"
 
 RUN_NAME="${RUN_NAME:-olora_t5large_standard_order1_seed1_official_base_smoke_v55}"
-WANDB_PROJECT="${WANDB_PROJECT:-lora-ours-published-base-standard}"
+WANDB_PROJECT="${WANDB_PROJECT:-lora-ours}"
 WANDB_GROUP="${WANDB_GROUP:-published-base-standard-olora-order1}"
-MAX_STEPS="${MAX_STEPS:-1}"
-MAX_TRAIN_SAMPLES="${MAX_TRAIN_SAMPLES:-8}"
-MAX_PREDICT_SAMPLES="${MAX_PREDICT_SAMPLES:-16}"
+FORMAL="${FORMAL:-0}"
+if [[ "${FORMAL}" == "1" ]]; then
+  MAX_STEPS="${MAX_STEPS:--1}"
+  MAX_TRAIN_SAMPLES="${MAX_TRAIN_SAMPLES:-}"
+  MAX_PREDICT_SAMPLES="${MAX_PREDICT_SAMPLES:-}"
+else
+  MAX_STEPS="${MAX_STEPS:-1}"
+  MAX_TRAIN_SAMPLES="${MAX_TRAIN_SAMPLES:-8}"
+  MAX_PREDICT_SAMPLES="${MAX_PREDICT_SAMPLES:-16}"
+fi
 PER_DEVICE_TRAIN_BATCH_SIZE="${PER_DEVICE_TRAIN_BATCH_SIZE:-8}"
 PER_DEVICE_EVAL_BATCH_SIZE="${PER_DEVICE_EVAL_BATCH_SIZE:-16}"
 LORA_DIM="${LORA_DIM:-8}"
@@ -51,8 +58,8 @@ lines = [
     f"- W&B group: {group}",
     f"- log: {log_file}",
     f"- manifest: {manifest_file}",
-    "- setting: dbpedia -> amazon -> yahoo -> agnews; max_steps=1; max_train_samples=8; max_predict_samples=16",
-    "- engineering notes: single-GPU runtime; eval batch reduced for smoke; runtime copy only unblocks W&B env handling",
+    "- setting: dbpedia -> amazon -> yahoo -> agnews",
+    "- engineering notes: single-GPU runtime; runtime copy only unblocks W&B env handling; sample caps are smoke-only when present",
     "",
 ]
 Path(status_file).write_text("\n".join(lines), encoding="utf-8")
@@ -84,6 +91,9 @@ from pathlib import Path
     max_predict_samples,
 ) = sys.argv[1:]
 
+def maybe_int(value):
+    return int(value) if value not in {"", "None"} else None
+
 manifest = {
     "run_name": run_name,
     "state": state,
@@ -98,7 +108,7 @@ manifest = {
     "task_order": ["dbpedia", "amazon", "yahoo", "agnews"],
     "official_hyperparameters_preserved": {
         "learning_rate": "1e-3",
-        "epochs_source": "official order_1.sh; smoke uses max_steps=1",
+        "epochs_source": "official order_1.sh; formal uses one epoch, smoke may use max_steps",
         "train_batch_size": "8",
         "max_source_length": "512",
         "max_target_length": "50",
@@ -107,9 +117,9 @@ manifest = {
         "lamda_2": "0",
     },
     "smoke_limits": {
-        "max_steps": int(max_steps),
-        "max_train_samples": int(max_train_samples),
-        "max_predict_samples": int(max_predict_samples),
+        "max_steps": maybe_int(max_steps),
+        "max_train_samples": maybe_int(max_train_samples),
+        "max_predict_samples": maybe_int(max_predict_samples),
     },
     "engineering_changes": [
         "run official entry from a runtime copy that respects WANDB_DISABLED instead of hard-disabling W&B",
@@ -168,6 +178,16 @@ run_round() {
   local model_path="$3"
   local output_dir="${OUTPUT_ROOT}/${index}-${task}"
   local round_name="${RUN_NAME}_round${index}_${task}"
+  local limit_args=()
+  if [[ -n "${MAX_STEPS}" && "${MAX_STEPS}" != "-1" ]]; then
+    limit_args+=(--max_steps "${MAX_STEPS}")
+  fi
+  if [[ -n "${MAX_TRAIN_SAMPLES}" ]]; then
+    limit_args+=(--max_train_samples "${MAX_TRAIN_SAMPLES}")
+  fi
+  if [[ -n "${MAX_PREDICT_SAMPLES}" ]]; then
+    limit_args+=(--max_predict_samples "${MAX_PREDICT_SAMPLES}")
+  fi
 
   CUDA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" \
   WANDB_DISABLED=False \
@@ -190,13 +210,10 @@ run_round() {
     --gradient_accumulation_steps 1 \
     --learning_rate 1e-03 \
     --num_train_epochs 1 \
-    --max_steps "$MAX_STEPS" \
     --run_name "$round_name" \
     --max_source_length 512 \
     --max_target_length 50 \
     --generation_max_length 50 \
-    --max_train_samples "$MAX_TRAIN_SAMPLES" \
-    --max_predict_samples "$MAX_PREDICT_SAMPLES" \
     --add_task_name True \
     --add_dataset_name True \
     --overwrite_output_dir \
@@ -211,7 +228,8 @@ run_round() {
     --lamda_2 0 \
     --lora_dim "$LORA_DIM" \
     --seed 1 \
-    --report_to wandb
+    --report_to wandb \
+    "${limit_args[@]}"
 }
 
 main() {
