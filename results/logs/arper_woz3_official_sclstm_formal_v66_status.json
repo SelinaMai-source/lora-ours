@@ -1,22 +1,36 @@
 {
-  "updated_at": "2026-07-04T07:05:06+0800",
+  "updated_at": "2026-07-04T07:06:27+0800",
   "run_id": "arper_woz3_official_sclstm_formal_v66",
   "state": "running",
   "processes": [
     "573633 bash -c cd /root/autodl-tmp/lora-baselines-run_v1/external_sources/arper && CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 python3 -W ignore run_woz3.py --mode train --random_seed 1111 --sv_len_weight 0.5 --adaptive True --ewc_importance 300000 --lr 0.005 --dropout 0 --_lambda 2.0 --config_file /root/lora-ours/results/logs/arper_woz3_official_sclstm_formal_v66.cfg 2>&1 | tee /root/lora-ours/results/logs/arper_woz3_official_sclstm_formal_v66.log",
-    "573638 python3 -W ignore run_woz3.py --mode train --random_seed 1111 --sv_len_weight 0.5 --adaptive True --ewc_importance 300000 --lr 0.005 --dropout 0 --_lambda 2.0 --config_file /root/lora-ours/results/logs/arper_woz3_official_sclstm_formal_v66.cfg",
-    "573640 bash -c cd /root/lora-ours && while true; do python - <<'PY' import json, subprocess, time from pathlib import Path log=Path('results/logs/arper_woz3_official_sclstm_formal_v66.log') status=Path('results/logs/arper_woz3_official_sclstm_formal_v66_status.json') text=log.read_text(encoding='utf-8', errors='replace') if log.exists() else '' lines=text.splitlines() proc=subprocess.run(['pgrep','-af','run_woz3.py.*arper_woz3_official_sclstm_formal_v66.cfg'],text=True,capture_output=True).stdout.strip().splitlines() state='running' if proc else ('completed_or_stopped' if text else 'not_started') last=[l for l in lines[-80:] if 'test Loss=' in l or 'Slot error=' in l or 'BLEU4=' in l or 'Start training' in l or 'Task' in l] payload={'updated_at':time.strftime('%Y-%m-%dT%H:%M:%S%z'),'run_id':'arper_woz3_official_sclstm_formal_v66','state':state,'processes':proc,'log_path':str(log),'log_size':log.stat().st_size if log.exists() else 0,'last_signals':last[-20:]} status.write_text(json.dumps(payload,indent=2)+'\\n',encoding='utf-8') Path('results/logs/arper_woz3_official_sclstm_formal_v66_status.md').write_text('# ARPER WOZ3 Official SCLSTM Formal v66\\n\\n- State: '+state+'\\n- Log: \\n',encoding='utf-8') print(json.dumps({'state':state,'last':last[-3:]}, ensure_ascii=False), flush=True) PY sleep 60; done"
+    "573638 python3 -W ignore run_woz3.py --mode train --random_seed 1111 --sv_len_weight 0.5 --adaptive True --ewc_importance 300000 --lr 0.005 --dropout 0 --_lambda 2.0 --config_file /root/lora-ours/results/logs/arper_woz3_official_sclstm_formal_v66.cfg"
   ],
   "log_path": "results/logs/arper_woz3_official_sclstm_formal_v66.log",
   "log_size": 2282,
   "last_signals": [
-    "Start training",
+    "Current task: Inform has batches: {'train': 391, 'valid': 52}",
+    "Current task: Inform has 0 distillation",
     "Task Inform Epoch 0 (n_layer 1)",
+    "Train Loss: 2.903 | Time: 128.7",
+    "valid Loss: 1.767 | Slot error: 32.227 | BLEU4: 0.00000 | Time: 21.6",
     "Task Inform Epoch 1 (n_layer 1)",
+    "Train Loss: 1.698 | Time: 126.8",
+    "valid Loss: 1.458 | Slot error: 14.455 | BLEU4: 0.00000 | Time: 20.3",
     "Task Inform Epoch 2 (n_layer 1)",
+    "Train Loss: 1.497 | Time: 126.5",
+    "valid Loss: 1.360 | Slot error: 9.124 | BLEU4: 0.00000 | Time: 20.2",
     "Task Inform Epoch 3 (n_layer 1)",
+    "Train Loss: 1.404 | Time: 127.8",
+    "valid Loss: 1.312 | Slot error: 6.421 | BLEU4: 0.00000 | Time: 20.9",
     "Task Inform Epoch 4 (n_layer 1)",
+    "Train Loss: 1.345 | Time: 126.6",
+    "valid Loss: 1.282 | Slot error: 6.170 | BLEU4: 0.00000 | Time: 20.6",
     "Task Inform Epoch 5 (n_layer 1)",
+    "Train Loss: 1.300 | Time: 125.2",
+    "valid Loss: 1.256 | Slot error: 4.348 | BLEU4: 0.00000 | Time: 20.6",
     "Task Inform Epoch 6 (n_layer 1)"
-  ]
+  ],
+  "error_count": 0,
+  "last_errors": []
 }
