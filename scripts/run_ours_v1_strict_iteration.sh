@@ -5,8 +5,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 CONFIG="${1:-configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v1_strict.yaml}"
-if [[ "$CONFIG" == *"standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal.yaml" && "${ALLOW_V62_FORMAL_AFTER_DIAGNOSTIC_REVIEW:-0}" != "1" ]]; then
-  echo "Refusing v62 formal launch without diagnostic review. Set ALLOW_V62_FORMAL_AFTER_DIAGNOSTIC_REVIEW=1 only after diagnostic review." >&2
+if [[ "$CONFIG" == *"standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal.yaml" && "${ALLOW_V62_FORMAL:-0}" != "1" && "${ALLOW_V62_FORMAL_AFTER_DIAGNOSTIC_REVIEW:-0}" != "1" ]]; then
+  echo "Refusing v62 formal launch without explicit approval. Set ALLOW_V62_FORMAL=1 after diagnostic review." >&2
   exit 64
 fi
 RUN_NAME="$(python - "$CONFIG" <<'PY'
