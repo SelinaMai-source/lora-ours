@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -90,9 +91,15 @@ def _derive_state(
     failure_signals: List[Dict[str, str]],
     latest_activity: Dict[str, Any],
     stale_minutes: Optional[float],
+    expected_tasks: Optional[int],
+    train_process_count: int,
 ) -> str:
     if failure_signals:
         return "failed"
+    if expected_tasks is not None and len(result_dirs) >= expected_tasks and all_results:
+        return "completed"
+    if train_process_count > 0:
+        return "running_or_recently_active"
     if all_results:
         age_seconds = latest_activity.get("age_seconds")
         if stale_minutes is not None and age_seconds is not None and age_seconds <= stale_minutes * 60:
@@ -109,7 +116,27 @@ def _derive_state(
     return "pending_or_starting"
 
 
-def build_status(output_dir: Path, run_name: str, stale_minutes: Optional[float] = None) -> Dict[str, Any]:
+def _train_process_count(output_dir: Path) -> int:
+    try:
+        result = subprocess.run(
+            ["pgrep", "-af", str(output_dir)],
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+    except Exception:
+        return 0
+    if result.returncode not in {0, 1}:
+        return 0
+    return sum(1 for line in result.stdout.splitlines() if "run_continual_instruct_tuning.py" in line)
+
+
+def build_status(
+    output_dir: Path,
+    run_name: str,
+    stale_minutes: Optional[float] = None,
+    expected_tasks: Optional[int] = None,
+) -> Dict[str, Any]:
     result_dirs = _result_dirs(output_dir)
     latest_dir = result_dirs[-1] if result_dirs else None
     latest_metrics = _load_json(latest_dir / "metrics.json") if latest_dir else {}
@@ -117,6 +144,7 @@ def build_status(output_dir: Path, run_name: str, stale_minutes: Optional[float]
     all_results = _load_json(output_dir / "all_results.json")
     activity = _latest_activity(output_dir)
     failures = _failure_signals(output_dir)
+    train_processes = _train_process_count(output_dir)
     state = _derive_state(
         output_dir=output_dir,
         result_dirs=result_dirs,
@@ -125,6 +153,8 @@ def build_status(output_dir: Path, run_name: str, stale_minutes: Optional[float]
         failure_signals=failures,
         latest_activity=activity,
         stale_minutes=stale_minutes,
+        expected_tasks=expected_tasks,
+        train_process_count=train_processes,
     )
     return {
         "updated": datetime.now().isoformat(timespec="seconds"),
@@ -132,6 +162,8 @@ def build_status(output_dir: Path, run_name: str, stale_minutes: Optional[float]
         "output_dir": str(output_dir),
         "state": state,
         "num_result_dirs": len(result_dirs),
+        "expected_tasks": expected_tasks,
+        "train_process_count": train_processes,
         "latest_result_dir": str(latest_dir) if latest_dir else "",
         "latest_activity": activity,
         "failure_signals": failures,
@@ -173,6 +205,8 @@ def write_status(status: Dict[str, Any], basename: str) -> None:
         f"- State: `{status['state']}`",
         f"- Output dir: `{status['output_dir']}`",
         f"- Result dirs: `{status['num_result_dirs']}`",
+        f"- Expected tasks: `{status.get('expected_tasks')}`",
+        f"- Train processes: `{status.get('train_process_count')}`",
         f"- Latest result dir: `{status['latest_result_dir']}`",
         f"- Latest activity: `{status.get('latest_activity', {}).get('path', '')}`",
         f"- Latest activity age seconds: `{status.get('latest_activity', {}).get('age_seconds')}`",
@@ -202,11 +236,17 @@ def main() -> int:
     parser.add_argument("--run-name", default=os.environ.get("CITB_OFFICIAL_RUN_NAME", DEFAULT_RUN_NAME))
     parser.add_argument("--basename", default="citb_official_base_repro_v53_status")
     parser.add_argument("--stale-minutes", type=float, default=10.0)
+    parser.add_argument("--expected-tasks", type=int, default=None)
     parser.add_argument("--emit-sentinel", action="store_true")
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir) if args.output_dir else DEFAULT_OUTPUT_BASE / args.run_name
-    status = build_status(output_dir=output_dir, run_name=args.run_name, stale_minutes=args.stale_minutes)
+    status = build_status(
+        output_dir=output_dir,
+        run_name=args.run_name,
+        stale_minutes=args.stale_minutes,
+        expected_tasks=args.expected_tasks,
+    )
     write_status(status, args.basename)
     print(json.dumps(status, ensure_ascii=False, indent=2))
     if args.emit_sentinel and status["state"] in {"failed", "stalled"}:
