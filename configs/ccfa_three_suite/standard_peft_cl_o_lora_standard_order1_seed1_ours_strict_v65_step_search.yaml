@@ -1,0 +1,51 @@
+experiment_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v65_step_search
+mode: ours
+seed: 1
+base_config: configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v64_safe_short_probe.yaml
+launcher: scripts/launch_v65_standard_step_search.py
+purpose: >
+  Standard PEFT Ours safe-short step search after v64 completed 12 train / 16
+  eval with all-zero metrics and v63 showed 32 train / 32 eval can receive
+  SIGTERM during amazon train backward.
+policy:
+  serial_only: true
+  stop_on_sigterm: true
+  target: dbpedia/amazon eval not all zero without SIGTERM
+  record:
+    - run name
+    - train/eval caps
+    - gradient accumulation
+    - optimizer steps
+    - elapsed time
+    - peak CUDA/RSS memory from train heartbeat
+    - final score matrix or SIGTERM artifact
+candidates:
+  - id: t16_e16_accum8
+    max_train_examples_per_segment: 16
+    max_eval_examples_per_segment: 16
+    gradient_accumulation_steps: 8
+    reason: first step above v64 12/16 while staying well below v63 32/32 SIGTERM
+  - id: t20_e16_accum8
+    max_train_examples_per_segment: 20
+    max_eval_examples_per_segment: 16
+    gradient_accumulation_steps: 8
+    reason: next conservative train-cap increase if 16/16 is safe
+  - id: t24_e16_accum8
+    max_train_examples_per_segment: 24
+    max_eval_examples_per_segment: 16
+    gradient_accumulation_steps: 8
+    reason: upper safe-short probe below the known 32-train danger window
+  - id: t28_e16_accum8
+    max_train_examples_per_segment: 28
+    max_eval_examples_per_segment: 16
+    gradient_accumulation_steps: 8
+    reason: near-boundary probe; stop the train-cap search if this SIGTERMs
+  - id: t20_e16_accum4
+    max_train_examples_per_segment: 20
+    max_eval_examples_per_segment: 16
+    gradient_accumulation_steps: 4
+    reason: minimal optimizer-step learning-signal probe if safe accum8 runs remain all zero
+notes: >
+  This is an adapted Ours diagnostic search, not an official O-LoRA
+  reproduction and not paper-comparable. It must not run concurrently with any
+  other core.train job on the single GPU.
