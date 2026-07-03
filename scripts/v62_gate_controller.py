@@ -12,9 +12,9 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 EARLY_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_earlygate"
 EARLY_STATUS = REPO / "results/logs/standard_peft_ours_v62_earlygate_status.json"
-DIAGNOSTIC_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic"
-DIAGNOSTIC_CONFIG = "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic.yaml"
-DIAGNOSTIC_SESSION = "standard-ours-order1-v62-eval-diagnostic"
+DIAGNOSTIC_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_isolated_eval_exit_diagnostic"
+DIAGNOSTIC_CONFIG = "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_isolated_eval_exit_diagnostic.yaml"
+DIAGNOSTIC_SESSION = "standard-ours-order1-v62-isolated-diagnostic"
 DECISION_PATH = REPO / "results/logs/standard_peft_ours_v62_gate_decision.json"
 PASS_THRESHOLDS = {
     "min_final_avg": 0.70,
@@ -112,7 +112,7 @@ def launch_diagnostic() -> bool:
         write_decision({"state": "diagnostic_already_running", "diagnostic_run": DIAGNOSTIC_RUN})
         return True
 
-    train_cmd = f"cd {REPO} && PYTHONUNBUFFERED=1 bash scripts/run_ours_v1_strict_iteration.sh {DIAGNOSTIC_CONFIG}"
+    train_cmd = f"cd {REPO} && PYTHONUNBUFFERED=1 python scripts/launch_v62_isolated_diagnostic.py --config {DIAGNOSTIC_CONFIG}"
     run(["tmux", "new-session", "-d", "-s", DIAGNOSTIC_SESSION, "-n", "train", train_cmd])
     monitor_cmd = (
         f"cd {REPO} && while true; do "
