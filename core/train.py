@@ -116,6 +116,83 @@ def _eval_timeout_seconds(cfg: Dict[str, Any]) -> int:
         return 0
 
 
+def _train_heartbeat_every_batches(train_cfg: Optional[Dict[str, Any]]) -> int:
+    diagnostics = train_cfg.get("diagnostics", {}) if isinstance(train_cfg, dict) and isinstance(train_cfg.get("diagnostics"), dict) else {}
+    raw = diagnostics.get("train_heartbeat_every_batches", diagnostics.get("heartbeat_every_batches", 0))
+    try:
+        return max(0, int(raw))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _memory_snapshot() -> Dict[str, Any]:
+    memory: Dict[str, Any] = {}
+    try:
+        import resource
+
+        # Linux reports ru_maxrss in KiB.
+        memory["rss_max_mb"] = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1024.0
+    except Exception:
+        pass
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            device = torch.cuda.current_device()
+            memory.update(
+                {
+                    "cuda_device": int(device),
+                    "cuda_allocated_mb": float(torch.cuda.memory_allocated(device)) / (1024.0 * 1024.0),
+                    "cuda_reserved_mb": float(torch.cuda.memory_reserved(device)) / (1024.0 * 1024.0),
+                    "cuda_max_allocated_mb": float(torch.cuda.max_memory_allocated(device)) / (1024.0 * 1024.0),
+                }
+            )
+    except Exception:
+        pass
+    return memory
+
+
+def _emit_train_heartbeat(
+    *,
+    run_paths: Optional[RunPaths],
+    segment: Segment,
+    phase: str,
+    started_at: float,
+    epoch_index: int,
+    batch_index: int,
+    batches: int,
+    optimizer_steps: int,
+    branch_name: str = "",
+    extra: Optional[Dict[str, Any]] = None,
+) -> None:
+    if run_paths is None:
+        return
+    payload = {
+        "updated_at": _now_iso(),
+        "event": "train_batch",
+        "phase": str(phase),
+        "segment_id": int(segment.segment_id),
+        "segment_name": str(segment.segment_name),
+        "epoch_index": int(epoch_index),
+        "batch_index": int(batch_index),
+        "batches_seen": int(batches),
+        "optimizer_steps": int(optimizer_steps),
+        "elapsed_seconds": float(time.time() - started_at),
+        "pid": int(os.getpid()),
+        "ppid": int(os.getppid()),
+        "sid": int(os.getsid(0)),
+        "pgid": int(os.getpgid(0)),
+        "branch_name": str(branch_name),
+        "memory": _memory_snapshot(),
+    }
+    if extra:
+        payload.update(extra)
+    run_dir = Path(run_paths.run_dir)
+    seg_dir = Path(ensure_dir(str(run_dir / f"segment_{segment.segment_id:03d}")))
+    append_jsonl(str(run_dir / "train_heartbeat.jsonl"), payload)
+    _write_runtime_json(seg_dir / "train_status.json", payload)
+
+
 def _write_process_exit_artifact(
     *,
     run_paths: RunPaths,
@@ -1098,6 +1175,8 @@ def run_ours(
                 beta=0.0,
                 overlap_cfg={},
                 train_cfg=train_cfg,
+                run_paths=run_paths,
+                phase="transient_probe",
             )
             
             from core.methods.assess_update import assess_transient_branch, set_adapter_vector
@@ -1189,6 +1268,7 @@ def run_ours(
                 lr=lr,
                 batch_size=batch_size,
                 logger=logger,
+                run_paths=run_paths,
             )
 
             # Route per example (hard routing); switch adapter before fit
@@ -1206,6 +1286,7 @@ def run_ours(
                 overlap_cfg=overlap_cfg,
                 prev_eval_metrics=last_eval_metrics,
                 train_cfg=train_cfg,
+                run_paths=run_paths,
             )
             if warmup_metrics:
                 train_metrics.update(warmup_metrics)
@@ -1232,6 +1313,8 @@ def run_ours(
                 beta=beta,
                 overlap_cfg=overlap_cfg,
                 train_cfg=train_cfg,
+                run_paths=run_paths,
+                phase="active_branch_train",
             )
         else:
             # No bank: fall back to single default adapter
@@ -1249,6 +1332,8 @@ def run_ours(
                 beta=beta,
                 overlap_cfg=overlap_cfg,
                 train_cfg=train_cfg,
+                run_paths=run_paths,
+                phase="default_train",
             )
 
         if spectral_replay is not None:
@@ -1539,6 +1624,8 @@ def _train_on_active_branch(
     beta: float,
     overlap_cfg: Optional[Dict[str, Any]] = None,
     train_cfg: Optional[Dict[str, Any]] = None,
+    run_paths: Optional[RunPaths] = None,
+    phase: str = "active_branch_train",
 ) -> Dict[str, Any]:
     from baselines.basic_baselines.sequential_lora.method import _batch
 
@@ -1558,10 +1645,12 @@ def _train_on_active_branch(
     supervised_tokens = 0
     batches = 0
     accum_steps = max(1, int((train_cfg or {}).get("gradient_accumulation_steps", 1)))
+    heartbeat_every = _train_heartbeat_every_batches(train_cfg)
+    started_at = time.time()
     pending_accum = 0
     optimizer_steps = 0
-    for _ in range(max(1, epochs)):
-        for b_pairs, b_targets in _batch(pairs, targets, batch_size):
+    for epoch_index in range(max(1, epochs)):
+        for batch_index, (b_pairs, b_targets) in enumerate(_batch(pairs, targets, batch_size), start=1):
             out = model.fit_batch(b_pairs, b_targets, lr=lr)
             pending_accum += 1
 
@@ -1623,6 +1712,24 @@ def _train_on_active_branch(
             total_tokens += int(out.get("num_total_tokens", 0))
             supervised_tokens += int(out.get("num_supervised_tokens", 0))
             batches += 1
+            if heartbeat_every > 0 and batches % heartbeat_every == 0:
+                _emit_train_heartbeat(
+                    run_paths=run_paths,
+                    segment=segment,
+                    phase=phase,
+                    started_at=started_at,
+                    epoch_index=epoch_index,
+                    batch_index=batch_index,
+                    batches=batches,
+                    optimizer_steps=optimizer_steps,
+                    branch_name=str(lora.get_active_adapter_name()) if hasattr(lora, "get_active_adapter_name") else "",
+                    extra={
+                        "batch_size": int(len(b_targets)),
+                        "pending_accumulation": int(pending_accum),
+                        "train_loss": float(out.get("train_loss", 0.0)),
+                        "train_batch_acc": float(out.get("train_batch_acc", 0.0)),
+                    },
+                )
     if pending_accum > 0:
         if hasattr(lora, "scale_active_gradients"):
             lora.scale_active_gradients(1.0 / float(pending_accum))
@@ -1662,6 +1769,7 @@ def _maybe_train_dialogue_replay_warmup(
     lr: float,
     batch_size: int,
     logger: SimpleLogger,
+    run_paths: Optional[RunPaths] = None,
 ) -> Dict[str, Any]:
     cfg = train_cfg.get("dialogue_replay_warmup", {})
     if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
@@ -1722,6 +1830,8 @@ def _maybe_train_dialogue_replay_warmup(
         beta=0.0,
         overlap_cfg={},
         train_cfg=train_cfg,
+        run_paths=run_paths,
+        phase="dialogue_replay_warmup",
     )
     metrics.update(
         {
@@ -2020,6 +2130,7 @@ def _train_with_router(
     overlap_cfg: Optional[Dict[str, Any]] = None,
     prev_eval_metrics: Optional[Dict[str, Any]] = None,
     train_cfg: Optional[Dict[str, Any]] = None,
+    run_paths: Optional[RunPaths] = None,
 ) -> Dict[str, Any]:
     strategy = str(getattr(router, "training_strategy", "active_branch") or "active_branch")
     if strategy == "active_branch":
@@ -2035,6 +2146,8 @@ def _train_with_router(
             beta=beta,
             overlap_cfg=overlap_cfg,
             train_cfg=train_cfg,
+            run_paths=run_paths,
+            phase="router_active_branch_train",
         )
         train_metrics["router_training_strategy"] = strategy
         train_metrics["routed_train_examples"] = 0
@@ -2053,6 +2166,7 @@ def _train_with_router(
             strategy=strategy,
             overlap_cfg=overlap_cfg,
             train_cfg=train_cfg,
+            run_paths=run_paths,
         )
     else:
         raise ValueError(f"Unknown router.training_strategy: {strategy}. Expected one of: active_branch | oracle_min_nll | learned_router")
@@ -2119,6 +2233,7 @@ def _train_with_routed_assignments(
     strategy: str,
     overlap_cfg: Optional[Dict[str, Any]] = None,
     train_cfg: Optional[Dict[str, Any]] = None,
+    run_paths: Optional[RunPaths] = None,
 ) -> Dict[str, Any]:
     from baselines.basic_baselines.sequential_lora.method import _batch
 
@@ -2180,10 +2295,12 @@ def _train_with_routed_assignments(
     supervised_tokens = 0
     batches = 0
     accum_steps = max(1, int((train_cfg or {}).get("gradient_accumulation_steps", 1)))
+    heartbeat_every = _train_heartbeat_every_batches(train_cfg)
+    started_at = time.time()
     optimizer_steps = 0
     active_before = lora.get_active_adapter_name()
     try:
-        for _ in range(max(1, epochs)):
+        for epoch_index in range(max(1, epochs)):
             for branch_name in sorted(branch_to_examples):
                 if branch_name not in lora.list_adapters():
                     continue
@@ -2192,7 +2309,7 @@ def _train_with_routed_assignments(
                 routed_pairs = [pairs[i] for i in idxs]
                 routed_targets = [targets[i] for i in idxs]
                 pending_accum = 0
-                for b_pairs, b_targets in _batch(routed_pairs, routed_targets, batch_size):
+                for batch_index, (b_pairs, b_targets) in enumerate(_batch(routed_pairs, routed_targets, batch_size), start=1):
                     print("Calling model.fit_batch...", file=sys.stderr)
                     out = model.fit_batch(b_pairs, b_targets, lr=lr)
                     print("Done model.fit_batch.", file=sys.stderr)
@@ -2262,6 +2379,26 @@ def _train_with_routed_assignments(
                     total_tokens += int(out.get("num_total_tokens", 0))
                     supervised_tokens += int(out.get("num_supervised_tokens", 0))
                     batches += 1
+                    if heartbeat_every > 0 and batches % heartbeat_every == 0:
+                        _emit_train_heartbeat(
+                            run_paths=run_paths,
+                            segment=segment,
+                            phase="routed_train",
+                            started_at=started_at,
+                            epoch_index=epoch_index,
+                            batch_index=batch_index,
+                            batches=batches,
+                            optimizer_steps=optimizer_steps,
+                            branch_name=str(branch_name),
+                            extra={
+                                "batch_size": int(len(b_targets)),
+                                "pending_accumulation": int(pending_accum),
+                                "train_loss": float(out.get("train_loss", 0.0)),
+                                "train_batch_acc": float(out.get("train_batch_acc", 0.0)),
+                                "routed_branch_examples": int(len(idxs)),
+                                "routed_num_branches": int(len(branch_to_examples)),
+                            },
+                        )
                 if pending_accum > 0:
                     if hasattr(lora, "scale_active_gradients"):
                         lora.scale_active_gradients(1.0 / float(pending_accum))
