@@ -1,4 +1,4 @@
-# CCFA Experiment Gate For CITB Official-Base Runs
+# CCFA Experiment Gate For Published-Base Runs
 
 Updated: 2026-07-03
 
@@ -38,6 +38,27 @@ hooks, MCP servers, npm packages, dashboards, or autonomous loops.
   not change training data, split policy, prompts, metrics, or model updates.
 - Integrity rule: never fabricate metrics, W&B IDs, result files, convergence
   status, or comparisons. Mark missing values as pending.
+
+## Published-Base + Ours Overlay Gate
+
+- Base first: every Ours overlay must name the completed published-method base
+  it is layered on. For v58 this is `O-LoRA official T5-large Standard CL
+  order1 seed1`, using the same official task order and metric surface as v57.
+- Separate labels: keep `official-base`, `official-equivalent single-GPU port`,
+  and `ours-overlay` as different result types. Do not move an overlay score into
+  the official-base row.
+- Minimal overlay: change only one auditable mechanism per round. For v58 the
+  only overlay is limited prior-task replay in training `train_tasks.json`;
+  current-round `dev_tasks.json` and `test_tasks.json` remain copied unchanged
+  from the official O-LoRA order1 configs.
+- Run naming: overlay run names must include the base method, Ours overlay, task
+  setting, and version. Example:
+  `standard_olora_official_base_plus_ours_replay_overlay_order1_seed1_smoke_v58`.
+- Comparability boundary: smoke caps, single-GPU runtime copies, W&B shims, or
+  overlay training data changes are RED FLAGs for paper comparability. Record
+  them in `docs/official_alignment/status.md`, run manifests, and W&B notes.
+- Commit hygiene: commit only small scripts/config/docs. Do not commit generated
+  `results/runs/`, large logs, `wandb/`, `__pycache__/`, or model artifacts.
 
 ## Current CITB Official-Base Decision
 
