@@ -12,9 +12,9 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 EARLY_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_earlygate"
 EARLY_STATUS = REPO / "results/logs/standard_peft_ours_v62_earlygate_status.json"
-DIAGNOSTIC_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic"
-DIAGNOSTIC_CONFIG = "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_eval_exit_diagnostic.yaml"
-DIAGNOSTIC_SESSION = "standard-ours-order1-v62-eval-diagnostic"
+FORMAL_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal"
+FORMAL_CONFIG = "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal.yaml"
+FORMAL_SESSION = "standard-ours-order1-v62-formal"
 DECISION_PATH = REPO / "results/logs/standard_peft_ours_v62_gate_decision.json"
 PASS_THRESHOLDS = {
     "min_final_avg": 0.70,
@@ -100,60 +100,43 @@ def any_core_train() -> bool:
     return any(any(marker in line for marker in markers) for line in out.splitlines())
 
 
-def diagnostic_session_exists() -> bool:
-    return subprocess.run(["tmux", "has-session", "-t", DIAGNOSTIC_SESSION], cwd=str(REPO)).returncode == 0
+def formal_session_exists() -> bool:
+    return subprocess.run(["tmux", "has-session", "-t", FORMAL_SESSION], cwd=str(REPO)).returncode == 0
 
 
-def launch_diagnostic() -> bool:
+def launch_formal() -> bool:
     if any_core_train():
-        write_decision({"state": "waiting_gpu_for_diagnostic", "run_id": EARLY_RUN, "diagnostic_run": DIAGNOSTIC_RUN})
+        write_decision({"state": "pass_waiting_gpu", "run_id": EARLY_RUN, "formal_run": FORMAL_RUN})
         return False
-    if diagnostic_session_exists():
-        write_decision({"state": "diagnostic_already_running", "diagnostic_run": DIAGNOSTIC_RUN})
+    if formal_session_exists():
+        write_decision({"state": "formal_already_running", "formal_run": FORMAL_RUN})
         return True
 
-    train_cmd = f"cd {REPO} && PYTHONUNBUFFERED=1 bash scripts/run_ours_v1_strict_iteration.sh {DIAGNOSTIC_CONFIG}"
-    run(["tmux", "new-session", "-d", "-s", DIAGNOSTIC_SESSION, "-n", "train", train_cmd])
+    train_cmd = f"cd {REPO} && PYTHONUNBUFFERED=1 bash scripts/run_ours_v1_strict_iteration.sh {FORMAL_CONFIG}"
+    run(["tmux", "new-session", "-d", "-s", FORMAL_SESSION, "-n", "train", train_cmd])
     monitor_cmd = (
         f"cd {REPO} && while true; do "
-        f"OURS_MONITOR_RUN_ID={DIAGNOSTIC_RUN} "
-        f"OURS_MONITOR_STATUS_BASENAME=standard_peft_ours_v62_eval_exit_diagnostic_status "
-        f"OURS_MONITOR_STATUS_TITLE='Standard PEFT Ours v62 Eval Exit Diagnostic Status' "
+        f"OURS_MONITOR_RUN_ID={FORMAL_RUN} "
+        f"OURS_MONITOR_STATUS_BASENAME=standard_peft_ours_v62_formal_status "
+        f"OURS_MONITOR_STATUS_TITLE='Standard PEFT Ours v62 Formal Status' "
         f"python scripts/monitor_ours_v18_strict.py; sleep 60; done"
     )
-    run(["tmux", "new-window", "-t", DIAGNOSTIC_SESSION, "-n", "monitor", monitor_cmd])
-    write_decision(
-        {
-            "state": "diagnostic_started",
-            "diagnostic_run": DIAGNOSTIC_RUN,
-            "diagnostic_config": DIAGNOSTIC_CONFIG,
-            "source_run": EARLY_RUN,
-        }
-    )
+    run(["tmux", "new-window", "-t", FORMAL_SESSION, "-n", "monitor", monitor_cmd])
+    write_decision({"state": "formal_started", "formal_run": FORMAL_RUN, "formal_config": FORMAL_CONFIG})
     return True
 
 
 def main() -> None:
     print(f"[{now()}] v62 gate controller started", flush=True)
-    write_decision(
-        {
-            "state": "watching_for_diagnostic",
-            "run_id": EARLY_RUN,
-            "diagnostic_run": DIAGNOSTIC_RUN,
-            "thresholds": PASS_THRESHOLDS,
-        }
-    )
+    write_decision({"state": "watching", "run_id": EARLY_RUN, "thresholds": PASS_THRESHOLDS})
     while True:
         status = refresh_status()
         cls = status.get("classification") or {}
         state = cls.get("state")
         reason = cls.get("reason")
         print(f"[{now()}] earlygate state={state} reason={reason}", flush=True)
-        if diagnostic_session_exists():
-            write_decision({"state": "diagnostic_already_running", "run_id": EARLY_RUN, "diagnostic_run": DIAGNOSTIC_RUN})
-            break
-        if not any_core_train():
-            launch_diagnostic()
+        if formal_session_exists():
+            write_decision({"state": "formal_already_running", "run_id": EARLY_RUN, "formal_run": FORMAL_RUN})
             break
         if state == "completed":
             passed, reasons = is_pass(status)
@@ -170,15 +153,13 @@ def main() -> None:
                 }
             )
             print(f"[{now()}] gate passed={passed} reasons={reasons}", flush=True)
-            while not launch_diagnostic():
-                print(f"[{now()}] earlygate finished; waiting for GPU to launch diagnostic", flush=True)
-                time.sleep(60)
+            if passed:
+                while not launch_formal():
+                    print(f"[{now()}] pass detected; waiting for GPU to launch formal", flush=True)
+                    time.sleep(60)
             break
         if state in {"stopped_low_or_failed", "eval_failed", "low_score_gate", "unknown_not_running", "exited_with_artifact"}:
-            write_decision({"state": "earlygate_finished_waiting_diagnostic", "run_id": EARLY_RUN, "classification": cls})
-            while not launch_diagnostic():
-                print(f"[{now()}] earlygate stopped; waiting for GPU to launch diagnostic", flush=True)
-                time.sleep(60)
+            write_decision({"state": "earlygate_blocked", "run_id": EARLY_RUN, "classification": cls, "status": status})
             break
         time.sleep(60)
     print(f"[{now()}] v62 gate controller exiting", flush=True)
