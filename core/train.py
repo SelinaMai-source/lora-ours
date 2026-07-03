@@ -17,7 +17,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from core.ccfa_metrics import matrix_columns_from_eval, write_ccfa_postprocess_outputs
-from core.data import ContinualStream, Segment, load_continual_stream
+from core.data import ContinualStream, Example, Segment, load_continual_stream
 from core.evaluate import evaluate_stream
 from core.methods.drift_detector import AnchorSet, DriftDetector, DriftEvent, build_anchor_set
 from core.methods.lora_bank import LoRABank
@@ -1774,6 +1774,10 @@ def _train_with_routed_assignments(
     from baselines.basic_baselines.sequential_lora.method import _batch
 
     print("Entering _train_with_routed_assignments...", file=sys.stderr)
+    segment, slot_plan_metrics = _maybe_add_slot_aware_content_planning_examples(
+        segment=segment,
+        train_cfg=train_cfg or {},
+    )
     pairs = [(ex.instruction, ex.input) for ex in segment.train]
     targets = [ex.output for ex in segment.train]
     branch_names = lora_bank.list_branches()
@@ -1917,6 +1921,7 @@ def _train_with_routed_assignments(
         **assignment_metrics,
         **balance_metrics,
         **slot_rich_metrics,
+        **slot_plan_metrics,
     }
     if overlap_steps > 0:
         metrics.update({k: v / float(overlap_steps) for k, v in overlap_metric_sums.items()})
@@ -2133,6 +2138,163 @@ def _generation_slot_rich_score(target: str) -> int:
     if re.search(r"\b[A-Z]{3}\b", str(target or "")):
         score += 1
     return score
+
+
+def _maybe_add_slot_aware_content_planning_examples(
+    *,
+    segment: Segment,
+    train_cfg: Dict[str, Any],
+) -> tuple[Segment, Dict[str, Any]]:
+    cfg = train_cfg.get("slot_aware_content_planning", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return segment, {}
+
+    patterns = cfg.get("segment_name_patterns", [])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    segment_name = str(segment.segment_name or "")
+    if patterns and not any(re.search(str(p), segment_name, flags=re.IGNORECASE) for p in patterns):
+        return segment, {}
+    if not segment.train:
+        return segment, {}
+
+    min_score = max(1, int(cfg.get("min_slot_score", 2)))
+    repeat_factor = max(1, int(cfg.get("repeat_factor", 1)))
+    max_examples = max(0, int(cfg.get("max_examples", 160)))
+    include_original_gold = bool(cfg.get("include_original_gold", False))
+
+    added: List[Example] = []
+    slot_hist: Dict[str, int] = {}
+    for ex in segment.train:
+        if len(added) >= max_examples:
+            break
+        score = _generation_slot_rich_score(ex.output)
+        if score < min_score:
+            continue
+        planned, slots = _build_slot_aware_planned_response(ex.input, ex.output)
+        if not planned:
+            continue
+        for key in slots:
+            slot_hist[key] = slot_hist.get(key, 0) + 1
+        targets = [planned]
+        if include_original_gold and _normalize_planning_text(planned) != _normalize_planning_text(ex.output):
+            targets.append(str(ex.output))
+        for target in targets:
+            for _ in range(repeat_factor):
+                if len(added) >= max_examples:
+                    break
+                added.append(
+                    Example(
+                        instruction=ex.instruction,
+                        input=ex.input,
+                        output=target,
+                        output_references=(target,),
+                    )
+                )
+            if len(added) >= max_examples:
+                break
+
+    if not added:
+        return segment, {}
+
+    expanded = Segment(
+        segment_id=segment.segment_id,
+        segment_name=segment.segment_name,
+        train=list(segment.train) + added,
+        eval=segment.eval,
+    )
+    return expanded, {
+        "slot_aware_content_planning_enabled": True,
+        "slot_aware_content_planning_segment": segment_name,
+        "slot_aware_content_planning_original_examples": int(len(segment.train)),
+        "slot_aware_content_planning_added_examples": int(len(added)),
+        "slot_aware_content_planning_slot_hist_json": json.dumps(slot_hist, sort_keys=True),
+    }
+
+
+def _normalize_planning_text(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "").strip().lower())
+
+
+def _build_slot_aware_planned_response(input_text: str, target: str) -> tuple[str, List[str]]:
+    source = str(input_text or "")
+    gold = str(target or "").strip()
+    speaker_match = re.match(r"\s*(agent|customer)\s*:\s*", gold, flags=re.IGNORECASE)
+    if not speaker_match:
+        return "", []
+    speaker = speaker_match.group(1).lower()
+    combined = f"{source}\n{gold}"
+
+    slots: Dict[str, List[str]] = {}
+
+    def add(key: str, values: List[Any]) -> None:
+        cleaned: List[str] = []
+        seen = set()
+        for value in values:
+            if isinstance(value, tuple):
+                value = next((part for part in value if part), "")
+            val = str(value or "").strip(" .,;:")
+            if not val:
+                continue
+            low = val.lower()
+            if low in seen:
+                continue
+            seen.add(low)
+            cleaned.append(val)
+        if cleaned:
+            slots[key] = cleaned
+
+    add("name", re.findall(r"\b(?:my name is|i am)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b", source))
+    add("airport", re.findall(r"\b[A-Z]{3}\b", combined))
+    add("date", re.findall(r"\b\d{1,2}/\d{1,2}\b", combined))
+    add("flight", re.findall(r"\b(?:flight\s*)?(\d{3,4})\b", gold, flags=re.IGNORECASE))
+    add(
+        "airline",
+        re.findall(r"\b(American Airlines|American|Delta|Frontier|JetBlue|Southwest|United|UA)\b", gold, flags=re.IGNORECASE),
+    )
+    add("fare", re.findall(r"\b(?:fare|price)\s+(?:is|of)?\s*(\d+)\b", gold, flags=re.IGNORECASE))
+    add("class", re.findall(r"\b(economy|business|first)\s+class\b|\b(economy|business)\b", gold, flags=re.IGNORECASE))
+    if re.search(r"\bcancel|cancellation|reservation\b", combined, flags=re.IGNORECASE):
+        slots["intent"] = ["reservation"]
+    if re.search(r"\bbook|booking|flight ticket|proceed\b", combined, flags=re.IGNORECASE):
+        slots["intent"] = list(dict.fromkeys(slots.get("intent", []) + ["booking"]))
+
+    slot_keys = [k for k, v in slots.items() if v]
+    if len(slot_keys) < 2:
+        return "", []
+
+    parts: List[str] = []
+    if slots.get("name"):
+        parts.append(f"for {slots['name'][0]}")
+    airports = slots.get("airport", [])
+    if len(airports) >= 2:
+        parts.append(f"from {airports[0]} to {airports[1]}")
+    if slots.get("date"):
+        parts.append(f"on {' and '.join(slots['date'][:2])}")
+    if slots.get("airline"):
+        parts.append(f"with {slots['airline'][0]}")
+    if slots.get("flight"):
+        parts.append(f"flight {slots['flight'][0]}")
+    if slots.get("fare"):
+        parts.append(f"fare {slots['fare'][0]}")
+    if slots.get("class"):
+        parts.append(f"{slots['class'][0]} class")
+
+    if not parts:
+        return "", []
+
+    if speaker == "agent":
+        prefix = "agent: "
+        if "booking" in slots.get("intent", []):
+            body = "I can help with the booking " + ", ".join(parts) + "."
+        elif "reservation" in slots.get("intent", []):
+            body = "I checked the reservation details " + ", ".join(parts) + "."
+        else:
+            body = "I will use these flight details " + ", ".join(parts) + "."
+    else:
+        prefix = "customer: "
+        body = "Please keep these travel details " + ", ".join(parts) + "."
+    return prefix + body, slot_keys
 
 
 def _normalize_generation_bucket_name(raw: Any) -> str:

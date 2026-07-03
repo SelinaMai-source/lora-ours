@@ -79,6 +79,9 @@ Updated: 2026-07-03
 - Current v45 smoke candidate: `citb_instrdialog_order1_seed1_ours_v45_smoke_strict`.
 - Decision pending: v45 keeps v44 clean eval and replay fallback unchanged, and adds train-only `slot_rich_generation_sampling` for `task574`/`air_dialogue`. It repeats current-task targets containing flight/date/airline/fare/class/reservation/name-style content within the assigned training branch, testing whether more update steps on slot-rich responses can move task574 above the repeated `0.03` blocker without eval-time target leakage.
 - v45 launch: started 2026-07-03 in tmux session `ours-v45-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v45`, run `zv6yq70l`; monitor status is `results/logs/ours_v45_strict_status.md`.
+- v45 smoke result: five-segment smoke completed and confirmed `slot_rich_generation_sampling` did trigger on task574 (`133/500` slot-rich examples, expanded to `766`), while the replay warmup still used fallback replay (`candidates=637`, `selected=96`, `fallback_used=true`). It did not improve the blocker: final task-aware trajectory was `[0.53, 0.26, 0.28, 0.13, 0.03]`, seen task-aware AR `0.246`, exact AR `0.158`, and task574 remained exact `0.0` / task-aware `0.03`. Current debug selected `b4` with oracle `b4` for task574 examples, but predictions were still generic speaker-prefixed templates such as `agent: No, we are here to assist you.` without flight/date/airline/fare/class slot content. Do not launch full strict from v45.
+- Current v46 smoke candidate: `citb_instrdialog_order1_seed1_ours_v46_smoke_strict`.
+- Decision pending: v46 keeps v45 clean evaluation and train-only replay/sampling, then adds config-gated train-only `slot_aware_content_planning` for task574. It appends canonical slot-preserving auxiliary targets built only from current training input/target slots (route/date/name/airline/flight/fare/class/intent) to test whether explicit content planning can move task574 above the repeated `0.03` task-aware blocker.
 
 ## Evidence
 
@@ -118,4 +121,4 @@ Updated: 2026-07-03
 
 ## Next Step
 
-Run `citb_instrdialog_order1_seed1_ours_v45_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
+Run `citb_instrdialog_order1_seed1_ours_v46_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
