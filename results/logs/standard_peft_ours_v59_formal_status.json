@@ -1,23 +1,17 @@
 {
-  "updated_at": "2026-07-03T22:02:46",
+  "updated_at": "2026-07-03T22:16:17",
   "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal",
   "classification": {
-    "state": "running",
-    "reason": "train process present"
+    "state": "unknown_not_running",
+    "reason": "log exists but process/final status absent"
   },
-  "processes": [
-    "477495 python -m core.train --config configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal.yaml"
-  ],
+  "processes": [],
   "tmux": {
     "panes": [
-      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours",
-      "standard-ours-order1-v59-formal:0.0 bash /root/lora-ours",
-      "standard-ours-order1-v59-formal:1.0 python /root/lora-ours"
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours"
     ],
     "matching_panes": [
-      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours",
-      "standard-ours-order1-v59-formal:0.0 bash /root/lora-ours",
-      "standard-ours-order1-v59-formal:1.0 python /root/lora-ours"
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours"
     ]
   },
   "log": {
@@ -127,8 +121,8 @@
         "likely_assistant_start_or_continuation_boundary": false
       }
     },
-    "log_mtime": 1783087164.3176534,
-    "log_age_seconds": 202.05975151062012,
+    "log_mtime": 1783087591.4638567,
+    "log_age_seconds": 585.559604883194,
     "log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal/wandb/latest-run/files/output.log",
     "latest_eval_log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal/wandb/latest-run/files/output.log",
     "log_candidates": [
