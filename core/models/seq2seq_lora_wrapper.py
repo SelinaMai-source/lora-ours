@@ -36,6 +36,8 @@ class HFSeq2SeqLMConfig:
     generation_content_first_tokens: Tuple[str, ...] = ("agent", "customer")
     generation_content_min_target_tokens: int = 6
     generation_content_subtoken_match: bool = False
+    generation_slot_copy_loss_weight: float = 1.0
+    generation_speaker_loss_weight: float = 1.0
 
 
 class HFSeq2SeqLMBackbone(BaseBackbone):
@@ -151,7 +153,7 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             self._debug_printed_tokenized = True
 
         outputs = self.model(**batch, return_dict=True)
-        loss, supervision_metrics = self._supervised_loss(outputs.logits, batch["labels"], targets)
+        loss, supervision_metrics = self._supervised_loss(outputs.logits, batch["labels"], targets, sources=sources)
         loss.backward()
 
         with torch.no_grad():
@@ -399,7 +401,14 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
     def _normalize(text: str) -> str:
         return str(text or "").strip().lower()
 
-    def _supervised_loss(self, logits: Any, labels: Any, targets: List[str]) -> Tuple[Any, Dict[str, float]]:
+    def _supervised_loss(
+        self,
+        logits: Any,
+        labels: Any,
+        targets: List[str],
+        *,
+        sources: Optional[List[str]] = None,
+    ) -> Tuple[Any, Dict[str, float]]:
         import torch
         import torch.nn.functional as F
 
@@ -489,6 +498,57 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
                     content_rows += 1
                     content_tokens += matched
 
+        speaker_rows = 0
+        speaker_tokens = 0
+        if float(self.cfg.generation_speaker_loss_weight) > 1.0:
+            speaker_weight = torch.as_tensor(
+                float(self.cfg.generation_speaker_loss_weight),
+                dtype=weights.dtype,
+                device=weights.device,
+            )
+            for row, target in enumerate(targets):
+                if row >= labels.size(0):
+                    break
+                first = re.match(r"\s*(agent|customer)\s*:", str(target or ""), flags=re.IGNORECASE)
+                if not first:
+                    continue
+                idxs = torch.nonzero(supervised_mask[row], as_tuple=False).flatten()
+                if idxs.numel() == 0:
+                    continue
+                speaker_mask = torch.zeros_like(supervised_mask[row], dtype=torch.bool)
+                for idx in self._content_term_token_positions(labels[row], {first.group(1).lower()}):
+                    if 0 <= idx < labels.size(1) and bool(supervised_mask[row, idx].item()):
+                        speaker_mask[idx] = True
+                if bool(speaker_mask.any().item()):
+                    weights[row] = torch.where(speaker_mask, torch.maximum(weights[row], speaker_weight), weights[row])
+                    speaker_rows += 1
+                    speaker_tokens += int(speaker_mask.sum().detach().cpu().item())
+
+        slot_copy_rows = 0
+        slot_copy_tokens = 0
+        slot_copy_terms_total = 0
+        if float(self.cfg.generation_slot_copy_loss_weight) > 1.0 and sources:
+            slot_copy_weight = torch.as_tensor(
+                float(self.cfg.generation_slot_copy_loss_weight),
+                dtype=weights.dtype,
+                device=weights.device,
+            )
+            for row, target in enumerate(targets):
+                if row >= labels.size(0) or row >= len(sources):
+                    break
+                copy_terms = self._source_target_slot_copy_terms(sources[row], target)
+                if not copy_terms:
+                    continue
+                slot_copy_terms_total += len(copy_terms)
+                row_slot_mask = torch.zeros_like(supervised_mask[row], dtype=torch.bool)
+                for idx in self._content_term_token_positions(labels[row], copy_terms):
+                    if 0 <= idx < labels.size(1) and bool(supervised_mask[row, idx].item()):
+                        row_slot_mask[idx] = True
+                if bool(row_slot_mask.any().item()):
+                    weights[row] = torch.where(row_slot_mask, torch.maximum(weights[row], slot_copy_weight), weights[row])
+                    slot_copy_rows += 1
+                    slot_copy_tokens += int(row_slot_mask.sum().detach().cpu().item())
+
         denom = (weights * supervised_mask.to(weights.dtype)).sum().clamp_min(1.0)
         loss = (flat_loss * weights * supervised_mask.to(weights.dtype)).sum() / denom
 
@@ -515,6 +575,15 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
             "train.content_weighted_token_ratio": float(content_tokens / max(1, supervised)),
             "train.content_subtoken_match_enabled": float(bool(self.cfg.generation_content_subtoken_match)),
             "train.content_subtoken_extra_tokens": float(content_subtoken_tokens),
+            "train.speaker_loss_weight": float(self.cfg.generation_speaker_loss_weight),
+            "train.speaker_weighted_rows": float(speaker_rows),
+            "train.speaker_weighted_tokens": float(speaker_tokens),
+            "train.speaker_weighted_token_ratio": float(speaker_tokens / max(1, supervised)),
+            "train.slot_copy_loss_weight": float(self.cfg.generation_slot_copy_loss_weight),
+            "train.slot_copy_weighted_rows": float(slot_copy_rows),
+            "train.slot_copy_weighted_tokens": float(slot_copy_tokens),
+            "train.slot_copy_weighted_token_ratio": float(slot_copy_tokens / max(1, supervised)),
+            "train.slot_copy_terms": float(slot_copy_terms_total),
         }
         if bool(self.cfg.target_supervision_guard_enabled) and pad_supervised > 0:
             raise ValueError("Seq2Seq target supervision guard failed: pad tokens are supervised in labels.")
@@ -562,6 +631,86 @@ class HFSeq2SeqLMBackbone(BaseBackbone):
                         positions.update(range(start, start + width))
         return positions
 
+    @classmethod
+    def _source_target_slot_copy_terms(cls, source: str, target: str) -> set:
+        source_slots = cls._dialogue_slot_spans(source)
+        target_slots = cls._dialogue_slot_spans(target)
+        terms = set()
+        for key, target_values in target_slots.items():
+            source_values = {cls._canonical_slot_value(v) for v in source_slots.get(key, [])}
+            if not source_values:
+                continue
+            for value in target_values:
+                if cls._canonical_slot_value(value) in source_values:
+                    terms.add(str(value))
+                    normalized = cls._normalize_token_piece(str(value))
+                    if normalized:
+                        terms.add(normalized)
+        return {term for term in terms if str(term).strip()}
+
+    @classmethod
+    def _dialogue_slot_spans(cls, text: str) -> Dict[str, List[str]]:
+        raw = str(text or "")
+
+        def unique(values: List[str]) -> List[str]:
+            out: List[str] = []
+            seen = set()
+            for value in values:
+                cleaned = str(value or "").strip(" .,;:")
+                if not cleaned:
+                    continue
+                key = cleaned.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(cleaned)
+            return out
+
+        month = (
+            "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec|"
+            "January|February|March|April|June|July|August|September|October|November|December"
+        )
+        slots: Dict[str, List[str]] = {
+            "airport": unique(re.findall(r"\b[A-Z]{3}\b", raw)),
+            "date": unique(
+                re.findall(
+                    rf"\b(?:\d{{1,2}}/\d{{1,2}}|(?:{month})\s*,?\s*\d{{1,2}}(?:st|nd|rd|th)?)\b",
+                    raw,
+                )
+            ),
+            "flight": unique(
+                [m.group(1) for m in re.finditer(r"\bflight\s*(?:number\s*)?(\d{3,4})\b", raw, re.IGNORECASE)]
+            ),
+            "fare": unique(
+                [m.group(1) for m in re.finditer(r"\b(?:fare|price)\s*(?:is|of)?\s*(\d{2,5})\b", raw, re.IGNORECASE)]
+            ),
+            "airline": unique(
+                re.findall(
+                    r"\b(?:American Airlines|American|Delta|Frontier|JetBlue|Southwest|United|UA)\b",
+                    raw,
+                    re.IGNORECASE,
+                )
+            ),
+            "class": unique(
+                [a or b for a, b in re.findall(r"\b(economy|business|first)\s+class\b|\b(economy|business)\b", raw, re.IGNORECASE)]
+            ),
+            "name": unique(
+                [
+                    m.group(1)
+                    for m in re.finditer(
+                        r"\b(?:my name is|i am|myself|name of|with the name of)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b",
+                        raw,
+                    )
+                ]
+            ),
+            "connect": unique(re.findall(r"\b(?:connecting|connection|direct|halt|break)\b", raw, re.IGNORECASE)),
+        }
+        return {key: values for key, values in slots.items() if values}
+
+    @staticmethod
+    def _canonical_slot_value(value: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
+
 
 def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2SeqLMBackbone:
     hf_path = str(model_cfg.get("hf_model_name_or_path", "")).strip()
@@ -594,5 +743,7 @@ def build_seq2seq_backbone(model_cfg: Dict[str, Any], *, seed: int) -> HFSeq2Seq
         generation_content_first_tokens=tuple(model_cfg.get("generation_content_first_tokens", ["agent", "customer"])),
         generation_content_min_target_tokens=int(model_cfg.get("generation_content_min_target_tokens", 6)),
         generation_content_subtoken_match=bool(model_cfg.get("generation_content_subtoken_match", False)),
+        generation_slot_copy_loss_weight=float(model_cfg.get("generation_slot_copy_loss_weight", 1.0)),
+        generation_speaker_loss_weight=float(model_cfg.get("generation_speaker_loss_weight", 1.0)),
     )
     return HFSeq2SeqLMBackbone(cfg, seed=seed)
