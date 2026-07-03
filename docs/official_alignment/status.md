@@ -83,6 +83,7 @@ Updated: 2026-07-03
 - Current v46 smoke candidate: `citb_instrdialog_order1_seed1_ours_v46_smoke_strict`.
 - Decision pending: v46 keeps v45 clean evaluation and train-only replay/sampling, then adds config-gated train-only `slot_aware_content_planning` for task574. It appends canonical slot-preserving auxiliary targets built only from current training input/target slots (route/date/name/airline/flight/fare/class/intent) to test whether explicit content planning can move task574 above the repeated `0.03` task-aware blocker.
 - v46 launch: started 2026-07-03 in tmux session `ours-v46-smoke` (`train` + `monitor` windows). W&B is online in project `lora-ours-v46`, run `y8if3mb6`; monitor status is `results/logs/ours_v46_strict_status.md`.
+- v46 smoke result: five-segment smoke completed and the train-only planning hook fired, adding `98` task574 auxiliary examples with slot coverage `{"airport":97,"date":67,"flight":32,"fare":14,"airline":8,"class":7,"name":6,"intent":95}`. It produced only a tiny movement: task574 exact stayed `0.0`, task-aware moved from v45 `0.03` to `0.04`, seen task-aware AR moved from `0.246` to `0.248`, and final trajectory was `[0.53, 0.26, 0.28, 0.13, 0.04]`. Debug predictions still selected `b4`/oracle `b4`, but mostly generated generic or speaker/intent-mismatched templates (`agent: Thanks for your help.`, `customer: No, no bookings found in your name.`) rather than real date/airport/airline/fare/class slot values. Do not launch full strict from v46.
 
 ## Evidence
 
@@ -122,4 +123,4 @@ Updated: 2026-07-03
 
 ## Next Step
 
-Run `citb_instrdialog_order1_seed1_ours_v46_smoke_strict` only as a five-segment smoke. Do not run another full strict until segment4 is materially improved above the repeated `0.03` task-aware blocker without a large segment2/task1714 regression. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
+Do not run full strict from v46. The next small step should target real slot-value preservation rather than domain-word frequency: either make the training-time planner produce speaker/intent-correct targets for the original next turn, or add a train-only copy-from-input/target slot preservation objective that explicitly weights airport/date/flight/fare/class/name token spans. Any later SOTA claim must compare InstrDialog, InstrDialog++, Standard, and Dialogue rather than only the short InstrDialog smoke.
