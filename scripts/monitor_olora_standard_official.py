@@ -112,6 +112,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Monitor O-LoRA Standard official run outputs.")
     parser.add_argument("--run-name", required=True)
     parser.add_argument("--note", default="")
+    parser.add_argument(
+        "--tmux-session",
+        default="olora-standard-official-base-formal",
+        help="tmux session name or pattern used to decide whether the run is still active",
+    )
     args = parser.parse_args()
 
     run_dir = REPO / "results" / "runs" / args.run_name
@@ -133,7 +138,7 @@ def main() -> int:
     marker = next((item for item in FAILURE_MARKERS if item.lower() in log_tail.lower()), "")
     tmux_present = bool(
         subprocess.run(
-            ["bash", "-lc", "tmux ls 2>/dev/null | rg -q 'olora-standard-official-base-formal'"],
+            ["bash", "-lc", f"tmux ls 2>/dev/null | rg -q {args.tmux_session!r}"],
             check=False,
         ).returncode
         == 0
