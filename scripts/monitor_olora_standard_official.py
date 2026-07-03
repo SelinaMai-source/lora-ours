@@ -72,6 +72,8 @@ def _dataset_score(metrics: dict[str, Any], task: str, metric: str) -> float | N
 def _summarize(rounds: list[tuple[str, dict[str, Any]]]) -> tuple[list[str], dict[str, Any]]:
     lines: list[str] = []
     history: dict[str, list[float]] = {task: [] for task in TASKS}
+    round_exact_values: list[float] = []
+    round_rouge_values: list[float] = []
 
     for name, metrics in rounds:
         exact = metrics.get("predict_exact_match")
@@ -79,6 +81,10 @@ def _summarize(rounds: list[tuple[str, dict[str, Any]]]) -> tuple[list[str], dic
         samples = metrics.get("predict_samples")
         step = metrics.get("predict_global_step")
         lines.append(f"- {name}: step={step}, samples={samples}, exact={exact}, rougeL={rouge}")
+        if isinstance(exact, (int, float)):
+            round_exact_values.append(float(exact))
+        if isinstance(rouge, (int, float)):
+            round_rouge_values.append(float(rouge))
         for task in TASKS:
             score = _dataset_score(metrics, task, "exact_match")
             if score is not None:
@@ -94,6 +100,8 @@ def _summarize(rounds: list[tuple[str, dict[str, Any]]]) -> tuple[list[str], dic
     summary = {
         "completed_rounds": len(rounds),
         "latest_task_exact": latest_scores,
+        "round_avg_exact": sum(round_exact_values) / len(round_exact_values) if round_exact_values else None,
+        "round_avg_rougeL": sum(round_rouge_values) / len(round_rouge_values) if round_rouge_values else None,
         "observed_avg_exact": final_avg_exact,
         "observed_avg_forgetting": avg_forgetting,
     }
@@ -150,6 +158,8 @@ def main() -> int:
         f"- tmux_present: {tmux_present}",
         f"- log_marker: {marker}",
         f"- completed_rounds: {summary['completed_rounds']}/4",
+        f"- round_avg_exact: {summary['round_avg_exact']}",
+        f"- round_avg_rougeL: {summary['round_avg_rougeL']}",
         f"- observed_avg_exact: {summary['observed_avg_exact']}",
         f"- observed_avg_forgetting: {summary['observed_avg_forgetting']}",
         f"- latest_task_exact: {summary['latest_task_exact']}",

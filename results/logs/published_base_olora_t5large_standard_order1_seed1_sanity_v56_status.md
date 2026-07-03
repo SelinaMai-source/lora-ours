@@ -1,7 +1,7 @@
 # published_base_olora_t5large_standard_order1_seed1_sanity_v56
 
-- updated: 2026-07-03T17:03:48
-- state: running
+- updated: 2026-07-03T17:06:45
+- state: completed
 - reason: 
 - selected base: O-LoRA official T5-large Standard CL order1 seed1
 - label: published-base O-LoRA Standard order1 sanity, not paper-comparable
