@@ -57,11 +57,12 @@ def build_status(output_dir: Path, run_name: str) -> Dict[str, Any]:
         "trainer_state_exists": bool(train_state),
         "all_results": all_results,
         "red_flags": [
-            "Official CITB Stage-2 script uses one max_num_instances_per_eval_task for both dev and per-task test split size.",
+            "CITB paper states InstrDialog uses 500/50/100 train/dev/test instances, but the official short-stream FT_INSTR script sets max_num_instances_per_eval_task=50.",
+            "Official CITB Stage-2 code uses one max_num_instances_per_eval_task for both dev and per-task test split size, yielding script-strict 500/50/50 unless split code is patched.",
             "Default launcher keeps the script-strict 500/50/50 policy; requested 500/50/100 remains blocked unless split code is patched and audited.",
             "Official dry-run currently requires the lora_v10_citb Python 3.9 environment; base Python lacks datasets.load_metric.",
             "Stage-1 tokenizer files are incompatible with the old official stack, so the launcher uses the local google__t5-small-lm-adapt tokenizer as a compatibility override.",
-            "Dry-run reaches model/collator construction but fails because the official CL entrypoint passes add_task_id to a Tk-Instruct ni_collator that does not define that field.",
+            "The hyintell/CITB checkout has an untracked Tk-Instruct copy whose collator lacks add_task_id; launcher now defaults to the tracked local citb_official tree whose collator matches the CL entrypoint.",
         ],
     }
 
