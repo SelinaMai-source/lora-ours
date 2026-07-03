@@ -14,6 +14,7 @@ EARLY_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_early
 EARLY_STATUS = REPO / "results/logs/standard_peft_ours_v62_earlygate_status.json"
 FORMAL_RUN = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal"
 FORMAL_CONFIG = "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal.yaml"
+FORMAL_SESSION = "standard-ours-order1-v62-formal"
 DECISION_PATH = REPO / "results/logs/standard_peft_ours_v62_gate_decision.json"
 PASS_THRESHOLDS = {
     "min_final_avg": 0.70,
@@ -99,16 +100,20 @@ def any_core_train() -> bool:
     return any(any(marker in line for marker in markers) for line in out.splitlines())
 
 
+def formal_session_exists() -> bool:
+    return subprocess.run(["tmux", "has-session", "-t", FORMAL_SESSION], cwd=str(REPO)).returncode == 0
+
+
 def launch_formal() -> bool:
     if any_core_train():
         write_decision({"state": "pass_waiting_gpu", "run_id": EARLY_RUN, "formal_run": FORMAL_RUN})
         return False
-    if subprocess.run(["tmux", "has-session", "-t", "standard-ours-order1-v62-formal"], cwd=str(REPO)).returncode == 0:
+    if formal_session_exists():
         write_decision({"state": "formal_already_running", "formal_run": FORMAL_RUN})
         return True
 
     train_cmd = f"cd {REPO} && PYTHONUNBUFFERED=1 bash scripts/run_ours_v1_strict_iteration.sh {FORMAL_CONFIG}"
-    run(["tmux", "new-session", "-d", "-s", "standard-ours-order1-v62-formal", "-n", "train", train_cmd])
+    run(["tmux", "new-session", "-d", "-s", FORMAL_SESSION, "-n", "train", train_cmd])
     monitor_cmd = (
         f"cd {REPO} && while true; do "
         f"OURS_MONITOR_RUN_ID={FORMAL_RUN} "
@@ -116,7 +121,7 @@ def launch_formal() -> bool:
         f"OURS_MONITOR_STATUS_TITLE='Standard PEFT Ours v62 Formal Status' "
         f"python scripts/monitor_ours_v18_strict.py; sleep 60; done"
     )
-    run(["tmux", "new-window", "-t", "standard-ours-order1-v62-formal", "-n", "monitor", monitor_cmd])
+    run(["tmux", "new-window", "-t", FORMAL_SESSION, "-n", "monitor", monitor_cmd])
     write_decision({"state": "formal_started", "formal_run": FORMAL_RUN, "formal_config": FORMAL_CONFIG})
     return True
 
@@ -130,6 +135,9 @@ def main() -> None:
         state = cls.get("state")
         reason = cls.get("reason")
         print(f"[{now()}] earlygate state={state} reason={reason}", flush=True)
+        if formal_session_exists():
+            write_decision({"state": "formal_already_running", "run_id": EARLY_RUN, "formal_run": FORMAL_RUN})
+            break
         if state == "completed":
             passed, reasons = is_pass(status)
             _, summary, _, dbpedia, amazon = final_payload(status)
