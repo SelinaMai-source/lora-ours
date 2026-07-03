@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-04T07:12:27+0800",
+  "updated_at": "2026-07-04T07:23:27+0800",
   "run_id": "arper_woz3_official_sclstm_formal_v66",
   "state": "running",
   "processes": [
@@ -7,20 +7,8 @@
     "573638 python3 -W ignore run_woz3.py --mode train --random_seed 1111 --sv_len_weight 0.5 --adaptive True --ewc_importance 300000 --lr 0.005 --dropout 0 --_lambda 2.0 --config_file /root/lora-ours/results/logs/arper_woz3_official_sclstm_formal_v66.cfg"
   ],
   "log_path": "results/logs/arper_woz3_official_sclstm_formal_v66.log",
-  "log_size": 3028,
+  "log_size": 3991,
   "last_signals": [
-    "Current task: Inform has batches: {'train': 391, 'valid': 52}",
-    "Current task: Inform has 0 distillation",
-    "Task Inform Epoch 0 (n_layer 1)",
-    "Train Loss: 2.903 | Time: 128.7",
-    "valid Loss: 1.767 | Slot error: 32.227 | BLEU4: 0.00000 | Time: 21.6",
-    "Task Inform Epoch 1 (n_layer 1)",
-    "Train Loss: 1.698 | Time: 126.8",
-    "valid Loss: 1.458 | Slot error: 14.455 | BLEU4: 0.00000 | Time: 20.3",
-    "Task Inform Epoch 2 (n_layer 1)",
-    "Train Loss: 1.497 | Time: 126.5",
-    "valid Loss: 1.360 | Slot error: 9.124 | BLEU4: 0.00000 | Time: 20.2",
-    "Task Inform Epoch 3 (n_layer 1)",
     "Train Loss: 1.404 | Time: 127.8",
     "valid Loss: 1.312 | Slot error: 6.421 | BLEU4: 0.00000 | Time: 20.9",
     "Task Inform Epoch 4 (n_layer 1)",
@@ -38,7 +26,19 @@
     "Task Inform Epoch 8 (n_layer 1)",
     "Train Loss: 1.216 | Time: 125.7",
     "valid Loss: 1.225 | Slot error: 3.128 | BLEU4: 0.00000 | Time: 20.2",
-    "Task Inform Epoch 9 (n_layer 1)"
+    "Task Inform Epoch 9 (n_layer 1)",
+    "Train Loss: 1.198 | Time: 125.8",
+    "valid Loss: 1.219 | Slot error: 3.592 | BLEU4: 0.00000 | Time: 21.5",
+    "Task Inform Epoch 10 (n_layer 1)",
+    "Train Loss: 1.178 | Time: 126.2",
+    "valid Loss: 1.213 | Slot error: 3.141 | BLEU4: 0.00000 | Time: 20.2",
+    "Task Inform Epoch 11 (n_layer 1)",
+    "Train Loss: 1.165 | Time: 125.6",
+    "valid Loss: 1.213 | Slot error: 3.169 | BLEU4: 0.00000 | Time: 20.3",
+    "Task Inform Epoch 12 (n_layer 1)",
+    "Train Loss: 1.151 | Time: 125.0",
+    "valid Loss: 1.210 | Slot error: 2.691 | BLEU4: 0.00000 | Time: 20.8",
+    "Task Inform Epoch 13 (n_layer 1)"
   ],
   "error_count": 0,
   "last_errors": []
