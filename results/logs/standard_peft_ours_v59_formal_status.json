@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-03T20:33:44",
+  "updated_at": "2026-07-03T22:02:46",
   "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal",
   "classification": {
     "state": "running",
@@ -21,92 +21,115 @@
     ]
   },
   "log": {
-    "latest_segment": 1,
+    "latest_segment": 2,
     "latest_eval": {
-      "current_score": 0.9848684210526316,
-      "seen_avg_score": 0.9848684210526316,
-      "current_task_aware_score": 0.9848684210526316,
-      "seen_avg_task_aware_score": 0.9848684210526316,
-      "forgetting": 0.0,
-      "task_aware_forgetting": 0.0,
-      "num_seen_segments": 1,
-      "token_f1_mean": 0.9848684210526316,
-      "lcs_overlap_mean": 0.9848684210526316,
-      "rouge_l_mean": 0.9848684210526316,
-      "bleu_mean": 0.990315969416786,
+      "current_score": 0.2331578947368421,
+      "seen_avg_score": 0.5248026315789474,
+      "current_task_aware_score": 0.2331578947368421,
+      "seen_avg_task_aware_score": 0.5248026315789474,
+      "forgetting": 0.16842105263157903,
+      "task_aware_forgetting": 0.16842105263157903,
+      "num_seen_segments": 2,
+      "token_f1_mean": 0.6311622807017544,
+      "lcs_overlap_mean": 0.6476973684210526,
+      "rouge_l_mean": 0.6311622807017544,
+      "bleu_mean": 0.7202405485870178,
       "slot_error_rate": 0.0,
       "extra": {
         "per_segment_accuracy": [
           {
             "segment_id": 0,
-            "accuracy": 0.9848684210526316
+            "accuracy": 0.8164473684210526
+          },
+          {
+            "segment_id": 1,
+            "accuracy": 0.2331578947368421
           }
         ],
         "per_segment_task_aware_accuracy": [
           {
             "segment_id": 0,
-            "task_aware_accuracy": 0.9848684210526316
+            "task_aware_accuracy": 0.8164473684210526
+          },
+          {
+            "segment_id": 1,
+            "task_aware_accuracy": 0.2331578947368421
           }
         ],
-        "anytime_score": 0.9848684210526316,
-        "anytime_task_aware_score": 0.9848684210526316,
+        "anytime_score": 0.5248026315789474,
+        "anytime_task_aware_score": 0.5248026315789474,
         "forgetting_by_segment": [
           {
             "segment_id": 0,
-            "accuracy": 0.9848684210526316,
+            "accuracy": 0.8164473684210526,
             "best_historical_accuracy": 0.9848684210526316,
+            "forgetting": 0.16842105263157903
+          },
+          {
+            "segment_id": 1,
+            "accuracy": 0.2331578947368421,
+            "best_historical_accuracy": 0.2331578947368421,
             "forgetting": 0.0
           }
         ],
         "task_aware_forgetting_by_segment": [
           {
             "segment_id": 0,
-            "task_aware_accuracy": 0.9848684210526316,
+            "task_aware_accuracy": 0.8164473684210526,
             "best_historical_task_aware_accuracy": 0.9848684210526316,
+            "task_aware_forgetting": 0.16842105263157903
+          },
+          {
+            "segment_id": 1,
+            "task_aware_accuracy": 0.2331578947368421,
+            "best_historical_task_aware_accuracy": 0.2331578947368421,
             "task_aware_forgetting": 0.0
           }
         ],
         "routing": {
-          "num_routed": 7600,
+          "num_routed": 15200,
           "branch_counts": {
-            "b0": 7600
+            "b0": 7603,
+            "b1": 7597
           },
           "oracle_best_branch_counts": {
-            "b0": 7600
+            "b0": 13780,
+            "b1": 1420
           },
-          "oracle_agreement_count": 7600,
-          "oracle_num_examples": 7600,
-          "confidence_sum": 7600.0,
-          "entropy_sum": -7.600675644421078e-09,
-          "oracle_margin_sum": 0.0,
+          "oracle_agreement_count": 9023,
+          "oracle_num_examples": 15200,
+          "confidence_sum": 8194.135206622392,
+          "entropy_sum": 10487.263546902817,
+          "oracle_margin_sum": 33043.65692138672,
           "branch_utilization": {
-            "b0": 1.0
+            "b0": 0.5001973684210527,
+            "b1": 0.4998026315789474
           },
-          "decision_confidence_mean": 1.0,
-          "decision_entropy_mean": -1.0000889005817208e-12,
-          "oracle_agreement_rate": 1.0,
-          "oracle_margin_mean": 0.0
+          "decision_confidence_mean": 0.5390878425409468,
+          "decision_entropy_mean": 0.6899515491383432,
+          "oracle_agreement_rate": 0.5936184210526316,
+          "oracle_margin_mean": 2.1739247974596525
         },
-        "token_f1_mean": 0.9848684210526316,
-        "lcs_overlap_mean": 0.9848684210526316,
-        "rouge_l_mean": 0.9848684210526316,
-        "bleu_mean": 0.990315969416786,
+        "token_f1_mean": 0.6311622807017544,
+        "lcs_overlap_mean": 0.6476973684210526,
+        "rouge_l_mean": 0.6311622807017544,
+        "bleu_mean": 0.7202405485870178,
         "slot_error_rate": 0.0,
         "slot_error_count": 0,
-        "task_aware_score_mean": 0.9848684210526316,
+        "task_aware_score_mean": 0.5248026315789474,
         "task_score_type_counts": {
-          "exact_match": 7600
+          "exact_match": 15200
         },
-        "prefix_1_match_mean": 0.9848684210526316,
-        "prefix_3_match_mean": 0.9848684210526316,
-        "prefix_5_match_mean": 0.9848684210526316,
-        "num_bad_prefix_mismatch": 115,
+        "prefix_1_match_mean": 0.6336842105263157,
+        "prefix_3_match_mean": 0.5248026315789474,
+        "prefix_5_match_mean": 0.5248026315789474,
+        "num_bad_prefix_mismatch": 6652,
         "likely_assistant_start_or_continuation_boundary": false
       }
     },
-    "log_mtime": 1783082024.5890677,
-    "log_age_seconds": 0.07886862754821777,
-    "log_path": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal.log",
+    "log_mtime": 1783087164.3176534,
+    "log_age_seconds": 202.05975151062012,
+    "log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal/wandb/latest-run/files/output.log",
     "latest_eval_log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal/wandb/latest-run/files/output.log",
     "log_candidates": [
       "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal.log",
