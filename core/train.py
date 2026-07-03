@@ -296,6 +296,7 @@ def _load_stream(cfg: Dict[str, Any], *, mode: str, logger: SimpleLogger) -> Con
     max_segments = int(data_cfg.get("max_segments", -1))
     max_train = int(data_cfg.get("max_train_examples_per_segment", -1))
     max_eval = int(data_cfg.get("max_eval_examples_per_segment", -1))
+    skip_empty_segments = bool(data_cfg.get("skip_empty_segments", False))
 
     if processed_dir is None:
         raise ValueError("processed_stream_dir is required for baseline/ours modes")
@@ -323,6 +324,7 @@ def _load_stream(cfg: Dict[str, Any], *, mode: str, logger: SimpleLogger) -> Con
         max_segments=max_segments,
         max_train_examples_per_segment=max_train,
         max_eval_examples_per_segment=max_eval,
+        skip_empty_segments=skip_empty_segments,
     )
 
 

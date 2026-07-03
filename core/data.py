@@ -179,7 +179,7 @@ def _augment_instruction_with_positive_examples(instruction: str, positive_examp
     return "\n\n".join(parts)
 
 
-def _parse_stream_json(path: str) -> ContinualStream:
+def _parse_stream_json(path: str, *, skip_empty_segments: bool = False) -> ContinualStream:
     with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
     if "stream" not in raw or not isinstance(raw["stream"], list):
@@ -194,6 +194,8 @@ def _parse_stream_json(path: str) -> ContinualStream:
         train = [_parse_example(x) for x in seg.get("train", [])]
         ev = [_parse_example(x) for x in seg.get("eval", [])]
         if not train or not ev:
+            if skip_empty_segments:
+                continue
             raise ValueError(
                 f"Each segment must include non-empty train & eval lists. Bad segment: {seg.get('segment_id')}"
             )
@@ -205,6 +207,9 @@ def _parse_stream_json(path: str) -> ContinualStream:
                 eval=ev,
             )
         )
+
+    if not segments:
+        raise ValueError(f"No non-empty segments found in stream json: {path}")
 
     return ContinualStream(
         benchmark=str(raw.get("benchmark", "unknown")),
@@ -231,6 +236,7 @@ def load_continual_stream(
     max_segments: int = -1,
     max_train_examples_per_segment: int = -1,
     max_eval_examples_per_segment: int = -1,
+    skip_empty_segments: bool = False,
 ) -> ContinualStream:
     """
     Unified stream loader.
@@ -242,7 +248,7 @@ def load_continual_stream(
     if mode == "debug":
         if not sample_stream_path:
             raise ValueError("debug mode requires sample_stream_path")
-        stream = _parse_stream_json(sample_stream_path)
+        stream = _parse_stream_json(sample_stream_path, skip_empty_segments=skip_empty_segments)
     else:
         if not processed_stream_dir:
             raise ValueError("baseline/ours mode requires processed_stream_dir")
@@ -259,7 +265,7 @@ def load_continual_stream(
             max_dev_instances_per_task=processed_stream_dev_instances_per_task,
             limit_tasks=processed_stream_limit_tasks,
         )
-        stream = _parse_stream_json(stream_path)
+        stream = _parse_stream_json(stream_path, skip_empty_segments=skip_empty_segments)
 
     stream = truncate_stream(
         stream,
