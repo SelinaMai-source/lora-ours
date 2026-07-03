@@ -1,0 +1,117 @@
+{
+  "updated_at": "2026-07-03T20:33:44",
+  "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal",
+  "classification": {
+    "state": "running",
+    "reason": "train process present"
+  },
+  "processes": [
+    "477495 python -m core.train --config configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal.yaml"
+  ],
+  "tmux": {
+    "panes": [
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours",
+      "standard-ours-order1-v59-formal:0.0 bash /root/lora-ours",
+      "standard-ours-order1-v59-formal:1.0 python /root/lora-ours"
+    ],
+    "matching_panes": [
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours",
+      "standard-ours-order1-v59-formal:0.0 bash /root/lora-ours",
+      "standard-ours-order1-v59-formal:1.0 python /root/lora-ours"
+    ]
+  },
+  "log": {
+    "latest_segment": 1,
+    "latest_eval": {
+      "current_score": 0.9848684210526316,
+      "seen_avg_score": 0.9848684210526316,
+      "current_task_aware_score": 0.9848684210526316,
+      "seen_avg_task_aware_score": 0.9848684210526316,
+      "forgetting": 0.0,
+      "task_aware_forgetting": 0.0,
+      "num_seen_segments": 1,
+      "token_f1_mean": 0.9848684210526316,
+      "lcs_overlap_mean": 0.9848684210526316,
+      "rouge_l_mean": 0.9848684210526316,
+      "bleu_mean": 0.990315969416786,
+      "slot_error_rate": 0.0,
+      "extra": {
+        "per_segment_accuracy": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.9848684210526316
+          }
+        ],
+        "per_segment_task_aware_accuracy": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.9848684210526316
+          }
+        ],
+        "anytime_score": 0.9848684210526316,
+        "anytime_task_aware_score": 0.9848684210526316,
+        "forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.9848684210526316,
+            "best_historical_accuracy": 0.9848684210526316,
+            "forgetting": 0.0
+          }
+        ],
+        "task_aware_forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.9848684210526316,
+            "best_historical_task_aware_accuracy": 0.9848684210526316,
+            "task_aware_forgetting": 0.0
+          }
+        ],
+        "routing": {
+          "num_routed": 7600,
+          "branch_counts": {
+            "b0": 7600
+          },
+          "oracle_best_branch_counts": {
+            "b0": 7600
+          },
+          "oracle_agreement_count": 7600,
+          "oracle_num_examples": 7600,
+          "confidence_sum": 7600.0,
+          "entropy_sum": -7.600675644421078e-09,
+          "oracle_margin_sum": 0.0,
+          "branch_utilization": {
+            "b0": 1.0
+          },
+          "decision_confidence_mean": 1.0,
+          "decision_entropy_mean": -1.0000889005817208e-12,
+          "oracle_agreement_rate": 1.0,
+          "oracle_margin_mean": 0.0
+        },
+        "token_f1_mean": 0.9848684210526316,
+        "lcs_overlap_mean": 0.9848684210526316,
+        "rouge_l_mean": 0.9848684210526316,
+        "bleu_mean": 0.990315969416786,
+        "slot_error_rate": 0.0,
+        "slot_error_count": 0,
+        "task_aware_score_mean": 0.9848684210526316,
+        "task_score_type_counts": {
+          "exact_match": 7600
+        },
+        "prefix_1_match_mean": 0.9848684210526316,
+        "prefix_3_match_mean": 0.9848684210526316,
+        "prefix_5_match_mean": 0.9848684210526316,
+        "num_bad_prefix_mismatch": 115,
+        "likely_assistant_start_or_continuation_boundary": false
+      }
+    },
+    "log_mtime": 1783082024.5890677,
+    "log_age_seconds": 0.07886862754821777,
+    "log_path": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal.log",
+    "latest_eval_log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal/wandb/latest-run/files/output.log",
+    "log_candidates": [
+      "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal.log",
+      "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v59_formal/wandb/latest-run/files/output.log"
+    ]
+  },
+  "artifacts": {}
+}
