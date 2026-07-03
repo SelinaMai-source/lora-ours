@@ -15,6 +15,7 @@ from typing import Any
 REPO = Path(__file__).resolve().parents[1]
 RUN_NAME = "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal"
 CONFIG = "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal.yaml"
+RUNTIME_CONFIG = Path("/tmp/lora_ours_approved_standard_order1.yaml")
 LOG_DIR = REPO / "results/logs"
 ARTIFACT_PATH = LOG_DIR / f"{RUN_NAME}.isolated_launcher.json"
 PID_PATH = LOG_DIR / f"{RUN_NAME}.pid"
@@ -58,6 +59,8 @@ def isolated_child() -> None:
 
 def launch(config: str, force: bool) -> int:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
+    source_config = (REPO / config).resolve() if not Path(config).is_absolute() else Path(config)
+    RUNTIME_CONFIG.write_text(source_config.read_text(encoding="utf-8"), encoding="utf-8")
     existing_train = core_train_processes()
     if existing_train and not force:
         write_artifact(
@@ -81,7 +84,7 @@ def launch(config: str, force: bool) -> int:
         }
     )
     stdout = SUPERVISOR_LOG.open("ab", buffering=0)
-    command = ["bash", "scripts/run_ours_v1_strict_iteration.sh", config]
+    command = ["bash", "scripts/run_ours_v1_strict_iteration.sh", str(RUNTIME_CONFIG)]
     proc = subprocess.Popen(
         command,
         cwd=str(REPO),
@@ -97,7 +100,8 @@ def launch(config: str, force: bool) -> int:
         "updated_at": now(),
         "event": "isolated_formal_child_started",
         "run_name": RUN_NAME,
-        "config": config,
+        "config": str(RUNTIME_CONFIG),
+        "source_config": str(source_config),
         "launcher_pid": os.getpid(),
         "launcher_ppid": os.getppid(),
         "launcher_sid": os.getsid(0),
