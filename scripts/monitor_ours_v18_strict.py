@@ -28,6 +28,7 @@ MONITOR_INTERVAL_SECONDS = 60
 LOW_SCORE_MIN_SEGMENT = 3
 LOW_SEEN_AVG_FLOOR = 0.10
 LOW_TASK_AWARE_FLOOR = 0.10
+STANDARD_ORDER1_TASKS = ["dbpedia", "amazon", "yahoo", "agnews"]
 
 
 def _run(cmd: List[str]) -> str:
@@ -168,6 +169,32 @@ def write_status() -> None:
 
     cls = status["classification"]
     latest_eval = status.get("log", {}).get("latest_eval", {})
+    latest_extra = latest_eval.get("extra", {}) if isinstance(latest_eval, dict) else {}
+    per_segment = latest_extra.get("per_segment_accuracy", []) if isinstance(latest_extra, dict) else []
+    per_segment_task = latest_extra.get("per_segment_task_aware_accuracy", []) if isinstance(latest_extra, dict) else []
+    segment_scores = {
+        int(item.get("segment_id")): item.get("accuracy")
+        for item in per_segment
+        if isinstance(item, dict) and item.get("segment_id") is not None
+    }
+    task_segment_scores = {
+        int(item.get("segment_id")): item.get("task_aware_accuracy")
+        for item in per_segment_task
+        if isinstance(item, dict) and item.get("segment_id") is not None
+    }
+    watched_lines = []
+    for idx, task_name in enumerate(STANDARD_ORDER1_TASKS):
+        if idx in segment_scores or idx in task_segment_scores:
+            watched_lines.append(
+                f"- {task_name}: exact=`{segment_scores.get(idx, 'n/a')}`, task-aware=`{task_segment_scores.get(idx, 'n/a')}`"
+            )
+    forgetting = latest_eval.get("forgetting", "n/a") if isinstance(latest_eval, dict) else "n/a"
+    task_forgetting = latest_eval.get("task_aware_forgetting", "n/a") if isinstance(latest_eval, dict) else "n/a"
+    approx_bwt = -float(forgetting) if isinstance(forgetting, (int, float)) else "n/a"
+    approx_task_bwt = -float(task_forgetting) if isinstance(task_forgetting, (int, float)) else "n/a"
+    final_metrics = status.get("artifacts", {}).get("final_metrics.json", {})
+    ccfa_summary = final_metrics.get("ccfa_summary", {}) if isinstance(final_metrics, dict) else {}
+    final_bwt = ccfa_summary.get("bwt", "n/a") if isinstance(ccfa_summary, dict) else "n/a"
     lines = [
         f"# {STATUS_TITLE}",
         "",
@@ -177,9 +204,17 @@ def write_status() -> None:
         f"- Reason: `{cls.get('reason')}`",
         f"- Latest segment: `{status.get('log', {}).get('latest_segment', 'n/a')}`",
         f"- Latest seen/task-aware: `{latest_eval.get('seen_avg_score', 'n/a')}` / `{latest_eval.get('seen_avg_task_aware_score', 'n/a')}`",
+        f"- Latest current/task-aware: `{latest_eval.get('current_score', 'n/a')}` / `{latest_eval.get('current_task_aware_score', 'n/a')}`",
+        f"- Forgetting/task-aware: `{forgetting}` / `{task_forgetting}`",
+        f"- Approx BWT/task-aware BWT: `{approx_bwt}` / `{approx_task_bwt}`",
+        f"- Final BWT: `{final_bwt}`",
         f"- Train processes: `{len(status.get('processes', []))}`",
         f"- Log: `{status.get('log', {}).get('log_path', LOG_PATH)}`",
         f"- Latest eval source: `{status.get('log', {}).get('latest_eval_log_path', 'n/a')}`",
+        "",
+        "## Watched Standard Order1 Metrics",
+        "",
+        *(watched_lines or ["- no completed eval metrics yet"]),
     ]
     STATUS_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(json.dumps(status["classification"], ensure_ascii=False))

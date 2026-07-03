@@ -1,0 +1,138 @@
+experiment_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v61_extended_smoke
+mode: ours
+seed: 1
+strict_alignment:
+  status: ready
+  blocker: ''
+  official_evidence: O-LoRA README; scripts/order_1.sh; configs/order1_configs; CL_Benchmark; order dbpedia -> amazon -> yahoo -> agnews; src/run_uie_lora.py
+paths:
+  project_root: /root/Lora-Baselines/methods/ours/source/project_local
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft/olora_standard_order1_t5large.json
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/standard_peft
+data:
+  suite: Standard PEFT CL
+  benchmark: O-LoRA standard order1
+  stream_format: unified_ccfa_stream
+  ready: true
+  stream_name: standard_peft
+  auto_prepare_processed: false
+  max_segments: 4
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  backbone: T5-large
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/hf_snapshots/t5-large
+  base_model_path: /root/autodl-tmp/model_cache/hf_snapshots/t5-large
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 512
+  max_target_len: 50
+  gen_max_new_tokens: 50
+  gen_num_beams: 1
+  gen_do_sample: false
+  activation_batch_size: 1
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  train_lora_a: true
+  optimizer: adamw
+  weight_decay: 0.01
+  target_modules:
+  - q
+  - v
+train:
+  lr: 0.001
+  epochs_per_segment: 1
+  batch_size: 8
+  gradient_accumulation_steps: 8
+  hard_early_stop_enabled: false
+  grad_clip_norm: 1.0
+  log_every: 25
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+router:
+  routing_backend: prototype
+  training_strategy: learned_router
+  router_warmup_segments: 1
+  prototype_calibration: true
+  prototype_calibration_prior: 8.0
+  # v60 prompt-NLL arbitration inverted both dbpedia and amazon routes on the
+  # earlygate debug set, so v61 lets the calibrated task-aware prototype router decide.
+  nll_arbitration: false
+  arbitration_margin: 0.2
+  arbitration_top_k: 2
+  spawn_sync_prototype_init: true
+  segment_anchor_prototype_refresh: true
+  anchor_prototype_refresh_beta: 0.35
+  prototype_update_steps: 2
+  margin_filter_min_gap: 0.005
+  task_aware_fallback: true
+  task_aware_fallback_force_assigned: true
+  task_aware_fallback_min_confidence: 0.78
+  task_aware_fallback_min_margin: 0.18
+  force_active_branch_on_spawn_segment: true
+  oracle_pll_recalibrate: true
+  oracle_pll_min_agreement: 0.5
+  oracle_pll_bonus_steps: 2
+  oracle_pll_ema_override: 0.72
+assess_update:
+  isolated_energy_threshold: 0.12
+spectral_replay:
+  enabled: true
+  buffer_size: 16384
+  replay_ratio: 0.25
+  min_replay_per_segment: 64
+  selection_strategy: label_balanced
+  max_replay_per_label: 128
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
+eval_normalization:
+  enable_task_aware_score: true
+  auto_short_answer_max_new_tokens: true
+output:
+  run_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v61_extended_smoke
+  tracking:
+    use_wandb: true
+    wandb_project: lora-ours
+    wandb_group: ccfa_standard_peft_strict_ours_v61_extended
+    wandb_mode: online
+    wandb_tags:
+    - ccfa_v2
+    - standard_peft_cl
+    - strict
+    - v61
+    - extended_smoke
+    - retention_replay
+    - t5_large
+paper:
+  strict_ready: true
+  status: ready
+  metrics:
+  - final average accuracy
+  - forgetting
+  - BWT
+  postprocess: ccfa_postprocess/summary.json
+  notes: v61 extended smoke keeps the official O-LoRA order/data/model length/lr/epoch settings used by v60/v61, disables the v60-failed prompt-NLL arbitration path, and enables label-balanced prior-task replay inside the Ours runner for retention diagnostics. It is an adapted Ours run, not an official O-LoRA reproduction.
+official_reference:
+  official_script: /root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora/scripts/order_1.sh
+  model_name_or_path_in_official_script: initial_model/t5-large
+  local_model_path: /root/autodl-tmp/model_cache/hf_snapshots/t5-large
+  official_learning_rate: 1e-03
+  official_epochs: 1
+  official_train_batch_size: 8
+  official_effective_global_batch_size: 64
+  official_eval_batch_size: 128
+  official_max_source_length: 512
+  official_max_target_length: 50
+  official_generation_max_length: 50
+drift:
+  anchor_candidate_pool_size: 128
+  anchor_size: 32
