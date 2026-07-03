@@ -15,7 +15,7 @@ RUN_ID = os.environ.get("OURS_MONITOR_RUN_ID", "citb_instrdialog_order1_seed1_ou
 STATUS_BASENAME = os.environ.get("OURS_MONITOR_STATUS_BASENAME", "ours_v18_strict_status")
 STATUS_TITLE = os.environ.get("OURS_MONITOR_STATUS_TITLE", "Ours v18 Strict Status")
 LOG_PATH = REPO / "results" / "logs" / f"{RUN_ID}.log"
-RUN_DIR = REPO / "results" / "runs" / RUN_ID
+RUN_DIR = Path(os.environ.get("OURS_MONITOR_RUN_DIR", str(REPO / "results" / "runs" / RUN_ID)))
 STATUS_JSON = REPO / "results" / "logs" / f"{STATUS_BASENAME}.json"
 STATUS_MD = REPO / "results" / "logs" / f"{STATUS_BASENAME}.md"
 LOG_CANDIDATES = [
@@ -178,6 +178,9 @@ def write_status() -> None:
     ]
     STATUS_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(json.dumps(status["classification"], ensure_ascii=False))
+    state = str(cls.get("state", ""))
+    if state not in {"running", "completed", "not_started"}:
+        print(f"AGENT_LOOP_WAKE_LORA_OURS run={RUN_ID} state={state} reason={cls.get('reason')}")
 
 
 def main() -> None:
