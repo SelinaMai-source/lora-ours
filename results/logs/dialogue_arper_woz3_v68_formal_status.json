@@ -1,0 +1,154 @@
+{
+  "updated_at": "2026-07-04T10:17:04",
+  "run_id": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal",
+  "classification": {
+    "state": "running",
+    "reason": "train process present"
+  },
+  "processes": [
+    "600452 python -m core.train --config configs/ccfa_three_suite/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal.yaml"
+  ],
+  "tmux": {
+    "panes": [
+      "arper-woz3-official-sclstm-formal-v66:1.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v65-safe-short:1.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v68-formal:0.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v68-formal:1.0 bash /root/lora-ours",
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours"
+    ],
+    "matching_panes": [
+      "arper-woz3-official-sclstm-formal-v66:1.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v65-safe-short:1.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v68-formal:0.0 bash /root/lora-ours",
+      "dialogue-arper-woz3-v68-formal:1.0 bash /root/lora-ours",
+      "standard-olora-official-ours-overlay-v58:1.0 bash /root/lora-ours"
+    ]
+  },
+  "log": {
+    "latest_segment": 1,
+    "latest_eval": {
+      "current_score": 0.04590818363273453,
+      "seen_avg_score": 0.04590818363273453,
+      "current_task_aware_score": 0.7025948103792415,
+      "seen_avg_task_aware_score": 0.7025948103792415,
+      "forgetting": 0.0,
+      "task_aware_forgetting": 0.0,
+      "num_seen_segments": 1,
+      "token_f1_mean": 0.5862079488498086,
+      "lcs_overlap_mean": 0.4744246147299008,
+      "rouge_l_mean": 0.6410844462024302,
+      "bleu_mean": 0.30935267857210674,
+      "slot_error_rate": 0.0,
+      "extra": {
+        "per_segment_accuracy": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.04590818363273453
+          }
+        ],
+        "per_segment_task_aware_accuracy": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.7025948103792415
+          }
+        ],
+        "anytime_score": 0.04590818363273453,
+        "anytime_task_aware_score": 0.7025948103792415,
+        "forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "accuracy": 0.04590818363273453,
+            "best_historical_accuracy": 0.04590818363273453,
+            "forgetting": 0.0
+          }
+        ],
+        "task_aware_forgetting_by_segment": [
+          {
+            "segment_id": 0,
+            "task_aware_accuracy": 0.7025948103792415,
+            "best_historical_task_aware_accuracy": 0.7025948103792415,
+            "task_aware_forgetting": 0.0
+          }
+        ],
+        "routing": {
+          "num_routed": 501,
+          "branch_counts": {
+            "b0": 501
+          },
+          "oracle_best_branch_counts": {
+            "b0": 501
+          },
+          "oracle_agreement_count": 501,
+          "oracle_num_examples": 501,
+          "confidence_sum": 501.0,
+          "entropy_sum": -5.010445391914987e-10,
+          "oracle_margin_sum": 0.0,
+          "branch_utilization": {
+            "b0": 1.0
+          },
+          "decision_confidence_mean": 1.0,
+          "decision_entropy_mean": -1.0000889005818337e-12,
+          "oracle_agreement_rate": 1.0,
+          "oracle_margin_mean": 0.0
+        },
+        "token_f1_mean": 0.5862079488498086,
+        "lcs_overlap_mean": 0.4744246147299008,
+        "rouge_l_mean": 0.6410844462024302,
+        "bleu_mean": 0.30935267857210674,
+        "slot_error_rate": 0.0,
+        "slot_error_count": 0,
+        "task_aware_score_mean": 0.6410844462024302,
+        "task_score_type_counts": {
+          "rouge_l": 501
+        },
+        "prefix_1_match_mean": 0.0718562874251497,
+        "prefix_3_match_mean": 0.04790419161676647,
+        "prefix_5_match_mean": 0.033932135728542916,
+        "num_bad_prefix_mismatch": 477,
+        "likely_assistant_start_or_continuation_boundary": true
+      }
+    },
+    "log_mtime": 1783131223.0912108,
+    "log_age_seconds": 201.7553927898407,
+    "log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/wandb/latest-run/files/output.log",
+    "latest_eval_log_path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/wandb/latest-run/files/output.log",
+    "log_candidates": [
+      "/root/lora-ours/results/logs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal.log",
+      "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/wandb/latest-run/files/output.log"
+    ]
+  },
+  "artifacts": {
+    "eval_statuses": [
+      {
+        "updated_at": "2026-07-04T10:13:38+0800",
+        "event": "eval_end",
+        "segment_id": 0,
+        "segment_name": "Book",
+        "num_seen_segments": 1,
+        "seen_segment_ids": [
+          0
+        ],
+        "total_seen_eval_examples": 501,
+        "timeout_seconds": 0,
+        "elapsed_seconds": 69.8303587436676,
+        "status": "completed",
+        "path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/segment_000/eval_status.json"
+      }
+    ],
+    "latest_eval_status": {
+      "updated_at": "2026-07-04T10:13:38+0800",
+      "event": "eval_end",
+      "segment_id": 0,
+      "segment_name": "Book",
+      "num_seen_segments": 1,
+      "seen_segment_ids": [
+        0
+      ],
+      "total_seen_eval_examples": 501,
+      "timeout_seconds": 0,
+      "elapsed_seconds": 69.8303587436676,
+      "status": "completed",
+      "path": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/segment_000/eval_status.json"
+    }
+  }
+}
