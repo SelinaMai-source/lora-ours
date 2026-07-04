@@ -1370,10 +1370,12 @@ def _build_da_signature_support_templates(
         unique_outputs = list(dict.fromkeys(outputs))
         if len(unique_outputs) < min_examples:
             continue
-        selected = _select_central_support_output(unique_outputs)
+        selected, selected_support_score = _select_central_support_output_with_score(unique_outputs)
         out[signature] = {
             "output": selected,
             "num_candidates": int(len(unique_outputs)),
+            "support_outputs": unique_outputs,
+            "support_mean_rouge_l": float(selected_support_score),
         }
     return out
 
@@ -1404,6 +1406,22 @@ def _maybe_apply_da_signature_support_template(
     if not replacement:
         return prediction, {}
     force = bool(cfg.get("force", False))
+    support_outputs = [str(x) for x in support_templates[signature].get("support_outputs", []) if str(x).strip()]
+    if not support_outputs:
+        support_outputs = [replacement]
+    replacement_support_score = float(support_templates[signature].get("support_mean_rouge_l", 0.0))
+    if replacement_support_score <= 0.0:
+        replacement_support_score = _mean_support_score(replacement, support_outputs)
+    prediction_support_score = _mean_support_score(prediction, support_outputs)
+    support_margin = float(replacement_support_score - prediction_support_score)
+    min_support_margin = float(cfg.get("min_support_score_margin", 0.05))
+    min_support_score = float(cfg.get("min_support_mean_score", 0.0))
+    min_candidates = int(cfg.get("min_support_candidates_for_confidence", 1))
+    num_candidates = int(support_templates[signature].get("num_candidates", 0))
+    support_confident = (
+        num_candidates >= max(1, min_candidates)
+        or replacement_support_score >= min_support_score
+    )
     pred_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", str(prediction or "").lower()))
     repl_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", replacement.lower()))
     expected_slots = {feat["slot_token"] for feat in _parse_simple_dialogue_act_features(input_text) if feat["slot"] != "none"}
@@ -1411,7 +1429,17 @@ def _maybe_apply_da_signature_support_template(
     generic_template = _looks_like_generic_da_template(prediction)
     prompt_template = bool(_prompt_template_continuation_reason(_prediction_words(prediction)))
     candidate_better_slot_coverage = bool(expected_slots and expected_slots.issubset(repl_slots) and missing_expected_slots)
-    should_replace = force or prompt_template or generic_template or candidate_better_slot_coverage
+    model_output_risky = (
+        prompt_template
+        or generic_template
+        or len(_prediction_words(prediction)) < int(cfg.get("min_prediction_words", 4))
+        or candidate_better_slot_coverage
+    )
+    should_replace = force or (
+        support_confident
+        and model_output_risky
+        and support_margin >= min_support_margin
+    )
     if not should_replace:
         return prediction, {}
     return replacement, {
@@ -1419,12 +1447,16 @@ def _maybe_apply_da_signature_support_template(
         "da_signature_support_template_signature": signature,
         "da_signature_support_template_original": str(prediction or ""),
         "da_signature_support_template_output": replacement,
-        "da_signature_support_template_num_candidates": int(support_templates[signature].get("num_candidates", 0)),
+        "da_signature_support_template_num_candidates": num_candidates,
+        "da_signature_support_template_prediction_support_score": float(prediction_support_score),
+        "da_signature_support_template_replacement_support_score": float(replacement_support_score),
+        "da_signature_support_template_support_margin": float(support_margin),
         "da_signature_support_template_reason": (
             "force" if force else
-            "prompt_template" if prompt_template else
-            "generic_template" if generic_template else
-            "slot_coverage"
+            "support_margin_prompt_template" if prompt_template else
+            "support_margin_generic_template" if generic_template else
+            "support_margin_slot_coverage" if candidate_better_slot_coverage else
+            "support_margin_short_prediction"
         ),
     }
 
@@ -1439,12 +1471,17 @@ def _dialogue_act_signature(input_text: str) -> str:
 
 
 def _select_central_support_output(outputs: Sequence[str]) -> str:
+    return _select_central_support_output_with_score(outputs)[0]
+
+
+def _select_central_support_output_with_score(outputs: Sequence[str]) -> Tuple[str, float]:
     if not outputs:
-        return ""
+        return "", 0.0
     if len(outputs) == 1:
-        return str(outputs[0])
+        return str(outputs[0]), 1.0
     best_output = str(outputs[0])
     best_key = (-1.0, 0, "")
+    best_score = 0.0
     for output in outputs:
         scores = [
             _continuous_task_score(
@@ -1460,7 +1497,25 @@ def _select_central_support_output(outputs: Sequence[str]) -> str:
         if key > best_key:
             best_key = key
             best_output = str(output)
-    return best_output
+            best_score = mean_score
+    return best_output, float(best_score)
+
+
+def _mean_support_score(prediction: str, support_outputs: Sequence[str]) -> float:
+    outputs = [str(output) for output in support_outputs if str(output).strip()]
+    if not outputs:
+        return 0.0
+    return float(
+        sum(
+            _continuous_task_score(
+                metric_name="rouge_l",
+                prediction=str(prediction or ""),
+                gold=output,
+            )
+            for output in outputs
+        )
+        / max(1, len(outputs))
+    )
 
 
 def _median_word_count(outputs: Sequence[str]) -> int:
