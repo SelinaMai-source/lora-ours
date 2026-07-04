@@ -1348,7 +1348,24 @@ def _dialogue_act_template_from_features(features: List[Dict[str, str]], *, segm
         if "name" in by_slot:
             return f"you are booked into {by_slot['name']} ."
     if act in {"nobook", "nooffer"}:
-        return "sorry , there is no matching option available ."
+        if "ref" in by_slot and len(by_slot) == 1:
+            return f"your reference number is {by_slot['ref']} ."
+        if "day" in by_slot and "people" in by_slot and "time" in by_slot:
+            return (
+                f"i 'm sorry , there are no available table on {by_slot['day']} "
+                f"for {by_slot['people']} at {by_slot['time']} ."
+            )
+        if "day" in by_slot and "stay" in by_slot:
+            return f"i 'm sorry but there is no availability for {by_slot['stay']} nights starting on {by_slot['day']} ."
+        if "name" in by_slot and "time" in by_slot:
+            return f"unfortunately , there are no reservations available for {by_slot['name']} at {by_slot['time']} ."
+        if "name" in by_slot:
+            return f"i 'm sorry , that time is not available at {by_slot['name']} ."
+        if "time" in by_slot:
+            return f"i 'm sorry , that time is not available at {by_slot['time']} ."
+        if "day" in by_slot:
+            return f"i 'm sorry , there is no availability on {by_slot['day']} ."
+        return "unfortunately , i can not book it at this time ."
     if act in {"welcome", "greet"}:
         return "hello , how can i help you ?"
     if act == "bye":
