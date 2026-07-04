@@ -1,0 +1,54 @@
+experiment_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_probe
+mode: ours
+seed: 1
+base_config: configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v64_safe_short_probe.yaml
+launcher: scripts/launch_v66_standard_learning_signal_probe.py
+purpose: >
+  GPU-exclusive Standard PEFT Ours learning-signal probe after v65 completed
+  safely but all-zero. Keep dbpedia/amazon caps small while increasing effective
+  optimizer steps via repeated micro-epochs and smaller accumulation.
+policy:
+  serial_only: true
+  block_existing_gpu_compute: true
+  stop_on_sigterm: true
+  stop_on_first_nonzero: true
+  target: non-zero dbpedia/amazon eval or clear teacher-forced/train learning signal
+  record:
+    - run name
+    - train/eval caps
+    - epochs per segment
+    - gradient accumulation
+    - train answer-token accuracy and loss
+    - teacher-forced eval debug rows
+    - final score matrix or SIGTERM artifact
+candidates:
+  - id: t20_e16_ep3_accum2_noreplay
+    max_train_examples_per_segment: 20
+    max_eval_examples_per_segment: 16
+    epochs_per_segment: 3
+    gradient_accumulation_steps: 2
+    replay_ratio: 0.0
+    min_replay_per_segment: 0
+    use_overlap_loss: false
+    reason: first GPU-exclusive learning-signal probe; about 7 optimizer steps per segment with no replay pressure
+  - id: t20_e16_ep3_accum1_noreplay
+    max_train_examples_per_segment: 20
+    max_eval_examples_per_segment: 16
+    epochs_per_segment: 3
+    gradient_accumulation_steps: 1
+    replay_ratio: 0.0
+    min_replay_per_segment: 0
+    use_overlap_loss: false
+    reason: same data cap with more optimizer steps if accum2 stays all-zero
+  - id: t28_e16_ep3_accum2_noreplay
+    max_train_examples_per_segment: 28
+    max_eval_examples_per_segment: 16
+    epochs_per_segment: 3
+    gradient_accumulation_steps: 2
+    replay_ratio: 0.0
+    min_replay_per_segment: 0
+    use_overlap_loss: false
+    reason: upper safe-cap learning-signal probe below the previous 32/32 SIGTERM window
+notes: >
+  This is an adapted Ours diagnostic run, not an official O-LoRA reproduction
+  and not paper-comparable. It must not run concurrently with any other GPU job.

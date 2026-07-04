@@ -1,0 +1,128 @@
+{
+  "updated_at": "2026-07-04T09:29:44",
+  "state": "completed",
+  "decision": "found non-zero learning signal without SIGTERM",
+  "first_nonzero_candidate": "t20_e16_ep3_accum2_noreplay",
+  "manifest": "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_probe.yaml",
+  "base_config": "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v64_safe_short_probe.yaml",
+  "results": [
+    {
+      "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay",
+      "config": "configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay_probe.yaml",
+      "returncode": 0,
+      "elapsed_seconds": 35.4,
+      "run_dir": "/root/autodl-tmp/lora-baselines-run_v1/results/ccfa_three_suite/runs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay",
+      "process_exit": {
+        "updated_at": "2026-07-04T09:29:43+0800",
+        "event": "main_completed",
+        "status": "completed",
+        "pid": 597203,
+        "ppid": 597195,
+        "cwd": "/root/lora-ours",
+        "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay",
+        "config": "/root/lora-ours/configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay_probe.yaml",
+        "exit_code": 0,
+        "phase": "postprocess",
+        "current_segment_id": 1,
+        "current_segment_name": "amazon",
+        "error": "",
+        "traceback": ""
+      },
+      "launcher_exit": {
+        "started_at": "2026-07-04T09:29:09+08:00",
+        "updated_at": "2026-07-04T09:29:44",
+        "event": "pipeline_exit",
+        "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay",
+        "config": "/root/lora-ours/configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay_probe.yaml",
+        "launcher_pid": 597195,
+        "launcher_ppid": 597195,
+        "launcher_exit_status": 0,
+        "train_exit_status": 0,
+        "tee_exit_status": 0
+      },
+      "memory": {
+        "heartbeat_rows": 24,
+        "max_rss_max_mb": 5219.92578125,
+        "max_cuda_allocated_mb": 1516.14208984375,
+        "max_cuda_reserved_mb": 5810.0,
+        "max_cuda_max_allocated_mb": 5205.015625,
+        "last_heartbeat": {
+          "updated_at": "2026-07-04T09:29:31+0800",
+          "event": "train_batch",
+          "phase": "routed_train",
+          "segment_id": 1,
+          "segment_name": "amazon",
+          "epoch_index": 2,
+          "batch_index": 3,
+          "batches_seen": 9,
+          "optimizer_steps": 5,
+          "elapsed_seconds": 2.134591817855835,
+          "pid": 597203,
+          "ppid": 597195,
+          "sid": 597195,
+          "pgid": 597195,
+          "branch_name": "b1",
+          "memory": {
+            "rss_max_mb": 5219.92578125,
+            "cuda_device": 0,
+            "cuda_allocated_mb": 1516.14208984375,
+            "cuda_reserved_mb": 5810.0,
+            "cuda_max_allocated_mb": 5205.015625
+          },
+          "batch_size": 4,
+          "pending_accumulation": 1,
+          "train_loss": 0.6875,
+          "train_batch_acc": 0.25,
+          "routed_branch_examples": 20,
+          "routed_num_branches": 1
+        }
+      },
+      "train": {
+        "segment_000": {
+          "loss": 2.6822916666666665,
+          "mean_batch_acc": 0.4444444444444444,
+          "answer_token_acc": 0.6453423334492577,
+          "optimizer_steps": 6,
+          "batches": 9
+        },
+        "segment_001": {
+          "loss": 2.9296875,
+          "mean_batch_acc": 0.1111111111111111,
+          "answer_token_acc": 0.5387426912784576,
+          "optimizer_steps": 6,
+          "batches": 9
+        }
+      },
+      "debug": {
+        "debug_examples": 48,
+        "teacher_forced_answer_token_acc_mean": 0.0
+      },
+      "score_matrix": [
+        [
+          0.5625,
+          null
+        ],
+        [
+          0.5,
+          0.375
+        ]
+      ],
+      "final_average_accuracy": 0.4375,
+      "final_average_task_aware_accuracy": 0.4375,
+      "all_zero": false,
+      "has_nonzero_score": true,
+      "sigterm": false,
+      "gpu_after": {
+        "returncode": 0,
+        "stdout": "2026/07/04 09:29:44.514, 89 %, 0 MiB, 49140 MiB",
+        "stderr": ""
+      },
+      "candidate_id": "t20_e16_ep3_accum2_noreplay",
+      "train_cap": 20,
+      "eval_cap": 16,
+      "epochs": 3,
+      "accum": 2,
+      "reason": "first GPU-exclusive learning-signal probe; about 7 optimizer steps per segment with no replay pressure"
+    }
+  ]
+}

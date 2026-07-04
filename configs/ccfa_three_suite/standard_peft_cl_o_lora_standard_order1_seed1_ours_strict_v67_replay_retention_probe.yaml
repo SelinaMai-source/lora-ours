@@ -1,0 +1,44 @@
+experiment_name: standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v67_replay_retention_probe
+mode: ours
+seed: 1
+base_config: configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v66_learning_signal_t20_e16_ep3_accum2_noreplay_probe.yaml
+launcher: scripts/launch_v67_standard_replay_retention_probe.py
+purpose: >
+  Standard PEFT Ours dbpedia->amazon retention probe after v66 found a
+  non-zero learning signal. Keep the first healthy t20/e16/ep3/accum2
+  budget fixed and compare no replay against the v61 label-balanced replay
+  setting without launching concurrent GPU work.
+policy:
+  serial_only: true
+  block_existing_gpu_compute: true
+  stop_on_sigterm: true
+  stop_on_first_nonzero: false
+  target: improve final dbpedia->amazon average over the v66 no-replay baseline
+  healthy_gate: >
+    No SIGTERM and final_average_task_aware_accuracy above the v66
+    t20_e16_ep3_accum2_noreplay baseline, or a clear retention gain without
+    collapsing amazon current accuracy.
+candidates:
+  - id: t20_e16_ep3_accum2_noreplay_repeat
+    max_train_examples_per_segment: 20
+    max_eval_examples_per_segment: 16
+    epochs_per_segment: 3
+    gradient_accumulation_steps: 2
+    replay_ratio: 0.0
+    min_replay_per_segment: 0
+    use_overlap_loss: false
+    reason: repeat the v66 first non-zero setting as a same-session control
+  - id: t20_e16_ep3_accum2_v61_label_balanced_replay
+    max_train_examples_per_segment: 20
+    max_eval_examples_per_segment: 16
+    epochs_per_segment: 3
+    gradient_accumulation_steps: 2
+    replay_ratio: 0.25
+    min_replay_per_segment: 64
+    use_overlap_loss: false
+    reason: add the v61 label-balanced replay pressure while keeping all other caps fixed
+notes: >
+  This is an adapted Ours diagnostic run, not an official O-LoRA reproduction
+  and not paper-comparable. If healthy, extend the winning setting to four
+  Standard tasks; if worse, record replay/current-task interference before
+  changing the GPU budget.
