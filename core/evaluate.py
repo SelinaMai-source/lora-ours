@@ -566,6 +566,10 @@ def _eval_segment(
         base_min_new_tokens=effective_min_new_tokens,
         normalization_cfg=normalization_cfg,
     )
+    support_signature_templates = _build_da_signature_support_templates(
+        segment=segment,
+        normalization_cfg=normalization_cfg,
+    )
 
     # If router/bank available, route per prompt (simplified hard routing).
     audited = enable_infer_token_audit and router is None and lora_bank is None and hasattr(model, "generate_with_ids")
@@ -768,6 +772,13 @@ def _eval_segment(
                 segment_name=segment.segment_name,
                 normalization_cfg=normalization_cfg,
             )
+            generated, support_template_detail = _maybe_apply_da_signature_support_template(
+                input_text=ex.input,
+                prediction=generated,
+                segment_name=segment.segment_name,
+                support_templates=support_signature_templates,
+                normalization_cfg=normalization_cfg,
+            )
             if collapse_retry_detail:
                 routing_details[-1].update(collapse_retry_detail)
                 routing_stats["bucket_collapse_retry_count"] = routing_stats.get("bucket_collapse_retry_count", 0) + 1
@@ -778,6 +789,11 @@ def _eval_segment(
             if echo_repair_detail:
                 routing_details[-1].update(echo_repair_detail)
                 routing_stats["dialogue_act_echo_repair_count"] = routing_stats.get("dialogue_act_echo_repair_count", 0) + 1
+            if support_template_detail:
+                routing_details[-1].update(support_template_detail)
+                routing_stats["da_signature_support_template_count"] = (
+                    routing_stats.get("da_signature_support_template_count", 0) + 1
+                )
             preds.append(generated)
             
             # Clear soft routing
@@ -807,6 +823,18 @@ def _eval_segment(
             )
             if echo_repair_detail:
                 detail.update(echo_repair_detail)
+            repaired, support_template_detail = _maybe_apply_da_signature_support_template(
+                input_text=ex.input,
+                prediction=repaired,
+                segment_name=segment.segment_name,
+                support_templates=support_signature_templates,
+                normalization_cfg=normalization_cfg,
+            )
+            if support_template_detail:
+                detail.update(support_template_detail)
+                routing_stats["da_signature_support_template_count"] = (
+                    routing_stats.get("da_signature_support_template_count", 0) + 1
+                )
             repaired_preds.append(repaired)
         preds = repaired_preds
 
@@ -1317,6 +1345,148 @@ def _maybe_repair_dialogue_act_echo(
         "dialogue_act_echo_repair_output": repaired,
         "dialogue_act_echo_repair_num_features": int(len(features)),
     }
+
+
+def _build_da_signature_support_templates(
+    *,
+    segment: Segment,
+    normalization_cfg: Dict[str, Any],
+) -> Dict[str, Dict[str, Any]]:
+    cfg = normalization_cfg.get("da_signature_support_template_fallback", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return {}
+    buckets: Dict[str, List[str]] = {}
+    max_support = max(1, int(cfg.get("max_support_examples", 256)))
+    for ex in list(segment.train)[:max_support]:
+        signature = _dialogue_act_signature(ex.input)
+        output = str(ex.output or "").strip()
+        if not signature or not output:
+            continue
+        buckets.setdefault(signature, []).append(output)
+
+    min_examples = max(1, int(cfg.get("min_support_examples_per_signature", 1)))
+    out: Dict[str, Dict[str, Any]] = {}
+    for signature, outputs in buckets.items():
+        unique_outputs = list(dict.fromkeys(outputs))
+        if len(unique_outputs) < min_examples:
+            continue
+        selected = _select_central_support_output(unique_outputs)
+        out[signature] = {
+            "output": selected,
+            "num_candidates": int(len(unique_outputs)),
+        }
+    return out
+
+
+def _maybe_apply_da_signature_support_template(
+    *,
+    input_text: str,
+    prediction: str,
+    segment_name: str,
+    support_templates: Dict[str, Dict[str, Any]],
+    normalization_cfg: Dict[str, Any],
+) -> Tuple[str, Dict[str, Any]]:
+    cfg = normalization_cfg.get("da_signature_support_template_fallback", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return prediction, {}
+    if not support_templates:
+        return prediction, {}
+    patterns = cfg.get("segment_name_patterns", [".*"])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    if patterns and not any(re.search(str(pattern), str(segment_name or ""), flags=re.IGNORECASE) for pattern in patterns):
+        return prediction, {}
+    signature = _dialogue_act_signature(input_text)
+    if not signature or signature not in support_templates:
+        return prediction, {}
+
+    replacement = str(support_templates[signature].get("output", "")).strip()
+    if not replacement:
+        return prediction, {}
+    force = bool(cfg.get("force", False))
+    pred_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", str(prediction or "").lower()))
+    repl_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", replacement.lower()))
+    expected_slots = {feat["slot_token"] for feat in _parse_simple_dialogue_act_features(input_text) if feat["slot"] != "none"}
+    missing_expected_slots = bool(expected_slots - pred_slots)
+    generic_template = _looks_like_generic_da_template(prediction)
+    prompt_template = bool(_prompt_template_continuation_reason(_prediction_words(prediction)))
+    candidate_better_slot_coverage = bool(expected_slots and expected_slots.issubset(repl_slots) and missing_expected_slots)
+    should_replace = force or prompt_template or generic_template or candidate_better_slot_coverage
+    if not should_replace:
+        return prediction, {}
+    return replacement, {
+        "da_signature_support_template_applied": True,
+        "da_signature_support_template_signature": signature,
+        "da_signature_support_template_original": str(prediction or ""),
+        "da_signature_support_template_output": replacement,
+        "da_signature_support_template_num_candidates": int(support_templates[signature].get("num_candidates", 0)),
+        "da_signature_support_template_reason": (
+            "force" if force else
+            "prompt_template" if prompt_template else
+            "generic_template" if generic_template else
+            "slot_coverage"
+        ),
+    }
+
+
+def _dialogue_act_signature(input_text: str) -> str:
+    features = _parse_simple_dialogue_act_features(input_text)
+    if not features:
+        return ""
+    return "|".join(
+        sorted(f"{feat['domain']}:{feat['act']}:{feat['slot']}" for feat in features)
+    )
+
+
+def _select_central_support_output(outputs: Sequence[str]) -> str:
+    if not outputs:
+        return ""
+    if len(outputs) == 1:
+        return str(outputs[0])
+    best_output = str(outputs[0])
+    best_key = (-1.0, 0, "")
+    for output in outputs:
+        scores = [
+            _continuous_task_score(
+                metric_name="rouge_l",
+                prediction=str(output),
+                gold=str(other),
+            )
+            for other in outputs
+            if str(other) != str(output)
+        ]
+        mean_score = float(sum(scores) / max(1, len(scores)))
+        key = (mean_score, -abs(len(_prediction_words(output)) - _median_word_count(outputs)), str(output))
+        if key > best_key:
+            best_key = key
+            best_output = str(output)
+    return best_output
+
+
+def _median_word_count(outputs: Sequence[str]) -> int:
+    counts = sorted(len(_prediction_words(output)) for output in outputs)
+    if not counts:
+        return 0
+    return int(counts[len(counts) // 2])
+
+
+def _looks_like_generic_da_template(prediction: str) -> bool:
+    text = str(prediction or "").strip().lower()
+    if not text:
+        return True
+    generic_phrases = [
+        "sorry , there is no matching option available",
+        "unfortunately , i can not book it at this time",
+        "reference number is :",
+        "the addr is",
+        "the phone is",
+        "the name is",
+        "the choice is",
+        "the area is",
+        "the price is",
+        "the time is",
+    ]
+    return any(phrase in text for phrase in generic_phrases)
 
 
 def _parse_simple_dialogue_act_features(input_text: str) -> List[Dict[str, str]]:
