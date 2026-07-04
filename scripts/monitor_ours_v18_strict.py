@@ -154,9 +154,12 @@ def _classify(log_info: Dict[str, Any], artifacts: Dict[str, Any], processes: Li
             "state": "eval_failed",
             "reason": f"{latest_failure.get('event', 'eval_failure')}: {latest_failure.get('error', '')}",
         }
-    if LOG_PATH.is_file() and log_info.get("log_age_seconds", 0.0) > STALE_SECONDS and processes:
-        return {"state": "stale", "reason": f"log older than {STALE_SECONDS}s while process exists"}
     if processes:
+        if LOG_PATH.is_file() and log_info.get("log_age_seconds", 0.0) > STALE_SECONDS:
+            return {
+                "state": "running",
+                "reason": f"train process present; log older than {STALE_SECONDS}s during possible silent train phase",
+            }
         return {"state": "running", "reason": "train process present"}
     if "final_metrics.json" in artifacts:
         return {"state": "completed", "reason": "final_metrics_present"}
