@@ -1300,7 +1300,7 @@ def _maybe_repair_dialogue_act_echo(
     coverage = float(overlap / max(1, min(len(set(pred_words)), len(set(input_words)))))
     looks_like_input_echo = (
         bool(pred_words)
-        and not any(word.startswith("slot") for word in pred_words)
+        and re.search(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", pred_lower) is None
         and (
             pred_lower.replace(" ", "") in str(input_text or "").lower().replace(" ", "")
             or coverage >= float(cfg.get("min_input_echo_token_coverage", 0.6))
