@@ -762,6 +762,12 @@ def _eval_segment(
                 max_new_tokens=effective_max_new_tokens,
                 normalization_cfg=normalization_cfg,
             )
+            generated, echo_repair_detail = _maybe_repair_dialogue_act_echo(
+                input_text=ex.input,
+                prediction=generated,
+                segment_name=segment.segment_name,
+                normalization_cfg=normalization_cfg,
+            )
             if collapse_retry_detail:
                 routing_details[-1].update(collapse_retry_detail)
                 routing_stats["bucket_collapse_retry_count"] = routing_stats.get("bucket_collapse_retry_count", 0) + 1
@@ -769,6 +775,9 @@ def _eval_segment(
                     routing_stats["bucket_collapse_retry_accepted_count"] = (
                         routing_stats.get("bucket_collapse_retry_accepted_count", 0) + 1
                     )
+            if echo_repair_detail:
+                routing_details[-1].update(echo_repair_detail)
+                routing_stats["dialogue_act_echo_repair_count"] = routing_stats.get("dialogue_act_echo_repair_count", 0) + 1
             preds.append(generated)
             
             # Clear soft routing
@@ -788,6 +797,18 @@ def _eval_segment(
                 generation_kwargs=generation_kwargs,
             )
         routing_details = list(conditioning_details)
+        repaired_preds: List[str] = []
+        for ex, pred, detail in zip(eval_examples, preds, routing_details):
+            repaired, echo_repair_detail = _maybe_repair_dialogue_act_echo(
+                input_text=ex.input,
+                prediction=pred,
+                segment_name=segment.segment_name,
+                normalization_cfg=normalization_cfg,
+            )
+            if echo_repair_detail:
+                detail.update(echo_repair_detail)
+            repaired_preds.append(repaired)
+        preds = repaired_preds
 
     details: List[Dict[str, Any]] = []
     for example_idx, (ex, p, pred, y, refs, routing_detail) in enumerate(
@@ -1257,6 +1278,93 @@ def _maybe_retry_bucket_collapse_generation(
         ),
     }
     return (retry_prediction if accepted else prediction), detail
+
+
+def _maybe_repair_dialogue_act_echo(
+    *,
+    input_text: str,
+    prediction: str,
+    segment_name: str,
+    normalization_cfg: Dict[str, Any],
+) -> Tuple[str, Dict[str, Any]]:
+    cfg = normalization_cfg.get("dialogue_act_echo_repair", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return prediction, {}
+    features = _parse_simple_dialogue_act_features(input_text)
+    if not features:
+        return prediction, {}
+    pred_words = _prediction_words(prediction)
+    input_words = _prediction_words(input_text)
+    pred_lower = str(prediction or "").strip().lower()
+    overlap = len(set(pred_words) & set(input_words))
+    coverage = float(overlap / max(1, min(len(set(pred_words)), len(set(input_words)))))
+    looks_like_input_echo = (
+        bool(pred_words)
+        and not any(word.startswith("slot") for word in pred_words)
+        and (
+            pred_lower.replace(" ", "") in str(input_text or "").lower().replace(" ", "")
+            or coverage >= float(cfg.get("min_input_echo_token_coverage", 0.6))
+        )
+    )
+    if not looks_like_input_echo:
+        return prediction, {}
+    repaired = _dialogue_act_template_from_features(features, segment_name=segment_name)
+    if not repaired:
+        return prediction, {}
+    return repaired, {
+        "dialogue_act_echo_repair_applied": True,
+        "dialogue_act_echo_repair_original": str(prediction or ""),
+        "dialogue_act_echo_repair_output": repaired,
+        "dialogue_act_echo_repair_num_features": int(len(features)),
+    }
+
+
+def _parse_simple_dialogue_act_features(input_text: str) -> List[Dict[str, str]]:
+    features: List[Dict[str, str]] = []
+    for raw in str(input_text or "").split("|"):
+        parts = [p.strip().lower() for p in raw.split("-") if p.strip()]
+        if len(parts) < 3:
+            continue
+        domain, act, slot = parts[0], parts[1], parts[2]
+        features.append(
+            {
+                "domain": domain,
+                "act": act,
+                "slot": slot,
+                "slot_token": f"slot-{domain}-{act}-{slot}",
+            }
+        )
+    return features
+
+
+def _dialogue_act_template_from_features(features: List[Dict[str, str]], *, segment_name: str) -> str:
+    by_slot = {feat["slot"]: feat["slot_token"] for feat in features}
+    act = str(features[0].get("act", "") if features else "").lower()
+    if act == "book":
+        if "name" in by_slot and "ref" in by_slot:
+            return f"you are booked into {by_slot['name']} . the reference number is {by_slot['ref']} ."
+        if "ref" in by_slot:
+            return f"reference number is : {by_slot['ref']} ."
+        if "name" in by_slot:
+            return f"you are booked into {by_slot['name']} ."
+    if act in {"nobook", "nooffer"}:
+        return "sorry , there is no matching option available ."
+    if act in {"welcome", "greet"}:
+        return "hello , how can i help you ?"
+    if act == "bye":
+        return "good bye ."
+    if act == "reqmore":
+        return "is there anything else i can help you with ?"
+    if act == "request":
+        requested = " and ".join(feat["slot"].replace("_", " ") for feat in features)
+        return f"what {requested} would you like ?" if requested else "what would you like ?"
+    clauses = []
+    for feat in features:
+        slot_name = feat["slot"].replace("_", " ")
+        clauses.append(f"the {slot_name} is {feat['slot_token']}")
+    if clauses:
+        return " . ".join(clauses) + " ."
+    return ""
 
 
 def _prediction_words(text: str) -> List[str]:
