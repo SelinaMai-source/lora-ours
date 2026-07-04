@@ -60,6 +60,26 @@ hooks, MCP servers, npm packages, dashboards, or autonomous loops.
 - Commit hygiene: commit only small scripts/config/docs. Do not commit generated
   `results/runs/`, large logs, `wandb/`, `__pycache__/`, or model artifacts.
 
+## ARPER Path B Post-Decode Repair Overlay Gate
+
+- Base first: ARPER overlays after v66 must name
+  `arper_woz3_official_sclstm_formal_v66` as the published-base SCLSTM Path B
+  checkpoint and keep its official WOZ3 unique dialogue-act task order
+  `1,7,0,6,4,2,8`.
+- Metric integrity: ground truth, split files, templates, and official
+  `util.get_slot_error` / `util.get_bleu` scoring must remain unchanged. Any
+  repair may only transform generated text before the same scorer is rerun.
+- Repair scope: the v68 overlay may repair delexicalized slot-token count errors
+  for template `d-a-s-v` entries except `none`, `?`, `yes`, and `no` values.
+  This targets missing/redundant `slot-*` tokens only and does not lexicalize or
+  edit references.
+- Paper label: any post-decode result must be reported as
+  `published-base + ours overlay / inference-time repair`, not as an official
+  ARPER SCLSTM baseline or a training-method improvement.
+- Runtime gate: launch through tmux only after GPU compute is empty; record local
+  preflight/status files. Official ARPER Path B has no W&B integration, so W&B
+  is marked not applicable rather than faked.
+
 ## Standard PEFT Ours Earlygate
 
 - v61 scope: run only the `dbpedia -> amazon` earlygate before any full Standard

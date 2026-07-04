@@ -1,0 +1,37 @@
+experiment_name: arper_woz3_official_sclstm_v66_published_base_plus_ours_postdecode_repair_overlay_v68
+label: published-base ARPER official SCLSTM Path B v66 + ours overlay
+mode: postdecode_repair_overlay
+base:
+  run_id: arper_woz3_official_sclstm_formal_v66
+  config: results/logs/arper_woz3_official_sclstm_formal_v66.cfg
+  checkpoint_suffix: 1706428
+  final_reference:
+    bleu4: 0.63231
+    ser: 4.817
+official_surface:
+  code_root: baselines/advanced_baselines/arper_dialog_nlg/external
+  scorer: official util.get_slot_error and util.get_bleu
+  task_sequence: 1,7,0,6,4,2,8
+  data_split: resource/woz3/data_split/all_unique_da_datasplit.json
+  template: resource/woz3/template.txt
+overlay:
+  type: inference_time_post_decode_repair
+  mechanism: SER-targeted delex slot-token count repair
+  policy:
+    - Remove redundant generated delex slot tokens when their count exceeds the required semantic feature count.
+    - Append missing required delex slot tokens to the generated text before metric recomputation.
+  repairable_slot_types: all template d-a-s-v entries except none, question-mark, yes, and no values
+  ground_truth_changed: false
+  scoring_changed: false
+  training_changed: false
+runtime:
+  launcher: scripts/launch_arper_v68_postdecode_repair_overlay.py
+  evaluator: scripts/arper_woz3_v68_postdecode_repair_overlay.py
+  tmux_session: arper-woz3-v68-postdecode-repair-overlay
+  wandb: not used by official ARPER Path B; local status files record the smoke
+  gpu_required: true
+paper:
+  status: diagnostic_smoke
+  comparability_boundary: This is an Ours inference-time repair overlay, not an official SCLSTM base result.
+  report_as: published-base + ours overlay / inference-time repair
+  do_not_report_as: official ARPER SCLSTM baseline
