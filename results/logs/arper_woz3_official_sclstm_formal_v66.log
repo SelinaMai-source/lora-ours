@@ -1,0 +1,1412 @@
+/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper
+The experiment type is exemplar_ewc_loss_250_formal_v66_0.5_300000.0
+Start training
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+Current task: Inform has batches: {'train': 391, 'valid': 52}
+Current task: Inform has 0 distillation
+Task Inform Epoch 0 (n_layer 1)
+Train Loss: 2.903 | Time: 128.7
+valid Loss: 1.767 | Slot error: 32.227 | BLEU4: 0.00000 | Time: 21.6
+redunt: 992.0, miss: 1669.0, total: 8257.0
+Best loss: 1.767, AND Save model!
+----------------------------------------
+Task Inform Epoch 1 (n_layer 1)
+Train Loss: 1.698 | Time: 126.8
+valid Loss: 1.458 | Slot error: 14.455 | BLEU4: 0.00000 | Time: 20.3
+redunt: 260.0, miss: 933.0, total: 8253.0
+Best loss: 1.458, AND Save model!
+----------------------------------------
+Task Inform Epoch 2 (n_layer 1)
+Train Loss: 1.497 | Time: 126.5
+valid Loss: 1.360 | Slot error: 9.124 | BLEU4: 0.00000 | Time: 20.2
+redunt: 343.0, miss: 410.0, total: 8253.0
+Best loss: 1.360, AND Save model!
+----------------------------------------
+Task Inform Epoch 3 (n_layer 1)
+Train Loss: 1.404 | Time: 127.8
+valid Loss: 1.312 | Slot error: 6.421 | BLEU4: 0.00000 | Time: 20.9
+redunt: 214.0, miss: 316.0, total: 8254.0
+Best loss: 1.312, AND Save model!
+----------------------------------------
+Task Inform Epoch 4 (n_layer 1)
+Train Loss: 1.345 | Time: 126.6
+valid Loss: 1.282 | Slot error: 6.170 | BLEU4: 0.00000 | Time: 20.6
+redunt: 109.0, miss: 399.0, total: 8234.0
+Best loss: 1.282, AND Save model!
+----------------------------------------
+Task Inform Epoch 5 (n_layer 1)
+Train Loss: 1.300 | Time: 125.2
+valid Loss: 1.256 | Slot error: 4.348 | BLEU4: 0.00000 | Time: 20.6
+redunt: 143.0, miss: 215.0, total: 8234.0
+Best loss: 1.256, AND Save model!
+----------------------------------------
+Task Inform Epoch 6 (n_layer 1)
+Train Loss: 1.266 | Time: 126.3
+valid Loss: 1.243 | Slot error: 5.357 | BLEU4: 0.00000 | Time: 20.2
+redunt: 143.0, miss: 299.0, total: 8251.0
+Best loss: 1.243, AND Save model!
+----------------------------------------
+Task Inform Epoch 7 (n_layer 1)
+Train Loss: 1.238 | Time: 125.6
+valid Loss: 1.232 | Slot error: 3.846 | BLEU4: 0.00000 | Time: 20.3
+redunt: 132.0, miss: 185.0, total: 8243.0
+Best loss: 1.232, AND Save model!
+----------------------------------------
+Task Inform Epoch 8 (n_layer 1)
+Train Loss: 1.216 | Time: 125.7
+valid Loss: 1.225 | Slot error: 3.128 | BLEU4: 0.00000 | Time: 20.2
+redunt: 79.0, miss: 179.0, total: 8247.0
+Best loss: 1.225, AND Save model!
+----------------------------------------
+Task Inform Epoch 9 (n_layer 1)
+Train Loss: 1.198 | Time: 125.8
+valid Loss: 1.219 | Slot error: 3.592 | BLEU4: 0.00000 | Time: 21.5
+redunt: 86.0, miss: 210.0, total: 8240.0
+Best loss: 1.219, AND Save model!
+----------------------------------------
+Task Inform Epoch 10 (n_layer 1)
+Train Loss: 1.178 | Time: 126.2
+valid Loss: 1.213 | Slot error: 3.141 | BLEU4: 0.00000 | Time: 20.2
+redunt: 94.0, miss: 165.0, total: 8246.0
+Best loss: 1.213, AND Save model!
+----------------------------------------
+Task Inform Epoch 11 (n_layer 1)
+Train Loss: 1.165 | Time: 125.6
+valid Loss: 1.213 | Slot error: 3.169 | BLEU4: 0.00000 | Time: 20.3
+redunt: 108.0, miss: 153.0, total: 8236.0
+----------------------------------------
+Task Inform Epoch 12 (n_layer 1)
+Train Loss: 1.151 | Time: 125.0
+valid Loss: 1.210 | Slot error: 2.691 | BLEU4: 0.00000 | Time: 20.8
+redunt: 72.0, miss: 150.0, total: 8249.0
+Best loss: 1.210, AND Save model!
+----------------------------------------
+Task Inform Epoch 13 (n_layer 1)
+Train Loss: 1.139 | Time: 125.2
+valid Loss: 1.207 | Slot error: 2.773 | BLEU4: 0.00000 | Time: 20.6
+redunt: 120.0, miss: 109.0, total: 8259.0
+Best loss: 1.207, AND Save model!
+----------------------------------------
+Task Inform Epoch 14 (n_layer 1)
+Train Loss: 1.127 | Time: 126.0
+valid Loss: 1.209 | Slot error: 2.548 | BLEU4: 0.00000 | Time: 20.4
+redunt: 90.0, miss: 120.0, total: 8243.0
+----------------------------------------
+Task Inform Epoch 15 (n_layer 1)
+Train Loss: 1.117 | Time: 126.0
+valid Loss: 1.201 | Slot error: 2.472 | BLEU4: 0.00000 | Time: 20.2
+redunt: 64.0, miss: 140.0, total: 8252.0
+Best loss: 1.201, AND Save model!
+----------------------------------------
+Task Inform Epoch 16 (n_layer 1)
+Train Loss: 1.107 | Time: 125.0
+valid Loss: 1.205 | Slot error: 2.449 | BLEU4: 0.00000 | Time: 20.3
+redunt: 49.0, miss: 153.0, total: 8249.0
+----------------------------------------
+Task Inform Epoch 17 (n_layer 1)
+Train Loss: 1.099 | Time: 126.0
+valid Loss: 1.207 | Slot error: 2.450 | BLEU4: 0.00000 | Time: 20.1
+redunt: 83.0, miss: 119.0, total: 8246.0
+----------------------------------------
+Task Inform Epoch 18 (n_layer 1)
+Train Loss: 1.089 | Time: 126.3
+valid Loss: 1.203 | Slot error: 2.450 | BLEU4: 0.00000 | Time: 20.1
+redunt: 64.0, miss: 138.0, total: 8244.0
+----------------------------------------
+Task Inform Epoch 19 (n_layer 1)
+Train Loss: 1.082 | Time: 125.3
+valid Loss: 1.203 | Slot error: 2.328 | BLEU4: 0.00000 | Time: 20.3
+redunt: 76.0, miss: 116.0, total: 8246.0
+----------------------------------------
+Task Inform Epoch 20 (n_layer 1)
+Train Loss: 1.076 | Time: 126.1
+valid Loss: 1.212 | Slot error: 2.375 | BLEU4: 0.00000 | Time: 20.2
+redunt: 73.0, miss: 123.0, total: 8251.0
+----------------------------------------
+Task Inform Epoch 21 (n_layer 1)
+Train Loss: 1.068 | Time: 126.4
+valid Loss: 1.207 | Slot error: 2.106 | BLEU4: 0.00000 | Time: 20.4
+redunt: 68.0, miss: 106.0, total: 8262.0
+----------------------------------------
+Task Inform Epoch 22 (n_layer 1)
+Train Loss: 1.064 | Time: 125.7
+valid Loss: 1.213 | Slot error: 1.891 | BLEU4: 0.00000 | Time: 20.8
+redunt: 58.0, miss: 98.0, total: 8251.0
+----------------------------------------
+Task Inform Epoch 23 (n_layer 1)
+Train Loss: 1.058 | Time: 124.9
+valid Loss: 1.212 | Slot error: 1.865 | BLEU4: 0.00000 | Time: 20.7
+redunt: 82.0, miss: 72.0, total: 8256.0
+----------------------------------------
+Task Inform Epoch 24 (n_layer 1)
+Train Loss: 1.051 | Time: 125.7
+valid Loss: 1.215 | Slot error: 2.062 | BLEU4: 0.00000 | Time: 20.2
+redunt: 44.0, miss: 126.0, total: 8245.0
+----------------------------------------
+Task Inform Epoch 25 (n_layer 1)
+Train Loss: 1.047 | Time: 125.1
+valid Loss: 1.215 | Slot error: 2.217 | BLEU4: 0.00000 | Time: 20.3
+redunt: 77.0, miss: 106.0, total: 8255.0
+The algorithm to select exemplars is loss
+Getting loss exemplars
+Getting loss exemplars
+Obtain 250 exemplars for train data
+Obtain 250 exemplars for valid data
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Inform_train_data_file.json
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Inform_valid_data_file.json
+d:Train: the travel time is slot-train-inform-time . 
+d:Restaurant: your reference number is slot-restaurant-inform-ref . 
+d:Attraction: the postcode is slot-attraction-inform-post . 
+d:Taxi: the contact number is slot-taxi-inform-phone . 
+d:Hotel: your reference number is slot-hotel-inform-ref . 
+The mean sv count is 2.56
+
+CHECKPOINT [1] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_1.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.8080478350543537, 0.7462408831124674, 0.6899670545153997, 0.6345933029405271]
+test Loss: 1.199 | Slot error: 2.912 | BLEU4: 0.63459 | Time: 27.2
+redunt: 105.0, miss: 141.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+BLEU 1-4: [0.8080478350543537, 0.7462408831124674, 0.6899670545153997, 0.6345933029405271]
+test Loss: 1.199 | Slot error: 2.912 | BLEU4: 0.63459 | Time: 27.0
+redunt: 105.0, miss: 141.0, total: 8448.0
+Evaluate on all previous tasks
+test Loss: 1.199 | Slot error: 2.912 | BLEU4: 0.63459
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 3, 3
+The number of batch is 106, 18
+voc Ratio: 5.375872022286245 for Request
+Current task: Request has batches: {'train': 106, 'valid': 18}
+Current task: Request has 250 distillation
+Task Request Epoch 0 (n_layer 1)
+Train Loss: 2.445 | Time: 45.5
+valid Loss: 1.651 | Slot error: 8.642 | BLEU4: 0.00000 | Time: 7.0
+redunt: 51.0, miss: 5.0, total: 648.0
+Best loss: 1.651, AND Save model!
+----------------------------------------
+Task Request Epoch 1 (n_layer 1)
+Train Loss: 1.847 | Time: 45.4
+valid Loss: 1.558 | Slot error: 1.682 | BLEU4: 0.00000 | Time: 6.9
+redunt: 6.0, miss: 5.0, total: 654.0
+Best loss: 1.558, AND Save model!
+----------------------------------------
+Task Request Epoch 2 (n_layer 1)
+Train Loss: 1.718 | Time: 45.3
+valid Loss: 1.509 | Slot error: 3.241 | BLEU4: 0.00000 | Time: 7.0
+redunt: 16.0, miss: 5.0, total: 648.0
+Best loss: 1.509, AND Save model!
+----------------------------------------
+Task Request Epoch 3 (n_layer 1)
+Train Loss: 1.648 | Time: 45.6
+valid Loss: 1.473 | Slot error: 3.040 | BLEU4: 0.00000 | Time: 7.0
+redunt: 15.0, miss: 5.0, total: 658.0
+Best loss: 1.473, AND Save model!
+----------------------------------------
+Task Request Epoch 4 (n_layer 1)
+Train Loss: 1.578 | Time: 45.6
+valid Loss: 1.439 | Slot error: 0.926 | BLEU4: 0.00000 | Time: 7.2
+redunt: 1.0, miss: 5.0, total: 648.0
+Best loss: 1.439, AND Save model!
+----------------------------------------
+Task Request Epoch 5 (n_layer 1)
+Train Loss: 1.515 | Time: 45.5
+valid Loss: 1.419 | Slot error: 0.929 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 5.0, total: 646.0
+Best loss: 1.419, AND Save model!
+----------------------------------------
+Task Request Epoch 6 (n_layer 1)
+Train Loss: 1.472 | Time: 46.1
+valid Loss: 1.393 | Slot error: 0.761 | BLEU4: 0.00000 | Time: 6.8
+redunt: 1.0, miss: 4.0, total: 657.0
+Best loss: 1.393, AND Save model!
+----------------------------------------
+Task Request Epoch 7 (n_layer 1)
+Train Loss: 1.437 | Time: 45.2
+valid Loss: 1.382 | Slot error: 0.772 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 4.0, total: 648.0
+Best loss: 1.382, AND Save model!
+----------------------------------------
+Task Request Epoch 8 (n_layer 1)
+Train Loss: 1.401 | Time: 45.5
+valid Loss: 1.367 | Slot error: 0.765 | BLEU4: 0.00000 | Time: 7.3
+redunt: 1.0, miss: 4.0, total: 654.0
+Best loss: 1.367, AND Save model!
+----------------------------------------
+Task Request Epoch 9 (n_layer 1)
+Train Loss: 1.376 | Time: 45.8
+valid Loss: 1.355 | Slot error: 0.768 | BLEU4: 0.00000 | Time: 7.2
+redunt: 1.0, miss: 4.0, total: 651.0
+Best loss: 1.355, AND Save model!
+----------------------------------------
+Task Request Epoch 10 (n_layer 1)
+Train Loss: 1.340 | Time: 45.8
+valid Loss: 1.342 | Slot error: 0.763 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 4.0, total: 655.0
+Best loss: 1.342, AND Save model!
+----------------------------------------
+Task Request Epoch 11 (n_layer 1)
+Train Loss: 1.321 | Time: 45.2
+valid Loss: 1.343 | Slot error: 0.763 | BLEU4: 0.00000 | Time: 6.9
+redunt: 1.0, miss: 4.0, total: 655.0
+----------------------------------------
+Task Request Epoch 12 (n_layer 1)
+Train Loss: 1.305 | Time: 46.0
+valid Loss: 1.335 | Slot error: 0.766 | BLEU4: 0.00000 | Time: 7.3
+redunt: 1.0, miss: 4.0, total: 653.0
+Best loss: 1.335, AND Save model!
+----------------------------------------
+Task Request Epoch 13 (n_layer 1)
+Train Loss: 1.281 | Time: 45.6
+valid Loss: 1.328 | Slot error: 0.766 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 4.0, total: 653.0
+Best loss: 1.328, AND Save model!
+----------------------------------------
+Task Request Epoch 14 (n_layer 1)
+Train Loss: 1.249 | Time: 45.8
+valid Loss: 1.327 | Slot error: 0.765 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 4.0, total: 654.0
+Best loss: 1.327, AND Save model!
+----------------------------------------
+Task Request Epoch 15 (n_layer 1)
+Train Loss: 1.236 | Time: 45.8
+valid Loss: 1.317 | Slot error: 1.074 | BLEU4: 0.00000 | Time: 7.0
+redunt: 3.0, miss: 4.0, total: 652.0
+Best loss: 1.317, AND Save model!
+----------------------------------------
+Task Request Epoch 16 (n_layer 1)
+Train Loss: 1.231 | Time: 45.4
+valid Loss: 1.319 | Slot error: 0.773 | BLEU4: 0.00000 | Time: 7.1
+redunt: 1.0, miss: 4.0, total: 647.0
+----------------------------------------
+Task Request Epoch 17 (n_layer 1)
+Train Loss: 1.232 | Time: 45.6
+valid Loss: 1.317 | Slot error: 0.759 | BLEU4: 0.00000 | Time: 7.3
+redunt: 1.0, miss: 4.0, total: 659.0
+----------------------------------------
+Task Request Epoch 18 (n_layer 1)
+Train Loss: 1.199 | Time: 46.0
+valid Loss: 1.314 | Slot error: 0.763 | BLEU4: 0.00000 | Time: 7.1
+redunt: 1.0, miss: 4.0, total: 655.0
+Best loss: 1.314, AND Save model!
+----------------------------------------
+Task Request Epoch 19 (n_layer 1)
+Train Loss: 1.194 | Time: 45.4
+valid Loss: 1.312 | Slot error: 0.770 | BLEU4: 0.00000 | Time: 6.9
+redunt: 1.0, miss: 4.0, total: 649.0
+Best loss: 1.312, AND Save model!
+----------------------------------------
+Task Request Epoch 20 (n_layer 1)
+Train Loss: 1.165 | Time: 46.3
+valid Loss: 1.300 | Slot error: 0.759 | BLEU4: 0.00000 | Time: 7.2
+redunt: 1.0, miss: 4.0, total: 659.0
+Best loss: 1.300, AND Save model!
+----------------------------------------
+Task Request Epoch 21 (n_layer 1)
+Train Loss: 1.168 | Time: 45.3
+valid Loss: 1.303 | Slot error: 0.915 | BLEU4: 0.00000 | Time: 6.9
+redunt: 1.0, miss: 5.0, total: 656.0
+----------------------------------------
+Task Request Epoch 22 (n_layer 1)
+Train Loss: 1.165 | Time: 45.7
+valid Loss: 1.306 | Slot error: 0.761 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 4.0, total: 657.0
+----------------------------------------
+Task Request Epoch 23 (n_layer 1)
+Train Loss: 1.141 | Time: 45.6
+valid Loss: 1.305 | Slot error: 0.929 | BLEU4: 0.00000 | Time: 7.1
+redunt: 1.0, miss: 5.0, total: 646.0
+----------------------------------------
+Task Request Epoch 24 (n_layer 1)
+Train Loss: 1.133 | Time: 45.3
+valid Loss: 1.310 | Slot error: 1.218 | BLEU4: 0.00000 | Time: 7.2
+redunt: 3.0, miss: 5.0, total: 657.0
+----------------------------------------
+Task Request Epoch 25 (n_layer 1)
+Train Loss: 1.110 | Time: 45.8
+valid Loss: 1.296 | Slot error: 0.917 | BLEU4: 0.00000 | Time: 7.3
+redunt: 1.0, miss: 5.0, total: 654.0
+Best loss: 1.296, AND Save model!
+----------------------------------------
+Task Request Epoch 26 (n_layer 1)
+Train Loss: 1.110 | Time: 45.3
+valid Loss: 1.305 | Slot error: 0.910 | BLEU4: 0.00000 | Time: 6.9
+redunt: 1.0, miss: 5.0, total: 659.0
+----------------------------------------
+Task Request Epoch 27 (n_layer 1)
+Train Loss: 1.095 | Time: 45.5
+valid Loss: 1.306 | Slot error: 1.240 | BLEU4: 0.00000 | Time: 7.0
+redunt: 3.0, miss: 5.0, total: 645.0
+----------------------------------------
+Task Request Epoch 28 (n_layer 1)
+Train Loss: 1.073 | Time: 46.1
+valid Loss: 1.312 | Slot error: 0.930 | BLEU4: 0.00000 | Time: 7.2
+redunt: 1.0, miss: 5.0, total: 645.0
+----------------------------------------
+Task Request Epoch 29 (n_layer 1)
+Train Loss: 1.069 | Time: 45.3
+valid Loss: 1.304 | Slot error: 0.920 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 5.0, total: 652.0
+----------------------------------------
+Task Request Epoch 30 (n_layer 1)
+Train Loss: 1.062 | Time: 46.5
+valid Loss: 1.302 | Slot error: 1.210 | BLEU4: 0.00000 | Time: 7.0
+redunt: 3.0, miss: 5.0, total: 661.0
+----------------------------------------
+Task Request Epoch 31 (n_layer 1)
+Train Loss: 1.061 | Time: 45.2
+valid Loss: 1.307 | Slot error: 0.912 | BLEU4: 0.00000 | Time: 7.1
+redunt: 1.0, miss: 5.0, total: 658.0
+----------------------------------------
+Task Request Epoch 32 (n_layer 1)
+Train Loss: 1.040 | Time: 45.5
+valid Loss: 1.307 | Slot error: 1.074 | BLEU4: 0.00000 | Time: 7.0
+redunt: 2.0, miss: 5.0, total: 652.0
+----------------------------------------
+Task Request Epoch 33 (n_layer 1)
+Train Loss: 1.035 | Time: 45.9
+valid Loss: 1.307 | Slot error: 0.916 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 5.0, total: 655.0
+----------------------------------------
+Task Request Epoch 34 (n_layer 1)
+Train Loss: 1.037 | Time: 45.4
+valid Loss: 1.314 | Slot error: 0.922 | BLEU4: 0.00000 | Time: 7.0
+redunt: 1.0, miss: 5.0, total: 651.0
+----------------------------------------
+Task Request Epoch 35 (n_layer 1)
+Train Loss: 1.021 | Time: 46.1
+valid Loss: 1.317 | Slot error: 0.920 | BLEU4: 0.00000 | Time: 7.3
+redunt: 1.0, miss: 5.0, total: 652.0
+The algorithm to select exemplars is loss
+Getting loss exemplars
+Getting loss exemplars
+Obtain 51 exemplars for train data
+Obtain 51 exemplars for valid data
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Request_train_data_file.json
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Request_valid_data_file.json
+d:Train: where will you be departing from ? 
+d:Train: how many tickets do you need ? 
+d:Hotel: what area would you like to stay in ? 
+d:Restaurant: what type of food would you like ? 
+d:Hotel: what price range are you looking for ? 
+The mean sv count is 0.296
+
+CHECKPOINT [1, 7] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_17.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.8066898523213581, 0.7443452494170448, 0.6881854981628235, 0.6324215170839552]
+test Loss: 1.229 | Slot error: 3.066 | BLEU4: 0.63242 | Time: 27.1
+redunt: 104.0, miss: 155.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 102, 14
+
+Evaluate on task 7: Request
+BLEU 1-4: [0.8615845470509245, 0.8210750048011263, 0.7856684561340541, 0.7494376717526025]
+test Loss: 1.407 | Slot error: 0.000 | BLEU4: 0.74944 | Time: 7.0
+redunt: 0.0, miss: 0.0, total: 0.0
+The number of exemplar batch is 0, 0
+The number of batch is 493, 66
+BLEU 1-4: [0.8191408147389918, 0.7611161450556839, 0.7090991157662548, 0.6572664703064148]
+test Loss: 1.265 | Slot error: 3.066 | BLEU4: 0.65727 | Time: 33.8
+redunt: 104.0, miss: 155.0, total: 8447.0
+Evaluate on all previous tasks
+test Loss: 1.265 | Slot error: 3.066 | BLEU4: 0.65727
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 3, 3
+The number of batch is 64, 11
+voc Ratio: 8.929352346801718 for Book
+Current task: Book has batches: {'train': 64, 'valid': 11}
+Current task: Book has 249 distillation
+Task Book Epoch 0 (n_layer 1)
+Train Loss: 3.309 | Time: 32.3
+valid Loss: 1.067 | Slot error: 11.928 | BLEU4: 0.00000 | Time: 4.3
+redunt: 50.0, miss: 96.0, total: 1224.0
+Best loss: 1.067, AND Save model!
+----------------------------------------
+Task Book Epoch 1 (n_layer 1)
+Train Loss: 1.412 | Time: 31.8
+valid Loss: 0.979 | Slot error: 8.421 | BLEU4: 0.00000 | Time: 4.3
+redunt: 44.0, miss: 60.0, total: 1235.0
+Best loss: 0.979, AND Save model!
+----------------------------------------
+Task Book Epoch 2 (n_layer 1)
+Train Loss: 1.224 | Time: 32.0
+valid Loss: 0.925 | Slot error: 1.681 | BLEU4: 0.00000 | Time: 4.3
+redunt: 12.0, miss: 9.0, total: 1249.0
+Best loss: 0.925, AND Save model!
+----------------------------------------
+Task Book Epoch 3 (n_layer 1)
+Train Loss: 1.170 | Time: 32.6
+valid Loss: 0.914 | Slot error: 2.733 | BLEU4: 0.00000 | Time: 4.3
+redunt: 12.0, miss: 22.0, total: 1244.0
+Best loss: 0.914, AND Save model!
+----------------------------------------
+Task Book Epoch 4 (n_layer 1)
+Train Loss: 1.188 | Time: 32.1
+valid Loss: 0.880 | Slot error: 2.033 | BLEU4: 0.00000 | Time: 4.2
+redunt: 10.0, miss: 15.0, total: 1230.0
+Best loss: 0.880, AND Save model!
+----------------------------------------
+Task Book Epoch 5 (n_layer 1)
+Train Loss: 1.185 | Time: 31.9
+valid Loss: 0.877 | Slot error: 1.373 | BLEU4: 0.00000 | Time: 4.2
+redunt: 10.0, miss: 7.0, total: 1238.0
+Best loss: 0.877, AND Save model!
+----------------------------------------
+Task Book Epoch 6 (n_layer 1)
+Train Loss: 1.081 | Time: 32.2
+valid Loss: 0.872 | Slot error: 1.139 | BLEU4: 0.00000 | Time: 4.2
+redunt: 4.0, miss: 10.0, total: 1229.0
+Best loss: 0.872, AND Save model!
+----------------------------------------
+Task Book Epoch 7 (n_layer 1)
+Train Loss: 1.114 | Time: 32.4
+valid Loss: 0.861 | Slot error: 1.143 | BLEU4: 0.00000 | Time: 4.3
+redunt: 9.0, miss: 5.0, total: 1225.0
+Best loss: 0.861, AND Save model!
+----------------------------------------
+Task Book Epoch 8 (n_layer 1)
+Train Loss: 1.004 | Time: 32.1
+valid Loss: 0.857 | Slot error: 0.410 | BLEU4: 0.00000 | Time: 4.2
+redunt: 1.0, miss: 4.0, total: 1221.0
+Best loss: 0.857, AND Save model!
+----------------------------------------
+Task Book Epoch 9 (n_layer 1)
+Train Loss: 0.987 | Time: 31.9
+valid Loss: 0.855 | Slot error: 0.481 | BLEU4: 0.00000 | Time: 4.2
+redunt: 1.0, miss: 5.0, total: 1247.0
+Best loss: 0.855, AND Save model!
+----------------------------------------
+Task Book Epoch 10 (n_layer 1)
+Train Loss: 1.074 | Time: 32.2
+valid Loss: 0.851 | Slot error: 0.565 | BLEU4: 0.00000 | Time: 4.3
+redunt: 1.0, miss: 6.0, total: 1240.0
+Best loss: 0.851, AND Save model!
+----------------------------------------
+Task Book Epoch 11 (n_layer 1)
+Train Loss: 0.977 | Time: 32.7
+valid Loss: 0.852 | Slot error: 0.404 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 5.0, total: 1239.0
+----------------------------------------
+Task Book Epoch 12 (n_layer 1)
+Train Loss: 0.990 | Time: 32.1
+valid Loss: 0.856 | Slot error: 0.240 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 3.0, total: 1250.0
+----------------------------------------
+Task Book Epoch 13 (n_layer 1)
+Train Loss: 0.950 | Time: 32.0
+valid Loss: 0.843 | Slot error: 0.324 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 4.0, total: 1236.0
+Best loss: 0.843, AND Save model!
+----------------------------------------
+Task Book Epoch 14 (n_layer 1)
+Train Loss: 0.951 | Time: 32.1
+valid Loss: 0.840 | Slot error: 0.245 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 3.0, total: 1222.0
+Best loss: 0.840, AND Save model!
+----------------------------------------
+Task Book Epoch 15 (n_layer 1)
+Train Loss: 0.912 | Time: 32.1
+valid Loss: 0.844 | Slot error: 0.244 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 3.0, total: 1231.0
+----------------------------------------
+Task Book Epoch 16 (n_layer 1)
+Train Loss: 0.942 | Time: 32.2
+valid Loss: 0.823 | Slot error: 0.162 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 2.0, total: 1231.0
+Best loss: 0.823, AND Save model!
+----------------------------------------
+Task Book Epoch 17 (n_layer 1)
+Train Loss: 1.001 | Time: 31.9
+valid Loss: 0.835 | Slot error: 0.241 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 3.0, total: 1246.0
+----------------------------------------
+Task Book Epoch 18 (n_layer 1)
+Train Loss: 0.930 | Time: 32.4
+valid Loss: 0.828 | Slot error: 0.243 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 3.0, total: 1236.0
+----------------------------------------
+Task Book Epoch 19 (n_layer 1)
+Train Loss: 0.919 | Time: 32.0
+valid Loss: 0.833 | Slot error: 0.240 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 3.0, total: 1248.0
+----------------------------------------
+Task Book Epoch 20 (n_layer 1)
+Train Loss: 0.917 | Time: 32.2
+valid Loss: 0.841 | Slot error: 0.404 | BLEU4: 0.00000 | Time: 4.2
+redunt: 2.0, miss: 3.0, total: 1237.0
+----------------------------------------
+Task Book Epoch 21 (n_layer 1)
+Train Loss: 0.915 | Time: 32.0
+valid Loss: 0.843 | Slot error: 0.243 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 3.0, total: 1233.0
+----------------------------------------
+Task Book Epoch 22 (n_layer 1)
+Train Loss: 0.929 | Time: 32.0
+valid Loss: 0.834 | Slot error: 0.163 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 2.0, total: 1226.0
+----------------------------------------
+Task Book Epoch 23 (n_layer 1)
+Train Loss: 0.915 | Time: 31.8
+valid Loss: 0.836 | Slot error: 0.161 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 2.0, total: 1246.0
+----------------------------------------
+Task Book Epoch 24 (n_layer 1)
+Train Loss: 0.886 | Time: 32.3
+valid Loss: 0.799 | Slot error: 0.410 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 5.0, total: 1220.0
+Best loss: 0.799, AND Save model!
+----------------------------------------
+Task Book Epoch 25 (n_layer 1)
+Train Loss: 0.853 | Time: 32.5
+valid Loss: 0.824 | Slot error: 0.324 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 4.0, total: 1235.0
+----------------------------------------
+Task Book Epoch 26 (n_layer 1)
+Train Loss: 0.855 | Time: 31.9
+valid Loss: 0.839 | Slot error: 0.407 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 5.0, total: 1229.0
+----------------------------------------
+Task Book Epoch 27 (n_layer 1)
+Train Loss: 0.865 | Time: 31.7
+valid Loss: 0.822 | Slot error: 0.409 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 5.0, total: 1223.0
+----------------------------------------
+Task Book Epoch 28 (n_layer 1)
+Train Loss: 0.835 | Time: 32.1
+valid Loss: 0.818 | Slot error: 0.410 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 5.0, total: 1221.0
+----------------------------------------
+Task Book Epoch 29 (n_layer 1)
+Train Loss: 0.840 | Time: 32.4
+valid Loss: 0.836 | Slot error: 0.327 | BLEU4: 0.00000 | Time: 4.3
+redunt: 0.0, miss: 4.0, total: 1223.0
+----------------------------------------
+Task Book Epoch 30 (n_layer 1)
+Train Loss: 0.887 | Time: 31.8
+valid Loss: 0.843 | Slot error: 0.327 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 4.0, total: 1222.0
+----------------------------------------
+Task Book Epoch 31 (n_layer 1)
+Train Loss: 0.853 | Time: 32.0
+valid Loss: 0.825 | Slot error: 0.243 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 3.0, total: 1236.0
+----------------------------------------
+Task Book Epoch 32 (n_layer 1)
+Train Loss: 0.860 | Time: 32.2
+valid Loss: 0.830 | Slot error: 0.247 | BLEU4: 0.00000 | Time: 4.4
+redunt: 0.0, miss: 3.0, total: 1216.0
+----------------------------------------
+Task Book Epoch 33 (n_layer 1)
+Train Loss: 0.830 | Time: 32.5
+valid Loss: 0.821 | Slot error: 0.164 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 2.0, total: 1223.0
+----------------------------------------
+Task Book Epoch 34 (n_layer 1)
+Train Loss: 0.852 | Time: 31.9
+valid Loss: 0.804 | Slot error: 0.081 | BLEU4: 0.00000 | Time: 4.2
+redunt: 0.0, miss: 1.0, total: 1237.0
+The algorithm to select exemplars is loss
+Getting loss exemplars
+Getting loss exemplars
+Obtain 27 exemplars for train data
+Obtain 27 exemplars for valid data
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Book_train_data_file.json
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Book_valid_data_file.json
+d:Booking: booking was successful . the table will be reserved for 15 minutes . reference number is : slot-booking-book-ref . 
+d:Booking: booking was successful . the table will be reserved for 15 minutes . 
+d:Booking: i was able to book the table for slot-booking-book-people on slot-booking-book-day slot-booking-book-time . the reference number is slot-booking-book-ref . the table will be reserved for slot-booking-book-time . 
+d:Booking: i was able to book a table for slot-booking-book-people at slot-booking-book-time . your reference number is slot-booking-book-ref . 
+d:Booking: i was able to book you at the slot-booking-book-name . your reference number is slot-booking-book-ref . 
+The mean sv count is 0.308
+
+CHECKPOINT [1, 7, 0] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_170.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.806493010781898, 0.7436842336927393, 0.6871253343874147, 0.6312251710816252]
+test Loss: 1.238 | Slot error: 3.291 | BLEU4: 0.63123 | Time: 27.0
+redunt: 108.0, miss: 170.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 102, 14
+
+Evaluate on task 7: Request
+BLEU 1-4: [0.8651614926309188, 0.8273248235593791, 0.7945997644873167, 0.7615079305267882]
+test Loss: 1.423 | Slot error: 0.000 | BLEU4: 0.76151 | Time: 7.2
+redunt: 0.0, miss: 0.0, total: 0.0
+The number of exemplar batch is 0, 0
+The number of batch is 61, 7
+
+Evaluate on task 0: Book
+BLEU 1-4: [0.8534533768552842, 0.8162200680428296, 0.7851108714679748, 0.7520819261088902]
+test Loss: 0.976 | Slot error: 0.141 | BLEU4: 0.75208 | Time: 7.9
+redunt: 0.0, miss: 1.0, total: 711.0
+The number of exemplar batch is 0, 0
+The number of batch is 555, 74
+BLEU 1-4: [0.8237285170421987, 0.7675259681636164, 0.7174714792732411, 0.6676477427080384]
+test Loss: 1.247 | Slot error: 3.028 | BLEU4: 0.66765 | Time: 43.7
+redunt: 108.0, miss: 173.0, total: 9281.0
+Evaluate on all previous tasks
+test Loss: 1.247 | Slot error: 3.028 | BLEU4: 0.66765
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 3, 3
+The number of batch is 56, 10
+voc Ratio: 6.250161288241468 for Recommend
+Current task: Recommend has batches: {'train': 56, 'valid': 10}
+Current task: Recommend has 249 distillation
+Task Recommend Epoch 0 (n_layer 1)
+Train Loss: 2.992 | Time: 29.6
+valid Loss: 1.245 | Slot error: 21.984 | BLEU4: 0.00000 | Time: 4.0
+redunt: 118.0, miss: 159.0, total: 1260.0
+Best loss: 1.245, AND Save model!
+----------------------------------------
+Task Recommend Epoch 1 (n_layer 1)
+Train Loss: 1.644 | Time: 29.8
+valid Loss: 1.123 | Slot error: 9.387 | BLEU4: 0.00000 | Time: 3.9
+redunt: 51.0, miss: 67.0, total: 1257.0
+Best loss: 1.123, AND Save model!
+----------------------------------------
+Task Recommend Epoch 2 (n_layer 1)
+Train Loss: 1.413 | Time: 29.6
+valid Loss: 1.084 | Slot error: 3.965 | BLEU4: 0.00000 | Time: 3.9
+redunt: 16.0, miss: 34.0, total: 1261.0
+Best loss: 1.084, AND Save model!
+----------------------------------------
+Task Recommend Epoch 3 (n_layer 1)
+Train Loss: 1.322 | Time: 29.4
+valid Loss: 1.071 | Slot error: 3.418 | BLEU4: 0.00000 | Time: 3.8
+redunt: 13.0, miss: 30.0, total: 1258.0
+Best loss: 1.071, AND Save model!
+----------------------------------------
+Task Recommend Epoch 4 (n_layer 1)
+Train Loss: 1.272 | Time: 29.3
+valid Loss: 1.062 | Slot error: 3.339 | BLEU4: 0.00000 | Time: 3.9
+redunt: 20.0, miss: 22.0, total: 1258.0
+Best loss: 1.062, AND Save model!
+----------------------------------------
+Task Recommend Epoch 5 (n_layer 1)
+Train Loss: 1.219 | Time: 29.2
+valid Loss: 1.054 | Slot error: 2.540 | BLEU4: 0.00000 | Time: 3.9
+redunt: 11.0, miss: 21.0, total: 1260.0
+Best loss: 1.054, AND Save model!
+----------------------------------------
+Task Recommend Epoch 6 (n_layer 1)
+Train Loss: 1.268 | Time: 29.6
+valid Loss: 1.054 | Slot error: 2.780 | BLEU4: 0.00000 | Time: 3.9
+redunt: 15.0, miss: 20.0, total: 1259.0
+----------------------------------------
+Task Recommend Epoch 7 (n_layer 1)
+Train Loss: 1.171 | Time: 29.5
+valid Loss: 1.048 | Slot error: 2.390 | BLEU4: 0.00000 | Time: 3.8
+redunt: 10.0, miss: 20.0, total: 1255.0
+Best loss: 1.048, AND Save model!
+----------------------------------------
+Task Recommend Epoch 8 (n_layer 1)
+Train Loss: 1.141 | Time: 29.3
+valid Loss: 1.047 | Slot error: 2.859 | BLEU4: 0.00000 | Time: 3.9
+redunt: 18.0, miss: 18.0, total: 1259.0
+Best loss: 1.047, AND Save model!
+----------------------------------------
+Task Recommend Epoch 9 (n_layer 1)
+Train Loss: 1.172 | Time: 29.2
+valid Loss: 1.045 | Slot error: 2.548 | BLEU4: 0.00000 | Time: 3.9
+redunt: 12.0, miss: 20.0, total: 1256.0
+Best loss: 1.045, AND Save model!
+----------------------------------------
+Task Recommend Epoch 10 (n_layer 1)
+Train Loss: 1.094 | Time: 29.6
+valid Loss: 1.044 | Slot error: 2.542 | BLEU4: 0.00000 | Time: 3.9
+redunt: 12.0, miss: 20.0, total: 1259.0
+Best loss: 1.044, AND Save model!
+----------------------------------------
+Task Recommend Epoch 11 (n_layer 1)
+Train Loss: 1.078 | Time: 29.5
+valid Loss: 1.033 | Slot error: 2.300 | BLEU4: 0.00000 | Time: 3.8
+redunt: 14.0, miss: 15.0, total: 1261.0
+Best loss: 1.033, AND Save model!
+----------------------------------------
+Task Recommend Epoch 12 (n_layer 1)
+Train Loss: 1.081 | Time: 29.5
+valid Loss: 1.039 | Slot error: 1.987 | BLEU4: 0.00000 | Time: 3.9
+redunt: 12.0, miss: 13.0, total: 1258.0
+----------------------------------------
+Task Recommend Epoch 13 (n_layer 1)
+Train Loss: 1.055 | Time: 29.5
+valid Loss: 1.038 | Slot error: 1.508 | BLEU4: 0.00000 | Time: 4.0
+redunt: 9.0, miss: 10.0, total: 1260.0
+----------------------------------------
+Task Recommend Epoch 14 (n_layer 1)
+Train Loss: 1.089 | Time: 29.6
+valid Loss: 1.039 | Slot error: 1.746 | BLEU4: 0.00000 | Time: 3.9
+redunt: 12.0, miss: 10.0, total: 1260.0
+----------------------------------------
+Task Recommend Epoch 15 (n_layer 1)
+Train Loss: 1.046 | Time: 29.4
+valid Loss: 1.042 | Slot error: 1.746 | BLEU4: 0.00000 | Time: 3.8
+redunt: 10.0, miss: 12.0, total: 1260.0
+----------------------------------------
+Task Recommend Epoch 16 (n_layer 1)
+Train Loss: 1.084 | Time: 29.6
+valid Loss: 1.039 | Slot error: 2.148 | BLEU4: 0.00000 | Time: 3.9
+redunt: 14.0, miss: 13.0, total: 1257.0
+----------------------------------------
+Task Recommend Epoch 17 (n_layer 1)
+Train Loss: 1.018 | Time: 29.4
+valid Loss: 1.045 | Slot error: 1.823 | BLEU4: 0.00000 | Time: 4.0
+redunt: 12.0, miss: 11.0, total: 1262.0
+----------------------------------------
+Task Recommend Epoch 18 (n_layer 1)
+Train Loss: 1.060 | Time: 29.8
+valid Loss: 1.043 | Slot error: 1.830 | BLEU4: 0.00000 | Time: 3.9
+redunt: 11.0, miss: 12.0, total: 1257.0
+----------------------------------------
+Task Recommend Epoch 19 (n_layer 1)
+Train Loss: 0.993 | Time: 29.7
+valid Loss: 1.047 | Slot error: 1.664 | BLEU4: 0.00000 | Time: 3.9
+redunt: 13.0, miss: 8.0, total: 1262.0
+----------------------------------------
+Task Recommend Epoch 20 (n_layer 1)
+Train Loss: 1.021 | Time: 28.9
+valid Loss: 1.043 | Slot error: 1.750 | BLEU4: 0.00000 | Time: 4.1
+redunt: 12.0, miss: 10.0, total: 1257.0
+----------------------------------------
+Task Recommend Epoch 21 (n_layer 1)
+Train Loss: 0.989 | Time: 28.0
+valid Loss: 1.042 | Slot error: 2.072 | BLEU4: 0.00000 | Time: 3.9
+redunt: 16.0, miss: 10.0, total: 1255.0
+The algorithm to select exemplars is loss
+Getting loss exemplars
+Getting loss exemplars
+Obtain 21 exemplars for train data
+Obtain 21 exemplars for valid data
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Recommend_train_data_file.json
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/Recommend_valid_data_file.json
+d:Attraction: slot-attraction-recommend-name is also in the slot-attraction-recommend-area , slot-attraction-recommend-area . 
+d:Attraction: slot-attraction-recommend-name is a slot-attraction-recommend-type in the slot-attraction-recommend-area . 
+d:Hotel: slot-hotel-recommend-name is a slot-hotel-recommend-stars star slot-hotel-recommend-type in the slot-hotel-recommend-area . 
+d:Hotel: i recommend the slot-hotel-recommend-name . 
+d:Restaurant: i recommend slot-restaurant-recommend-name . 
+The mean sv count is 0.24
+
+CHECKPOINT [1, 7, 0, 6] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_1706.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.8098780992891894, 0.7454761111990257, 0.6875292486038584, 0.6314449958009818]
+test Loss: 1.240 | Slot error: 3.101 | BLEU4: 0.63144 | Time: 27.3
+redunt: 101.0, miss: 161.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 102, 14
+
+Evaluate on task 7: Request
+BLEU 1-4: [0.8589998951672083, 0.8154734272977218, 0.7789050680762413, 0.742300777566573]
+test Loss: 1.447 | Slot error: 0.000 | BLEU4: 0.74230 | Time: 7.0
+redunt: 0.0, miss: 0.0, total: 0.0
+The number of exemplar batch is 0, 0
+The number of batch is 61, 7
+
+Evaluate on task 0: Book
+BLEU 1-4: [0.8545830090230637, 0.8176658629302059, 0.7862554933121116, 0.7530342286454745]
+test Loss: 0.979 | Slot error: 0.000 | BLEU4: 0.75303 | Time: 8.1
+redunt: 0.0, miss: 0.0, total: 711.0
+The number of exemplar batch is 0, 0
+The number of batch is 52, 6
+
+Evaluate on task 6: Recommend
+BLEU 1-4: [0.7272523195601522, 0.6225959018847742, 0.5362371376151667, 0.4534335616151502]
+test Loss: 1.570 | Slot error: 3.906 | BLEU4: 0.45343 | Time: 2.8
+redunt: 16.0, miss: 14.0, total: 768.0
+The number of exemplar batch is 0, 0
+The number of batch is 607, 80
+BLEU 1-4: [0.8186458497538389, 0.7576801915259056, 0.704064490871975, 0.6519410978835739]
+test Loss: 1.272 | Slot error: 2.907 | BLEU4: 0.65194 | Time: 46.3
+redunt: 117.0, miss: 175.0, total: 10044.0
+Evaluate on all previous tasks
+test Loss: 1.272 | Slot error: 2.907 | BLEU4: 0.65194
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 3, 3
+The number of batch is 9, 4
+voc Ratio: 11.144505372604026 for OfferBook
+Current task: OfferBook has batches: {'train': 9, 'valid': 4}
+Current task: OfferBook has 248 distillation
+Task OfferBook Epoch 0 (n_layer 1)
+Train Loss: 4.065 | Time: 14.1
+valid Loss: 0.711 | Slot error: 4.878 | BLEU4: 0.00000 | Time: 0.3
+redunt: 0.0, miss: 4.0, total: 82.0
+Best loss: 0.711, AND Save model!
+----------------------------------------
+Task OfferBook Epoch 1 (n_layer 1)
+Train Loss: 3.428 | Time: 13.6
+valid Loss: 0.864 | Slot error: 13.158 | BLEU4: 0.00000 | Time: 0.3
+redunt: 0.0, miss: 10.0, total: 76.0
+----------------------------------------
+Task OfferBook Epoch 2 (n_layer 1)
+Train Loss: 2.784 | Time: 13.6
+valid Loss: 1.214 | Slot error: 37.662 | BLEU4: 0.00000 | Time: 0.3
+redunt: 8.0, miss: 21.0, total: 77.0
+----------------------------------------
+Task OfferBook Epoch 3 (n_layer 1)
+Train Loss: 2.406 | Time: 13.6
+valid Loss: 0.676 | Slot error: 11.842 | BLEU4: 0.00000 | Time: 0.3
+redunt: 3.0, miss: 6.0, total: 76.0
+Best loss: 0.676, AND Save model!
+----------------------------------------
+Task OfferBook Epoch 4 (n_layer 1)
+Train Loss: 2.365 | Time: 13.4
+valid Loss: 0.463 | Slot error: 5.000 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 3.0, total: 80.0
+Best loss: 0.463, AND Save model!
+----------------------------------------
+Task OfferBook Epoch 5 (n_layer 1)
+Train Loss: 2.287 | Time: 13.1
+valid Loss: 0.662 | Slot error: 5.556 | BLEU4: 0.00000 | Time: 0.3
+redunt: 0.0, miss: 4.0, total: 72.0
+----------------------------------------
+Task OfferBook Epoch 6 (n_layer 1)
+Train Loss: 2.220 | Time: 12.8
+valid Loss: 0.646 | Slot error: 9.877 | BLEU4: 0.00000 | Time: 0.3
+redunt: 3.0, miss: 5.0, total: 81.0
+----------------------------------------
+Task OfferBook Epoch 7 (n_layer 1)
+Train Loss: 2.102 | Time: 12.9
+valid Loss: 0.698 | Slot error: 16.456 | BLEU4: 0.00000 | Time: 0.3
+redunt: 3.0, miss: 10.0, total: 79.0
+----------------------------------------
+Task OfferBook Epoch 8 (n_layer 1)
+Train Loss: 1.716 | Time: 13.3
+valid Loss: 0.525 | Slot error: 1.282 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 0.0, total: 78.0
+----------------------------------------
+Task OfferBook Epoch 9 (n_layer 1)
+Train Loss: 1.873 | Time: 13.6
+valid Loss: 0.708 | Slot error: 10.390 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 7.0, total: 77.0
+----------------------------------------
+Task OfferBook Epoch 10 (n_layer 1)
+Train Loss: 1.557 | Time: 13.4
+valid Loss: 0.674 | Slot error: 10.294 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 6.0, total: 68.0
+----------------------------------------
+Task OfferBook Epoch 11 (n_layer 1)
+Train Loss: 1.952 | Time: 12.9
+valid Loss: 0.779 | Slot error: 4.412 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 2.0, total: 68.0
+----------------------------------------
+Task OfferBook Epoch 12 (n_layer 1)
+Train Loss: 1.741 | Time: 13.2
+valid Loss: 0.582 | Slot error: 3.750 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 2.0, total: 80.0
+----------------------------------------
+Task OfferBook Epoch 13 (n_layer 1)
+Train Loss: 1.691 | Time: 12.9
+valid Loss: 0.572 | Slot error: 6.329 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 4.0, total: 79.0
+----------------------------------------
+Task OfferBook Epoch 14 (n_layer 1)
+Train Loss: 1.313 | Time: 12.8
+valid Loss: 0.794 | Slot error: 4.000 | BLEU4: 0.00000 | Time: 0.3
+redunt: 1.0, miss: 2.0, total: 75.0
+The algorithm to select exemplars is loss
+Getting loss exemplars
+Getting loss exemplars
+Obtain 2 exemplars for train data
+Obtain 2 exemplars for valid data
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/OfferBook_train_data_file.json
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/OfferBook_valid_data_file.json
+d:Train: would you like me to book it for you ? 
+d:Train: the travel time is slot-train-offerbook-time , would you like me to book it for you ? 
+The mean sv count is 0.008
+
+CHECKPOINT [1, 7, 0, 6, 4] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_17064.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.809723758120969, 0.7454823950131867, 0.688013677563585, 0.6321360599893956]
+test Loss: 1.242 | Slot error: 3.172 | BLEU4: 0.63214 | Time: 27.2
+redunt: 106.0, miss: 162.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 102, 14
+
+Evaluate on task 7: Request
+BLEU 1-4: [0.8554788166168437, 0.8045904185593326, 0.7664789640384897, 0.7283739708643093]
+test Loss: 1.455 | Slot error: 0.000 | BLEU4: 0.72837 | Time: 7.0
+redunt: 5.0, miss: 0.0, total: 0.0
+The number of exemplar batch is 0, 0
+The number of batch is 61, 7
+
+Evaluate on task 0: Book
+BLEU 1-4: [0.8545867293983542, 0.8176492953758946, 0.786217389086338, 0.7529716896414372]
+test Loss: 0.983 | Slot error: 0.000 | BLEU4: 0.75297 | Time: 8.0
+redunt: 0.0, miss: 0.0, total: 711.0
+The number of exemplar batch is 0, 0
+The number of batch is 52, 6
+
+Evaluate on task 6: Recommend
+BLEU 1-4: [0.7233153896986367, 0.6163648034091336, 0.528137786428794, 0.44513252728078095]
+test Loss: 1.580 | Slot error: 3.776 | BLEU4: 0.44513 | Time: 2.8
+redunt: 13.0, miss: 16.0, total: 768.0
+The number of exemplar batch is 0, 0
+The number of batch is 5, 0
+
+Evaluate on task 4: OfferBook
+BLEU 1-4: [0.5694716242661448, 0.4403278617357836, 0.3641158808396843, 0.29666954964413916]
+test Loss: 1.682 | Slot error: 108.621 | BLEU4: 0.29667 | Time: 0.3
+redunt: 20.0, miss: 43.0, total: 58.0
+The number of exemplar batch is 0, 0
+The number of batch is 613, 81
+BLEU 1-4: [0.8158821329546676, 0.7531926932740447, 0.6993591897414128, 0.6470218462838186]
+test Loss: 1.281 | Slot error: 3.620 | BLEU4: 0.64702 | Time: 47.1
+redunt: 144.0, miss: 223.0, total: 10139.0
+Evaluate on all previous tasks
+test Loss: 1.281 | Slot error: 3.620 | BLEU4: 0.64702
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 3, 3
+The number of batch is 7, 4
+voc Ratio: 11.189280584559492 for NoBook
+Current task: NoBook has batches: {'train': 7, 'valid': 4}
+Current task: NoBook has 247 distillation
+Task NoBook Epoch 0 (n_layer 1)
+Train Loss: 3.783 | Time: 13.1
+valid Loss: 0.717 | Slot error: 4.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 2.0, total: 50.0
+Best loss: 0.717, AND Save model!
+----------------------------------------
+Task NoBook Epoch 1 (n_layer 1)
+Train Loss: 2.944 | Time: 11.9
+valid Loss: 0.851 | Slot error: 0.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 0.0, total: 36.0
+----------------------------------------
+Task NoBook Epoch 2 (n_layer 1)
+Train Loss: 2.850 | Time: 12.0
+valid Loss: 1.385 | Slot error: 2.326 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 1.0, total: 43.0
+----------------------------------------
+Task NoBook Epoch 3 (n_layer 1)
+Train Loss: 2.768 | Time: 11.9
+valid Loss: 1.159 | Slot error: 10.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 5.0, total: 50.0
+----------------------------------------
+Task NoBook Epoch 4 (n_layer 1)
+Train Loss: 2.580 | Time: 12.3
+valid Loss: 0.812 | Slot error: 5.455 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 3.0, total: 55.0
+----------------------------------------
+Task NoBook Epoch 5 (n_layer 1)
+Train Loss: 2.374 | Time: 12.6
+valid Loss: 0.694 | Slot error: 5.882 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 3.0, total: 51.0
+Best loss: 0.694, AND Save model!
+----------------------------------------
+Task NoBook Epoch 6 (n_layer 1)
+Train Loss: 2.206 | Time: 12.5
+valid Loss: 0.830 | Slot error: 3.846 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 2.0, total: 52.0
+----------------------------------------
+Task NoBook Epoch 7 (n_layer 1)
+Train Loss: 2.221 | Time: 12.6
+valid Loss: 0.703 | Slot error: 7.500 | BLEU4: 0.00000 | Time: 0.2
+redunt: 1.0, miss: 2.0, total: 40.0
+----------------------------------------
+Task NoBook Epoch 8 (n_layer 1)
+Train Loss: 2.283 | Time: 12.5
+valid Loss: 0.617 | Slot error: 2.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 1.0, miss: 0.0, total: 50.0
+Best loss: 0.617, AND Save model!
+----------------------------------------
+Task NoBook Epoch 9 (n_layer 1)
+Train Loss: 2.028 | Time: 12.6
+valid Loss: 0.951 | Slot error: 5.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 3.0, total: 60.0
+----------------------------------------
+Task NoBook Epoch 10 (n_layer 1)
+Train Loss: 2.265 | Time: 12.6
+valid Loss: 0.469 | Slot error: 0.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 0.0, total: 57.0
+Best loss: 0.469, AND Save model!
+----------------------------------------
+Task NoBook Epoch 11 (n_layer 1)
+Train Loss: 1.995 | Time: 12.6
+valid Loss: 0.544 | Slot error: 8.333 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 4.0, total: 48.0
+----------------------------------------
+Task NoBook Epoch 12 (n_layer 1)
+Train Loss: 2.288 | Time: 12.5
+valid Loss: 0.620 | Slot error: 3.774 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 2.0, total: 53.0
+----------------------------------------
+Task NoBook Epoch 13 (n_layer 1)
+Train Loss: 2.220 | Time: 12.6
+valid Loss: 0.655 | Slot error: 9.091 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 5.0, total: 55.0
+----------------------------------------
+Task NoBook Epoch 14 (n_layer 1)
+Train Loss: 2.224 | Time: 12.6
+valid Loss: 1.210 | Slot error: 10.638 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 5.0, total: 47.0
+----------------------------------------
+Task NoBook Epoch 15 (n_layer 1)
+Train Loss: 2.325 | Time: 12.5
+valid Loss: 0.369 | Slot error: 2.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 1.0, total: 50.0
+Best loss: 0.369, AND Save model!
+----------------------------------------
+Task NoBook Epoch 16 (n_layer 1)
+Train Loss: 2.231 | Time: 12.5
+valid Loss: 1.215 | Slot error: 19.048 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 8.0, total: 42.0
+----------------------------------------
+Task NoBook Epoch 17 (n_layer 1)
+Train Loss: 2.063 | Time: 12.6
+valid Loss: 0.562 | Slot error: 5.882 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 3.0, total: 51.0
+----------------------------------------
+Task NoBook Epoch 18 (n_layer 1)
+Train Loss: 1.977 | Time: 12.5
+valid Loss: 0.411 | Slot error: 0.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 0.0, total: 58.0
+----------------------------------------
+Task NoBook Epoch 19 (n_layer 1)
+Train Loss: 1.991 | Time: 12.6
+valid Loss: 0.637 | Slot error: 5.660 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 3.0, total: 53.0
+----------------------------------------
+Task NoBook Epoch 20 (n_layer 1)
+Train Loss: 2.097 | Time: 12.6
+valid Loss: 0.499 | Slot error: 0.000 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 0.0, total: 49.0
+----------------------------------------
+Task NoBook Epoch 21 (n_layer 1)
+Train Loss: 2.014 | Time: 12.6
+valid Loss: 0.807 | Slot error: 2.778 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 1.0, total: 36.0
+----------------------------------------
+Task NoBook Epoch 22 (n_layer 1)
+Train Loss: 2.017 | Time: 12.6
+valid Loss: 0.694 | Slot error: 5.263 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 3.0, total: 57.0
+----------------------------------------
+Task NoBook Epoch 23 (n_layer 1)
+Train Loss: 1.990 | Time: 12.6
+valid Loss: 0.634 | Slot error: 7.143 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 4.0, total: 56.0
+----------------------------------------
+Task NoBook Epoch 24 (n_layer 1)
+Train Loss: 1.681 | Time: 12.6
+valid Loss: 0.421 | Slot error: 3.571 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 2.0, total: 56.0
+----------------------------------------
+Task NoBook Epoch 25 (n_layer 1)
+Train Loss: 1.934 | Time: 12.6
+valid Loss: 0.865 | Slot error: 2.083 | BLEU4: 0.00000 | Time: 0.2
+redunt: 0.0, miss: 1.0, total: 48.0
+The algorithm to select exemplars is loss
+Getting loss exemplars
+Getting loss exemplars
+Obtain 1 exemplars for train data
+Obtain 1 exemplars for valid data
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/NoBook_train_data_file.json
+Storing exemplars to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/exemplars/NoBook_valid_data_file.json
+d:Booking: your reference number is slot-booking-nobook-ref . 
+The mean sv count is 0.004
+
+CHECKPOINT [1, 7, 0, 6, 4, 2] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_170642.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.8091098489932446, 0.7436078827858886, 0.6841148620780753, 0.6274240451176042]
+test Loss: 1.255 | Slot error: 3.267 | BLEU4: 0.62742 | Time: 27.2
+redunt: 110.0, miss: 166.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 102, 14
+
+Evaluate on task 7: Request
+BLEU 1-4: [0.8494107831890708, 0.7955381182483081, 0.7497618561354091, 0.7061590048885121]
+test Loss: 1.486 | Slot error: 0.000 | BLEU4: 0.70616 | Time: 7.0
+redunt: 1.0, miss: 0.0, total: 0.0
+The number of exemplar batch is 0, 0
+The number of batch is 61, 7
+
+Evaluate on task 0: Book
+BLEU 1-4: [0.8518641711882159, 0.813539688728716, 0.7804324579195626, 0.7420721187527552]
+test Loss: 1.010 | Slot error: 0.141 | BLEU4: 0.74207 | Time: 7.9
+redunt: 0.0, miss: 1.0, total: 711.0
+The number of exemplar batch is 0, 0
+The number of batch is 52, 6
+
+Evaluate on task 6: Recommend
+BLEU 1-4: [0.7304438779989981, 0.623603053830427, 0.5362030536572875, 0.45478468050373966]
+test Loss: 1.592 | Slot error: 3.385 | BLEU4: 0.45478 | Time: 2.8
+redunt: 8.0, miss: 18.0, total: 768.0
+The number of exemplar batch is 0, 0
+The number of batch is 5, 0
+
+Evaluate on task 4: OfferBook
+BLEU 1-4: [0.6166365280289331, 0.4835422056608621, 0.3947565021799306, 0.3233245672167383]
+test Loss: 1.666 | Slot error: 70.690 | BLEU4: 0.32332 | Time: 0.3
+redunt: 16.0, miss: 25.0, total: 58.0
+The number of exemplar batch is 0, 0
+The number of batch is 4, 0
+
+Evaluate on task 2: NoBook
+BLEU 1-4: [0.30246913580246915, 0.20441718208061152, 0.1266816012361459, 0.07247022544912932]
+test Loss: 2.525 | Slot error: 97.222 | BLEU4: 0.07247 | Time: 0.2
+redunt: 0.0, miss: 35.0, total: 36.0
+The number of exemplar batch is 0, 0
+The number of batch is 617, 81
+BLEU 1-4: [0.8117914216475453, 0.7466130300306248, 0.6891048742892643, 0.6341801406106842]
+test Loss: 1.307 | Slot error: 3.756 | BLEU4: 0.63418 | Time: 47.9
+redunt: 136.0, miss: 249.0, total: 10249.0
+Evaluate on all previous tasks
+test Loss: 1.307 | Slot error: 3.756 | BLEU4: 0.63418
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is train
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+The number of exemplar batch is 3, 3
+The number of batch is 17, 5
+voc Ratio: 7.251436639269031 for Select
+Current task: Select has batches: {'train': 17, 'valid': 5}
+Current task: Select has 247 distillation
+Task Select Epoch 0 (n_layer 1)
+Train Loss: 3.969 | Time: 16.9
+valid Loss: 1.376 | Slot error: 39.297 | BLEU4: 0.00000 | Time: 2.0
+redunt: 40.0, miss: 206.0, total: 626.0
+Best loss: 1.376, AND Save model!
+----------------------------------------
+Task Select Epoch 1 (n_layer 1)
+Train Loss: 2.391 | Time: 16.8
+valid Loss: 1.066 | Slot error: 43.214 | BLEU4: 0.00000 | Time: 2.0
+redunt: 147.0, miss: 130.0, total: 641.0
+Best loss: 1.066, AND Save model!
+----------------------------------------
+Task Select Epoch 2 (n_layer 1)
+Train Loss: 1.878 | Time: 16.8
+valid Loss: 0.994 | Slot error: 33.439 | BLEU4: 0.00000 | Time: 2.0
+redunt: 148.0, miss: 62.0, total: 628.0
+Best loss: 0.994, AND Save model!
+----------------------------------------
+Task Select Epoch 3 (n_layer 1)
+Train Loss: 1.481 | Time: 16.8
+valid Loss: 0.930 | Slot error: 25.394 | BLEU4: 0.00000 | Time: 2.0
+redunt: 96.0, miss: 65.0, total: 634.0
+Best loss: 0.930, AND Save model!
+----------------------------------------
+Task Select Epoch 4 (n_layer 1)
+Train Loss: 1.536 | Time: 16.9
+valid Loss: 0.918 | Slot error: 29.134 | BLEU4: 0.00000 | Time: 2.0
+redunt: 116.0, miss: 69.0, total: 635.0
+Best loss: 0.918, AND Save model!
+----------------------------------------
+Task Select Epoch 5 (n_layer 1)
+Train Loss: 1.289 | Time: 17.0
+valid Loss: 0.924 | Slot error: 18.720 | BLEU4: 0.00000 | Time: 2.0
+redunt: 73.0, miss: 44.0, total: 625.0
+----------------------------------------
+Task Select Epoch 6 (n_layer 1)
+Train Loss: 1.396 | Time: 16.8
+valid Loss: 0.940 | Slot error: 16.144 | BLEU4: 0.00000 | Time: 1.9
+redunt: 61.0, miss: 42.0, total: 638.0
+----------------------------------------
+Task Select Epoch 7 (n_layer 1)
+Train Loss: 1.162 | Time: 16.8
+valid Loss: 0.927 | Slot error: 19.651 | BLEU4: 0.00000 | Time: 1.9
+redunt: 82.0, miss: 42.0, total: 631.0
+----------------------------------------
+Task Select Epoch 8 (n_layer 1)
+Train Loss: 1.297 | Time: 16.8
+valid Loss: 0.858 | Slot error: 12.759 | BLEU4: 0.00000 | Time: 1.9
+redunt: 42.0, miss: 38.0, total: 627.0
+Best loss: 0.858, AND Save model!
+----------------------------------------
+Task Select Epoch 9 (n_layer 1)
+Train Loss: 1.074 | Time: 16.8
+valid Loss: 0.896 | Slot error: 12.579 | BLEU4: 0.00000 | Time: 2.2
+redunt: 48.0, miss: 32.0, total: 636.0
+----------------------------------------
+Task Select Epoch 10 (n_layer 1)
+Train Loss: 1.128 | Time: 16.8
+valid Loss: 0.935 | Slot error: 8.934 | BLEU4: 0.00000 | Time: 2.0
+redunt: 31.0, miss: 26.0, total: 638.0
+----------------------------------------
+Task Select Epoch 11 (n_layer 1)
+Train Loss: 1.103 | Time: 17.0
+valid Loss: 0.911 | Slot error: 10.535 | BLEU4: 0.00000 | Time: 2.0
+redunt: 32.0, miss: 33.0, total: 617.0
+----------------------------------------
+Task Select Epoch 12 (n_layer 1)
+Train Loss: 1.085 | Time: 17.0
+valid Loss: 0.894 | Slot error: 8.805 | BLEU4: 0.00000 | Time: 2.0
+redunt: 26.0, miss: 30.0, total: 636.0
+----------------------------------------
+Task Select Epoch 13 (n_layer 1)
+Train Loss: 0.998 | Time: 16.8
+valid Loss: 0.938 | Slot error: 12.342 | BLEU4: 0.00000 | Time: 2.0
+redunt: 42.0, miss: 36.0, total: 632.0
+----------------------------------------
+Task Select Epoch 14 (n_layer 1)
+Train Loss: 0.984 | Time: 16.7
+valid Loss: 0.910 | Slot error: 10.592 | BLEU4: 0.00000 | Time: 2.0
+redunt: 35.0, miss: 33.0, total: 642.0
+----------------------------------------
+Task Select Epoch 15 (n_layer 1)
+Train Loss: 0.938 | Time: 16.8
+valid Loss: 0.898 | Slot error: 11.076 | BLEU4: 0.00000 | Time: 1.9
+redunt: 49.0, miss: 21.0, total: 632.0
+----------------------------------------
+Task Select Epoch 16 (n_layer 1)
+Train Loss: 1.147 | Time: 16.9
+valid Loss: 0.906 | Slot error: 8.558 | BLEU4: 0.00000 | Time: 2.0
+redunt: 28.0, miss: 26.0, total: 631.0
+----------------------------------------
+Task Select Epoch 17 (n_layer 1)
+Train Loss: 1.053 | Time: 17.1
+valid Loss: 0.934 | Slot error: 9.591 | BLEU4: 0.00000 | Time: 2.0
+redunt: 30.0, miss: 31.0, total: 636.0
+----------------------------------------
+Task Select Epoch 18 (n_layer 1)
+Train Loss: 0.906 | Time: 17.0
+valid Loss: 0.927 | Slot error: 8.991 | BLEU4: 0.00000 | Time: 2.0
+redunt: 29.0, miss: 28.0, total: 634.0
+
+CHECKPOINT [1, 7, 0, 6, 4, 2, 8] to /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_1706428.pt
+The number of exemplar batch is 0, 0
+The number of batch is 391, 52
+
+Evaluate on task 1: Inform
+BLEU 1-4: [0.8088755039861217, 0.7441459930427096, 0.6857374477592839, 0.6300098732487147]
+test Loss: 1.257 | Slot error: 3.338 | BLEU4: 0.63001 | Time: 27.4
+redunt: 108.0, miss: 174.0, total: 8448.0
+The number of exemplar batch is 0, 0
+The number of batch is 102, 14
+
+Evaluate on task 7: Request
+BLEU 1-4: [0.8571726221481404, 0.8083275621304346, 0.7649066406890143, 0.7215845484948344]
+test Loss: 1.484 | Slot error: 0.000 | BLEU4: 0.72158 | Time: 7.0
+redunt: 1.0, miss: 0.0, total: 0.0
+The number of exemplar batch is 0, 0
+The number of batch is 61, 7
+
+Evaluate on task 0: Book
+BLEU 1-4: [0.8498369799313573, 0.8111599431256691, 0.7773860406354282, 0.7383153472025166]
+test Loss: 1.010 | Slot error: 0.141 | BLEU4: 0.73832 | Time: 8.1
+redunt: 0.0, miss: 1.0, total: 711.0
+The number of exemplar batch is 0, 0
+The number of batch is 52, 6
+
+Evaluate on task 6: Recommend
+BLEU 1-4: [0.7334591484343052, 0.6269295348986339, 0.5387487442477064, 0.4570641807012929]
+test Loss: 1.596 | Slot error: 4.036 | BLEU4: 0.45706 | Time: 2.8
+redunt: 13.0, miss: 18.0, total: 768.0
+The number of exemplar batch is 0, 0
+The number of batch is 5, 0
+
+Evaluate on task 4: OfferBook
+BLEU 1-4: [0.5842105263157895, 0.4496012508555359, 0.3633103531272266, 0.2856552036533472]
+test Loss: 1.649 | Slot error: 87.931 | BLEU4: 0.28566 | Time: 0.3
+redunt: 25.0, miss: 26.0, total: 58.0
+The number of exemplar batch is 0, 0
+The number of batch is 4, 0
+
+Evaluate on task 2: NoBook
+BLEU 1-4: [0.27586206896551724, 0.18887606218161876, 0.11717378106893322, 0.06701529586616414]
+test Loss: 2.541 | Slot error: 97.222 | BLEU4: 0.06702 | Time: 0.2
+redunt: 1.0, miss: 34.0, total: 36.0
+The number of exemplar batch is 0, 0
+The number of batch is 13, 1
+
+Evaluate on task 8: Select
+BLEU 1-4: [0.5827941155784014, 0.4912741930873557, 0.4205808416957383, 0.3699546183753438]
+test Loss: 1.766 | Slot error: 53.378 | BLEU4: 0.36995 | Time: 0.4
+redunt: 53.0, miss: 26.0, total: 148.0
+The number of exemplar batch is 0, 0
+The number of batch is 631, 83
+BLEU 1-4: [0.8073762947840493, 0.7429526036336336, 0.686417087332359, 0.632306611378243]
+test Loss: 1.314 | Slot error: 4.817 | BLEU4: 0.63231 | Time: 47.6
+redunt: 209.0, miss: 292.0, total: 10400.0
+Evaluate on all previous tasks
+test Loss: 1.314 | Slot error: 4.817 | BLEU4: 0.63231
