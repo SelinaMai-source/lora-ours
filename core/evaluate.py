@@ -1414,7 +1414,16 @@ def _maybe_apply_da_signature_support_template(
         replacement_support_score = _mean_support_score(replacement, support_outputs)
     prediction_support_score = _mean_support_score(prediction, support_outputs)
     support_margin = float(replacement_support_score - prediction_support_score)
-    min_support_margin = float(cfg.get("min_support_score_margin", 0.05))
+    features = _parse_simple_dialogue_act_features(input_text)
+    act = str(features[0].get("act", "") if features else "").lower()
+    min_support_margin = float(
+        _cfg_by_act(
+            cfg,
+            "min_support_score_margin",
+            act=act,
+            default=0.05,
+        )
+    )
     min_support_score = float(cfg.get("min_support_mean_score", 0.0))
     min_candidates = int(cfg.get("min_support_candidates_for_confidence", 1))
     num_candidates = int(support_templates[signature].get("num_candidates", 0))
@@ -1424,7 +1433,7 @@ def _maybe_apply_da_signature_support_template(
     )
     pred_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", str(prediction or "").lower()))
     repl_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", replacement.lower()))
-    expected_slots = {feat["slot_token"] for feat in _parse_simple_dialogue_act_features(input_text) if feat["slot"] != "none"}
+    expected_slots = {feat["slot_token"] for feat in features if feat["slot"] != "none"}
     missing_expected_slots = bool(expected_slots - pred_slots)
     generic_template = _looks_like_generic_da_template(prediction)
     prompt_template = bool(_prompt_template_continuation_reason(_prediction_words(prediction)))
@@ -1447,6 +1456,7 @@ def _maybe_apply_da_signature_support_template(
         "da_signature_support_template_signature": signature,
         "da_signature_support_template_original": str(prediction or ""),
         "da_signature_support_template_output": replacement,
+        "da_signature_support_template_act": act,
         "da_signature_support_template_num_candidates": num_candidates,
         "da_signature_support_template_prediction_support_score": float(prediction_support_score),
         "da_signature_support_template_replacement_support_score": float(replacement_support_score),
@@ -1459,6 +1469,13 @@ def _maybe_apply_da_signature_support_template(
             "support_margin_short_prediction"
         ),
     }
+
+
+def _cfg_by_act(cfg: Dict[str, Any], key: str, *, act: str, default: Any) -> Any:
+    by_act = cfg.get(f"{key}_by_act", {})
+    if isinstance(by_act, dict) and str(act or "").lower() in by_act:
+        return by_act[str(act or "").lower()]
+    return cfg.get(key, default)
 
 
 def _dialogue_act_signature(input_text: str) -> str:
