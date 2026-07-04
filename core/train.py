@@ -841,6 +841,10 @@ def _routing_row_metrics(eval_metrics: Dict[str, Any]) -> Dict[str, Any]:
             extra.get("anytime_task_aware_score", eval_metrics.get("seen_avg_task_aware_score", 0.0))
         ),
         "eval.task_aware_score_mean": float(extra.get("task_aware_score_mean", 0.0)),
+        "eval.corpus_bleu4": float(extra.get("corpus_bleu4", eval_metrics.get("bleu_mean", 0.0))),
+        "eval.arper_woz3_corpus_bleu4": float(
+            extra.get("arper_woz3_corpus_bleu4", extra.get("corpus_bleu4", eval_metrics.get("bleu_mean", 0.0)))
+        ),
         "routing.num_routed": int(routing.get("num_routed", 0)),
         "routing.oracle_agreement_rate": float(routing.get("oracle_agreement_rate", 0.0)),
         "routing.decision_confidence_mean": float(routing.get("decision_confidence_mean", 0.0)),

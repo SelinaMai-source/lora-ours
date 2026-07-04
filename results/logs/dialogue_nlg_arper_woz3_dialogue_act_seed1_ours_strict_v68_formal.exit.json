@@ -1,0 +1,12 @@
+{
+  "started_at": "2026-07-04T09:39:04+08:00",
+  "updated_at": "2026-07-05T01:31:15",
+  "event": "pipeline_exit",
+  "run_name": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal",
+  "config": "configs/ccfa_three_suite/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal.yaml",
+  "launcher_pid": 600405,
+  "launcher_ppid": 600405,
+  "launcher_exit_status": 0,
+  "train_exit_status": 0,
+  "tee_exit_status": 0
+}

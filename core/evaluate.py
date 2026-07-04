@@ -11,6 +11,8 @@ from core.data import Example, Segment
 from core.formatting import format_for_infer, format_for_train
 from core.train_labels import build_supervised_labels
 from core.metrics_utils import (
+    arper_woz3_corpus_bleu4 as _arper_woz3_corpus_bleu4,
+    corpus_bleu4 as _corpus_bleu4,
     dialogue_slot_error_rate as _dialogue_slot_error_rate,
     lcs_length as _lcs_length,
     lcs_overlap as _lcs_overlap,
@@ -189,6 +191,58 @@ def _oracle_branch_for_example(model: Any, lora_bank: Any, ex: Example, branch_n
     }
 
 
+def _support_nll_task_branch(
+    *,
+    model: Any,
+    lora_bank: Any,
+    segment: Segment,
+    branch_names: List[str],
+    normalization_cfg: Dict[str, Any],
+) -> Tuple[str, Dict[str, Any]]:
+    cfg = normalization_cfg.get("eval_task_support_nll_fallback", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return "", {}
+    if not hasattr(model, "score_answer_nlls") or not hasattr(lora_bank, "set_active_adapter"):
+        return "", {}
+
+    support = [ex for ex in segment.train if str(ex.output or "").strip()]
+    max_examples = max(1, int(cfg.get("max_support_examples", 64)))
+    support = support[:max_examples]
+    if not support or not branch_names:
+        return "", {}
+
+    pairs = [(ex.instruction, ex.input) for ex in support]
+    targets = [ex.output for ex in support]
+    active_before = lora_bank.get_active_branch() if hasattr(lora_bank, "get_active_branch") else None
+    losses: Dict[str, float] = {}
+    try:
+        for branch_name in branch_names:
+            lora_bank.set_active_adapter(branch_name)
+            branch_losses = model.score_answer_nlls(pairs, targets)
+            losses[branch_name] = float(sum(branch_losses) / max(1, len(branch_losses))) if branch_losses else float("inf")
+    finally:
+        if active_before is not None and hasattr(lora_bank, "has_adapter") and lora_bank.has_adapter(active_before):
+            lora_bank.set_active_adapter(active_before)
+
+    ranked = sorted((loss, branch) for branch, loss in losses.items())
+    if not ranked:
+        return "", {}
+    best_loss, best_branch = ranked[0]
+    second_loss = ranked[1][0] if len(ranked) > 1 else best_loss
+    margin = float(second_loss - best_loss)
+    detail = {
+        "support_nll_fallback_considered": True,
+        "support_nll_best_branch": best_branch,
+        "support_nll_best_loss": float(best_loss),
+        "support_nll_margin": margin,
+        "support_nll_num_examples": int(len(support)),
+    }
+    if margin < float(cfg.get("min_loss_margin", 0.0)):
+        detail["support_nll_fallback_rejected"] = "low_margin"
+        return "", detail
+    return best_branch, detail
+
+
 def evaluate_stream(
     *,
     model: Any,
@@ -357,6 +411,12 @@ def evaluate_stream(
         for branch, count in sorted(branch_counts.items())
     }
     oracle_num = int(routing_stats.get("oracle_num_examples", 0))
+    corpus_predictions = [str(x.get("raw_generated_output", "")) for x in all_examples_for_dump]
+    corpus_references = [
+        [str(ref) for ref in x.get("gold_references", []) if str(ref).strip()]
+        or [str(x.get("gold_output", ""))]
+        for x in all_examples_for_dump
+    ]
 
     extra = {
         "per_segment_accuracy": [{"segment_id": sid, "accuracy": acc} for sid, acc in per_seg_acc],
@@ -379,6 +439,8 @@ def evaluate_stream(
         "lcs_overlap_mean": float(sum(all_lcs_overlap) / max(1, len(all_lcs_overlap))),
         "rouge_l_mean": float(sum(all_rouge_l) / max(1, len(all_rouge_l))),
         "bleu_mean": float(sum(all_bleu) / max(1, len(all_bleu))),
+        "corpus_bleu4": float(_corpus_bleu4(corpus_predictions, corpus_references)),
+        "arper_woz3_corpus_bleu4": float(_arper_woz3_corpus_bleu4(corpus_predictions, corpus_references)),
         "slot_error_rate": float(sum(all_slot_error) / max(1, len(all_slot_error))),
         "slot_error_count": int(len(all_slot_error)),
         "task_aware_score_mean": float(sum(all_task_aware_scores) / max(1, len(all_task_aware_scores))),
@@ -511,6 +573,18 @@ def _eval_segment(
     if router is not None and lora_bank is not None:
         branch_names = lora_bank.list_branches()
         branch_meta = lora_bank.state_dict()
+        support_branch, support_detail = _support_nll_task_branch(
+            model=model,
+            lora_bank=lora_bank,
+            segment=segment,
+            branch_names=branch_names,
+            normalization_cfg=normalization_cfg,
+        )
+        support_cfg = normalization_cfg.get("eval_task_support_nll_fallback", {})
+        force_support_branch = bool(
+            support_branch
+            and (support_cfg.get("force", True) if isinstance(support_cfg, dict) else True)
+        )
         preds: List[str] = []
         routing_details: List[Dict[str, Any]] = []
         for ex, route_prompt, generation_prompt, conditioning_detail in zip(
@@ -562,6 +636,15 @@ def _eval_segment(
                 decision.reason = f"{decision.reason}+nll_arbitration"
                 arbitrated_low_margin = True
                 prob_scores = {b: (1.0 if b == arbitrated else 0.0) for b in prob_scores}
+            support_overrode = False
+            support_original_branch = ""
+            if force_support_branch and support_branch in branch_names and decision.branch_name != support_branch:
+                support_original_branch = decision.branch_name
+                decision.branch_name = support_branch
+                decision.reason = f"{decision.reason}+support_nll_task_fallback"
+                support_overrode = True
+                prob_scores = {b: (1.0 if b == support_branch else 0.0) for b in prob_scores}
+                routing_stats["support_nll_fallback_count"] = routing_stats.get("support_nll_fallback_count", 0) + 1
             if "task_aware_fallback" in str(getattr(decision, "reason", "")):
                 routing_stats["task_aware_fallback_count"] = routing_stats.get("task_aware_fallback_count", 0) + 1
             routing_stats["num_routed"] += 1
@@ -589,6 +672,10 @@ def _eval_segment(
                     "routing_nll_arbitration_candidates": cand_nlls if arbitrated_low_margin else {},
                     "routing_nll_arbitration_original_branch": original_branch if arbitrated_low_margin else "",
                     "routing_nll_arbitration_changed": bool(arbitrated_low_margin and decision.branch_name != original_branch),
+                    "routing_support_nll_fallback_branch": support_branch,
+                    "routing_support_nll_fallback_changed": bool(support_overrode),
+                    "routing_support_nll_fallback_original_branch": support_original_branch,
+                    **support_detail,
                     **conditioning_detail,
                 }
             )

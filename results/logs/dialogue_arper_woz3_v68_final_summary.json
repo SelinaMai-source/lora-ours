@@ -1,0 +1,59 @@
+{
+  "run_id": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal",
+  "status": "completed",
+  "exit_code": 0,
+  "phase": "postprocess",
+  "final_segment": {
+    "segment_id": 12,
+    "segment_name": "welcome"
+  },
+  "artifacts": {
+    "final_metrics": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/final_metrics.json",
+    "process_exit": "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal/process_exit.json",
+    "segment_metrics": "/root/autodl-tmp/lora-baselines-run_v1/results/tables/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal_segment_metrics.csv",
+    "log": "/root/autodl-tmp/lora-baselines-run_v1/results/logs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal.log"
+  },
+  "metrics": {
+    "eval.seen_avg_score": 0.0014852316424025657,
+    "eval.seen_avg_task_aware_score": 0.0997469620812097,
+    "eval.bleu_mean": 0.10602405455366919,
+    "eval.rouge_l_mean": 0.13041270522926432,
+    "eval.slot_error_rate": 0.0,
+    "ccfa.official.dialogue_nlg.BLEU-4": null,
+    "ccfa.official.dialogue_nlg.SER": 0.0,
+    "routing.oracle_agreement_rate": 0.3052316890881913,
+    "routing.decision_confidence_mean": 0.48814552803774086,
+    "routing.decision_entropy_mean": 1.651469000526455,
+    "prefix_1_match_mean": 0.07518684603886397,
+    "prefix_3_match_mean": 0.012855007473841554,
+    "prefix_5_match_mean": 0.008221225710014948,
+    "num_bad_prefix_mismatch": 6245
+  },
+  "routing_quality": {
+    "branch_counts": {
+      "b0": 501,
+      "b1": 3951,
+      "b2": 88,
+      "b3": 353,
+      "b4": 44,
+      "b5": 373,
+      "b6": 480,
+      "b7": 900
+    },
+    "oracle_best_branch_counts": {
+      "b0": 4813,
+      "b1": 609,
+      "b2": 13,
+      "b3": 172,
+      "b4": 1,
+      "b5": 74,
+      "b6": 1,
+      "b7": 1007
+    }
+  },
+  "diagnosis": [
+    "SER=0.0 does not imply good Dialogue NLG; v68 generated lexically mismatched or too-short/nonnatural outputs.",
+    "Task-aware forced assignment did not guarantee the branch was still the best generator for that task at eval time.",
+    "Official BLEU-4 was null because corpus BLEU4 fields were not exported to the postprocess table."
+  ]
+}

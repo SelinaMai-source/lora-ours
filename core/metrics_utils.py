@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 _NLG_METRIC_LIBS: Dict[str, bool] = {}
 
@@ -128,6 +128,40 @@ def sentence_bleu4(pred: str, gold: str) -> float:
     return float(bp * math.exp(s))
 
 
+def corpus_bleu4(predictions: Sequence[str], references: Sequence[Sequence[str]]) -> float:
+    """Corpus BLEU-4 in the ARPER/WOZ3 style: one hypothesis, multiple refs."""
+    if bool(_NLG_METRIC_LIBS.get("nltk")):
+        try:
+            from nltk.translate.bleu_score import SmoothingFunction, corpus_bleu
+
+            refs_tok = [[[tok for tok in str(ref).split() if tok] for ref in refs] for refs in references]
+            hyps_tok = [[tok for tok in str(pred).split() if tok] for pred in predictions]
+            pairs = [(refs, hyp) for refs, hyp in zip(refs_tok, hyps_tok) if refs and hyp]
+            if not pairs:
+                return 0.0
+            refs_clean, hyps_clean = zip(*pairs)
+            smooth = SmoothingFunction()
+            return float(
+                corpus_bleu(
+                    list(refs_clean),
+                    list(hyps_clean),
+                    weights=(0.25, 0.25, 0.25, 0.25),
+                    smoothing_function=smooth.method1,
+                )
+            )
+        except Exception:
+            pass
+    scores = [
+        max((sentence_bleu4(str(pred), str(ref)) for ref in refs), default=0.0)
+        for pred, refs in zip(predictions, references)
+    ]
+    return float(sum(scores) / max(1, len(scores)))
+
+
+def arper_woz3_corpus_bleu4(predictions: Sequence[str], references: Sequence[Sequence[str]]) -> float:
+    return corpus_bleu4(predictions, references)
+
+
 def starts_incorrectly(pred: str, gold: str) -> bool:
     p = [t for t in pred.split() if t]
     g = [t for t in gold.split() if t]
@@ -181,7 +215,7 @@ def _probe_nlg_metric_libs() -> None:
     global _NLG_METRIC_LIBS
     if _NLG_METRIC_LIBS:
         return
-    for name, mod in (("rouge_score", "rouge_score"), ("sacrebleu", "sacrebleu")):
+    for name, mod in (("rouge_score", "rouge_score"), ("sacrebleu", "sacrebleu"), ("nltk", "nltk")):
         try:
             __import__(mod)
             _NLG_METRIC_LIBS[name] = True
