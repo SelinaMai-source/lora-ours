@@ -54,8 +54,12 @@
 - Published method: Learn more, but bother less: parameter efficient continual learning.
 - Paper/source verified via web search:
   - NeurIPS/OpenReview paper reports T5-large Standard CL LB-CL `76.9/76.5/76.8`, avg `76.7`.
-- Dedicated official repo: not found in current local external sources and web search did not reveal a single canonical code repository.
-- Status: paper result can be cited as published baseline, but code-level reproducibility remains unresolved until an official repo or author code is located.
+- Additional search on `2026-07-05`:
+  - Web search for `"Learn more, but bother less" LB-CL code GitHub`, `"LB-CL" "Learn more, but bother less" GitHub`, and OpenReview ID `ZxtaNh5UYB` found paper/OpenReview/NeurIPS pages but no canonical code repository.
+  - `gh` CLI is not installed in this environment, so GitHub API search could not be run locally.
+  - Direct OpenReview fetch is blocked by browser verification; web snippets and downloaded paper PDFs are available, but no code link was exposed there.
+- Dedicated official repo: not found in current local external sources and not found via web search.
+- Status: paper result can be cited as a published baseline, but code-level reproducibility remains a blocker until an official/author repository or supplement code is located. Do not use third-party code as LB-CL official code.
 
 ## Gate Decision
 

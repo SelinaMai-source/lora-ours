@@ -30,6 +30,10 @@
 - Local official-script reproduction currently validated only for InstrDialog short stream under script-strict `500/50/50`.
 - Blocker: official Stage-2 code uses one `max_num_instances_per_eval_task` for both dev and per-task test, so unpatched official script yields `500/50/50`, not paper `500/50/100`.
 - Additional blocker: some InstrDialog++ tasks are short or empty under requested split counts, e.g. observed `train=0/dev=0/test<100` tasks in the long stream audit.
+- Official released scores provide partial explanation for the mismatch:
+  - `scores/continual_instruction_tuning/stream=cl_dialogue_tasks/CL=FT_INSTR/scores.json` reports order1 ROUGE-L `average_train_samples=411.5`, not 500, which supports the short-task / available-instance constraint.
+  - `scores/continual_instruction_tuning/stream=cl_dialogue_tasks/CL=REPLAY/scores.json` reports order1 ROUGE-L `average_train_samples=5855.5`, consistent with replay-expanded training rather than simple 500 examples per current task.
+  - These released scores help explain why the actual official results are not a literal `500` current-task-only count, but they do not by themselves resolve the dev/test `50/100` script ambiguity.
 
 ## Existing Reproduction Evidence
 
@@ -48,3 +52,4 @@
 
 - CITB is not cleared for new ours increments until the official paper-comparable split path is resolved or explicitly downgraded to script-strict `500/50/50`.
 - Any future ours result must state whether it is paper `500/50/100` comparable, official-script `500/50/50` comparable, or only diagnostic.
+- Current status: keep blocker open; prepare only non-expensive audits/smokes until a released official `500/50/100` path is located or the paper claim is explicitly treated as non-reproducible from public scripts.

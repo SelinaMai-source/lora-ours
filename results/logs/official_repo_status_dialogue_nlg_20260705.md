@@ -45,6 +45,16 @@
 - Commit: `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`
 - Dirty status: clean.
 - Official data setup: `data/download.sh`.
+- Data requirements from `data/download.sh`:
+  - clone `https://github.com/google-research-datasets/dstc8-schema-guided-dialogue.git`
+  - clone `https://github.com/google-research-datasets/Taskmaster.git`
+  - clone `https://github.com/budzianowski/multiwoz.git`
+  - unzip/convert MultiWOZ 2.1/2.2
+- Current data availability: `SGD_MISSING`, `TM_MISSING`, `MWOZ_MISSING`; only `data/download.sh`, `data/TM.py`, `data/SGD.py`, and `data/MWOZ.py` are present.
+- Current environment availability:
+  - No dedicated ToDCL conda env is present.
+  - `python train.py --help` smoke fails before parsing args with `ModuleNotFoundError: No module named 'pytorch_lightning'`.
+  - `requirements.txt` pins an old stack including `torch==1.4.0`, `pytorch-lightning==1.2.5`, and `transformers==3.5.1`, so it should be isolated before any install.
 - Official examples:
   - `python train.py --CL VANILLA --task_type NLG`
   - `python train.py --task_type NLG --CL REPLAY --episodic_mem_size 10`
@@ -54,9 +64,10 @@
   - REPLAY BLEU `21.4832`, EER `0.0559855`
   - ADAPTER BLEU `21.7719`, EER `0.163975`
   - MULTI BLEU `26.1462`, EER `0.0341823`
-- Status: repo downloaded and clean; official data download/preprocess/export has not been run in this turn due disk/time constraints. ToDCL is not yet cleared as a runnable base for ours.
+- Status: repo downloaded and clean, but not yet runnable. Official data download/preprocess/export and an isolated legacy environment are required before even a minimal official smoke.
 
 ## Gate Decision
 
 - Dialogue ours increments may continue only on the documented ARPER SCLSTM base until ToDCL official data and smoke reproduction are completed.
 - Do not compare ARPER WOZ3 BLEU/SER and ToDCL TOD37/MultiWOZ BLEU/EER as interchangeable SOTA claims.
+- Next safe ToDCL step: create an isolated legacy environment and run data download/preprocess only if disk budget is confirmed; otherwise keep ToDCL as blocked.
