@@ -46,7 +46,7 @@
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl`
 - Commit: `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`
 - Official archive submodule: `official_repos/dialogue/ToDCL`.
-- Dirty status: clean.
+- Dirty status: untracked local smoke stdout only: `results/logs/official_todcl_full_dataloader_smoke_20260705.log`.
 - Official data setup: `data/download.sh`.
 - Data requirements from `data/download.sh`:
   - clone `https://github.com/google-research-datasets/dstc8-schema-guided-dialogue.git`
