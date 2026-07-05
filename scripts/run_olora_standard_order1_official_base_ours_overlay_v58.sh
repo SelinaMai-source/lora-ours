@@ -26,6 +26,8 @@ PER_DEVICE_EVAL_BATCH_SIZE="${PER_DEVICE_EVAL_BATCH_SIZE:-16}"
 GRADIENT_ACCUMULATION_STEPS="${GRADIENT_ACCUMULATION_STEPS:-8}"
 LORA_DIM="${LORA_DIM:-8}"
 REPLAY_PER_TASK="${REPLAY_PER_TASK:-64}"
+AMAZON_REPLAY_MULTIPLIER="${AMAZON_REPLAY_MULTIPLIER:-1}"
+SC_LABEL_CALIBRATION="${SC_LABEL_CALIBRATION:-0}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -108,7 +110,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -133,6 +135,8 @@ from pathlib import Path
     run_label,
     gradient_accumulation_steps,
     replay_per_task,
+    amazon_replay_multiplier,
+    sc_label_calibration,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -148,6 +152,8 @@ manifest = {
         "name": "ours_limited_prior_task_replay",
         "scope": "training task_config only",
         "replay_per_prior_task": maybe_int(replay_per_task),
+        "amazon_replay_multiplier": maybe_int(amazon_replay_multiplier),
+        "sc_label_calibration": sc_label_calibration == "1",
         "config_root": overlay_config_root,
         "manifest": overlay_manifest,
         "dev_test_policy": "copied unchanged from official current-round order1 configs",
@@ -231,11 +237,28 @@ if old not in text:
     raise SystemExit(f"expected W&B disable line not found in {path}")
 path.write_text(text.replace(old, new, 1), encoding="utf-8")
 PY
+  if [[ "$SC_LABEL_CALIBRATION" == "1" ]]; then
+    python - "$RUNTIME_ROOT/src/uie_dataset_lora.py" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+old = '            instruction += "Option: " + labels_str + " \\n" + "{0}" + "\\nAnswer:" # value of "sentence" will be filled in {0}\n'
+new = '''            instruction += "Option: " + labels_str + " \\n"
+            instruction += "Use the exact option text. Treat negative/positive as moderate sentiment and very negative/very positive as strong sentiment. \\n"
+            instruction += "{0}" + "\\nAnswer:" # value of "sentence" will be filled in {0}
+'''
+if old not in text:
+    raise SystemExit(f"expected SC instruction line not found in {path}")
+path.write_text(text.replace(old, new, 1), encoding="utf-8")
+PY
+  fi
 }
 
 prepare_overlay_configs() {
   rm -rf "$OVERLAY_CONFIG_ROOT"
-  python - "$RUNTIME_ROOT/configs/order1_configs" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$REPLAY_PER_TASK" "${TASKS[@]}" <<'PY'
+  python - "$RUNTIME_ROOT/configs/order1_configs" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "${TASKS[@]}" <<'PY'
 import json
 import shutil
 import sys
@@ -245,7 +268,9 @@ src_root = Path(sys.argv[1])
 out_root = Path(sys.argv[2])
 manifest_path = Path(sys.argv[3])
 replay_per_task = int(sys.argv[4])
-tasks = sys.argv[5:]
+amazon_replay_multiplier = int(sys.argv[5])
+sc_label_calibration = sys.argv[6]
+tasks = sys.argv[7:]
 
 out_root.mkdir(parents=True, exist_ok=True)
 
@@ -261,9 +286,13 @@ def merge_train_config(current_config, replay_configs):
         for task_type, entries in replay.items():
             merged.setdefault(task_type, [])
             for entry in entries:
-                replay_entry = dict(entry)
-                replay_entry["sampling strategy"] = "random"
-                merged[task_type].append(replay_entry)
+                repeats = 1
+                if task_type == "SC" and entry.get("dataset name") == "amazon":
+                    repeats = max(1, amazon_replay_multiplier)
+                for _ in range(repeats):
+                    replay_entry = dict(entry)
+                    replay_entry["sampling strategy"] = "random"
+                    merged[task_type].append(replay_entry)
     return merged
 
 rounds = []
@@ -289,6 +318,9 @@ for index, task in enumerate(tasks, start=1):
                         "dataset_name": entry["dataset name"],
                         "sampling_strategy": "random",
                         "max_instances": replay_per_task,
+                        "repeats": max(1, amazon_replay_multiplier)
+                        if task_type == "SC" and entry["dataset name"] == "amazon"
+                        else 1,
                     }
                 )
     rounds.append(
@@ -309,6 +341,8 @@ manifest = {
     "base": "O-LoRA official T5-large Standard CL order1 seed1",
     "task_order": tasks,
     "replay_per_prior_task": replay_per_task,
+    "amazon_replay_multiplier": amazon_replay_multiplier,
+    "sc_label_calibration": sc_label_calibration == "1",
     "rounds": rounds,
     "notes": [
         "Only train_tasks.json is overlaid; dev_tasks.json and test_tasks.json are copied unchanged from the official current-round configs.",
