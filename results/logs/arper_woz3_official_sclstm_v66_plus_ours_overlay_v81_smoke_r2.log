@@ -1,0 +1,536 @@
+/root/miniconda3/lib/python3.12/site-packages/torch/__init__.py:1264: UserWarning: torch.set_default_tensor_type() is deprecated as of PyTorch 2.1, please use torch.set_default_dtype() and torch.set_default_device() as alternatives. (Triggered internally at /pytorch/torch/csrc/tensor/python_tensor.cpp:434.)
+  _C._set_default_tensor_type(t)
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is test
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+Testing at /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_1706428.pt
+The number of exemplar batch is 0, 0
+The number of batch is 631, 83
+BLEU 1-4: [0.6787142216040942, 0.5654498889634456, 0.4797884759232686, 0.4059030836241479]
+BLEU 1-4: [0.684128875113395, 0.5671051130325462, 0.4802404517694558, 0.4058357680169962]
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /root/.netrc.
+wandb: Currently logged in as: sheungyingmai (sheungyingmai-the-university-of-hong-kong) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run jc7ohdzq
+wandb: Tracking run with wandb version 0.27.0
+wandb: Run data is saved locally in /root/lora-ours/wandb/run-20260705_112121-jc7ohdzq
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_smoke_r2
+wandb: ⭐️ View project at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours
+wandb: 🚀 View run at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/jc7ohdzq
+wandb: WARNING Symlinked 1 file into the W&B run directory; call wandb.save again to sync new files.
+wandb: WARNING Symlinked 1 file into the W&B run directory; call wandb.save again to sync new files.
+wandb: updating run metadata; uploading summary
+wandb: uploading requirements.txt; uploading results/logs/arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_smoke_r2_status.json; uploading results/logs/arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_smoke_r2_status.md; uploading output.log; uploading wandb-summary.json (+ 2 more)
+wandb: uploading requirements.txt; uploading results/logs/arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_smoke_r2_status.json; uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:                  raw/bleu4 ▁
+wandb:                    raw/ser ▁
+wandb:       repair/added_missing ▁
+wandb: repair/changed_generations ▁
+wandb:   repair/removed_redundant ▁
+wandb:             repaired/bleu4 ▁
+wandb:               repaired/ser ▁
+wandb: 
+wandb: Run summary:
+wandb:                   decision repair_improved_belo...
+wandb:                  raw/bleu4 0.4059
+wandb:                    raw/ser 5.63798
+wandb:       repair/added_missing 34
+wandb: repair/changed_generations 32
+wandb:   repair/removed_redundant 20
+wandb:             repaired/bleu4 0.40584
+wandb:               repaired/ser 0.29674
+wandb:                    success True
+wandb: 
+wandb: 🚀 View run arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_smoke_r2 at: https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/jc7ohdzq
+wandb: ⭐️ View project at: https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 2 other file(s)
+wandb: Find logs at: ./wandb/run-20260705_112121-jc7ohdzq/logs
+/root/lora-ours/baselines/advanced_baselines/arper_dialog_nlg/external
+***** DATA INFO *****
+Using 100.0% of training data
+BATCH SIZE: 64
+Train: 50256 turns
+Valid: 6700 turns
+Test: 6690 turns
+# of batches: Train 785 Valid 104 Test 104
+*************************
+
+Using deep version with 1 layer
+Number of layer is 1
+
+***** MODEL INFO *****
+MODEL TYPE: lm
+MODEL PATH: /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_1706428.pt
+SIZE OF HIDDEN: 128
+# of LAYER: 1
+SAMPLE/BEAM SIZE: 1
+*************************
+
+BLEU 1-4: [0.6787142216040942, 0.5654498889634456, 0.4797884759232686, 0.4059030836241479]
+BLEU 1-4: [0.684128875113395, 0.5671051130325462, 0.4802404517694558, 0.4058357680169962]
+{
+  "updated_at": "2026-07-05T11:21:20",
+  "state": "completed",
+  "run_id": "arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_smoke_r2",
+  "label": "published-base ARPER official SCLSTM Path B v66 + ours overlay",
+  "base_run": "arper_woz3_official_sclstm_formal_v66",
+  "base_config": "/root/lora-ours/results/logs/arper_woz3_official_sclstm_formal_v66.cfg",
+  "lambda_weight": 0.5,
+  "overlay": "SER-targeted inference-time post-decode delex slot-token count repair",
+  "scorer": "official ARPER util.get_slot_error and util.get_bleu",
+  "ground_truth_changed": false,
+  "scoring_changed": false,
+  "raw_ser_delta_vs_v66": 0.8209821958456969,
+  "repaired_ser_delta_vs_v66": -4.52026409495549,
+  "decision": "repair_improved_below_target",
+  "task_name": "SelectRequestBookRecommendNoBookOfferBookInform",
+  "task_sequence": "1,7,0,6,4,2,8",
+  "checkpoint_suffix": "1706428",
+  "max_batches": 8,
+  "elapsed_seconds": 3.635,
+  "raw": {
+    "ser": 5.637982195845697,
+    "bleu": [
+      0.6787142216040942,
+      0.5654498889634456,
+      0.4797884759232686,
+      0.4059030836241479
+    ],
+    "bleu4": 0.4059030836241479,
+    "counts": {
+      "total": 1011.0,
+      "redunt": 23.0,
+      "miss": 34.0
+    }
+  },
+  "repaired": {
+    "ser": 0.2967359050445104,
+    "bleu": [
+      0.684128875113395,
+      0.5671051130325462,
+      0.4802404517694558,
+      0.4058357680169962
+    ],
+    "bleu4": 0.4058357680169962,
+    "counts": {
+      "total": 1011.0,
+      "redunt": 3.0,
+      "miss": 0.0
+    }
+  },
+  "repair_actions": {
+    "removed_redundant": 20,
+    "added_missing": 34,
+    "changed_generations": 32,
+    "unchanged_generations": 480
+  },
+  "changed_examples": [
+    {
+      "feat": "Train-Inform-Arrive-1|Train-Inform-Depart-1|Train-Inform-Dest-1|Train-Inform-Id-1",
+      "target": "there is a train traveling to slot-train-inform-depart from slot-train-inform-dest that will arrive by slot-train-inform-arrive . do you want that instead ? train id is slot-train-inform-id . ",
+      "raw": "slot-train-inform-id will arrive in slot-train-inform-dest by slot-train-inform-arrive . UNK_token",
+      "repaired": "slot-train-inform-id will arrive in slot-train-inform-dest by slot-train-inform-arrive . UNK_token slot-train-inform-depart",
+      "required_slots": {
+        "slot-train-inform-arrive": 1,
+        "slot-train-inform-id": 1,
+        "slot-train-inform-dest": 1,
+        "slot-train-inform-depart": 1
+      },
+      "raw_slot_error": {
+        "total": 4,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Attraction-Inform-Type-1|Attraction-Inform-Type-2|Attraction-Inform-Type-3|Attraction-Inform-Type-4",
+      "target": "slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , and slot-attraction-inform-type , what would you like ? ",
+      "raw": "there are slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type . UNK_token",
+      "repaired": "there are slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , . UNK_token",
+      "required_slots": {
+        "slot-attraction-inform-type": 4
+      },
+      "raw_slot_error": {
+        "total": 4,
+        "redunt": 1,
+        "miss": 0
+      },
+      "action": {
+        "removed_redundant": 1,
+        "added_missing": 0
+      }
+    },
+    {
+      "feat": "Train-Inform-Day-1|Train-Inform-Depart-1|Train-Inform-Dest-1|Train-Inform-Leave-1|Train-Inform-Leave-2|Train-Inform-Leave-3|Train-Inform-Leave-4",
+      "target": "i have trains leaving slot-train-inform-depart going to slot-train-inform-dest on slot-train-inform-day at slot-train-inform-leave , slot-train-inform-leave , slot-train-inform-leave , slot-train-inform-leave . ",
+      "raw": "there is a train leaving slot-train-inform-depart at slot-train-inform-leave on slot-train-inform-day , slot-train-inform-leave , slot-train-inform-leave , and slot-train-inform-leave . UNK_token",
+      "repaired": "there is a train leaving slot-train-inform-depart at slot-train-inform-leave on slot-train-inform-day , slot-train-inform-leave , slot-train-inform-leave , and slot-train-inform-leave . UNK_token slot-train-inform-dest",
+      "required_slots": {
+        "slot-train-inform-day": 1,
+        "slot-train-inform-leave": 4,
+        "slot-train-inform-depart": 1,
+        "slot-train-inform-dest": 1
+      },
+      "raw_slot_error": {
+        "total": 7,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Attraction-Inform-Name-1|Attraction-Inform-Phone-1",
+      "target": "here 's the number for the slot-attraction-inform-name , slot-attraction-inform-phone . ",
+      "raw": "slot-attraction-inform-name is located at the phone number . UNK_token",
+      "repaired": "slot-attraction-inform-name is located at the phone number . UNK_token slot-attraction-inform-phone",
+      "required_slots": {
+        "slot-attraction-inform-phone": 1,
+        "slot-attraction-inform-name": 1
+      },
+      "raw_slot_error": {
+        "total": 2,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Restaurant-Select-Name-1",
+      "target": "how does the slot-restaurant-select-name sound for you ? ",
+      "raw": "i have two options . UNK_token",
+      "repaired": "i have two options . UNK_token slot-restaurant-select-name",
+      "required_slots": {
+        "slot-restaurant-select-name": 1
+      },
+      "raw_slot_error": {
+        "total": 1,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Attraction-Inform-Name-1|Attraction-Inform-Name-2|Attraction-Inform-Name-3|Attraction-Inform-Price-1|Attraction-Inform-Type-1|Attraction-Inform-Type-2|Attraction-Inform-Type-3",
+      "target": "the slot-attraction-inform-name is a great example of slot-attraction-inform-type , slot-attraction-inform-name is a good , slot-attraction-inform-price slot-attraction-inform-type , and the slot-attraction-inform-name is a lovely slot-attraction-inform-type . ",
+      "raw": "there is a slot-attraction-inform-type , slot-attraction-inform-name , and slot-attraction-inform-name , and both slot-attraction-inform-type . UNK_token",
+      "repaired": "there is a slot-attraction-inform-type , slot-attraction-inform-name , and slot-attraction-inform-name , and both slot-attraction-inform-type . UNK_token slot-attraction-inform-name slot-attraction-inform-price slot-attraction-inform-type",
+      "required_slots": {
+        "slot-attraction-inform-name": 3,
+        "slot-attraction-inform-type": 3,
+        "slot-attraction-inform-price": 1
+      },
+      "raw_slot_error": {
+        "total": 7,
+        "redunt": 0,
+        "miss": 3
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 3
+      }
+    },
+    {
+      "feat": "Train-OfferBook-Id-1",
+      "target": "would you like me to book seats on train slot-train-offerbook-id for you ? ",
+      "raw": "i will book that for you ? UNK_token",
+      "repaired": "i will book that for you ? UNK_token slot-train-offerbook-id",
+      "required_slots": {
+        "slot-train-offerbook-id": 1
+      },
+      "raw_slot_error": {
+        "total": 1,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Hotel-Inform-Area-1|Hotel-Inform-Name-1|Hotel-Inform-Name-2|Hotel-Inform-Stars-1|Hotel-Inform-Type-1",
+      "target": "i have both slot-hotel-inform-name and slot-hotel-inform-name that meet your criteria . they are slot-hotel-inform-stars -starred slot-hotel-inform-type s in the slot-hotel-inform-area area . ",
+      "raw": "slot-hotel-inform-name is a slot-hotel-inform-stars star slot-hotel-inform-type in the slot-hotel-inform-area . UNK_token",
+      "repaired": "slot-hotel-inform-name is a slot-hotel-inform-stars star slot-hotel-inform-type in the slot-hotel-inform-area . UNK_token slot-hotel-inform-name",
+      "required_slots": {
+        "slot-hotel-inform-type": 1,
+        "slot-hotel-inform-stars": 1,
+        "slot-hotel-inform-name": 2,
+        "slot-hotel-inform-area": 1
+      },
+      "raw_slot_error": {
+        "total": 5,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Attraction-Inform-Name-1|Attraction-Inform-Phone-1",
+      "target": "the phone number for slot-attraction-inform-name is slot-attraction-inform-phone . ",
+      "raw": "slot-attraction-inform-name is located at the phone number . UNK_token",
+      "repaired": "slot-attraction-inform-name is located at the phone number . UNK_token slot-attraction-inform-phone",
+      "required_slots": {
+        "slot-attraction-inform-phone": 1,
+        "slot-attraction-inform-name": 1
+      },
+      "raw_slot_error": {
+        "total": 2,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Taxi-Inform-Arrive-1|Taxi-Inform-Car-1|Taxi-Inform-Phone-1",
+      "target": "ok you will arrive at slot-taxi-inform-arrive in a slot-taxi-inform-car contact number : slot-taxi-inform-phone ",
+      "raw": "i have booked you a slot-taxi-inform-car . the contact number is slot-taxi-inform-phone . UNK_token",
+      "repaired": "i have booked you a slot-taxi-inform-car . the contact number is slot-taxi-inform-phone . UNK_token slot-taxi-inform-arrive",
+      "required_slots": {
+        "slot-taxi-inform-phone": 1,
+        "slot-taxi-inform-arrive": 1,
+        "slot-taxi-inform-car": 1
+      },
+      "raw_slot_error": {
+        "total": 3,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Hotel-Inform-Area-1|Hotel-Inform-Area-2|Hotel-Inform-Internet-yes|Hotel-Inform-Name-1|Hotel-Inform-Name-2|Hotel-Inform-Price-1|Hotel-Inform-Price-2|Hotel-Inform-Stars-1|Hotel-Inform-Type-1",
+      "target": "the slot-hotel-inform-name and the slot-hotel-inform-name in the slot-hotel-inform-area are both slot-hotel-inform-price , slot-hotel-inform-stars star slot-hotel-inform-type . there is also a more slot-hotel-inform-price option in the slot-hotel-inform-area . all have internet . ",
+      "raw": "slot-hotel-inform-name is a slot-hotel-inform-price slot-hotel-inform-type in the slot-hotel-inform-area , slot-hotel-inform-name has slot-hotel-inform-stars stars and the slot-hotel-inform-name is in the slot-hotel-inform-price price range . UNK_token",
+      "repaired": "slot-hotel-inform-name is a slot-hotel-inform-price slot-hotel-inform-type in the slot-hotel-inform-area , slot-hotel-inform-name has slot-hotel-inform-stars stars and the is in the slot-hotel-inform-price price range . UNK_token slot-hotel-inform-area",
+      "required_slots": {
+        "slot-hotel-inform-area": 2,
+        "slot-hotel-inform-stars": 1,
+        "slot-hotel-inform-price": 2,
+        "slot-hotel-inform-name": 2,
+        "slot-hotel-inform-type": 1
+      },
+      "raw_slot_error": {
+        "total": 8,
+        "redunt": 1,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 1,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Restaurant-Inform-Choice-1|Restaurant-Inform-Choice-2|Restaurant-Inform-Price-1|Restaurant-Inform-Price-2",
+      "target": "there are slot-restaurant-inform-choice , slot-restaurant-inform-price , slot-restaurant-inform-choice slot-restaurant-inform-price . ",
+      "raw": "there are slot-restaurant-inform-choice slot-restaurant-inform-price restaurants . UNK_token",
+      "repaired": "there are slot-restaurant-inform-choice slot-restaurant-inform-price restaurants . UNK_token slot-restaurant-inform-choice slot-restaurant-inform-price",
+      "required_slots": {
+        "slot-restaurant-inform-price": 2,
+        "slot-restaurant-inform-choice": 2
+      },
+      "raw_slot_error": {
+        "total": 4,
+        "redunt": 0,
+        "miss": 2
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 2
+      }
+    },
+    {
+      "feat": "Train-Inform-Arrive-1|Train-Inform-Arrive-2|Train-Inform-Arrive-3|Train-Inform-Choice-1|Train-Inform-Depart-1|Train-Inform-Dest-1|Train-Inform-Leave-1",
+      "target": "i have found slot-train-inform-choice trains leaving slot-train-inform-depart for slot-train-inform-dest . they arrive at slot-train-inform-arrive , slot-train-inform-arrive , and slot-train-inform-arrive . each departs slot-train-inform-leave . ",
+      "raw": "there are slot-train-inform-choice trains that leave slot-train-inform-depart slot-train-inform-leave , arriving at slot-train-inform-arrive , and arrives in slot-train-inform-dest at slot-train-inform-arrive . UNK_token",
+      "repaired": "there are slot-train-inform-choice trains that leave slot-train-inform-depart slot-train-inform-leave , arriving at slot-train-inform-arrive , and arrives in slot-train-inform-dest at slot-train-inform-arrive . UNK_token slot-train-inform-arrive",
+      "required_slots": {
+        "slot-train-inform-arrive": 3,
+        "slot-train-inform-depart": 1,
+        "slot-train-inform-dest": 1,
+        "slot-train-inform-leave": 1,
+        "slot-train-inform-choice": 1
+      },
+      "raw_slot_error": {
+        "total": 7,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Train-OfferBook-Arrive-1|Train-OfferBook-Depart-1|Train-OfferBook-Dest-1|Train-OfferBook-Id-1|Train-OfferBook-Leave-1",
+      "target": "i would recommend train id slot-train-offerbook-id which leaves slot-train-offerbook-depart at slot-train-offerbook-leave and arrives at slot-train-offerbook-dest at slot-train-offerbook-arrive . ",
+      "raw": "i will take care of slot-train-offerbook-id at slot-train-offerbook-leave and will get you at slot-train-offerbook-leave at slot-train-offerbook-arrive . UNK_token",
+      "repaired": "i will take care of slot-train-offerbook-id at slot-train-offerbook-leave and will get you at at slot-train-offerbook-arrive . UNK_token slot-train-offerbook-depart slot-train-offerbook-dest",
+      "required_slots": {
+        "slot-train-offerbook-arrive": 1,
+        "slot-train-offerbook-dest": 1,
+        "slot-train-offerbook-leave": 1,
+        "slot-train-offerbook-depart": 1,
+        "slot-train-offerbook-id": 1
+      },
+      "raw_slot_error": {
+        "total": 5,
+        "redunt": 1,
+        "miss": 2
+      },
+      "action": {
+        "removed_redundant": 1,
+        "added_missing": 2
+      }
+    },
+    {
+      "feat": "Restaurant-Select-Name-1",
+      "target": "i 've heard the slot-restaurant-select-name is good . ",
+      "raw": "i have two options . UNK_token",
+      "repaired": "i have two options . UNK_token slot-restaurant-select-name",
+      "required_slots": {
+        "slot-restaurant-select-name": 1
+      },
+      "raw_slot_error": {
+        "total": 1,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Attraction-Inform-Area-1|Attraction-Inform-Choice-1|Attraction-Inform-Type-1|Attraction-Inform-Type-2|Attraction-Inform-Type-3|Attraction-Inform-Type-4",
+      "target": "slot-attraction-inform-choice in the slot-attraction-inform-area . there are slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type . ",
+      "raw": "there are slot-attraction-inform-choice attractions in the slot-attraction-inform-area . there are slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , and slot-attraction-inform-type . UNK_token",
+      "repaired": "there are slot-attraction-inform-choice attractions in the slot-attraction-inform-area . there are slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , slot-attraction-inform-type , and . UNK_token",
+      "required_slots": {
+        "slot-attraction-inform-area": 1,
+        "slot-attraction-inform-type": 4,
+        "slot-attraction-inform-choice": 1
+      },
+      "raw_slot_error": {
+        "total": 6,
+        "redunt": 1,
+        "miss": 0
+      },
+      "action": {
+        "removed_redundant": 1,
+        "added_missing": 0
+      }
+    },
+    {
+      "feat": "Train-Inform-Arrive-1|Train-Inform-Arrive-2|Train-Inform-Choice-1|Train-Inform-Ticket-1",
+      "target": "i have slot-train-inform-choice that arrives at slot-train-inform-arrive and another at slot-train-inform-arrive . both cost slot-train-inform-ticket . ",
+      "raw": "there are slot-train-inform-choice trains that arrive by slot-train-inform-arrive . the price is slot-train-inform-ticket . UNK_token",
+      "repaired": "there are slot-train-inform-choice trains that arrive by slot-train-inform-arrive . the price is slot-train-inform-ticket . UNK_token slot-train-inform-arrive",
+      "required_slots": {
+        "slot-train-inform-ticket": 1,
+        "slot-train-inform-arrive": 2,
+        "slot-train-inform-choice": 1
+      },
+      "raw_slot_error": {
+        "total": 4,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Booking-Inform-Day-1",
+      "target": "would you like to try another location for slot-booking-inform-day night ? ",
+      "raw": "i can book that for you . what is the name of the hotel ? UNK_token",
+      "repaired": "i can book that for you . what is the name of the hotel ? UNK_token slot-booking-inform-day",
+      "required_slots": {
+        "slot-booking-inform-day": 1
+      },
+      "raw_slot_error": {
+        "total": 1,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    },
+    {
+      "feat": "Hotel-Select-Choice-1|Hotel-Select-Price-1|Hotel-Select-Price-2|Hotel-Select-Stars-1|Hotel-Select-Stars-2|Hotel-Select-Type-1",
+      "target": "i have slot-hotel-select-choice slot-hotel-select-type s. would you like a slot-hotel-select-price one that is a slot-hotel-select-stars star , or a slot-hotel-select-price slot-hotel-select-stars star ? ",
+      "raw": "would you prefer slot-hotel-select-price or slot-hotel-select-price slot-hotel-select-type ? i have slot-hotel-select-choice different options . UNK_token",
+      "repaired": "would you prefer slot-hotel-select-price or slot-hotel-select-price slot-hotel-select-type ? i have slot-hotel-select-choice different options . UNK_token slot-hotel-select-stars slot-hotel-select-stars",
+      "required_slots": {
+        "slot-hotel-select-stars": 2,
+        "slot-hotel-select-type": 1,
+        "slot-hotel-select-price": 2,
+        "slot-hotel-select-choice": 1
+      },
+      "raw_slot_error": {
+        "total": 6,
+        "redunt": 0,
+        "miss": 2
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 2
+      }
+    },
+    {
+      "feat": "Hotel-Select-Price-1|Hotel-Select-Price-2|Hotel-Select-Type-1",
+      "target": "i have one slot-hotel-select-price and one slot-hotel-select-price slot-hotel-select-type that fits your current criteria . ",
+      "raw": "would you prefer slot-hotel-select-price or slot-hotel-select-price ? UNK_token",
+      "repaired": "would you prefer slot-hotel-select-price or slot-hotel-select-price ? UNK_token slot-hotel-select-type",
+      "required_slots": {
+        "slot-hotel-select-type": 1,
+        "slot-hotel-select-price": 2
+      },
+      "raw_slot_error": {
+        "total": 3,
+        "redunt": 0,
+        "miss": 1
+      },
+      "action": {
+        "removed_redundant": 0,
+        "added_missing": 1
+      }
+    }
+  ]
+}
