@@ -1,0 +1,18 @@
+{
+  "updated_at": "2026-07-05T11:03:10.183707+08:00",
+  "event": "pivot_stop_requested",
+  "run_name": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v80_formal",
+  "reason": "Highest-priority pivot: stop weak LoRA/router generator formal run and switch to published-method base + ours incremental overlay route.",
+  "preserved_evidence": [
+    "results/logs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v80_formal.log",
+    "results/logs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v80_formal.monitor.jsonl",
+    "/root/autodl-tmp/lora-baselines-run_v1/results/runs/dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v80_formal"
+  ],
+  "last_known_metric": {
+    "segment": "Book",
+    "bleu4": 0.2945722934006535,
+    "ser": 0.0,
+    "task_aware": 0.7964071856287425
+  },
+  "stop_type": "SIGTERM_then_tmux_cleanup"
+}

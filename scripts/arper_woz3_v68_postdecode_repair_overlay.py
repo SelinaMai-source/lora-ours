@@ -118,6 +118,7 @@ def evaluate_raw_and_repaired(
     checkpoint_suffix: str,
     max_batches: int | None,
     example_limit: int,
+    lambda_weight: float,
 ) -> dict[str, Any]:
     args = SimpleNamespace(
         mode="test",
@@ -125,7 +126,7 @@ def evaluate_raw_and_repaired(
         config_file=str(DEFAULT_BASE_CONFIG),
         sv_len_weight=0.5,
         T=1.0,
-        _lambda=1.0,
+        _lambda=lambda_weight,
         adaptive=False,
         ewc_importance=300000.0,
         l2_weight=0.001,
@@ -268,13 +269,18 @@ def write_status(path_json: Path, path_md: Path, payload: dict[str, Any]) -> Non
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="ARPER v66 published-base + Ours post-decode slot repair overlay.")
+    parser.add_argument("--run-id", default=RUN_ID)
     parser.add_argument("--base-config", default=str(DEFAULT_BASE_CONFIG))
     parser.add_argument("--status-json", default=str(DEFAULT_STATUS_JSON))
     parser.add_argument("--status-md", default=str(DEFAULT_STATUS_MD))
     parser.add_argument("--task-sequence", default=TASK_SEQUENCE)
     parser.add_argument("--checkpoint-suffix", default="1706428")
+    parser.add_argument("--lambda-weight", type=float, default=0.5)
     parser.add_argument("--max-batches", type=int, default=None)
     parser.add_argument("--example-limit", type=int, default=20)
+    parser.add_argument("--wandb-project", default="")
+    parser.add_argument("--wandb-group", default="")
+    parser.add_argument("--wandb-mode", default="")
     args = parser.parse_args()
 
     if not torch.cuda.is_available():
@@ -292,6 +298,7 @@ def main() -> int:
         checkpoint_suffix=args.checkpoint_suffix,
         max_batches=args.max_batches,
         example_limit=args.example_limit,
+        lambda_weight=args.lambda_weight,
     )
     repaired_ser = float(result["repaired"]["ser"])
     raw_ser = float(result["raw"]["ser"])
@@ -305,10 +312,11 @@ def main() -> int:
     payload = {
         "updated_at": now(),
         "state": "completed",
-        "run_id": RUN_ID,
+        "run_id": args.run_id,
         "label": "published-base ARPER official SCLSTM Path B v66 + ours overlay",
         "base_run": "arper_woz3_official_sclstm_formal_v66",
         "base_config": str(Path(args.base_config).resolve()),
+        "lambda_weight": args.lambda_weight,
         "overlay": "SER-targeted inference-time post-decode delex slot-token count repair",
         "scorer": "official ARPER util.get_slot_error and util.get_bleu",
         "ground_truth_changed": False,
@@ -319,8 +327,58 @@ def main() -> int:
         **result,
     }
     write_status(Path(args.status_json), Path(args.status_md), payload)
+    _log_wandb_overlay(args, payload)
     print(json.dumps(payload, indent=2, ensure_ascii=False), flush=True)
     return 0
+
+
+def _log_wandb_overlay(args: argparse.Namespace, payload: dict[str, Any]) -> None:
+    if not args.wandb_project:
+        return
+    try:
+        import wandb
+    except Exception as exc:  # pragma: no cover - optional dependency
+        payload["wandb_error"] = f"import_failed:{exc}"
+        return
+    run = None
+    try:
+        run = wandb.init(
+            project=args.wandb_project,
+            group=args.wandb_group or "dialogue_arper_sclstm_overlay",
+            name=args.run_id,
+            mode=args.wandb_mode or None,
+            tags=["dialogue_nlg", "arper_woz3", "sclstm_base", "ours_overlay"],
+            config={
+                "base_run": payload.get("base_run"),
+                "base_config": payload.get("base_config"),
+                "task_sequence": payload.get("task_sequence"),
+                "max_batches": payload.get("max_batches"),
+                "lambda_weight": payload.get("lambda_weight"),
+                "overlay": payload.get("overlay"),
+            },
+        )
+        raw = payload.get("raw", {})
+        repaired = payload.get("repaired", {})
+        wandb.log(
+            {
+                "raw/bleu4": raw.get("bleu4"),
+                "raw/ser": raw.get("ser"),
+                "repaired/bleu4": repaired.get("bleu4"),
+                "repaired/ser": repaired.get("ser"),
+                "repair/changed_generations": payload.get("repair_actions", {}).get("changed_generations"),
+                "repair/added_missing": payload.get("repair_actions", {}).get("added_missing"),
+                "repair/removed_redundant": payload.get("repair_actions", {}).get("removed_redundant"),
+            }
+        )
+        wandb.run.summary["success"] = True
+        wandb.run.summary["decision"] = payload.get("decision")
+        wandb.save(str(Path(args.status_json)))
+        wandb.save(str(Path(args.status_md)))
+    except Exception as exc:  # pragma: no cover - W&B availability varies
+        payload["wandb_error"] = str(exc)
+    finally:
+        if run is not None:
+            wandb.finish()
 
 
 if __name__ == "__main__":
