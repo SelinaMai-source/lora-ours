@@ -1,0 +1,37 @@
+experiment_name: olora_official_base_ours_overlay_ssrg_v85_smoke_order1_seed1
+suite: Standard T5-Large O-LoRA overlay
+anchor: olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1
+anchor_em: 77.2566
+mode: published_base_plus_ours_overlay
+seed: 1
+task_order:
+  - dbpedia
+  - amazon
+  - yahoo
+  - agnews
+launcher:
+  script: scripts/run_olora_standard_order1_official_base_ours_overlay_v85.sh
+  formal: 0
+  dry_run: 0
+overlay:
+  replay_mode: ssrg
+  replay_per_prior_task: 64
+  ssrg_spectral_top_k: 8
+  ssrg_energy_threshold: 0.85
+  assess_retention_gate: true
+  assess_retention_threshold: 0.3
+  train_heldout_gate: false
+early_gate:
+  dbpedia_em_min: 90
+  amazon_em_min: 45
+smoke_limits:
+  max_steps: 20
+  max_predict_samples: 200
+wandb:
+  project: lora-ours
+  group: published-base-standard-olora-plus-ours-overlay-v85-smoke
+tmux_session: lora-ours-standard-v85-smoke
+comparability:
+  official_base: false
+  ours_overlay: true
+  paper_comparable: false

@@ -45,6 +45,13 @@ TRAIN_HELDOUT_FINAL_BASELINE_EM="${TRAIN_HELDOUT_FINAL_BASELINE_EM:-55.2}"
 TRAIN_HELDOUT_MODERATE_MIN_COUNT="${TRAIN_HELDOUT_MODERATE_MIN_COUNT:-5}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 DRY_RUN="${DRY_RUN:-0}"
+REPLAY_MODE="${REPLAY_MODE:-uniform}"
+SSRG_SPECTRAL_TOP_K="${SSRG_SPECTRAL_TOP_K:-8}"
+SSRG_ENERGY_THRESHOLD="${SSRG_ENERGY_THRESHOLD:-0.85}"
+ASSESS_RETENTION_GATE="${ASSESS_RETENTION_GATE:-0}"
+ASSESS_RETENTION_THRESHOLD="${ASSESS_RETENTION_THRESHOLD:-0.3}"
+EARLY_GATE_DBPEDIA_EM="${EARLY_GATE_DBPEDIA_EM:-0}"
+EARLY_GATE_AMAZON_EM="${EARLY_GATE_AMAZON_EM:-0}"
 
 RUN_DIR="${REPO_ROOT}/results/runs/${RUN_NAME}"
 LOG_DIR="${REPO_ROOT}/results/logs"
@@ -63,7 +70,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" "$SC_CLASS_COVERAGE_ORDER" "$SC_MODERATE_CURRICULUM" "$SC_MODERATE_CURRICULUM_RATIO" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" "$SC_CLASS_COVERAGE_ORDER" "$SC_MODERATE_CURRICULUM" "$SC_MODERATE_CURRICULUM_RATIO" "$REPLAY_MODE" "$ASSESS_RETENTION_GATE" "$EARLY_GATE_DBPEDIA_EM" "$EARLY_GATE_AMAZON_EM" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -96,6 +103,10 @@ from pathlib import Path
     sc_class_coverage_order,
     sc_moderate_curriculum,
     sc_moderate_curriculum_ratio,
+    replay_mode,
+    assess_retention_gate,
+    early_gate_dbpedia_em,
+    early_gate_amazon_em,
 ) = sys.argv[1:]
 
 limits = []
@@ -118,6 +129,10 @@ lines = [
     "- selected base: O-LoRA official T5-large Standard CL order1 seed1",
     "- overlay: Ours limited replay overlay on training config only",
     f"- replay_per_prior_task: {replay_per_task}",
+    f"- replay_mode: {replay_mode}",
+    f"- assess_retention_gate: {assess_retention_gate}",
+    f"- early_gate_dbpedia_em: {early_gate_dbpedia_em}",
+    f"- early_gate_amazon_em: {early_gate_amazon_em}",
     f"- sc_balanced_replay: {sc_balanced_replay}",
     f"- sc_lexical_repair: {sc_lexical_repair}",
     f"- sc_class_coverage_order: {sc_class_coverage_order}",
@@ -148,7 +163,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" "$SC_CLASS_COVERAGE_ORDER" "$SC_MODERATE_CURRICULUM" "$SC_MODERATE_CURRICULUM_RATIO" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" "$SC_CLASS_COVERAGE_ORDER" "$SC_MODERATE_CURRICULUM" "$SC_MODERATE_CURRICULUM_RATIO" "$REPLAY_MODE" "$SSRG_SPECTRAL_TOP_K" "$SSRG_ENERGY_THRESHOLD" "$ASSESS_RETENTION_GATE" "$ASSESS_RETENTION_THRESHOLD" "$EARLY_GATE_DBPEDIA_EM" "$EARLY_GATE_AMAZON_EM" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -189,6 +204,13 @@ from pathlib import Path
     sc_class_coverage_order,
     sc_moderate_curriculum,
     sc_moderate_curriculum_ratio,
+    replay_mode,
+    ssrg_spectral_top_k,
+    ssrg_energy_threshold,
+    assess_retention_gate,
+    assess_retention_threshold,
+    early_gate_dbpedia_em,
+    early_gate_amazon_em,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -211,6 +233,18 @@ manifest = {
         "sc_class_coverage_order": sc_class_coverage_order == "1",
         "sc_moderate_curriculum": sc_moderate_curriculum == "1",
         "sc_moderate_curriculum_ratio": float(sc_moderate_curriculum_ratio),
+        "replay_mode": replay_mode,
+        "ssrg_spectral_top_k": maybe_int(ssrg_spectral_top_k),
+        "ssrg_energy_threshold": float(ssrg_energy_threshold),
+        "assess_retention_gate": {
+            "enabled": assess_retention_gate == "1",
+            "isolated_energy_threshold": float(assess_retention_threshold),
+            "policy": "reject high isolated-energy adapter updates vs prior round",
+        },
+        "early_gate": {
+            "dbpedia_em_min": maybe_int(early_gate_dbpedia_em),
+            "amazon_em_min": maybe_int(early_gate_amazon_em),
+        },
         "train_heldout_gate": {
             "enabled": train_heldout_gate == "1",
             "source": "amazon/train.json",
@@ -566,6 +600,119 @@ if old not in text:
 path.write_text(text.replace(old, new, 1), encoding="utf-8")
 PY
   fi
+  if [[ "$REPLAY_MODE" == "ssrg" ]]; then
+    python - "$RUNTIME_ROOT/src/uie_dataset_lora.py" "$SSRG_SPECTRAL_TOP_K" "$SSRG_ENERGY_THRESHOLD" <<'PY'
+import math
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+top_k = int(sys.argv[2])
+energy_threshold = float(sys.argv[3])
+text = path.read_text(encoding="utf-8")
+old = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_instances):
+        if sampling_strategy == 'random' and max_num_instances is not None and max_num_instances >= 0:
+            instances = instances[:max_num_instances]
+        if max_num_instances!=None and self.config.over_sampling and len(instances) < max_num_instances:
+            origin_instances = instances.copy()
+            while len(instances) < max_num_instances:
+                instances.append(random.choice(origin_instances))
+
+        return instances
+"""
+new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_instances):
+        if sampling_strategy == 'ssrg' and max_num_instances is not None and max_num_instances >= 0:
+            instances = self._ssrg_spectral_sample(instances, max_num_instances)
+        elif sampling_strategy == 'random' and max_num_instances is not None and max_num_instances >= 0:
+            instances = instances[:max_num_instances]
+        if max_num_instances!=None and self.config.over_sampling and len(instances) < max_num_instances:
+            origin_instances = instances.copy()
+            while len(instances) < max_num_instances:
+                instances.append(random.choice(origin_instances))
+
+        return instances
+
+    def _ssrg_spectral_sample(self, instances, max_num_instances):
+        if max_num_instances is None or max_num_instances < 0 or len(instances) <= max_num_instances:
+            return instances
+        docs = []
+        for item in instances:
+            sentence = str(item.get('sentence', item.get('text', '')))
+            label = str(item.get('label', ''))
+            docs.append(f"{sentence} {label}".strip())
+        vocab = {}
+        for doc in docs:
+            for tok in set(re.findall(r"[a-z0-9']+", doc.lower())):
+                vocab[tok] = vocab.get(tok, 0) + 1
+        ranked = sorted(vocab.items(), key=lambda row: (-row[1], row[0]))[:4096]
+        vocab = {tok: idx for idx, (tok, _) in enumerate(ranked)}
+        matrix = []
+        for doc in docs:
+            counts = {}
+            for tok in re.findall(r"[a-z0-9']+", doc.lower()):
+                if tok in vocab:
+                    counts[tok] = counts.get(tok, 0) + 1
+            row = [0.0] * len(vocab)
+            if counts:
+                max_tf = max(counts.values())
+                for tok, count in counts.items():
+                    row[vocab[tok]] = 0.5 + 0.5 * (count / max_tf)
+            matrix.append(row)
+        if len(matrix) < 2:
+            return instances[:max_num_instances]
+        dim = len(matrix[0])
+        mean = [sum(row[i] for row in matrix) / len(matrix) for i in range(dim)]
+        matrix = [[row[i] - mean[i] for i in range(dim)] for row in matrix]
+        cov = [[0.0] * dim for _ in range(dim)]
+        denom = max(1, len(matrix) - 1)
+        for row in matrix:
+            for i in range(dim):
+                for j in range(dim):
+                    cov[i][j] += row[i] * row[j] / denom
+        rank = max(1, min(SSRG_TOP_K, dim))
+        basis = []
+        work = [r[:] for r in cov]
+        singular_values = []
+        for _ in range(rank):
+            vec = [1.0 / math.sqrt(dim)] * dim
+            for _ in range(12):
+                nxt = [0.0] * dim
+                for i in range(dim):
+                    for j in range(dim):
+                        nxt[i] += work[i][j] * vec[j]
+                norm = math.sqrt(sum(v * v for v in nxt)) or 1.0
+                vec = [v / norm for v in nxt]
+            singular = math.sqrt(max(0.0, sum(vec[i] * sum(work[i][j] * vec[j] for j in range(dim)) for i in range(dim))))
+            singular_values.append(singular)
+            basis.append(vec)
+            for i in range(dim):
+                for j in range(dim):
+                    work[i][j] -= singular * vec[i] * vec[j]
+        total_energy = sum(v * v for v in singular_values) or 1.0
+        cumulative = 0.0
+        keep = rank
+        for idx, value in enumerate(singular_values, start=1):
+            cumulative += value * value
+            if cumulative / total_energy >= SSRG_ENERGY_THRESHOLD:
+                keep = idx
+                break
+        basis = basis[:keep]
+        scores = []
+        for row in matrix:
+            energy = 0.0
+            for vec in basis:
+                proj = sum(row[i] * vec[i] for i in range(dim))
+                energy += proj * proj
+            scores.append(math.sqrt(max(0.0, energy)))
+        ranked = sorted(enumerate(instances), key=lambda item: -scores[item[0]])
+        return [item for _, item in ranked[:max_num_instances]]
+""".replace("SSRG_TOP_K", repr(top_k)).replace("SSRG_ENERGY_THRESHOLD", repr(energy_threshold))
+if old not in text:
+    raise SystemExit(f"expected sampling helper not found in {path}")
+path.write_text(text.replace(old, new, 1), encoding="utf-8")
+PY
+  fi
   if [[ "$SC_LEXICAL_REPAIR" == "1" ]]; then
     python - "$RUNTIME_ROOT/src/run_uie_lora.py" <<'PY'
 import sys
@@ -626,7 +773,7 @@ PY
 
 prepare_overlay_configs() {
   rm -rf "$OVERLAY_CONFIG_ROOT"
-  python - "$RUNTIME_ROOT/configs/order1_configs" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "${TASKS[@]}" <<'PY'
+  python - "$RUNTIME_ROOT/configs/order1_configs" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$REPLAY_MODE" "${TASKS[@]}" <<'PY'
 import json
 import shutil
 import sys
@@ -638,7 +785,9 @@ manifest_path = Path(sys.argv[3])
 replay_per_task = int(sys.argv[4])
 amazon_replay_multiplier = int(sys.argv[5])
 sc_label_calibration = sys.argv[6]
-tasks = sys.argv[7:]
+replay_mode = sys.argv[7]
+tasks = sys.argv[8:]
+replay_sampling = "ssrg" if replay_mode == "ssrg" else "random"
 
 out_root.mkdir(parents=True, exist_ok=True)
 
@@ -659,7 +808,7 @@ def merge_train_config(current_config, replay_configs):
                     repeats = max(1, amazon_replay_multiplier)
                 for _ in range(repeats):
                     replay_entry = dict(entry)
-                    replay_entry["sampling strategy"] = "random"
+                    replay_entry["sampling strategy"] = replay_sampling
                     merged[task_type].append(replay_entry)
     return merged
 
@@ -684,7 +833,7 @@ for index, task in enumerate(tasks, start=1):
                     {
                         "task_type": task_type,
                         "dataset_name": entry["dataset name"],
-                        "sampling_strategy": "random",
+                        "sampling_strategy": replay_sampling,
                         "max_instances": replay_per_task,
                         "repeats": max(1, amazon_replay_multiplier)
                         if task_type == "SC" and entry["dataset name"] == "amazon"
@@ -709,12 +858,13 @@ manifest = {
     "base": "O-LoRA official T5-large Standard CL order1 seed1",
     "task_order": tasks,
     "replay_per_prior_task": replay_per_task,
+    "replay_mode": replay_mode,
     "amazon_replay_multiplier": amazon_replay_multiplier,
     "sc_label_calibration": sc_label_calibration == "1",
     "rounds": rounds,
     "notes": [
         "Only train_tasks.json is overlaid; dev_tasks.json and test_tasks.json are copied unchanged from the official current-round configs.",
-        "Replay entries use official datasets and instructions with sampling strategy random; current task entries keep the official full setting.",
+        "Replay entries use official datasets with sampling strategy random or ssrg; current task entries keep the official full setting.",
         "The official runner applies max_num_instances_per_task to random replay entries; full current-task entries are not capped by that setting.",
     ],
 }
@@ -926,6 +1076,107 @@ PY
   echo "TRAIN_HELDOUT_GATE_PASSED round=${index} task=${task} state=${gate_state}"
 }
 
+run_early_gate() {
+  local index="$1"
+  local task="$2"
+  local min_em="$3"
+
+  if [[ -z "$min_em" || "$min_em" == "0" ]]; then
+    return 0
+  fi
+  if [[ ! -f "$LOG_FILE" ]]; then
+    return 0
+  fi
+
+  local metric_key="predict_exact_match_for_${task}"
+  local em
+  em="$(python - "$LOG_FILE" "$metric_key" <<'PY'
+import re
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+matches = re.findall(rf"{re.escape(sys.argv[2])}\s*=\s*([0-9.]+)", text)
+if not matches:
+    raise SystemExit(2)
+print(matches[-1])
+PY
+)" || return 0
+
+  echo "[early-gate] round=${index} task=${task} em=${em} min=${min_em}"
+  python - "$em" "$min_em" "$index" "$task" "${RUN_DIR}/early_gate_state.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+em, min_em, index, task, gate_state = sys.argv[1:]
+em_f = float(em)
+min_f = float(min_em)
+fail = em_f < min_f
+record = {
+    "round": int(index),
+    "task": task,
+    "em": em_f,
+    "min_em": min_f,
+    "fail_reasons": [f"{task} EM {em_f} < {min_f}"] if fail else [],
+}
+state_path = Path(gate_state)
+state_path.parent.mkdir(parents=True, exist_ok=True)
+state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {"evaluations": [], "decision": "running"}
+state.setdefault("evaluations", []).append(record)
+state["last_record"] = record
+state["decision"] = "rejected" if fail else "running"
+state_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+if fail:
+    raise SystemExit(41)
+PY
+  local gate_code=$?
+  if [[ "$gate_code" != "0" ]]; then
+    echo "EARLY_GATE_REJECTED round=${index} task=${task}"
+    write_manifest "rejected" "early gate rejected round ${index} ${task}: EM ${em} < ${min_em}"
+    write_status "rejected" "early gate rejected round ${index} ${task}: EM ${em} < ${min_em}"
+    return "$gate_code"
+  fi
+  echo "EARLY_GATE_PASSED round=${index} task=${task} em=${em}"
+}
+
+run_assess_retention_gate() {
+  local index="$1"
+  local task="$2"
+  local prior_adapter="$3"
+  local current_adapter="$4"
+
+  if [[ "$ASSESS_RETENTION_GATE" != "1" ]]; then
+    return 0
+  fi
+  if (( index < 2 )); then
+    return 0
+  fi
+  if [[ ! -d "$prior_adapter" || ! -d "$current_adapter" ]]; then
+    return 0
+  fi
+
+  local gate_dir="${RUN_DIR}/assess_retention_gate"
+  local gate_state="${gate_dir}/gate_state.json"
+  mkdir -p "$gate_dir"
+  echo "[assess-retention-gate] round=${index} task=${task} prior=${prior_adapter} current=${current_adapter}"
+  set +e
+  python "${REPO_ROOT}/scripts/olora_overlay_assess_retention_gate.py" \
+    --prior-adapter "$prior_adapter" \
+    --current-adapter "$current_adapter" \
+    --threshold "$ASSESS_RETENTION_THRESHOLD" \
+    --gate-state "$gate_state" \
+    --round "$index" \
+    --task "$task"
+  local gate_code=$?
+  set -e
+  if [[ "$gate_code" != "0" ]]; then
+    echo "ASSESS_RETENTION_GATE_REJECTED round=${index} task=${task} state=${gate_state}"
+    write_manifest "rejected" "assess-retention gate rejected round ${index} ${task}"
+    write_status "rejected" "assess-retention gate rejected round ${index} ${task}"
+    return "$gate_code"
+  fi
+  echo "ASSESS_RETENTION_GATE_PASSED round=${index} task=${task} state=${gate_state}"
+}
+
 main() {
   write_manifest "preflight" ""
   write_status "preflight" ""
@@ -946,13 +1197,34 @@ main() {
   exec > >(tee -a "$LOG_FILE") 2>&1
   echo "[run] ${RUN_NAME}"
   echo "[base] O-LoRA official T5-large Standard CL order1 seed1"
-  echo "[overlay] Ours limited replay, replay_per_task=${REPLAY_PER_TASK}"
+  echo "[overlay] Ours limited replay, replay_per_task=${REPLAY_PER_TASK}, replay_mode=${REPLAY_MODE}"
   echo "[wandb] project=${WANDB_PROJECT} group=${WANDB_GROUP}"
   local model_path="$BASE_MODEL"
+  local prior_adapter_path=""
   local idx=1
   for task in "${TASKS[@]}"; do
     echo "[round] ${idx} ${task} model=${model_path}"
     run_round "$idx" "$task" "$model_path"
+    local current_adapter_path="${OUTPUT_ROOT}/${idx}-${task}/adapter"
+    if [[ "$task" == "dbpedia" && "$EARLY_GATE_DBPEDIA_EM" != "0" ]]; then
+      if ! run_early_gate "$idx" "$task" "$EARLY_GATE_DBPEDIA_EM"; then
+        echo "[early-gate] rejected ${RUN_NAME}; stopping after dbpedia segment"
+        return 0
+      fi
+    fi
+    if [[ "$task" == "amazon" && "$EARLY_GATE_AMAZON_EM" != "0" ]]; then
+      if ! run_early_gate "$idx" "$task" "$EARLY_GATE_AMAZON_EM"; then
+        echo "[early-gate] rejected ${RUN_NAME}; stopping after amazon segment"
+        return 0
+      fi
+    fi
+    if [[ -n "$prior_adapter_path" ]]; then
+      if ! run_assess_retention_gate "$idx" "$task" "$prior_adapter_path" "$current_adapter_path"; then
+        echo "[assess-retention-gate] rejected ${RUN_NAME}; stopping before promotion"
+        return 0
+      fi
+    fi
+    prior_adapter_path="$current_adapter_path"
     model_path="${OUTPUT_ROOT}/${idx}-${task}/adapter"
     if ! run_train_heldout_gate "$idx" "$task" "$model_path"; then
       echo "[heldout-gate] rejected ${RUN_NAME}; stopping before promotion"
