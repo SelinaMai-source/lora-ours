@@ -779,6 +779,12 @@ def _eval_segment(
                 support_templates=support_signature_templates,
                 normalization_cfg=normalization_cfg,
             )
+            generated, semantic_template_detail = _maybe_apply_dialogue_act_semantic_template(
+                input_text=ex.input,
+                prediction=generated,
+                segment_name=segment.segment_name,
+                normalization_cfg=normalization_cfg,
+            )
             if collapse_retry_detail:
                 routing_details[-1].update(collapse_retry_detail)
                 routing_stats["bucket_collapse_retry_count"] = routing_stats.get("bucket_collapse_retry_count", 0) + 1
@@ -793,6 +799,11 @@ def _eval_segment(
                 routing_details[-1].update(support_template_detail)
                 routing_stats["da_signature_support_template_count"] = (
                     routing_stats.get("da_signature_support_template_count", 0) + 1
+                )
+            if semantic_template_detail:
+                routing_details[-1].update(semantic_template_detail)
+                routing_stats["dialogue_act_semantic_template_count"] = (
+                    routing_stats.get("dialogue_act_semantic_template_count", 0) + 1
                 )
             preds.append(generated)
             
@@ -830,10 +841,21 @@ def _eval_segment(
                 support_templates=support_signature_templates,
                 normalization_cfg=normalization_cfg,
             )
+            repaired, semantic_template_detail = _maybe_apply_dialogue_act_semantic_template(
+                input_text=ex.input,
+                prediction=repaired,
+                segment_name=segment.segment_name,
+                normalization_cfg=normalization_cfg,
+            )
             if support_template_detail:
                 detail.update(support_template_detail)
                 routing_stats["da_signature_support_template_count"] = (
                     routing_stats.get("da_signature_support_template_count", 0) + 1
+                )
+            if semantic_template_detail:
+                detail.update(semantic_template_detail)
+                routing_stats["dialogue_act_semantic_template_count"] = (
+                    routing_stats.get("dialogue_act_semantic_template_count", 0) + 1
                 )
             repaired_preds.append(repaired)
         preds = repaired_preds
@@ -1347,6 +1369,55 @@ def _maybe_repair_dialogue_act_echo(
     }
 
 
+def _maybe_apply_dialogue_act_semantic_template(
+    *,
+    input_text: str,
+    prediction: str,
+    segment_name: str,
+    normalization_cfg: Dict[str, Any],
+) -> Tuple[str, Dict[str, Any]]:
+    cfg = normalization_cfg.get("dialogue_act_semantic_template_repair", {})
+    if not isinstance(cfg, dict) or not bool(cfg.get("enabled", False)):
+        return prediction, {}
+    patterns = cfg.get("segment_name_patterns", [".*"])
+    if isinstance(patterns, str):
+        patterns = [patterns]
+    if patterns and not any(re.search(str(pattern), str(segment_name or ""), flags=re.IGNORECASE) for pattern in patterns):
+        return prediction, {}
+    features = _parse_simple_dialogue_act_features(input_text)
+    if not features:
+        return prediction, {}
+    act = str(features[0].get("act", "")).lower()
+    allowed_acts = cfg.get("acts", ["inform"])
+    if isinstance(allowed_acts, str):
+        allowed_acts = [allowed_acts]
+    if str(act) not in {str(x).lower() for x in allowed_acts}:
+        return prediction, {}
+    candidate = _dialogue_act_template_from_features(features, segment_name=segment_name)
+    if not candidate or candidate.strip() == str(prediction or "").strip():
+        return prediction, {}
+    expected_slots = {feat["slot_token"] for feat in features if feat["slot"] != "none"}
+    candidate_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", candidate.lower()))
+    if expected_slots and not expected_slots.issubset(candidate_slots):
+        return prediction, {}
+    risky = (
+        _looks_like_generic_da_template(prediction)
+        or bool(_prompt_template_continuation_reason(_prediction_words(prediction)))
+        or _looks_like_slot_listing_output(prediction, features)
+    )
+    if not risky:
+        return prediction, {}
+    return candidate, {
+        "dialogue_act_semantic_template_applied": True,
+        "dialogue_act_semantic_template_original": str(prediction or ""),
+        "dialogue_act_semantic_template_output": candidate,
+        "dialogue_act_semantic_template_act": act,
+        "dialogue_act_semantic_template_reason": (
+            "generic_or_slot_listing"
+        ),
+    }
+
+
 def _build_da_signature_support_templates(
     *,
     segment: Segment,
@@ -1728,6 +1799,21 @@ def _looks_like_generic_da_template(prediction: str) -> bool:
     return any(phrase in text for phrase in generic_phrases)
 
 
+def _looks_like_slot_listing_output(prediction: str, features: Sequence[Dict[str, str]]) -> bool:
+    text = str(prediction or "").strip().lower()
+    if not text:
+        return True
+    clauses = [clause.strip() for clause in re.split(r"\s*\.\s*", text) if clause.strip()]
+    if not clauses:
+        return False
+    slot_names = {str(feat.get("slot", "")).replace("_", " ") for feat in features}
+    listing_clauses = 0
+    for clause in clauses:
+        if any(clause.startswith(f"the {slot} is ") for slot in slot_names if slot):
+            listing_clauses += 1
+    return listing_clauses >= max(1, min(len(clauses), len(slot_names)))
+
+
 def _parse_simple_dialogue_act_features(input_text: str) -> List[Dict[str, str]]:
     features: List[Dict[str, str]] = []
     for raw in str(input_text or "").split("|"):
@@ -1775,6 +1861,36 @@ def _dialogue_act_template_from_features(features: List[Dict[str, str]], *, segm
         if "day" in by_slot:
             return f"i 'm sorry , there is no availability on {by_slot['day']} ."
         return "unfortunately , i can not book it at this time ."
+    if act == "inform":
+        domain = str(features[0].get("domain", "") if features else "").lower()
+        if "addr" in by_slot and "phone" in by_slot:
+            return f"sure the address is {by_slot['addr']} and the phone number is {by_slot['phone']} ."
+        if "addr" in by_slot and "name" in by_slot and "post" in by_slot:
+            return f"the address for {by_slot['name']} is {by_slot['addr']} . the post code is {by_slot['post']} ."
+        if "addr" in by_slot and "area" in by_slot and "name" in by_slot:
+            return f"{by_slot['name']} is located at {by_slot['addr']} in the {by_slot['area']} ."
+        if domain == "train" and "choice" in by_slot and "leave" in by_slot:
+            return f"there are {by_slot['choice']} trains leaving near {by_slot['leave']} ."
+        if domain == "train" and "arrive" in by_slot and "depart" in by_slot and "dest" in by_slot and "id" in by_slot:
+            return (
+                f"train {by_slot['id']} travels from {by_slot['depart']} to {by_slot['dest']} "
+                f"and arrives at {by_slot['arrive']} ."
+            )
+        if domain == "train" and "arrive" in by_slot and "id" in by_slot and "leave" in by_slot:
+            return f"train {by_slot['id']} leaves at {by_slot['leave']} and arrives at {by_slot['arrive']} ."
+        if domain == "hotel" and "internet" in by_slot and "price" in by_slot and "stars" in by_slot and "type" in by_slot:
+            return (
+                f"it is a {by_slot['price']} {by_slot['stars']} star {by_slot['type']} "
+                f"with {by_slot['internet']} internet ."
+            )
+        if "ticket" in by_slot:
+            return f"tickets will be {by_slot['ticket']} ."
+        if "arrive" in by_slot and len(by_slot) == 1:
+            return f"it will arrive at {by_slot['arrive']} ."
+        if "choice" in by_slot and len(by_slot) == 1:
+            return f"there are {by_slot['choice']} options ."
+        if "name" in by_slot and len(by_slot) == 1:
+            return f"how about {by_slot['name']} ?"
     if act in {"welcome", "greet"}:
         return "hello , how can i help you ?"
     if act == "bye":
