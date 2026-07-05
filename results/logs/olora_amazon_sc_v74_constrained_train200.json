@@ -1,0 +1,2520 @@
+{
+  "policy": {
+    "split": "train",
+    "uses_test_json": false,
+    "uses_test_targets": false,
+    "label_space_source": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/CL_Benchmark/SC/amazon/labels.json",
+    "adapter": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_outputs/4-agnews/adapter",
+    "runtime_src": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/src",
+    "method": "teacher_forced_normalized_nll_over_train_label_verbalizers"
+  },
+  "summary": {
+    "total": 200,
+    "accuracy": 65.5,
+    "gold_counts": {
+      "negative": 40,
+      "very negative": 47,
+      "positive": 38,
+      "very positive": 39,
+      "neutral": 36
+    },
+    "prediction_counts": {
+      "very negative": 61,
+      "neutral": 41,
+      "very positive": 58,
+      "negative": 28,
+      "positive": 12
+    },
+    "per_label": {
+      "very negative": {
+        "total": 47,
+        "correct": 43,
+        "accuracy": 91.4894
+      },
+      "negative": {
+        "total": 40,
+        "correct": 19,
+        "accuracy": 47.5
+      },
+      "neutral": {
+        "total": 36,
+        "correct": 22,
+        "accuracy": 61.1111
+      },
+      "positive": {
+        "total": 38,
+        "correct": 9,
+        "accuracy": 23.6842
+      },
+      "very positive": {
+        "total": 39,
+        "correct": 38,
+        "accuracy": 97.4359
+      }
+    },
+    "top_confusions": [
+      {
+        "gold": "positive",
+        "prediction": "very positive",
+        "count": 18
+      },
+      {
+        "gold": "negative",
+        "prediction": "very negative",
+        "count": 15
+      },
+      {
+        "gold": "positive",
+        "prediction": "neutral",
+        "count": 11
+      },
+      {
+        "gold": "neutral",
+        "prediction": "negative",
+        "count": 8
+      },
+      {
+        "gold": "negative",
+        "prediction": "neutral",
+        "count": 6
+      },
+      {
+        "gold": "neutral",
+        "prediction": "very negative",
+        "count": 3
+      },
+      {
+        "gold": "very negative",
+        "prediction": "neutral",
+        "count": 2
+      },
+      {
+        "gold": "neutral",
+        "prediction": "positive",
+        "count": 2
+      },
+      {
+        "gold": "very positive",
+        "prediction": "positive",
+        "count": 1
+      },
+      {
+        "gold": "very negative",
+        "prediction": "negative",
+        "count": 1
+      },
+      {
+        "gold": "neutral",
+        "prediction": "very positive",
+        "count": 1
+      },
+      {
+        "gold": "very negative",
+        "prediction": "very positive",
+        "count": 1
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3132176995277405,
+        "negative": 0.410003662109375,
+        "neutral": 1.0336467027664185,
+        "positive": 2.013947010040283,
+        "very positive": 2.3918917179107666
+      },
+      "sentence": "Title: not what you see\nText: This carrier is NOT the one in the picture. It is a solid top do it does not have the top wire opening. No side door either. It opens like a suitcase.I have not used product yet, but appears awkward, and unsure of how sturdy it is.I will not return it because I would have to pay shipping and 15% of the cost of the product. If I can not use it as a cat carrier I will use it for something else. I believe it will work for my kitten, but it seems like he will out grow it soon.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5703268051147461,
+        "negative": 0.4871099293231964,
+        "neutral": 0.4725792109966278,
+        "positive": 1.6519625186920166,
+        "very positive": 2.2272145748138428
+      },
+      "sentence": "Title: Not witchcraft\nText: While there may be some magical techniques in the book, it has very little, if anything to do with pagan religions, or witchcraft. Saying a prayer backwards might be good for the movies, but other than being borderline gibberish, borderline teenybopper rebel satanist, is not a good way to truly start. And loving that after he instructs you to do this, gives you a \"blessed be\".\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2474648505449295,
+        "negative": 0.4392003118991852,
+        "neutral": 1.2670396566390991,
+        "positive": 2.3587117195129395,
+        "very positive": 2.4773166179656982
+      },
+      "sentence": "Title: Ladies Timex Sport Watch\nText: A real disappointment. Not as pictured or described, however, Amazon was first rate regarding my return. Thanks Amazon - that's why I keep coming back.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.1438779830932617,
+        "negative": 2.7517356872558594,
+        "neutral": 1.4997165203094482,
+        "positive": 0.7953542470932007,
+        "very positive": 0.11702384799718857
+      },
+      "sentence": "Title: Great\nText: Jim Cramer is the best - his stock tips and philosophy of investing is truly outstanding.Thanks Jim for all of your insight!\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3823516368865967,
+        "negative": 0.9392126202583313,
+        "neutral": 0.5167442560195923,
+        "positive": 0.9939056634902954,
+        "very positive": 1.4169654846191406
+      },
+      "sentence": "Title: How?\nText: How did this book get on to Amazon's shelves? Upon first reading you're not sure if he's serious...and it's kind of funny. Spend some time in ... chat rooms and talk with him. He's very strange; and then the book makes sense. He's serious, it's his gospel.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.6643576622009277,
+        "negative": 2.7558271884918213,
+        "neutral": 1.6114022731781006,
+        "positive": 0.6450242400169373,
+        "very positive": 0.14198210835456848
+      },
+      "sentence": "Title: pressure gauge that works\nText: This pressure gauge was almost half the price the one from home depot, but so much nicer - solid construction and does not leak. Seems to be accurate too.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6398302912712097,
+        "negative": 0.37222087383270264,
+        "neutral": 0.5599620342254639,
+        "positive": 1.710530161857605,
+        "very positive": 2.6110270023345947
+      },
+      "sentence": "Title: Bogart in the Big House\nText: A disappointing 1937 prison drama that remains notable for Humphrey Bogart's sympathetic portrayal of a redemptive criminal. Otherwise, \"San Quentin\" is strictly routine. Pat O'Brien makes the most of his contrived role as the reform-minded captain romancing Bogart's sister (a miscast Ann Sheridan). The clich\u00e9d proceedings are briefly enlivened by a road-gang escape and ensuing chase. Unfortunately, the Hays Office took the sting out of this Warner Bros. programmer.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.27906927466392517,
+        "negative": 0.36703452467918396,
+        "neutral": 1.3893001079559326,
+        "positive": 2.4193644523620605,
+        "very positive": 2.760253667831421
+      },
+      "sentence": "Title: This was really stupid.\nText: Animal Farm is a satire of a tyranical/Communist government. Even though it has animals as the main characters, it isn't for children. Apparently, the filmmakers did not realize it, and turned this brilliant novel into a cutesy, Disney-esque cartoon. It was just really, really bad.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.6231577396392822,
+        "negative": 0.7217819690704346,
+        "neutral": 0.40828245878219604,
+        "positive": 0.9725592136383057,
+        "very positive": 1.7528877258300781
+      },
+      "sentence": "Title: beautiful music, but....\nText: I love classical music. But I expected this CD to be played as Paul's unique style of music; kind of jazzy, precise and cheerful. In this album, two thirds of 12 tracks were recorded with new arrangement by Paul's way, but the rest(track 1,2,3 & 11) were performed like original classics. As for \"Andante from piano concerto no. 21 by Mozart\", the old version(maybe recorded in 70's) is a lot better...more than I can say.If I had wanted to listen to original classics for these titles, I would chosen Karajan or Bernstein. That is why I rate this CD as 3 stars. ....Paul, you don't have to be a Karajan even in performing classics. I just want your own style!!...Best tracks : \"Twilight Serenade\"(written by Paul) and \"Intermezzo from Carmen\"\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.20511287450790405,
+        "negative": 0.4405510723590851,
+        "neutral": 1.9205684661865234,
+        "positive": 2.827803134918213,
+        "very positive": 2.780597686767578
+      },
+      "sentence": "Title: Very poor quality - badly designed\nText: My son got this for his birthday and was very excited to play with it. Setting it up became a nightmare because the \"3-D Buildings\" touted by the game were nearly impossible to put together. Attempting to put them together involves trying to insert many small, flimsy card board tabs into small, badly cut slots. My son was in tears, and frankly, I almost was, too. Frustrating! I finally managed to cobble them together enough to start the game, but since they kept falling apart during game play we finally had had enough and quit. Frustrating!\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6487509608268738,
+        "negative": 0.18140438199043274,
+        "neutral": 0.9917058348655701,
+        "positive": 2.240391492843628,
+        "very positive": 2.9814722537994385
+      },
+      "sentence": "Title: Low Sound Volume - as Reported by Other Reviewers\nText: We have always considered Panasonic phones, and their other gear to be first rate, but the volume on these phones, even with all possible boost applied, is much too low. Other reviewers on the Target website have noted the same. We've returned them for a set of well-rated Uniden phones from Amazon and are hoping for better results. It's good that Amazon has a fair return policy that makes this kind of disappointment less annoying.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5625601410865784,
+        "negative": 0.49623948335647583,
+        "neutral": 0.4560058116912842,
+        "positive": 1.9164365530014038,
+        "very positive": 2.5811691284179688
+      },
+      "sentence": "Title: It didn't excite me..\nText: Fat Charlie is an accountant who loves his normalcy and can't wait to get married to his fiancee Rosie. After discovering he has a brother, Spider, he becomes curious and wants to meet him. Spider is everything Charlie is not, handsome, cool etc. But after inviting Spider into his life he is very difficult to extricate.I found Anansi Boys to be merely okay. Fat Charlie (I can't stand the nickname), was just too much of a sad sack for me to get into. The humor (lets make Fat Charlie look as stupid as possible), just added to my dislike of this book. I don't really like to read about the protagonist constantly getting humiliated and made a dupe of. What's so exciting, amusing about that? Spider interested me until he became interested in Rosie.Meh. 3 Stars. Not my thing I guess.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.4238507747650146,
+        "negative": 3.0084333419799805,
+        "neutral": 1.5948132276535034,
+        "positive": 0.7122992873191833,
+        "very positive": 0.12586922943592072
+      },
+      "sentence": "Title: A great read!\nText: This is one of those rare books that truly shocks the reader. The twist the story takes is wrenching. The writing is lyrical, poetic and heartbreaking. The final pages ache with the unanswerable questions we all ask ourselves..do we really know what's in the heart of a friend? Is there redemption in death? Don't miss this one!\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.6610919833183289,
+        "negative": 1.2099677324295044,
+        "neutral": 0.38296571373939514,
+        "positive": 0.7402593493461609,
+        "very positive": 0.9721960425376892
+      },
+      "sentence": "Title: OLIVER!\nText: It is certainly the definitive version of Dicken's classic story. Polanski's canvas of visual depth and human population is striking. The hellish orphanage looks like the hull of an unfortunate slave ship, and the City of London is a paradox of dangerous alleyways and sky kissing church steeples. If there is a weak link, it is the young actor who plays Oliver, who seems merely a director's product, although it may be Polanski's intent to use a novice in presenting the innocence of a child. The rest of the cast is remarkably indebted to their characters.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.1342082917690277,
+        "negative": 0.6779005527496338,
+        "neutral": 1.6180495023727417,
+        "positive": 2.67684006690979,
+        "very positive": 2.3055641651153564
+      },
+      "sentence": "Title: Terrible disappointment.\nText: Like so many others, I tracked Spore's development for years and jumped at the opportunity to purchase it. What I received was a DRM-crippled, dumbed-down product which fails to deliver on its promising premise. So much has already been written, so I'll just mention that the fact that the stats in the Creature Creator are calculated completely differently from the stats in Spore itself is a terrible let-down. It removes a great layer of potential strategy from the game and pigeon-holes creatures into predictable skill-sets.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.242117166519165,
+        "negative": 2.5126569271087646,
+        "neutral": 1.1319575309753418,
+        "positive": 0.5596200227737427,
+        "very positive": 0.20803581178188324
+      },
+      "sentence": "Title: A much-needed return to form\nText: This is definitely the Madonna we've been missing, but didn't even know it. No more politics, thank the Lord. Though admittedly, most of the sound of this album isn't anything Kylie Minogue hasn't been doing for years overseas. Oh well, most U.S. listeners will never know the difference.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.671311616897583,
+        "negative": 2.5855846405029297,
+        "neutral": 1.19638192653656,
+        "positive": 0.6409355401992798,
+        "very positive": 0.17098768055438995
+      },
+      "sentence": "Title: Works great and costs a lot less than others\nText: This boot fit just fine. As long as you know how to get the tie-rod off without breaking it, it is a big money saver for the DIY. The zip pulls are a lot easier than the old metal bands they used to use.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.090308904647827,
+        "negative": 1.6592952013015747,
+        "neutral": 0.4979996979236603,
+        "positive": 0.4671421945095062,
+        "very positive": 0.5880257487297058
+      },
+      "sentence": "Title: Classic SciFi\nText: Very interesting novel. The science was a bit over my head and apparently fairly accurate (in the sense of theories and accuracy). This book- written over thirty years ago- still has some resonance in our times. The theories are just as fair as any we have for our existence. I enjoyed the \"para\" world and its inhabitants- in fact this was my favorite part of the book.The book is not without its flaws, but for a fan of science fiction it was pretty good. As this is my first Asimov novel I can't compare it- but it does make me want to read more of his stuff.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.5142471194267273,
+        "negative": 0.9163746237754822,
+        "neutral": 0.6094525456428528,
+        "positive": 0.9006091356277466,
+        "very positive": 0.655235230922699
+      },
+      "sentence": "Title: Corona FL3420\nText: Corona Clipper FL-3420 I found the Corona Clipper FL-3420 to be a superior clipper. However when trying to find a replacement blade, I could not get the replacement part.This looper performs better than any we have tried. We maintain 25- heavily wood acres in the country. The Corona Clipper FL-3420 would cut a 1 to 1 1/2 inch diameter branch with less effort. I would like to reorder or replace just the blade. Regards, Kathy Ferguson\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.44385480880737305,
+        "negative": 0.321745365858078,
+        "neutral": 0.8957635164260864,
+        "positive": 2.113802671432495,
+        "very positive": 2.6184308528900146
+      },
+      "sentence": "Title: Predictable and unmemorable\nText: Ethel Barrymore gets mixed up with Ethel Jackson the singer to go to Paris on a major publicity tour and to achieve world fame. Sounds moronic? Practically nothing works in this stale, uneven musical with a forgettable score.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.12198030948638916,
+        "negative": 0.6984976530075073,
+        "neutral": 1.7692649364471436,
+        "positive": 2.68462872505188,
+        "very positive": 2.6357133388519287
+      },
+      "sentence": "Title: Programed not to open \"BLOCKED\"\nText: Same problem as many others. The month after warranty expired it wouldn't open and said \"BLOCKED\". I called and was told to unplug it and press \"ON\" when replugging. \"BLOCKED\" again came up. It does not even have screws you can unscrew yourself without special tool. I lost hours of recordings when it would shut itself off during record or play modes! Over priced even if it did work for more than a few months.I'll NEVER buy Magnavox again because of bad product and run around service guy who said \"It is probably past warranty, they all should be\" It shouldn't have been on the market.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.4635043144226074,
+        "negative": 3.082305431365967,
+        "neutral": 2.2274792194366455,
+        "positive": 1.0009907484054565,
+        "very positive": 0.06657398492097855
+      },
+      "sentence": "Title: My favorite harmonica\nText: The Lee Oskar has become my favorite harmonica, specifically this one in low F. Magnificent sound and very easy to play. I have played more than 15 different harmonicas and this particular brand and low F key is the best of them all. Highly recommend. If a reed goes on this one I would immediatelyreplace the whole instrument. Only costs about $30, which is a bargain for this wonderful harp. Thank you Lee Oskar.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.3380181789398193,
+        "negative": 2.2458181381225586,
+        "neutral": 0.7455958724021912,
+        "positive": 0.5108166933059692,
+        "very positive": 0.3234334886074066
+      },
+      "sentence": "Title: Low Budget Movies, Rule!\nText: I got this andZombie Doomsday & Another Zombie Flick Combo Pack (2 Movies / 1 Low Price)I must admit, low budget movies are starting to get very creative. They cant hide there stories behind special effects like Hollywood movies can. So I was very intriqued by these two movies story lines...and I was not disappointed.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.384460926055908,
+        "negative": 2.6879241466522217,
+        "neutral": 1.3364332914352417,
+        "positive": 0.6458804607391357,
+        "very positive": 0.1581728309392929
+      },
+      "sentence": "Title: Survivor of sexual abuse comments on Fish in a Barrel\nText: Grace Tower tells her remarkable story in startling detail appropriate to the crimes against her and her family. She writes with exceptional clarity and courage. As I read every single page, I was again reminded of the extent to which victims of sexual abuse are harmed, the obstacles one must confront even after breaking the silence, and the fortitude I admire in those who do what Grace has done. I highly recommend Fish in a Barrel and have loaned my personal copy to several victims.Belinda Martinez\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.5805274844169617,
+        "negative": 0.4959809184074402,
+        "neutral": 0.5156524777412415,
+        "positive": 1.3101730346679688,
+        "very positive": 2.452760696411133
+      },
+      "sentence": "Title: 24 game\nText: This game was put together with a nice concept, be a CTU agent and help Jack Bauer stop the terrorist attack. Also, I liked the fact that there is a mole and that someone right next to you could destroy the whole game. However, the interactive games and such used to get more clues are not made well. Though you try to do what it tells you to do, it doesn't seem to work. Since these interactive parts are so simple, yet not made in a way that one can control what is going on, you waste your time trying to do them and you never get to the end. I had three college students and two adults try it adn no one could seem to get it to work correctly. So, if some bugs were worked out, this game could be a much bigger success.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 0.54618901014328,
+        "negative": 1.3552958965301514,
+        "neutral": 0.605607271194458,
+        "positive": 0.47834521532058716,
+        "very positive": 1.1717528104782104
+      },
+      "sentence": "Title: Great nonstick pan, bad lid\nText: This pan's nonstick properties are a league above Circulon's (my previous nonstick pan). It is incredibly easy to clean. The lid, however is a different story. The glass is easy enough to clean, but I have noticed that grease gets stuck in the grooves (where the glass meets the stainless steel). The pan alone is worth the price, so I would purchase it again. Otherwise, I prefer the Commercial Nonstick line, which has (one-piece) stainless steel lids.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.6989020705223083,
+        "negative": 0.5187754034996033,
+        "neutral": 0.4596639573574066,
+        "positive": 1.1598403453826904,
+        "very positive": 1.6586097478866577
+      },
+      "sentence": "Title: 3.5 stars Love and Hate It\nText: Chansons pour le corps is an invigorating piece in 4 movements. It is experimental and diverse enough (instrumental, singing, speech) that you find yourself engaged at every turn. My French is spotty, but I was drawn in all the way, alternately looking up some words on the internet and just letting the music wash over me when I got lost. When the piece ended, I wanted to listen again. That's the love it part. Et Si Tout is perhaps just too personal to the composer and experimental a piece for me to connect with. Again, if one is fluent in French, it might be better, but after loving Chansons, I didn't have the patience to endure this 35 min let down. Would I still buy the disc, given what I know now? Yes. Chanson and track 5 run a solid 40 min; I don't feel cheated. I just ripped the first 5 tracks to my computer and put the disc away. The limitations here are likely mine vs the composer's, yet I think most listeners would share those limitations.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.227370500564575,
+        "negative": 2.4261488914489746,
+        "neutral": 0.802654504776001,
+        "positive": 0.49377620220184326,
+        "very positive": 0.3144663870334625
+      },
+      "sentence": "Title: The large ones fall hardest\nText: I love this game, you can play as Wing Zero Custom, DeathScythe Hell Custom, Burning Gundam, Gundam Maxter, or Gundam in the street modes. The battles can range from hard to easy(with the hardest one being the battle with the mobile suit that three times larger than you). All in all, I love this game, but then again, I love Gundam Wing and G-Gundam!\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 3.0065488815307617,
+        "negative": 2.7798893451690674,
+        "neutral": 0.9262707233428955,
+        "positive": 0.4285547137260437,
+        "very positive": 0.3161463439464569
+      },
+      "sentence": "Title: Love Judy Dench\nText: This is a good movie well worth seeing. All the actors are wonderful so I will keep this one on my shelf.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.1896796226501465,
+        "negative": 2.146250009536743,
+        "neutral": 0.6277782320976257,
+        "positive": 0.5345129370689392,
+        "very positive": 0.3615756928920746
+      },
+      "sentence": "Title: I had seen this previously and liked it\nText: This movie had been seen by me before and I liked it. That is why I bought it. I liked it.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.1448788046836853,
+        "negative": 0.619209885597229,
+        "neutral": 1.7099051475524902,
+        "positive": 2.883749485015869,
+        "very positive": 2.56532883644104
+      },
+      "sentence": "Title: OUT DATED\nText: THis book needs serious updating. I think it was published about 1982 and it shows. Was looking for a missal for my daughter. This was so bad we don't even use it.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6920399069786072,
+        "negative": 0.2841309905052185,
+        "neutral": 0.648385226726532,
+        "positive": 1.9597197771072388,
+        "very positive": 2.7323532104492188
+      },
+      "sentence": "Title: Not essential Hancock and lacks something without the film..\nText: I haven't seen this movie so I can't really comment on how it works with the film. I do have a lot of Herbie Hancock's stuff, and I don't feel that this music holds together well as independent compositions. It's really dark music as well in terms of its tonality and mood; probably very appropriate for the scenes it accompanies but a little depressing to me heard in stark isolation. I'd recommend this for Hancock completists, but all of his Blue Note albums, Headhunters stuff, even the Warner Brothers recordings would come way in advance of this one.--SD\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.18503230810165405,
+        "negative": 0.5479714274406433,
+        "neutral": 1.408399224281311,
+        "positive": 2.5851030349731445,
+        "very positive": 2.6970603466033936
+      },
+      "sentence": "Title: Torn in 2 weeks in city driving alone!\nText: Installed new shocks for the rear of my 1999 Toyota Sienna van; bought these boots to protect my investment but 2 weeks after installation, upon inspection found both boots to be torn. I am driving only on city highways and suburban streets but could not figure out how it was damaged like that. Will try to call for a refund or replacement but I would NOT recommend buying it based on their advertisement \"Made from bright, durable rubber to maintain color and looks in grueling conditions\"... It just doesn't meet what it promises to be.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.2480130195617676,
+        "negative": 3.0391628742218018,
+        "neutral": 1.915662169456482,
+        "positive": 0.889512300491333,
+        "very positive": 0.08642566204071045
+      },
+      "sentence": "Title: We've been waiting for this!!!\nText: We knew he was gonna be back! He's talent went beyond time and finally he is here to show eveyone \"His Right Stuff\". Thanks Jordan... for all these years!\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7121625542640686,
+        "negative": 0.8462315201759338,
+        "neutral": 0.2445998191833496,
+        "positive": 1.4464530944824219,
+        "very positive": 2.2150027751922607
+      },
+      "sentence": "Title: It is alright.\nText: My kids, 5,7 & 9 yrs, read The Pilgrims Progress book first and then watched this DVD. The were a little disappointed. The animation is a little dated and the acting/reading was a bit too dead pan for their taste. They seemed to just be reading their lines and not acting them out.The movie follows the book closely but my kids were a little sad that it only included Christian's journey and not Christiana's as well. I had to explain that the movie was already an hour long and that it would take that long again and some to tell the other story as well.Overall It was fine. My kids watched the whole thing but I don't think it will become a favorite. I was hoping for more but got about what I thought it would be. Perhaps I will try a live action version instead.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 3.128530502319336,
+        "negative": 3.180666923522949,
+        "neutral": 1.6102842092514038,
+        "positive": 0.6532412171363831,
+        "very positive": 0.14147010445594788
+      },
+      "sentence": "Title: Great toy\nText: I bought this for my daughter about a month ago and she quickly figured out how to get the gumballs to roll out. She was trying to play with it before I even got it out of it's box in fact. She loves to make all the balls come out at once instead of waiting for the music to finish but that's ok. She loves anything that lights up and since we live in a small town with only a Walmart to buy toys at these kind of toys are hard to find. She especially loves the ball with the smaller balls inside (she's also obsessed with rattles). This toy is very durable so far and I love it. Fisher Price makes some of the best toys around and I love the Peek a Blocks concept and now the Peek a Balls.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 1.0557262897491455,
+        "negative": 0.7606973052024841,
+        "neutral": 0.19317834079265594,
+        "positive": 1.5514321327209473,
+        "very positive": 2.5807697772979736
+      },
+      "sentence": "Title: I like Wakeman with \"Yes\" and \"Strawbs\" but not alone\nText: I saw Wakeman on stage at the time of his solo career, and I didn't like it.I heard his solo albums and I never liked them.Why? I think because it's too much influenced by old classical music, the kind I also do not like.With the bands \"Yes\" and \"Strawbs\", the progressive trend and orientation of the rest of the group was perhaps forcing Wakeman to dig in that same direction, and that resulted in some really outstanding musical discoveries.But left alone...Maybe another reason for me not to like the solo albums is my tendency to favor music in minor (which sounds rather sad) as opposed to music in major (which sounds more \"happy\" if I can say that)Apart from this, I have to agree that Wakeman is technically very powerful. And lots of my friends did love these albums at the time they came out.So I suppose it's purely a question of taste in the end.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5136926770210266,
+        "negative": 0.6938201189041138,
+        "neutral": 0.39780619740486145,
+        "positive": 1.4414678812026978,
+        "very positive": 2.7589168548583984
+      },
+      "sentence": "Title: Its ok....For awhile\nText: It was a pretty good phone for awhile. I think ive had it for a lil less then 6 months and already the bottons on it are HORRIBLE! i cant even hang up the phone let alone dial one number! Overall it was ok. No static. And the answering machine was fine. Just those bottoms!\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2799370586872101,
+        "negative": 0.378656804561615,
+        "neutral": 1.3523279428482056,
+        "positive": 2.472339391708374,
+        "very positive": 2.6940269470214844
+      },
+      "sentence": "Title: Sniper on the Eastern Front: The Memoirs of Sepp Allerberger, Knight's Cross\nText: Rubbish. This account supposedly true is \"war porn\" at it's worst. Gratuitous in it's descriptions of the death and depravity of the fighting on the Eastern Front and in the style of 10cent Western. One had to wonder if this story is actually true. A description of the sniper shooting Russian T34 tanks through the \"petrol\" tanks and causing an explosion capable of disabling the tank is hard to swallow considering T34 tanks run on diesel, which is notoriously hard to ignite. I'm a fan of good war history, but this one is not good and of dubious history.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5534430146217346,
+        "negative": 0.49816763401031494,
+        "neutral": 0.4678472876548767,
+        "positive": 1.7682552337646484,
+        "very positive": 2.4146838188171387
+      },
+      "sentence": "Title: No Real Light\nText: Ordered to use on a work bench. High intensity; hardly these are very yellow light.Can't think of a place to use them except for mood lighting in some weird Sci-Fi Bar.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.43240824341773987,
+        "negative": 0.7376177310943604,
+        "neutral": 0.5314527153968811,
+        "positive": 1.0809643268585205,
+        "very positive": 1.3872066736221313
+      },
+      "sentence": "Title: People's Temple member tells all.\nText: Jim Jones screws her on the bus, on the men's room floor, publicly humiliates her, and she still goes to Guyana with him? Still this book will be useful for cult or mass psychology purposes.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.4193638563156128,
+        "negative": 0.35774680972099304,
+        "neutral": 0.8719205260276794,
+        "positive": 1.7563170194625854,
+        "very positive": 2.6669180393218994
+      },
+      "sentence": "Title: Great while it lasted\nText: Loved the tea kettle, however, after two months it developed a major crack and started leaking. I took all the precautions and read reviews on how to take care of the product, but it still failed. Now I'm out $40.00. I don't think that the cermaic holds up well to a gas burner, even though the manufacturer says you can use this kettle on such burners.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.3948967456817627,
+        "negative": 0.30205079913139343,
+        "neutral": 1.0704785585403442,
+        "positive": 2.390934944152832,
+        "very positive": 2.8343896865844727
+      },
+      "sentence": "Title: Received 2, both broken\nText: For Mothers Day my sister and I made a really nice collage of the grand kids for our mom. I loved how this frame looked so I ordered it. I received it and the glass was broken so I returned it and waited for the next one to come in. I received the next one and it was broken as well. I gave up after that and just requested a refund and went out and bought one myself but could not find one I liked as much as this one. As for how it looks and all, I would give this product 5 stars, but because I was unable to use either that was sent to me I gave only 2. I think that whoever is doing the shipping needs to pack the boxes better to prevent this in the future.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6744253635406494,
+        "negative": 0.3807849884033203,
+        "neutral": 0.511789858341217,
+        "positive": 1.9243971109390259,
+        "very positive": 2.801309585571289
+      },
+      "sentence": "Title: Fahrenheit 451- Somewhat a flop\nText: I didn't really care for this book. Fahrenheit 451 is not far-fetched though. I think some of the material mentioned in this book really could happen in the future if we let it. This is a fairly good book overall, but I'm rating it a 2 out of 5 stars because I was just confused. I am a freshmen in high school and my whole Literature Pre-AP class had to read Fahrenheit 451 for an assignment. Now I know what you're probably thinking, well of course it's going to be confusing for a freshmen. But, I beg to differ. This book is written good I suppose, but the story jumps around too much and certain parts come up and it is just plain confusing (i.e. Dentham's Dentifrice). Well that is about all I have to say about this novel. I'm sure if I read it over again I would enjoy it more. But I don't think this book would be much more than 2 or 3 stars.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.384807825088501,
+        "negative": 2.5360658168792725,
+        "neutral": 1.1975103616714478,
+        "positive": 0.6260519623756409,
+        "very positive": 0.17688417434692383
+      },
+      "sentence": "Title: Design case well documented\nText: Lots of footage, but the narration is even better. Really great case for design. The quality is very good and plays well in both player and computer. Promptly delivered to Military Post Office outside the USA.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.47506439685821533,
+        "negative": 0.39003244042396545,
+        "neutral": 0.7038659453392029,
+        "positive": 1.755344271659851,
+        "very positive": 2.4441237449645996
+      },
+      "sentence": "Title: One step foward, one step back\nText: As an owner of an earlier RCA DVD Recorder (DRC8040), I had high hopes for this one. RCA gets points for supporting Divx, commercial skip and HDMI out.However, this model is missing features and has a couple bugs. My biggest gripe is that RCA removed the \"Split Title\" feature which is a useful way to perform basic edits and to free up disc space. Also, the title screen doesn't always display correctly when playing finalized discs in other DVD players. Lastly, it seems to prefer +RW discs as I constantly got errors trying to record to plain +R DVDs.I would suggest looking at LG's line of recorders, or last year's Sony GX315.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.17704178392887115,
+        "negative": 0.5341867208480835,
+        "neutral": 1.6491062641143799,
+        "positive": 2.527888298034668,
+        "very positive": 2.6219871044158936
+      },
+      "sentence": "Title: extemely poor support\nText: While it's working it's a good product. But need help and you're in deep doo-doo. I found the answer to my tech support query on the web site, but this didn't work. Contact by phone cost 1/2 the purchase price. They had me on hold for 20 minutes and then told me nobody was available, so they'd call me back. They didn't. I called them and got put on hold again, and when I got a person they again told me they'd call me back. 3rd time lucky I got on hold, then spoke to a real tech support person. Their advice didn't work. I managed to fix it myself, but now I have to pay for further updates. Grrrr....I don't recommend.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.11195474117994308,
+        "negative": 0.7658901810646057,
+        "neutral": 1.6725175380706787,
+        "positive": 2.4917080402374268,
+        "very positive": 2.442549228668213
+      },
+      "sentence": "Title: Don't Buy This\nText: Don't Buy This girdle is complete crap is better to buy from store this one have minor defects this one have small holes and that make me so mad i am not going to buy Lodge Logic and this crap is made in USA Yeah OK Wherever Don't Buy This crap.Think twice before you buy online!\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.27352070808410645,
+        "negative": 0.42527246475219727,
+        "neutral": 1.163464069366455,
+        "positive": 2.4292643070220947,
+        "very positive": 2.827385663986206
+      },
+      "sentence": "Title: NOT WORTH IT\nText: Korean shows have many talented actors and actresses who really know how to act. not in this series. the lead actor has this blank stair on his face with no emotion and the lead actress either smiles too much or cries too much. the story line is unreal at time and the music is forgetable. if you want a good series to watch , go for stairway to heaven, sad love story, winter sonata, love letters, phoenix and hotelier. if you want sword fighting Damo is a great series to buy.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.2281675338745117,
+        "negative": 2.009298801422119,
+        "neutral": 0.7329230904579163,
+        "positive": 0.5367976427078247,
+        "very positive": 0.3277597725391388
+      },
+      "sentence": "Title: A deal on this excellent recording\nText: I originally had this performance on LP (and saw a very similar performance at the Met). Having recently acquired it again on CD, the only complaint I'm going to mention is with the recording, balance is occasionally off and there are fortissimo sections seemingly recorded at too high a level (the music seems to flare, or blare -- sorry if my terminology is askew). For those who have complained about the high price, I too put off this purchase due to cost. However (and I don't know if I can get away with stating this here), the recording is more widely available in Europe and you can acquire it via the web through European sellers whose prices are a good deal more reasonable. The service I used is a classical distributor out of Birmingham, England called Crotchet (the English term for a quarter-note); their service was impeccable and the price was approximately $43 U.S. Crotchet can be contacted through www.crotchet.co.uk.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.7773799896240234,
+        "negative": 2.9872024059295654,
+        "neutral": 1.4360636472702026,
+        "positive": 0.6633474826812744,
+        "very positive": 0.14563636481761932
+      },
+      "sentence": "Title: durable suit\nText: Good quality construction on this suit. It is snug without binding and great for swimming in competition or training! Hard to beat the price too!\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.36368539929389954,
+        "negative": 0.4220358729362488,
+        "neutral": 0.7946674823760986,
+        "positive": 2.255101442337036,
+        "very positive": 2.691303014755249
+      },
+      "sentence": "Title: Disappointed\nText: While I love Krentz's books, I would not buy another in this series. It doesn't seem to measure up to her other trilogies with hollow characters and plot.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.4405709505081177,
+        "negative": 0.3083234131336212,
+        "neutral": 0.9238806366920471,
+        "positive": 2.0857503414154053,
+        "very positive": 2.680182456970215
+      },
+      "sentence": "Title: Mr Coffee basket\nText: We have had other baskets for other Mr. Coffee makers but this one is only 2 weeks old and the lining is ripping along the side. My other basket was cone shaped in my old coffee maker and was a year old before the coffee maker broke. I may give it another try but I am going to look around for another brand first to try.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.8662617206573486,
+        "negative": 2.6671154499053955,
+        "neutral": 0.9541438221931458,
+        "positive": 0.5613915920257568,
+        "very positive": 0.2425088733434677
+      },
+      "sentence": "Title: Perfect for Traveling\nText: These changing pads are great to have around in your diaper bag and for traveling. The surface is soft and doesn't bother baby's skin. It dries pretty fast too -- sometimes the baby will get a little spit up on it. I just let it dry and it's fine, so you don't have to throw the whole pad away. It's thick enough that moisture doesn't soak all the way through.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.8233013153076172,
+        "negative": 1.2748777866363525,
+        "neutral": 0.45541584491729736,
+        "positive": 0.5791517496109009,
+        "very positive": 0.7917137742042542
+      },
+      "sentence": "Title: Artsy Tubes effort\nText: On this effort, the Tubes cover multiple genres. There's lots of lush piano (\"Smoke\", \"Hit Parade\"), twangy, blusey guitars (\"Golden Boy\", \"Strung Out On Strings\"- an often overlooked Tubes gem), eclectic odd-ball ditties (\"My Head Is My Only House Unless It Rains\", \"Cathy's Clone\", \"I'm Just A Mess\"), a take on Sinatra (\"This Town\"), and a song about a frail guy with large genitalia (\"Pound Of Flesh\"). This hodgepodge comes together on the closer, \"You're No Fun\" (if Steeley Dan and the Ramones had a baby, it would sound like this), which somehow combines over-the-top prog-rock synthesizers and 1970s jazz-rock, capped by a frenetic neo-punk rock climax. This commercial dud doesn't match the grandiose bombastic genius of the band's debut, and bears no resemblence to the pop-funk of their 80's efforts. But for true fans, this is a long over-due release of an interesting and strangely compelling disc.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.1390557736158371,
+        "negative": 0.6536130905151367,
+        "neutral": 1.6927441358566284,
+        "positive": 2.3753974437713623,
+        "very positive": 2.2540671825408936
+      },
+      "sentence": "Title: A literary disaster.\nText: These four empty stars I'm appointing you are as transparent as your deceitful attempt to promote this poorly written collection of fabricated slang.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.09804993867874146,
+        "negative": 0.8307799696922302,
+        "neutral": 1.698397159576416,
+        "positive": 2.541691303253174,
+        "very positive": 2.282161235809326
+      },
+      "sentence": "Title: DO NOT BUY THIS BOOK\nText: Unless you just like to waste money, do not buy this book. It was a complete waste of time. I went through every chapter, completed the practice tests, and went into my SAT Literature test feeling confident, and came out wanting to kill myself. In my opinion, there is nothing you can do to study for this test. You are either good at analyzing literature, or you're not. It is impossible to study for this test within a two-month period. Maybe I would've been more successful if I had started studying when I was seven, instead of seventeen.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5614040493965149,
+        "negative": 1.373623013496399,
+        "neutral": 0.4649117887020111,
+        "positive": 0.62285315990448,
+        "very positive": 1.017919659614563
+      },
+      "sentence": "Title: Nice mats\nText: Nice mats but the little hooks to keep it still are a little weak and make a hole in the oem carpet. Nice mats though.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.13789857923984528,
+        "negative": 0.6570001244544983,
+        "neutral": 1.6268795728683472,
+        "positive": 2.6716198921203613,
+        "very positive": 2.669114351272583
+      },
+      "sentence": "Title: dlong504\nText: This game is horrible. It isn't worth the time playing or the money you spend. If you are looking for a boxig game don't buy this. This is a button smashing free for all, the person who either has Ali or presses buttons faster will win always. If you want a great boxing game buy knockout kings 2001!\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.8648101687431335,
+        "negative": 1.3284451961517334,
+        "neutral": 0.4394698143005371,
+        "positive": 0.7816706895828247,
+        "very positive": 0.5420098900794983
+      },
+      "sentence": "Title: It is Elliott Smith, but he has done better.\nText: A brilliant piece of work this is, songs such as \"Oh Well, Okay,\" \"Waltz #2 (XO),\" and the wonderfully a cappella \"I Didn't Understand\" (coming interestingly right on the tail of \"Everybody Cares, Everybody Understands\" a pattern that is repeated in \"Figure 8\" with such pairs as \"Everything Reminds Me Of Her\" and \"Everything Means Nothing to Me\" and etc.) are as good as anything that has ever been written by anyone ever, with the exception of Mr. Smith's own \"Angeles,\" one of the five best recordings ever.The album does have it's worse points, however. The saxaphone in \"A Question Mark\" is simply annoying and I've never been to hot on \"Independence Day.\" However, interestingly, I rather like \"Amity,\"....P>This is not the best Elliott Smith, I would leave that for \"Either/Or\" or \"Elliott Smith\" itself, but you can never go wrong with an album by our dear friend E.S.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.9240361452102661,
+        "negative": 2.32515811920166,
+        "neutral": 1.554858922958374,
+        "positive": 0.6836938261985779,
+        "very positive": 0.14011512696743011
+      },
+      "sentence": "Title: a must read, don't look back\nText: this book is a must. any more in this world one must be mentally tough. the world is not always pretty there will be some obstacles. Like I say \" this is just a hill for a mountain climber\". I recently started with a new company \"world financial group\" which has a lot of great leaders in it from Ed Mylett to Eric Olsen to Paul Hart and Gabby Beltran to Elan Micheals to Manny Valle there are a lot of great people who want for people to be successful in life. Its amazing what one can do with the right association life. My company wanted for us to get this book to read it for self development. What other company out there has the employees get books for self development. Remember we can always do better some way shape or form. Before I go I wanted to give special thanks to my lady Crystal Elsea.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6306862235069275,
+        "negative": 0.39043793082237244,
+        "neutral": 0.5171945691108704,
+        "positive": 2.032177209854126,
+        "very positive": 2.8629837036132812
+      },
+      "sentence": "Title: Great to Listen to While Drunk, But Doesn't Make the Cut\nText: The first time I heard Welcome To the Fold, the song sounded excellent because I was completely punch drunk. In its own right the song is about boozing, however, I listened to the rest of the album while completely sober the next day and wondered why Richard Patrick decided tone down the bands sound and make it more \"accessible\" to the masses. So he could sell more records obviously. This album just doesn't cut it, when Brian Leisgang was still in the band Filter had very hard and yet sophisticated sound that was showcased well on its debut album Short Bus. But with Brian gone, the new band members, including the new guitarist Geno Lenardo are nothing but Patrick's puppets to do with as he pleases.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.5524895191192627,
+        "negative": 2.113422155380249,
+        "neutral": 0.8690426349639893,
+        "positive": 0.32673361897468567,
+        "very positive": 0.44919946789741516
+      },
+      "sentence": "Title: Excellent book\nText: I liked The Lost Army a lot, but the 3 last books have been deceptions for me. So this one took me by surprise!Brian Hodge manages to bring in what works really well with Mike's comics: the mood and the humor. But he also brings something that's sadly missing from Hellboy's drawn stories: the sense of details. I mean when you have so many cool objects and characters and locations and monsters... it's a pity that the whole thing is gone in 2 or 3 little comic books, isn't it?At least with this book we get to dive in some of the characters' previous life and the result is that we start caring about them. And I don't get that a lot from the comic book...Then again what we DON'T have is Mike Mignola's beautiful artwork which is what made me buy the first comics back then. A cover is ok but some inside illustrations would have been better.In the end I have really enjoyed this book and will buy the next ones.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.010528087615967,
+        "negative": 2.7372004985809326,
+        "neutral": 1.457454800605774,
+        "positive": 1.058479905128479,
+        "very positive": 0.09046129137277603
+      },
+      "sentence": "Title: american research / must have\nText: I've been doing family research for 25 years and it's about time i got my own federal census map guide. How do you know where your family was in any given year w/out it? I use it every time i turn on the computer-this is so worth it.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5585127472877502,
+        "negative": 0.6229327917098999,
+        "neutral": 0.41158637404441833,
+        "positive": 1.3701074123382568,
+        "very positive": 2.0099833011627197
+      },
+      "sentence": "Title: Hallan's Adventures\nText: All the pioneers had a reason for crossing the Alleghenies. Some wanted to hunt, others wanted to make a better life for their family, there were those that wanted to escaped a forced marriage, and of course some wanted to escaped being accused of killing someone. Davis Hallam was accused of killing his unfaithful wife. He joined a crew that was widening the Wilderness Road. Reasoner keeps his stories moving with Hallan adventures. This is not one of his best. By Ruth Thompson author of \"The Bluegrass Dream\"\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5650492310523987,
+        "negative": 0.8398386836051941,
+        "neutral": 0.3074277341365814,
+        "positive": 1.340328335762024,
+        "very positive": 1.990740180015564
+      },
+      "sentence": "Title: Inflator\nText: The weight indicator did not work from the very beginning however it does serve its purpose.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.4763152599334717,
+        "negative": 2.061283588409424,
+        "neutral": 0.8358386158943176,
+        "positive": 0.37087321281433105,
+        "very positive": 0.41068604588508606
+      },
+      "sentence": "Title: Wow! Marketing success\nText: Oprah today, huge forum entries in space above reviews. Marketing has successfully leapfrogged this book to the top. Harmonic success in accordance with universal laws applies to more of The Secret and Law of Attraction stuff. If you think it, it will be so. I love being inspired, however, and enjoyed reading another version of the universal law route to success.If you are interested in creating wealth, check out \"The 17 Principles of Creating Wealth,\" by Phillip Collinsworth.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.736619234085083,
+        "negative": 0.6081399321556091,
+        "neutral": 0.3588906526565552,
+        "positive": 1.2423683404922485,
+        "very positive": 2.312685251235962
+      },
+      "sentence": "Title: Great singing, poor staging\nText: Why do directors have to detract from operas by forcing the viewer to watch their ego (which they call creativity)? The singing, acting, and orchestra are very good. So is the opera (one of Massenet.s most popular). But the scenery and the shift of time to the 1950s make it seem silly. As for the scenery, the giant tree that is the theme in all four acts is fine for act 1 (the garden) and act II (the town square, but is rather silly as the wall of the sitting room in act III and is totally ridiculous in Act IV where Werther's death bed in his bedroom is under this tree. Changing the time to the 1950s makes the plot unbeleavable. Girls of the 1950s simply didn't refused the man they loved to marry the man their late mother had wanted them to marry.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2247655838727951,
+        "negative": 0.5253321528434753,
+        "neutral": 1.0954047441482544,
+        "positive": 2.3410592079162598,
+        "very positive": 2.5090348720550537
+      },
+      "sentence": "Title: Don't waste your time.\nText: Besides not wasting your money on this book, don't waste your time. It seems to have been written by three men who have formed their own post-collegiate fraternity, complete with sticky floor and women of little or no self-esteem. I'm aware of many of the differences in outlook between men and women, but even with those in mind, I'll wait to find a man who has matured more than these three have.In addition, the language, sentence structure, and content structure of the book are written at a very low reading level. Are the authors not able to write at a higher level, or do they assume that women won't be able to understand a more sophisticated read?This book made me alternately laugh and cringe. Good for a raunchy comedy, but not so good for a purported self-help book.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.33169347047805786,
+        "negative": 0.6714605689048767,
+        "neutral": 0.5572434067726135,
+        "positive": 1.917567491531372,
+        "very positive": 2.2544105052948
+      },
+      "sentence": "Title: Not the worst cd I've heard\nText: Not the worst but pretty damn close. This is VERY different from Experience, Jilted, or Fat of the Land. I've been a fan ever since Jilted Generation was released and I have to say that Always Outnumbered just doesn't do it for me.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.89388108253479,
+        "negative": 2.2309956550598145,
+        "neutral": 0.5518034100532532,
+        "positive": 0.3953404724597931,
+        "very positive": 0.5746946930885315
+      },
+      "sentence": "Title: for the closet romantics\nText: I found this movie to be sweet, charming and hopeful. If you like quotes it might just steal your heart since the the \"meet cute\" scene entails the leads wittily quoting back and forth at each other. The characters seemed like they might have deserved more plot, but were none-the-less intelligent, in the oh-yeah-I-know-someone-like-that way, even if you don't. Although this movie isn't nessesarly for everyone I highly recomend it.(If you would like to see the lead characters in a more highly developed plot I direct you the director/writer's book, God Shaped Hole.)\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.7306249141693115,
+        "negative": 2.2474305629730225,
+        "neutral": 1.0865720510482788,
+        "positive": 0.40249937772750854,
+        "very positive": 0.30556148290634155
+      },
+      "sentence": "Title: Battery Free Monitor\nText: I was looking for a battery-free monitor with an actual gauge instead of a digital display. This one works great and meets my requirements. All monitors give you numbers but I believe that this unit is consistently more accurate because of the gauge. Results with this unit track readings from the doctor's office.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.323188543319702,
+        "negative": 2.7329111099243164,
+        "neutral": 1.3027487993240356,
+        "positive": 0.7807205319404602,
+        "very positive": 0.12802891433238983
+      },
+      "sentence": "Title: Keep going back\nText: I purchased this books ages ago. I keep going back to read it from time to time. It is one of my favourite books and so well written. I do recommend it. It is sad but there are lessons to learn from \"A Virtuous Woman\".\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.6622965931892395,
+        "negative": 0.9492799639701843,
+        "neutral": 0.27693358063697815,
+        "positive": 1.1152476072311401,
+        "very positive": 1.752606987953186
+      },
+      "sentence": "Title: Mildly Arresting\nText: This is a cocktail that's part tense criminal portrait and part light-hearted caper served in a lushly romantic but referential style and at a pace that can charitably be described as leisurely. It's stylish and at times fascinating, but I was at a remove the whole time. This may be because I don't see the charm of Jean-Louis Trintignant -- to me he's just creepy. (Lelouch has fun posing him smoking on his bed, but he's no Alain Delon.)Worth watching if you're in the mood for something colorful but decidedly low-key.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5870628952980042,
+        "negative": 0.6575380563735962,
+        "neutral": 0.4881709814071655,
+        "positive": 0.9122207164764404,
+        "very positive": 1.910596251487732
+      },
+      "sentence": "Title: Great sound -- when they work\nText: I've had mine for almost a year now; when they work, sound is clear as a bell and the mic is the best I've used.Every so often, however, something happens and the sound distorts. It's kind of like the sound of an FM synthesizer with bad parameters.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.4341324269771576,
+        "negative": 0.3192560374736786,
+        "neutral": 0.9025995135307312,
+        "positive": 2.040311098098755,
+        "very positive": 2.5147180557250977
+      },
+      "sentence": "Title: this is not the hungarian soundtrack\nText: this dvd with release date 10 january 2012 (Kimstim. region 1) even though it claims otherwise on its box and in the amazon product details - has only one english/french soundtrack - it only has english subtitles when french is spoken - image is out of sync with the soundtrack as well - so this is now another variant in the versions of \"the man from london\" - but not the one i want to see and hear ....... with hungarian soundtrack and english subtitlesi refuse to rate this item ..... however then the review is not published ..... so this rating is for the system of rating itself - minimal ..... one star ...... a disaster star\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3761254847049713,
+        "negative": 0.7808955907821655,
+        "neutral": 0.6424384117126465,
+        "positive": 0.9347898960113525,
+        "very positive": 1.613348364830017
+      },
+      "sentence": "Title: Great for watering the floor\nText: If a wet floor is your goal, by all means buy this. Not only do you get to pay a chunk of $, unpack, assemble, clean up, then do it all in reverse to send it back, but you get to waste lots of time.Doesn't matter how you arrange the river rocks or how long you let it run--it gives you a delightful water spray that will add an exciting slippery surface to your interior floors.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.46085020899772644,
+        "negative": 0.3396037817001343,
+        "neutral": 0.7868857383728027,
+        "positive": 2.116504192352295,
+        "very positive": 2.7659919261932373
+      },
+      "sentence": "Title: There are better books on the topic\nText: This book starts off with making comparisons between being overweight and having a house that's too stuffed with things.It continues to trying to work that theme on and off though out the book with little effect.While there are things in here that people will find helpful the book wanders off into information onhow to re-organize, clean and store things rather than dealing with the real problem of people having too much stuffand enabling them to get rid of it.I prefer Don Aslett's \"For Packrats Only: How to Clean Up, Clear Out and Dejunk Your Life Forever\".The Aslett book deals with the causes of clutter and busts the excuses that people use to hang onto stuff.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.1866466999053955,
+        "negative": 2.23390793800354,
+        "neutral": 1.0865278244018555,
+        "positive": 0.5709448456764221,
+        "very positive": 0.22089046239852905
+      },
+      "sentence": "Title: Romantic Book that relates to today's world\nText: \"I Do\" is an incredible story about \"Plain\" Jane Olstenhiemer and her fantasys of the name Daisy, a career as a reporter, and NOT being the maid of honor at her cousins wedding. When Lacrosse star, Adam Logan (the biggest jerk at her school in her opinion) becomes the best man, he also, over time, becomes another of Jane's fantasy's. A totally real story that capures your total attention, and makes you sigh with happiness when you finish. I also own, \"At First Sight\" by this author, and I urge you to read both stories. They are really good!\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.236636161804199,
+        "negative": 2.7482967376708984,
+        "neutral": 1.7732080221176147,
+        "positive": 0.8884119391441345,
+        "very positive": 0.08915650844573975
+      },
+      "sentence": "Title: \"From Patent to Profit\"\nText: \"From Patent to Profit\" by Bob DeMatteis stands out among all the books on the subject. Bob's book has literally become my guide from the patent stage to selling our product on the market. Bob is very knowledgeable. His own success with patents and product development helps him guide the beginner. He takes you step by step through the process in a very precise and understandable way. I am so pleased that I became involved with Bob's teachings early on in my journey to product development. I've purchased other books on the subject and 'From Patent to Profit\" says it best, especially for beginners.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.4220004975795746,
+        "negative": 0.6612012982368469,
+        "neutral": 0.650460422039032,
+        "positive": 0.9575871229171753,
+        "very positive": 1.769593596458435
+      },
+      "sentence": "Title: Nice router, short life\nText: I've had this router for about 2 years ( out of waranty )As far as using the router, it's great. This router has never been mounted in a router table, so the bit size has always been under 2 inches. the router recently has started sparking where the brushes are located (replaced brushes , didn't help ). When I took to the dewalt service center they said repairs wouldn't be over a $100 ( a new one with 1 year waranty is only $200. I feel this router should have lasted longer especially since it has had very limited use.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.24436026811599731,
+        "negative": 0.45891547203063965,
+        "neutral": 1.1743535995483398,
+        "positive": 2.5805253982543945,
+        "very positive": 2.6634466648101807
+      },
+      "sentence": "Title: Boring as hell and not very funny.\nText: Ugh if you are looking for a very funny movie, I promise you this is not it. It was one of those movies I finished only because I started watching it. I was really put off by Colin Farrell. Check out Bridesmaids, Due Date or The Campaign instead all are great, funny movies.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 3.031161308288574,
+        "negative": 3.113729238510132,
+        "neutral": 1.6462221145629883,
+        "positive": 0.6519089341163635,
+        "very positive": 0.1452944129705429
+      },
+      "sentence": "Title: Truly Great! (4.5 Stars)\nText: I fell in love with Mean Sleep when the single was released but at the time I wasn't open minded enough to check out her album. Recently stumbled across this CD here on amazon from recommendations - wow, what a pleasant surprise! I am so glad that I made my way back to Cree, she has a beautiful voice. The more I listen, the more I love it, I didn't realize how talented she truly is.I'm listening to Mean Sleep as I type this review and I keep stopping to jam with her and Lenny! LOL.Okay here's some highlights: Deliciously Down, Mean Sleep, Fall, Soul Sister, Curious White Boy, Miss Moon and Still Heart.It's definitely poetic; the lyrics are beautiful and different...not typical by any means. It's amazing to hear music like this. I hope Cree comes out with more music.Happy listening!\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.458730548620224,
+        "negative": 0.32599005103111267,
+        "neutral": 0.8258061408996582,
+        "positive": 2.17781925201416,
+        "very positive": 2.711911201477051
+      },
+      "sentence": "Title: This book was similiar to watching it rain.\nText: I wanted so much to love this book. It starts out beautifully describing a people, a lifestyle and a part of the country that all deserve the intricate detail that Mrs. Goodman uses to paint their picture. The problem is that after the picture is painted, it just stops. No story, no emotion, nothing. You so want the characters to interact and they simply brush against each other on occassion: even husband and wife, brother and brother. Several of the characters introduced actually dropped out of the story without an explination. I hoped until the last page that this book would \"wake up.\" It was sort of like watching it rain. The author has mastered description, her next work should add a little story to the words.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.8971790075302124,
+        "negative": 1.7978852987289429,
+        "neutral": 0.6868599653244019,
+        "positive": 0.540459156036377,
+        "very positive": 0.35255229473114014
+      },
+      "sentence": "Title: why cairo?\nText: So why does everyone compare all these new bands to daft punk. come on. Daft punk is robot rock sampling everyone from Space, Bombers, Gino Soccio (who is amazing), Patrick Cowley, and onward. Even Cassius and Sinclair and Dimitri from where? . The flair disco from the late 90's france was the beginning of the revival but this sound is new. fresh - not daft. I must say that I prefer MSTRKRFT but the larry heard like track Zdarlight is brilliant. Bravo. I'll drop it in milano in april 2008. Kreemy\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.18284904956817627,
+        "negative": 0.5722699761390686,
+        "neutral": 1.3149739503860474,
+        "positive": 2.411991596221924,
+        "very positive": 2.4773669242858887
+      },
+      "sentence": "Title: Battery life is laughable\nText: I expect more from Dirt Devil. Battery life is a joke! Don't waste your money on this. We are searching for an alternate.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.45740556716918945,
+        "negative": 0.3907935619354248,
+        "neutral": 0.8152703642845154,
+        "positive": 1.3433979749679565,
+        "very positive": 2.2250430583953857
+      },
+      "sentence": "Title: Troublesome Replacement Battery\nText: We only gave the Panasonic Cordless Phone Replacement Battery an average rating because it had to be replaced twice. The first replacement battery was difficult to install in the phone (mfgr quality control issue??), took hours to charge, then would only hold charge for less than 3 minutes before the phone went dark. Thanks to prompt seller response, we received another replacement battery. It installed very easily & although it took quite long to charge, it seems to be holding up well.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.22949336469173431,
+        "negative": 0.5312216281890869,
+        "neutral": 1.0464091300964355,
+        "positive": 2.274263858795166,
+        "very positive": 2.5558290481567383
+      },
+      "sentence": "Title: not happy\nText: i gave this one star because when i received this product i was sent a Emenim dvd inside of the Cranberries cd case. not a happy camper . i cant stand Emenim\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.12121844291687,
+        "negative": 2.3290371894836426,
+        "neutral": 0.9404011964797974,
+        "positive": 0.5831937193870544,
+        "very positive": 0.23829685151576996
+      },
+      "sentence": "Title: Hume Rocks...\nText: ...but then everyone knows that. He's witty. He's lucid. He's profound. He's humane. Admittedly, Hume's Treatise is pretty dense (I've never been able to get more than 100 pages into it), but his two Enquires are masterpieces of philosophical literature. Anthony Flew's edition of the Enquiry Concerning Human Understanding has helpful notes and interesting biographical materials (such as Adam Smith's touching memorial of Hume). Great stuff.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.6145193576812744,
+        "negative": 2.2902727127075195,
+        "neutral": 0.47778695821762085,
+        "positive": 0.5453755855560303,
+        "very positive": 0.4687565863132477
+      },
+      "sentence": "Title: Highlights of Freddie Mercury's solo material\nText: Like Queen, Freddie Mercury as a solo artist cannot be pigeonholed into one category. His catalogue is too broad and styles are too diverse to classify him as merely a rock artist. This collection puts onto two discs numerous highlights of Freddie's solo works, which range from the Queen-esque \"Mr. Bad Guy\" to duets with opera star Monserrat Caballe. Those who love Queen will find this a worthy addition to their collection, even if it is slightly heavy on remixes and remakes. All in all, this is a great introduction to Freddie Mercury, solo artist.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.13191063702106476,
+        "negative": 0.6524971723556519,
+        "neutral": 1.8617573976516724,
+        "positive": 2.692286252975464,
+        "very positive": 2.731106758117676
+      },
+      "sentence": "Title: Nothing But Trouble\nText: I have been using this stroller for only about 6 months and have had nothing but problems. It does not stay closed. When I pull it out of the back of my suv it pops open jabbing me in the legs. The basket is nice and deep but wont stay in the up position. It constantly falls down and it must be up to close the stroller. Today I went to the park and when leaving I tried to close it and the button you have to push to close it is stuck. The stroller will not even fold up!!! I spent 15 minutes in the parking lot trying to get the button to work so I could close it while sweating in the 90 degree heat and my poor 10 month old crying in the car. I eventually had to pick the entire thing up and throw it in my trunk in the open position. Thankfully I have a truck. On a good note, the stroller is nice and roomy, good for baby to lounge and the basket is deep if it does stay open. I would NOT RECOMMEND THIS STROLLER! Dont waste your money!!!!\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.36403727531433105,
+        "negative": 0.3984640836715698,
+        "neutral": 0.8684324026107788,
+        "positive": 2.181314706802368,
+        "very positive": 2.608276128768921
+      },
+      "sentence": "Title: Disaster\nText: I had a grat expectations abut this title... But... The video is definitely not HD - it's blurry and SD (upconverted).The \"plot\" is quite boring, nothing special and breath-taking. This movie has nothing in common with \"Planet Earth\" or \"Earth\". Waste of time and money.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2352808713912964,
+        "negative": 0.4435141384601593,
+        "neutral": 1.4673089981079102,
+        "positive": 2.3874385356903076,
+        "very positive": 2.5715034008026123
+      },
+      "sentence": "Title: Cool Idea, Failed Execution\nText: I found these dishes at my local KMart store. I was SO EXCITED to find dishes that had built in ice packs to use in my child's lunch box. When I got them home, I put some water in them to test how tight of a seal they have--imagine my disappointment and disgust when I realized that these dishes LEAK. Now I am going to have to return them as I don't feel like they fit my needs--especially for how expensive they are. After all, how can I pack applesauce or cottage cheese and feel rest assured that they aren't leaking all over my little one's lunchbox?! Who even designs plastic food storage that leaks anymore?! I am beyond upset! What a waste of money and a waste of my time!\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5244166851043701,
+        "negative": 1.1325289011001587,
+        "neutral": 0.42683303356170654,
+        "positive": 0.922244131565094,
+        "very positive": 0.8574562072753906
+      },
+      "sentence": "Title: Now if only he'll do the dishes\nText: Bought for hubby as a gag stocking stuffer. He loved the set, hung them on the stainless fridge. They look great, but probably will never touch a dish. Very attractive.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.5582239627838135,
+        "negative": 2.5716428756713867,
+        "neutral": 1.36571204662323,
+        "positive": 0.544964611530304,
+        "very positive": 0.1939067393541336
+      },
+      "sentence": "Title: Beautiful truthful novel\nText: Rivers has written an amazing story with \"Redeeming Love.\" I learned so many life lessons from this book, the main one being: Leave it to God. He will take care of you. Don't rely on your own strength and wisdom, but rather, His. No matter how painful an event in our life is, it is there for a reason. Usually, it brings us closer to God because we are forced by our weakness to come to Him for strength. I truly recommend this book to anyone who is hurting and who is dissatisfied with life. I also really enjoyed the quotes written before each chapter that serve as a preview of the lesson to be learned in that chapter.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.69809889793396,
+        "negative": 2.682011842727661,
+        "neutral": 1.3562179803848267,
+        "positive": 0.6537549495697021,
+        "very positive": 0.15776993334293365
+      },
+      "sentence": "Title: Entertaining\nText: I am an avid fan of Judy Blume and I loved this book. I had trouble putting this book down. If you enjoyed Forever then I recommend this book.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.2003297805786133,
+        "negative": 2.6884732246398926,
+        "neutral": 1.589923620223999,
+        "positive": 0.8848520517349243,
+        "very positive": 0.0943317711353302
+      },
+      "sentence": "Title: This game is the nizzle fashizzle\nText: This game is off the hook. You will love this game. Race others and kick a$$ and also get your a$$kicked. There are no cons in this game is excellent. I you buy this game I must tell you that when you are on the Paris track you actually feel like you are in Paris. You alsom pass real places that are in Paris like the \"Vasusha Vecoke\" I know I have been to Paris. Same for La and Tokyo nad Los Angeles.The night setting gets you all in the mood. With choices to choose for music for Jewl to 50cent. you will absolutly love it. The interductoion was amazing. Like I said this game is the nizzle fashizzle\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.692262589931488,
+        "negative": 0.7925495505332947,
+        "neutral": 0.3059760630130768,
+        "positive": 1.180167317390442,
+        "very positive": 1.5533061027526855
+      },
+      "sentence": "Title: GOOD, BUT....\nText: Undoubtly Brittanica is a very good encyclopedia, but today, in CD-ROM and DVD version, Encarta is much better... For Britannica fans or pre-owners.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.24756307899951935,
+        "negative": 0.42001891136169434,
+        "neutral": 1.377989649772644,
+        "positive": 2.367105484008789,
+        "very positive": 2.4706456661224365
+      },
+      "sentence": "Title: Disappointed\nText: As someone who has had New Testament Greek many years ago and took this book in a crash course in just what, 6 weeks(?) I found it to be a disapointment. Very little of the vocabulary presented is the actual vocabulary used in the New Testament. If you are just learning Greek, you'd be better off to just stick with the NT Greek and forget the Septuagint. The fact that Croy does not use his own text ought to tell you something. I too, decry the lack of any key to the exercises. I was fortunate that I had an excellent teacher who diligently translated the exercises for us.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.16954763233661652,
+        "negative": 0.5778110027313232,
+        "neutral": 1.491565227508545,
+        "positive": 2.6098952293395996,
+        "very positive": 2.3313965797424316
+      },
+      "sentence": "Title: Don't order this one\nText: I ordered this product around Jan/Feb 2005 from AMAZON. It has not been shipped yet. It is delayed to Jun17. I am not sure I can get it at that time. Amazon may delay for another one, two or more months.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.4672999382019043,
+        "negative": 2.747600555419922,
+        "neutral": 1.007987380027771,
+        "positive": 0.5851504802703857,
+        "very positive": 0.21396517753601074
+      },
+      "sentence": "Title: Lost\nText: It's nice having the entire season in one place! We've already shared it with several \"Lost\" fans.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.15383586287498474,
+        "negative": 0.6259028315544128,
+        "neutral": 1.564984679222107,
+        "positive": 2.3980746269226074,
+        "very positive": 2.485518455505371
+      },
+      "sentence": "Title: Disappointment\nText: DiskWarrior requires starting the computer with the CD. I have an IMac Leopard 10.5.2 and have spent hours attempting to get the CD to start the computer, hours doing all the things Alsoft recommended which included washing the CD. It hasen't ever started the computer.I also found DiskWorrior requires up to 15 minutes to load once it does start the computerApparently Alsoft is not ready for Leopard, yet continues to sell the CD.I'm out $99.00 with nothing in return. Zero\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.22424747049808502,
+        "negative": 1.2075846195220947,
+        "neutral": 0.6801566481590271,
+        "positive": 1.1265743970870972,
+        "very positive": 1.2849478721618652
+      },
+      "sentence": "Title: Will buy a copy when they drop price to $9.99. Otherwise, NO THANKS !!!\nText: I will buy a copy when they drop price to $9.99. Otherwise, NO THANKS !!!\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.3141677379608154,
+        "negative": 2.4608054161071777,
+        "neutral": 0.9919323325157166,
+        "positive": 0.6004195213317871,
+        "very positive": 0.21377412974834442
+      },
+      "sentence": "Title: My dr. recommended this book\nText: I searched out this book after my dr. made the recommendation. Now I'm working on the transition - and so far, I'm enjoying eating again, and have lost both weight & inches.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.6920528411865234,
+        "negative": 2.9114432334899902,
+        "neutral": 1.227038025856018,
+        "positive": 0.6162568926811218,
+        "very positive": 0.1784997582435608
+      },
+      "sentence": "Title: Great buy\nText: This product turned out to be exactly what I wanted. It was perfect for the amount of watches that my husband had. He has room to expand his collection and uses the drawer for other items. (The cushions are removable) He has different items (rings, chains, tie clips, etc...) in each section. It looks nice on our dresser. I would recommend it. A good buy. My husband loved it.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.34499427676200867,
+        "negative": 0.38960132002830505,
+        "neutral": 0.9602120518684387,
+        "positive": 2.1477112770080566,
+        "very positive": 2.61818528175354
+      },
+      "sentence": "Title: To The Bargain Bin\nText: As some have said, if you like any of his early work then DO NOT buy this disc. He has gone from blues guitar phenom to R&B to a mishmash of style. I have no problem with change but the quality just isn't on this one. I bought it early without benefit of any reviews. I tried listening to it for several weeks but it never grabbed me at all- no soul or grit. I'll have to hear something better before buying Jonny disc again.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.924702763557434,
+        "negative": 2.5348854064941406,
+        "neutral": 1.3291709423065186,
+        "positive": 0.7665989398956299,
+        "very positive": 0.13524608314037323
+      },
+      "sentence": "Title: A Sci-fi Novel With Twists and Turns\nText: Robin Cook is brilliant. Invasion is an amazing book with many twists and turns that make the plot thicken every page. I have not yet finished it but I have only about 50 pages left and I began reading it two days ago. I could not stop reading it. I would stay up til 2 in the morning. The characters are in-depth and you start to take sides. And the amazing thing is it that I am only fourteen years old. I hardly ever read books. Buy the book.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.270020067691803,
+        "negative": 0.4167589843273163,
+        "neutral": 1.2053927183151245,
+        "positive": 2.3149325847625732,
+        "very positive": 2.4724740982055664
+      },
+      "sentence": "Title: Not at all what I ordered\nText: The description for this item is \"4M glow in the dark stars assorted stars pack of 16\". In the picture it is a package with a circle full of stars. After you click on it, it is a completely different picture with a moon and several stars. When I recieved it I got a moon and 5 stars. And I ordered two of these so I paid more than $13 for something I could have paid $2 for.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.31456226110458374,
+        "negative": 0.3878876268863678,
+        "neutral": 1.0689587593078613,
+        "positive": 2.3819260597229004,
+        "very positive": 2.6533825397491455
+      },
+      "sentence": "Title: Disfunction at its most mediocre\nText: Wow, was this ever a lame movie! It's unbelievable to me that so many people liked it! How is it possible that so many people had a VW bus AND are willing to love a movie on the basis of the vehicle alone? In all honesty, the funniest part of the movie was when they got to CA and the door fell off of the van (and that only got maybe half of a smile).Perhaps my family wasn't quite disfunctional enough for me to find this terribly amusing, because BOY, it sure wasn't!\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.1789621263742447,
+        "negative": 0.5818071365356445,
+        "neutral": 1.271714448928833,
+        "positive": 2.5578765869140625,
+        "very positive": 2.6007940769195557
+      },
+      "sentence": "Title: Not as expected\nText: This was a really disappointing purchase for me...it just wasn't what I thought it was. I thought it was a workout using a hula hoop, standing and hooping. It is mostly used as a prop.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2642700970172882,
+        "negative": 0.4471057653427124,
+        "neutral": 1.1602084636688232,
+        "positive": 2.0860934257507324,
+        "very positive": 2.423793077468872
+      },
+      "sentence": "Title: *yaaaaaaaaaaaawn*\nText: A singular and often stifilingly boring literary version of reality television, Leitch's book is the next phase in America's obsession with watching stupid people embarrass themselves. \"Life as a Loser\" is nothing more than an egotistical rant in a vain and somewhat pitiful attempt to gain popularity and sympathy through a lifetime of dissapointment. What separates this book from its electronically broadcasted brethren is one key component: good editing. Leitch's drawn out diatribes and abhorrent use of language leave the audience suffering from more than his self-effacing semi-biography. I have only one question: if it is obvious that Leitch has had such a horrible time living his own life, why would I want to waste my time reading about it?\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3032010495662689,
+        "negative": 0.8070512413978577,
+        "neutral": 0.603812038898468,
+        "positive": 1.401369571685791,
+        "very positive": 1.3859025239944458
+      },
+      "sentence": "Title: My Geisha\nText: I have not received my two copies of My Geisha yet please can you let me know what to do. I sent you an E-Mail yesterday but i'm not sure if it went through ok.RegardPauline Evans\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7206964492797852,
+        "negative": 1.1624464988708496,
+        "neutral": 0.23197990655899048,
+        "positive": 1.0109095573425293,
+        "very positive": 1.5763908624649048
+      },
+      "sentence": "Title: It's not that bad\nText: This album is not as bad as people say in their reviews. While it is true that the album sounds horrible, the songs are good. Frantic and St. Anger are both great songs, and so is \"The unnamed feeling\", just to name a few. The drums are very loud, but don't sound as bad as some people say. It's really the guitar-sounds that really(...). The guitars sound way too muddy, so at times it's hard to hear what is actually being played. This album is not the melodic Metallica of the Black album and (Re)Load, and it is also not the pre 1991 Metallica. This album is something completely new. I just wish the album sounded better. If you can get over the sound of this record you'll be able to appreciate this effort. Just don't expect any ballads.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6088157296180725,
+        "negative": 0.31710085272789,
+        "neutral": 0.7051504254341125,
+        "positive": 1.5752028226852417,
+        "very positive": 2.3938560485839844
+      },
+      "sentence": "Title: Shoulder Strap Problem\nText: This carrier has been nice to use when I walk my dog or go shopping instead of bringing a stroller. The shoulder padding tends to slide around since they are not attached to the straps. When this does happen, the straps dig into my shoulder. Also, it took quite some time before my son was able to face forward. He could hold his head well enough long before he was tall enough to face forward, but my baby didn't mind facing me. Some similar carriers fold down by the babies face so they can face forward easier.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.937621831893921,
+        "negative": 2.816272258758545,
+        "neutral": 1.4311559200286865,
+        "positive": 0.45217978954315186,
+        "very positive": 0.23212504386901855
+      },
+      "sentence": "Title: Well-written introduction to Cuzco School of painting and history\nText: After returning from a trip to Peru in 2012, where I was able to visit the Osma Museum of Colonial Art in Lima and also visit Cuzco, I was interested in re-reading this wonderful book about the Cuzco School of Art. The book not only contains beautiful illustrations, but it also provides a well-written and clear account of the history behind the development of this art and the manner in which indigineous and mestizo painters achieved the syncretism of two different religious beliefs and traditions, by imbibing the European art forms with their own symbolism. Anyone interested in learning about this type of art would do well to start with this book. The author writes in a way that is easy to understand, even for non art-historians, and provides a wonderful and revealing explanation of the cultural significance of these paintings.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.08706334978342056,
+        "negative": 0.854682445526123,
+        "neutral": 2.0708744525909424,
+        "positive": 3.1675851345062256,
+        "very positive": 2.549344539642334
+      },
+      "sentence": "Title: Horrible DO NOT BUY!\nText: Well I love Rice Crackers but this is horrible they dont have any flavor I bought two case of 12 and now I dont know what to do with them. Its sad they would be good if they had more ORIGINAL flavors from Japan and Korean but I guess that was to much to ask. Will never buy these again. I will try to find some with ORIGNAL flavors.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.6966841220855713,
+        "negative": 0.6487205028533936,
+        "neutral": 0.3173421621322632,
+        "positive": 1.4940685033798218,
+        "very positive": 2.376986503601074
+      },
+      "sentence": "Title: 3 stars but I would still recommend it\nText: Boguslaw Linda saves the whole thing, but the movie could have been a lot better. Some characters are cardboard, like Linda's new woman, some plot twists standard and hurried, and the ending is a completely unoriginal stale cliche from hollywood. The movie could use another 20 minutes to get some depth.One of the authentic things is that Russians and Ukraininans are played by Russian and Ukrainian actors respectively, and their lines are anything but cliche. Valeriy Prijomyhow (R.I.P)is great as usual. Of course, part of vodka-balalaika folklore could not be avoided, but it is not distracting.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.48240581154823303,
+        "negative": 0.2780786156654358,
+        "neutral": 0.9683198928833008,
+        "positive": 1.8553600311279297,
+        "very positive": 2.7704927921295166
+      },
+      "sentence": "Title: Small gravy boat\nText: Maybe this would work for syrup or sauce, but honestly, it's way too small for a gravy boat. It only holds 8 or 9 ounces of liquid. You would either be refilling it 2 to 4 times before everyone is served, or you would need several on the table. What could Mikasa be thinking? On the upside, unlike a lot of gravy boats, it pours nicely, and has a nice saucer to catch any drips.In hindsight, I should have shopped around and gotten something larger and not wasted my money on this one.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.33977916836738586,
+        "negative": 0.3838304281234741,
+        "neutral": 1.0025908946990967,
+        "positive": 2.2943358421325684,
+        "very positive": 2.67242169380188
+      },
+      "sentence": "Title: Great show, TERRIBLE picture quality\nText: The one star is for how piss-poor the transfer is on this DVD set. We paid 40 dollars for what is basically a bootleg copy! I mean, the episodes on YOUTUBE look better than this!Paramount, you sold us a shoddy product. Please step up and show us that you care about what you put out, product-wise, to the public and fix this error. We paid you our hard earned money for DVD quality and got second generation VHS.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.17992441356182098,
+        "negative": 0.6323016881942749,
+        "neutral": 1.2451164722442627,
+        "positive": 2.001479387283325,
+        "very positive": 2.1075596809387207
+      },
+      "sentence": "Title: Deceitful Liar\nText: Mary Baxter should be thrown in prison for her major defamation of God's character and of Jesus Christ. I got so pissed off at her version God and Jesus by reading her garbage. I personally know that this is not the person God really is because I tend to be more of a universalists, but I have the greatest contempt and scorn for narrow minded hell driven bigots like Mary Baxter.And it further ticks me off to see that people actually had their Christian faith strengthened by reading this book. How can they rejoice when they think that 75% of this failed god foresaken is going to be tormented forever in hell. Tell me how in the HELL that strengthens their faith and makes them \"happy\"? Praise Satan for evil people who call themselves Christians and actually enjoy this book. May they suffer in the afterlife!!\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.045029878616333,
+        "negative": 2.0118954181671143,
+        "neutral": 0.5814796686172485,
+        "positive": 0.7329937219619751,
+        "very positive": 0.2992834448814392
+      },
+      "sentence": "Title: Second Skin\nText: Best applied with a large stippled brush for maximum blending. Melts into skin and lasts all day (can be retouched without cakey build-up) over VL primer. Shade selection is not that critical as most take on the basic tone of one's own skin. Especially good on dry types. Does not settle into lines. No perfumy odor.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6544459462165833,
+        "negative": 0.37329187989234924,
+        "neutral": 0.5621050000190735,
+        "positive": 1.6029620170593262,
+        "very positive": 2.6095359325408936
+      },
+      "sentence": "Title: Might be okay for small batteries\nText: I bought this Sunforce 5 watt solar charger to keep my RV battery \"topped off\" and it MIGHT do ok if the sun shined 24/7...but it doesn't. If you're looking for something to help keep, say, a gate opener battery charged up it might work fine. There is no light as claimed to indicate it's charging so I checked the output with a voltmeter with full sun and it puts out about 25v and that's a good thing. The downside is you might be disappointed if you buy this to keep a normal size deep cycle battery charged. Hindsight tells me I should have gone with a MINIMUM of 10 watts (and that might be cutting it to close).\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.1618615835905075,
+        "negative": 0.5895413756370544,
+        "neutral": 1.5106453895568848,
+        "positive": 2.525304079055786,
+        "very positive": 2.5816590785980225
+      },
+      "sentence": "Title: don't waste money\nText: Once again, read the reviews and they said this was a \"great\" antenna\" compared to others avalible...I dissagree! I tried this in several locations at my cabin, but if I was not holding it, it was lousy reception. I ended up putting back up a piece of speaker wire connected to my reciever...don't waste your money on this one.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.0730680227279663,
+        "negative": 1.764143705368042,
+        "neutral": 0.990587055683136,
+        "positive": 0.8469926118850708,
+        "very positive": 0.18451257050037384
+      },
+      "sentence": "Title: Hitting this is just too much fun!\nText: I bought this heavy bag and gloves for the whole family (even the 4 year-old) and we have loved it.It is easy to get carried away with hitting it and you have to be very careful to maintain proper form (learn that first) so you can stay healthy and injury-free.This bag is great quality at a great price. It will take your abuse as long as you take care to protect yourself. It's far more likely to hurt you than you are it. Don't hit it without gloves because it's going to injure you if you do.Hitting this bag is a quick way to burn off a lot of stress and energy. It will surely outlast you in every workout no matter how much endurance you have.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.15716613829135895,
+        "negative": 0.60141521692276,
+        "neutral": 1.5989874601364136,
+        "positive": 2.777271270751953,
+        "very positive": 2.4252145290374756
+      },
+      "sentence": "Title: Cannot believe KA put their name on this piece of junk\nText: Way too flimsy. It feels like it is going to break in your hands.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.8016514778137207,
+        "negative": 1.159839391708374,
+        "neutral": 0.33222606778144836,
+        "positive": 0.8279274106025696,
+        "very positive": 0.8595163822174072
+      },
+      "sentence": "Title: Nice but no miracles here :)\nText: This is my first cat and cat litter box, so I don't have a point of comparison. I have this litter box in titanium, and I think it's as attractive as an indoor outhouse can possibly be. The lid is excellent at keeping flying litter in so far, and it's roomy enough for my 9 month old cat. My kids ripped and flung a few things in their excitement to get all set up for the new kitty, and so the charcoal filter went uninstalled for a few days. Sadly, I can honestly say I notice no difference at all in the level of odor after installing the filter. And no difference at all between the odor from this box and the small cheap-o open box we had at first.That said, I'd still buy it again for the sleek look, compact size and the nice enclosure. I wasn't really expecting it to smell good-- it's a box full of leavings, after all-- but I definitely expected it to contain the litter. And at that it's doing a great job.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7821979522705078,
+        "negative": 0.8913991451263428,
+        "neutral": 0.2764754891395569,
+        "positive": 0.9946072101593018,
+        "very positive": 1.6845722198486328
+      },
+      "sentence": "Title: An introduction for me, to Aimee Mann\nText: The movie itself is a bit too melodramatic and \"self-congratulatory\", as others have said. However, I own the soundtrack, and THAT is something worth buying.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.1595834195613861,
+        "negative": 0.5904418230056763,
+        "neutral": 1.5397123098373413,
+        "positive": 2.6628568172454834,
+        "very positive": 2.6159560680389404
+      },
+      "sentence": "Title: Not worth reading\nText: I didn't believe this book would be as bad as some of the reviews I had read, but I was wrong. It was every bit as bad, in fact worse.They are right - one-dimensional characters that either stereotypes or obnoxious or both. Too many plot lines, all poorly developed. I think it is aimed at brain-dead trailer trash, but it even stoops lower than that.A terrible waste of paper.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 1.587551474571228,
+        "negative": 1.7770423889160156,
+        "neutral": 0.48531633615493774,
+        "positive": 0.4895779490470886,
+        "very positive": 0.5577285885810852
+      },
+      "sentence": "Title: John Forrestal's poetry is sincere and accessible\nText: In his introduction to his collection of love poems, SENSUAL THOUGHTS, nineteen-year-old John Forrestal admits that he has \"no real training in the writing of poetry\" nor much knowledge of it. He writes simply for enjoyment.Many of the 59 poems betray a youthful haste and lack of \"A Doubt?\" expresses sharp feeling in a spare, clean and concise form; \"Unknown\" has a clear, cwell-maintained sense of rhythm; \"Your Name Must Be Beauty\" has lovely correspondences (\"slowly\", \"softly\") especially in the first stanza.On the whole, these expressions of sentiment for a real or ideal love are sincere and accessible. The book is deftly illustrated by Derek Lee\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3587341010570526,
+        "negative": 0.44280585646629333,
+        "neutral": 0.798346221446991,
+        "positive": 2.0182571411132812,
+        "very positive": 2.3605332374572754
+      },
+      "sentence": "Title: no identity\nText: i saw these clowns late last year with two other \"up and coming\" bands...rubyhorse and flickerstick. let me just say that while flickerstick was the reason we went to the show (from seeing them win bands on the run) and were solid, rubyhorse were outstanding! meanwhile, greenwheel were the most generic sounding band i have heard in a long time. they will be soon forgotten, along with band like default and a bunch of others i already can't remember. if you're into anything interesting in your rock, stay away from greenwheel.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.675575017929077,
+        "negative": 2.2256715297698975,
+        "neutral": 0.696011483669281,
+        "positive": 0.374639093875885,
+        "very positive": 0.47679853439331055
+      },
+      "sentence": "Title: Well-done gorefest\nText: Simon Baker is sexy, and hard to tear ones eyes away from. The direction and effects were great in this movie. The story was even pretty good. John Leguzaimo (sp?) got on my nerves. The heroine was well cast. There was plenty of gore for those who enjoy it. I loved Tom Savini's cameo (see if you can spot him!). Entertaining, thrilling. Not very scary but suspenseful at times. Well done...recommended for fans.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.5456026196479797,
+        "negative": 0.3530590832233429,
+        "neutral": 0.675160825252533,
+        "positive": 1.7135066986083984,
+        "very positive": 2.439479351043701
+      },
+      "sentence": "Title: Glass candies\nText: The product is nice, but two of the ten pieces (including our favorite one) arrived broken. Despite efforts to protect the fragile pieces, the ends snapped off in shipping/processing somewhere.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.568678379058838,
+        "negative": 2.567941427230835,
+        "neutral": 1.309901237487793,
+        "positive": 0.5780404210090637,
+        "very positive": 0.18666177988052368
+      },
+      "sentence": "Title: Wonderful plot-twisting film!\nText: Fantastic mystery! All the right plot twists to make this highly entertaining. One word of advice to people who haven't seen it yet: DO NOT TURN IT OFF! The first 45 minutes of the movie seem so bizarre and boring that you will think it's a terrible movie and will want to turn it off. Stop yourself!! Trust me, it will all come together in the second half.If you like this movie, I highly recommend \"The Game\" with Michael Douglas and \"A Fish Called Wanda\" with Jamie Lee Curtis.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.4482383728027344,
+        "negative": 0.30993062257766724,
+        "neutral": 0.8941673040390015,
+        "positive": 2.2048611640930176,
+        "very positive": 2.6452057361602783
+      },
+      "sentence": "Title: Ghost Stories-Too Short\nText: I bought this book because I love ghost stories and pictures of haunted castles. However, this book provided none of that. It is more like world guide of haunted places, and each place gets a couple of pages of fanciful description and then the address. It did not provide the beautiful castle pictures, nor the involved, ghostly stories based on history I was looking for.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.5995490550994873,
+        "negative": 2.216144561767578,
+        "neutral": 0.7472426891326904,
+        "positive": 0.4067625403404236,
+        "very positive": 0.4055844843387604
+      },
+      "sentence": "Title: Sound Design\nText: Semisonic's 4th cd continues their tradition of solidly crafted pop songs. These songs from chemistry to el matador are noteworthy for the care and craftsmanship of the songs. Carole King gives a wonderful sound to One True Love.The band is also great in concert.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2651776671409607,
+        "negative": 0.8467488288879395,
+        "neutral": 0.8340809345245361,
+        "positive": 1.3474667072296143,
+        "very positive": 0.857438862323761
+      },
+      "sentence": "Title: Phillips Zoom\nText: I have to say I did not receive the Day White Excel by Discus Dental, which is an excellent product.Instead they sent me Phillips Zoom which is not as good. The Day White Excel is by far the greatest!!!!\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 1.044659972190857,
+        "negative": 1.2202240228652954,
+        "neutral": 0.5296116471290588,
+        "positive": 0.5023310780525208,
+        "very positive": 0.6835532188415527
+      },
+      "sentence": "Title: Great but a little hot\nText: I really like the infuser mug. It works very nicely, though I sometimes nearly burn myself when carrying the mug with hot water when I'm not careful. The glass gets hot very quickly, and the handle is small. Similarly, when I remove the infuser from the mug, there is not an easy way to do so without touching the hot metal. If you're interested in this style infuser, which I am convinced produces superior tea to ball or spoon infusers, go for it. You might also consider purchasing just the infuser and using it with your favorite mug instead.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.22488515079021454,
+        "negative": 0.4367377460002899,
+        "neutral": 1.542595386505127,
+        "positive": 2.4665536880493164,
+        "very positive": 2.6515285968780518
+      },
+      "sentence": "Title: Fell Apart!!!\nText: I had my first baby in September. I registered for this diaper bag because it matched my other gear (Car seat, stroller, swing, ect.) I am a single working mother so wherever I go my daughter goes, so this bag WAS used alot. After about two months the inside liner tore apart. Because the inside compartments are attached to the liner, all these fell apart also. This made the diaper bag useless. Save your money and purchase a better made bag. I went out and bought a Graco!!!\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.4844258725643158,
+        "negative": 0.3605390191078186,
+        "neutral": 0.7204983830451965,
+        "positive": 1.860253095626831,
+        "very positive": 2.582368850708008
+      },
+      "sentence": "Title: Chris Barry needed the money.\nText: This seemed ok, but then I put it on. Chris Barry did his best, but this is another attempt by the English to make an American movie. Sean Pertwee has been in a lot of bad movies. This is deffinately one of them. If you like a bit of gore, go for it. This was never meant to be taken seriously, and Barry has a few good lines, but it is over the top and a bit forced. The English do comedy very well, but they have a differant style, and budget to the Americans. This is an American movie.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5685740113258362,
+        "negative": 1.0387585163116455,
+        "neutral": 0.3047513961791992,
+        "positive": 1.0911253690719604,
+        "very positive": 1.4713128805160522
+      },
+      "sentence": "Title: So-So\nText: The Things They Carried is a pretty accurate portrayl of the events that occured in the Vietnam War. Though told with fictional characters, the book gives us a chance to see the war through several, drastically different paradigms. Kiowa,Rat Kiley, Jimmy Cross and Azar all give us their own unique presepective into the turmoil and agony of war. There were points in the book we're I wanted to stop reading, and then their were other moments that I couldn't wait to see what happened next. Overall, this book simply delivers the reader what they asked for; a strait-shooting, no holds barred, in your face accounting of the Hell in Vietnam. A good historical read if that sort of thing interests you.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.7083065509796143,
+        "negative": 2.7870566844940186,
+        "neutral": 1.2179878950119019,
+        "positive": 0.573209285736084,
+        "very positive": 0.19218863546848297
+      },
+      "sentence": "Title: Nice and Perfectly sized\nText: I really like my gold cross. I am going to wear it to church this sunday. I feel protected when I wear it! It's perfectly sized. It's smaller than usual, but that 's the way I like it. Very fine and delicate. I am happy with it, as I lost my confirmation cross many years ago at my grandparent's farm. This is perfect.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.2878894805908203,
+        "negative": 1.6830116510391235,
+        "neutral": 0.5192074179649353,
+        "positive": 0.6407563090324402,
+        "very positive": 0.4130059778690338
+      },
+      "sentence": "Title: Survival of the smartest\nText: We saw this in the theaters and knew we would own it when it came out on Blu Ray. Could it be the alpha male (wolf) was the smartest or was Liam's character. The question you have to answer at the end of this movie is who survived.Action filled drama. d\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 1.9594637155532837,
+        "negative": 2.0850512981414795,
+        "neutral": 0.573262631893158,
+        "positive": 0.4367145895957947,
+        "very positive": 0.49560463428497314
+      },
+      "sentence": "Title: Interesting insights\nText: Interesting insights into the lives of people with different cultural and familial values than the average American. I'm glad the last story was a bit more upbeat than the rest.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.6929516196250916,
+        "negative": 1.236997127532959,
+        "neutral": 0.3062618374824524,
+        "positive": 0.8613415360450745,
+        "very positive": 1.0064066648483276
+      },
+      "sentence": "Title: Good coverage\nText: First off it doesn't last ten days. I use my hands constantly and 2-3 days is the limit for me, but considering the other stuff lasts one day, I consider it a bargain. I didn't notice a smell but did notice it dries quickly.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.7273263931274414,
+        "negative": 3.0525732040405273,
+        "neutral": 1.7901942729949951,
+        "positive": 0.9670523405075073,
+        "very positive": 0.08511194586753845
+      },
+      "sentence": "Title: Simply the best bed-time book ever\nText: We don't have fights over bedtime in our house. I credit our routine, of which \"Good Night Moon\" is a big part. This has been the last book my two-year-old daughter and I have read every night for the last 18 months. The end of this book, \"Good night noises everywhere\", means it's time to go to bed and it works every time.The wonderful illustrations allow us plenty of time to point out and name things in the room. And, as the room gets progressively darker, don't be too surprised if your eyelids get heavy along with your child's!Our highest recommendation!\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.279977560043335,
+        "negative": 3.0093536376953125,
+        "neutral": 2.245053768157959,
+        "positive": 1.1929285526275635,
+        "very positive": 0.05537250265479088
+      },
+      "sentence": "Title: excellent product\nText: This is my favorite table saw and I use it for everything and have never had any problems. I bought the rousseau table to attach it to and I will never part with it...\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 1.1770492792129517,
+        "negative": 1.6012895107269287,
+        "neutral": 0.5309213995933533,
+        "positive": 0.4197216331958771,
+        "very positive": 0.6870918273925781
+      },
+      "sentence": "Title: Above average CD\nText: When this album first come out I was expecting tohear LOTS of Creed. I'm glad to say that isn't thecase... Sure you can hear bits and pieces of Creedevery now and then, but overall this album showcasesMark Tremonti really well and shows his potentialwithout Scott Stapp.The best songs IMO are: Watch Your Words, Metalingus,Open Your Eyes and Find The Real. One Day Remains isalso a pretty good song, but it's a notch below theones I listed above. There are 2 fillers or so heresuch as: In Loving Memory and Shed My Skin. My favoriteis Watch Your Words because Mark kicks @ss in theopening. I think he will be a Rock n Roll Hall ofFamer one day.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.809745192527771,
+        "negative": 2.0002150535583496,
+        "neutral": 1.2172479629516602,
+        "positive": 0.4108050465583801,
+        "very positive": 0.29043999314308167
+      },
+      "sentence": "Title: Provocative\nText: Kurosaki is bold enough to basically say, enough is enough; all Christians should love one another. Too bad we don't listen to him. This is a short read with a bold message. I recommend it.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.191822052001953,
+        "negative": 2.558586597442627,
+        "neutral": 1.4662349224090576,
+        "positive": 0.7797446250915527,
+        "very positive": 0.12295246124267578
+      },
+      "sentence": "Title: AWESOME!\nText: I TOTALLY FOGOT ABOUT THIS SONGS FROM THIS MOVIE. SINCE I BOUGHT IT, LISTENED, AND GIVES ME A GREAT MEMORY WHAT I REMEMBER AND I WON'T FORGET THIS MUSIC.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.47077715396881104,
+        "negative": 0.3174920082092285,
+        "neutral": 0.8576749563217163,
+        "positive": 1.900850772857666,
+        "very positive": 2.4627931118011475
+      },
+      "sentence": "Title: Spotty Scholarship\nText: While I consider myself something of a history buff, I've never really gotten the Civil War bug. This year my parents tried to draw me in with \"April 1865\".While I liked many of the Winik's observations and tangents, even a cursory scan revealed errors that a good fact checker should have caught. Compounding these simple errors were stilted classical allusions that seemed either incredibly obscure or incorrect.As a neophyte, I gained a fair bit of information on the War and the primary actors. I only wish that I could trust the strength of Winik's scholarship. As it is, I feel like I'll need to do follow up reading just to accept Winik's arguments.This is not what I would have expected given the warm praise on the backcover.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.3650851249694824,
+        "negative": 2.564507484436035,
+        "neutral": 1.29281747341156,
+        "positive": 0.6216105222702026,
+        "very positive": 0.17483830451965332
+      },
+      "sentence": "Title: Core curriculum for elementary music\nText: I teach general music in a Marine Corps dependents' elementary school in Okinawa, Japan. I use this songbook and its companion, volume 2 constantly in my curriculum. I consider them to be at the core of my teaching. These are songs that every American should know. They are a part of our common history, our culture, our heritage.These books were first suggested to me by a junior high choir teacher colleague who knew that I was interested in the Core Knowledge series by E.D. Hirsch. Thanks, Karen.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.5067178010940552,
+        "negative": 0.31946220993995667,
+        "neutral": 0.7646382451057434,
+        "positive": 1.995682716369629,
+        "very positive": 2.5541863441467285
+      },
+      "sentence": "Title: Wasn't what I thought it would be\nText: I thought that I was ordering the DVD - what came to me was the book of music for the show. All fine and good, but maybe the description could be better.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3845686912536621,
+        "negative": 1.1120386123657227,
+        "neutral": 0.5981241464614868,
+        "positive": 1.008474349975586,
+        "very positive": 0.7054932117462158
+      },
+      "sentence": "Title: It does run small.\nText: Arrived quickly, and looks to be great quality... it does run small in length of torso.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 1.8163037300109863,
+        "negative": 1.9033910036087036,
+        "neutral": 0.4630792737007141,
+        "positive": 0.5662170052528381,
+        "very positive": 0.48691630363464355
+      },
+      "sentence": "Title: The better Topaz with 17minutes footage\nText: This new video-version must be seen: Here Universal presents the original uncut version with a seventeen minutes footage and a new (and better) ending. It's includes more scenes with young Claude Jade as Stafford's worried daughter Mich\u00e8le, for instance her joke when she arrives in New York and says \"Oh I love the cubans, they are so wild.\" Or a laughing Karin Dor in Cuba; Frederick Stafford and Claude Jade in a car (with a Hitchcock-specific Blue Screen) or Stafford and Claude Jade visits the party at Michel Piccoli.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.539212703704834,
+        "negative": 0.8640006184577942,
+        "neutral": 0.44921010732650757,
+        "positive": 0.9515686631202698,
+        "very positive": 1.0361032485961914
+      },
+      "sentence": "Title: Serious Mass Choc\nText: When i opened the serious mass protein i noticed they include a scooper that barely fits into the actual container, i use 1 and 1/2 scoops before workout and 1/2 after mixed into blender bottle with milk. Taste is fine.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.47678816318511963,
+        "negative": 0.899711549282074,
+        "neutral": 0.4310154318809509,
+        "positive": 1.0340344905853271,
+        "very positive": 1.2798869609832764
+      },
+      "sentence": "Title: Easy to use\nText: Although it is easy to use and does its job, it is a bit too expensive and that is why I gave it a four star rating.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.5939154624938965,
+        "negative": 2.3543953895568848,
+        "neutral": 0.9566892981529236,
+        "positive": 0.43454232811927795,
+        "very positive": 0.31448662281036377
+      },
+      "sentence": "Title: Entertaining and Factual\nText: The Baby Owner's Manual takes a quality journey into the world of being a new parent. Much of it's common sense but if you give the book a good read you'll have a good laugh, and get some quality information that will likely make your life easier.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.8262320160865784,
+        "negative": 0.5930131077766418,
+        "neutral": 0.33152902126312256,
+        "positive": 1.3083480596542358,
+        "very positive": 1.9829591512680054
+      },
+      "sentence": "Title: Good for hardcore Yuna fans...\nText: I recieved this order yesterday and was actually quite disappointed with its size. I had no clue that its quite small! But the detail is very good and the shipping was fast so that got some good points with me. Since I love Yuna, I have no problem with it being so small and hey its her ultimate dressphere! I also ordered a Yojimbo figurine and I love that one too! Hell if Shiva was cheaper, i'd get her too!Overall, its OK.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.404208779335022,
+        "negative": 0.34801822900772095,
+        "neutral": 0.8966812491416931,
+        "positive": 2.125701427459717,
+        "very positive": 2.449159622192383
+      },
+      "sentence": "Title: Leave after dark in the dark!\nText: WEll I was so looking forward to the book when I saw it was to be released. The title and cover evoked a sense of sexiness, something to be enjoyed for the young and modern working professional. I thought it would be fun to knit some projects to wear after hours downtown. But I was hugely disappointed. There is just nothing fresh, or sexy, or even uncommon. It just seems out of date. Though my grandmother enjoyed looking at the book. But lesson learned, never buy without browsing through first, even if you have loved everything else by the designer in the past.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7286345958709717,
+        "negative": 0.5839921832084656,
+        "neutral": 0.37277308106422424,
+        "positive": 1.2269864082336426,
+        "very positive": 2.33331036567688
+      },
+      "sentence": "Title: OK fast charger but doesn't charge the batteries to full potential\nText: Nice charger and it works fast but I recommend that you use a Maha PowerEx charger to get the best out of Sony BatteriesMaha PowerEx MH-C204W4AA27 - Battery charger - battery - rechargeable - AA x 4 - 2700 mAh. I can get hundreds of photos when Sony batteries go thru a Maha but only about 150 with the Sony charger. The Sony charger also rejects batteries that the Maha can charge. But the Sony is much faster for what that's worth.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5563101768493652,
+        "negative": 0.5853051543235779,
+        "neutral": 0.42987340688705444,
+        "positive": 1.48716402053833,
+        "very positive": 2.0250303745269775
+      },
+      "sentence": "Title: Why buy a character book?\nText: I bought this book years ago because it was on one of these Amazon lists, and when I got it, I couldn't figure out what to do with it. Because I was learning Chinese in university, I didn't have a shortage of materials like dictionaries. Then why \"bei danzi\" / memorize single characters? That's the way Chinese study English in college, which is why it's so tough for them. No. Take the \"read, write, speak, listen\" approach. I guess if you're learning to write all by yourself you might need something like this. I don't know.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5605378746986389,
+        "negative": 0.9959228038787842,
+        "neutral": 0.40499094128608704,
+        "positive": 0.9519557356834412,
+        "very positive": 0.9955031275749207
+      },
+      "sentence": "Title: Classic Game\nText: I'll admit that this game gets boring quickly, but I grew up playing that game. To me, it is a classic. When I was just three, my family drove to South Dakota and my brother and I played this game over and over. This was before all the techno toys we have now, but it still amused me for hours on the long boring trip. Today's kids probably would not find this game very entertaining, but I still will buy it for my neice.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2855139672756195,
+        "negative": 0.41750192642211914,
+        "neutral": 1.1041356325149536,
+        "positive": 2.303145408630371,
+        "very positive": 2.6174566745758057
+      },
+      "sentence": "Title: As an avid Naiad reader, I found this to be a disapointment\nText: I was very disapointed in this book. It rambled on and went nowhere. I finished the book because I had paid for it, but that was the only reason. The discription of this book lead me to believe it would be great, but it was anything but. I could hardly believe anyone would drive 1700 miles in the dead of winter only to turn around and go back the next day. It was aptly named \"The Drive\" because that's all it was about. There was very little about character development,\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.31389543414115906,
+        "negative": 0.3892282545566559,
+        "neutral": 1.0773036479949951,
+        "positive": 2.2871668338775635,
+        "very positive": 2.553936004638672
+      },
+      "sentence": "Title: Well he is not Neil Young, let alone the second coming\nText: This guy is way overhyped, songwriting is whiny and lacks any facts or knowledge. Guitar playing is really childish skittishes that do not really portray any talent past knowing 3 chords. Tries to act like he is some voice that represents youth but fails miserably. I added this CD to my list of things I wipe with. If you really want to hear an acoustical session that proves this guy sux, there are some others out there. Marketing is the key in todays music world instead of talent and that is why this guy sells records. The lyrics suk, he is just crying and whining from visuals he gets from NPR or something, and that alone is enough to put someone to sleep. Boring, bad and will not be heard of in twenty years. I wish the next Hendrix or Neil Young would please stand up because the posers in here right now annoy me.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3408496379852295,
+        "negative": 0.3869350552558899,
+        "neutral": 0.9555953741073608,
+        "positive": 2.2199594974517822,
+        "very positive": 2.623668909072876
+      },
+      "sentence": "Title: Not What I Expected!\nText: I was disappointed to discover that this is not really a soundtrack from the movie. The only thing this CD has in common with the movie is the song titles. I would have preferred a combination of Elton John signing some of the tracks and the voice talents from the movie doing some of the others. This CD is more like Road to El Dorado set to elevator music. 2 thumbs down.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.4306483268737793,
+        "negative": 2.056901454925537,
+        "neutral": 0.4983373284339905,
+        "positive": 0.4714069962501526,
+        "very positive": 0.5318564772605896
+      },
+      "sentence": "Title: A Little Dark\nText: The stop motion clamation animation they used for this film is terrific. It is also light years ahead of Burton's Nightmare Before Christmas as far as that goes. I liked the twisted little tale, but I think some of the younger viewers might not be up for such a morbid tale. Fine voice work and a really interesting and unique tale are the high points. The flat gray tones are carried throughout the picture, so much so that you almost feel like you are watching a black and white feature. This movie is very short, running about 70 minutes minus the credits. It is worth a purchase if you like off beat and original tales.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.194439649581909,
+        "negative": 2.054166078567505,
+        "neutral": 0.49871063232421875,
+        "positive": 0.4847223162651062,
+        "very positive": 0.5210497975349426
+      },
+      "sentence": "Title: Nice To Hold\nText: Rick Springfield's 1984 soundtrack featuring 7 Rick tracks with great musicians including Peter Gabriel is a nice album to add to your CD collection. LOVE SOMEBODY, WALK AWAY, and BOP TIL YOU DROP are no doubt classic hits (particularly I love Bop Til You Drop). TAXI DANCING ended up with a minor hit eclipsed ironically by the re-release of Beautiful Feeling is a nice duet. STAND UP is really exciting live track somewhat like that of Heuy Lewis and Eddie and the Cruisers. Peter Gabriel's I'm Not Swimming is so so track. Recommended for Rick fans old and new.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.522646963596344,
+        "negative": 0.6515111923217773,
+        "neutral": 0.4803587794303894,
+        "positive": 1.0940172672271729,
+        "very positive": 1.9670662879943848
+      },
+      "sentence": "Title: Good movie but for one big flaw.....\nText: Great cast...Harrison Ford, that new James Bond guy....13 from House, David Carradine's brother, ect ect.One thing I cant get over is this Alien, they make him look all big and ugly, just a wild beast with the brains of a Tiger....yet I am to somehow believe that this Intelligent Extra Terrestrial (who has the brains of a beast mind you) Built this space ship they were flying around?? Come on! Such an advanced lifeform , builds a ship and flies across the galaxy and just blows up stuff and ropes men and women, so stupid!\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.6247256994247437,
+        "negative": 0.305372029542923,
+        "neutral": 0.6461172699928284,
+        "positive": 2.1165120601654053,
+        "very positive": 2.8629863262176514
+      },
+      "sentence": "Title: Get him to Greek\nText: Didn't think the movie was that funny, I was expecting something better. It dragged out and the story line was not that great.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 1.3597455024719238,
+        "negative": 1.5594455003738403,
+        "neutral": 0.43469303846359253,
+        "positive": 0.5676650404930115,
+        "very positive": 0.5756165385246277
+      },
+      "sentence": "Title: Help Youself to Happiness\nText: This is an excellent book on cognitive reframing, however, the process he teaches is a little complicated for the average reader. I think his reframing process expounds on the ABC model of cognitive restructering by Ellis and Beck and could be used by professionals in the field to help their clients with their stinking thinking.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.646655559539795,
+        "negative": 2.5258121490478516,
+        "neutral": 0.9245174527168274,
+        "positive": 0.6050841808319092,
+        "very positive": 0.2239648550748825
+      },
+      "sentence": "Title: 17\" Laptop Case\nText: I had a Targus case previously for a 15\" laptop and was totally pleased with it. This one is equally well constructed and the laptop and basic accessories fit in it just fine. It's not bullet proof, but I don't want the bag to weigh a ton either, so for me it offers the protection and convenience I want.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.09155751019716263,
+        "negative": 0.84100741147995,
+        "neutral": 2.1748111248016357,
+        "positive": 3.1749393939971924,
+        "very positive": 2.6673691272735596
+      },
+      "sentence": "Title: Terrible...\nText: Either the item is faulty or my television is too old but it didnt work for me. I needed to use the component from vga to avoid taking up my s video and dvi openings on ym video card and the television never picked up the signal. Instead if you have a component open for video just use the s video converter not from this item.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.4791628122329712,
+        "negative": 0.4231235980987549,
+        "neutral": 0.6837601661682129,
+        "positive": 1.5270202159881592,
+        "very positive": 2.22442364692688
+      },
+      "sentence": "Title: fun until u realize its not\nText: I purchased this game right when it came out, and i was pretty excited after seeing screenshots and movies online. Very nice graphics and a decent soundtrack (lil jon and the eastside boys excluded) Well 1st thing i would like to say is my 1st impression was pretty good, but getting further into the game it just got really frustrating, as the computer is almost impossible to beat, and some of the race tracks are ridiculous. Another thing is why is an RSX faster then a supra~ ridiculous!It has got to the point where i would be yelling profanities at the tv screen. Best racing game ever?! hmmmmm thats definately questionable , with a measly small choice of cars and somewhat weak gameplay u can expect GT4 to wipe this game out< i gave it 2 stars for NOS and ONline PLAY\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.48696231842041,
+        "negative": 2.689617156982422,
+        "neutral": 0.9334501028060913,
+        "positive": 0.7367550730705261,
+        "very positive": 0.18088136613368988
+      },
+      "sentence": "Title: disney fun\nText: No matter what your age if you are a Disney fan you will enjoy these books. They make you want to check the locations in the book out in the parks. They are simply written but can still be enjoyed by adults if you can suspend reality these books use imagination. Children from about 9 and up can read and enjoy these books as well. These books are a great thing for the whole family to read and share together.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 0.8647895455360413,
+        "negative": 1.17851722240448,
+        "neutral": 0.5044798851013184,
+        "positive": 0.802211582660675,
+        "very positive": 0.48615536093711853
+      },
+      "sentence": "Title: wizcom quicklink elite pen scannner\nText: Have to have it and use it to write a review, Don't you think;Sorry\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.26736995577812195,
+        "negative": 0.555778443813324,
+        "neutral": 0.8426308035850525,
+        "positive": 2.1460165977478027,
+        "very positive": 2.3188273906707764
+      },
+      "sentence": "Title: Can not listen\nText: I can not listen to the music on Amazon - called and told to use Mozilla or Firefox - still can't hear any music.The software goes through the motions, have checked volume on EVERYTHING and still no sound comes out with Media Player or Real Player.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7511846423149109,
+        "negative": 1.225586175918579,
+        "neutral": 0.3840612471103668,
+        "positive": 0.7948307394981384,
+        "very positive": 0.7047621607780457
+      },
+      "sentence": "Title: Fits, but who knows how well it works\nText: I've ordered this product twice before. Each time it fit fine. I have a Harmony.It gets dirty, but who knows how well it's really filtering or how much the bag choice affects its usefulness.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.8155428171157837,
+        "negative": 1.7880594730377197,
+        "neutral": 0.8632274270057678,
+        "positive": 0.5951442718505859,
+        "very positive": 0.26263925433158875
+      },
+      "sentence": "Title: Very Pleasantly Surprised\nText: No sooner had I placed my order for this gadget, than my helpful friends all warned me that I had selected the wrong Mouse, that I should have chosen the one with the trackball on top. Since I have become thoroughly fed up with standard goop catching mice, I had ordered the first optical trackball my search engines turned up. As it transpires, I don't think I could have done better with even more research or experimentation. I like the set-up on this model. The ball on the side is highly responsive and the shape of the device fits my hand perfectly. For me, having the trackball on top would be a distraction. I recommend the Microsoft D67-00001 Trackball Optical with no reservations.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.7520201206207275,
+        "negative": 3.1305859088897705,
+        "neutral": 1.6403651237487793,
+        "positive": 0.7566666007041931,
+        "very positive": 0.11587586998939514
+      },
+      "sentence": "Title: Well Done Tina\nText: Being her fan for more than 14 years, I still think she is one of the best singer from DownUnder. This is defintely one of her best track from her new album. The remixes here are real well done. Eurobeat is more than 6 minutes and it is fabulous!Beautiful song. You'll love it. Will implant in your mind.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2369363158941269,
+        "negative": 0.5754888653755188,
+        "neutral": 1.021866798400879,
+        "positive": 1.7261930704116821,
+        "very positive": 2.3355252742767334
+      },
+      "sentence": "Title: Great hardware; appalling software - AVOID AT ALL COSTS!\nText: Bought one of these desktop sets recently.Software installation wanted to do a bluetooth firmware update but it couldn't find the update.It tried to do the update on every restart and the only way to get the keyboard and mouse to work was to unplug/replug the bluetooth dongle.Eventually fond the firmware update and it's installer hiding in Program Files | local files | logitech and installed it manually.The keyboard and mouse now work on restart without replugging the bluetooth dongle.The setpoint software is the only problem now as it crashes about three times a day or so requiring a manual restart of the software.Not impressed given the high price of this set.Logitech - get your act together and sort out this appalling software.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.8691556453704834,
+        "negative": 3.053250551223755,
+        "neutral": 1.4891743659973145,
+        "positive": 0.7507206797599792,
+        "very positive": 0.12774361670017242
+      },
+      "sentence": "Title: HIATT, HIATT, HIATT!!!!!\nText: What a treat it was to stumble across this more than deserved tribute to the songs of master songwriter John Hiatt. Right from the top, a (zydeco) version of Falling Up by CJ Chenier, the CD just rocks! While Hiatt has had his songs covered by artists ranging from Paula Abdul (yuck!) to Joan Baez, Iggy Pop, Phil Collins (double-yuck) and Bob Dylan, this tribute leans in more of a blues direction and let me tell you what, it works perfectly! Other faves include Irma Thomas on Old Habits.... and Tab Benoit on Feels Like Rain. Can anyone say volume 2??????\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.78256756067276,
+        "negative": 0.6723862290382385,
+        "neutral": 0.2705451250076294,
+        "positive": 1.596848964691162,
+        "very positive": 2.5315582752227783
+      },
+      "sentence": "Title: Not sure...yet\nText: After reviewing the other comments I figured I would try this for my kids. The other reviews say their kids like the taste but I had a different experience. My 2-year old will not go near it. I have to \"threaten\" my 4-year old to take it (it's either the vitamin or a spoonful of honey) and my 11-year old hates it also but she still tolerates it. So although I am happy with the benefits of the vitamin, my kids are not happy with the taste but it's tolerable.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7845714688301086,
+        "negative": 1.0281939506530762,
+        "neutral": 0.19231820106506348,
+        "positive": 1.328757405281067,
+        "very positive": 1.7298097610473633
+      },
+      "sentence": "Title: not bad, but I did tire quickly of it\nText: This is a rather non-descript but pleasant floral/spice type perfume, not bad, and here I see it at a significant discount which seems right. Some will like it, a few will hate it, but it won't rock anyone's world-pardon the expression-if that's what you're looking for.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.5152933597564697,
+        "negative": 2.9497158527374268,
+        "neutral": 1.5773296356201172,
+        "positive": 0.9090766310691833,
+        "very positive": 0.09243833273649216
+      },
+      "sentence": "Title: Can't Fly Without Them!\nText: Excellent product for giving the smooth feel and control in computer flying simulation.Installs easily and works great.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.214846670627594,
+        "negative": 0.47719618678092957,
+        "neutral": 1.4079911708831787,
+        "positive": 2.294379234313965,
+        "very positive": 2.563544988632202
+      },
+      "sentence": "Title: waste of money\nText: I bought three silicone pans and they burned baked goods,did not cook them in the middle and burned on edges and tops.Besides wasting money on the purchase, I wasted money on the items used in baking.They all are in the garbage!\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.1134166717529297,
+        "negative": 2.341773271560669,
+        "neutral": 0.8122742772102356,
+        "positive": 0.524293065071106,
+        "very positive": 0.30624955892562866
+      },
+      "sentence": "Title: Solid Midsize\nText: This is a great mid-size bag. Trunk is big enough for gear on a day trip and the zip out panniers are big enough to let me commute to school. I don't think I would take it on more than a 3 day trip without front panniers but it wasn't designed as a touring set up. For a commuter this is a great investment. Keep an eye on the weather report or buy the rain cover because it is only water resistant, not proof. For touring 3 stars, for commuting 5.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.46786054968833923,
+        "negative": 0.21388578414916992,
+        "neutral": 1.3243807554244995,
+        "positive": 2.121760129928589,
+        "very positive": 2.8207292556762695
+      },
+      "sentence": "Title: Bad Reaction\nText: I bought this product based on me having used other MD Formulations products including the Basic Facial Cleanser and loving the way my skin looks; however when I used this Sensitive Skin Formula I got a very bad reaction. My face broke out with bumps on my cheeks and forehead (a bad case of cosmetic contact dermatitis). My face felt and looked like it was small bubble wrap. I am sure that this is a wonderful product based on my previous use of other MD Formulations but definitely not for me. Needless to say I returned the product. Since that experience, I purchased the MD Formulations Basic Facial Cleanser and have not had a reaction. With having said that, I believe that there were some botanical ingredient(s) in the Sensitive Skin Formula that I had the reaction to. I would not hesitate to purchase this or any MD Formualtions product but if your skin easily reacts to certain ingredients like botanicals, please be cautious.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.4177162647247314,
+        "negative": 3.0813746452331543,
+        "neutral": 1.6138052940368652,
+        "positive": 1.1263796091079712,
+        "very positive": 0.06997202336788177
+      },
+      "sentence": "Title: Love this show\nText: Far and away the best comedy show on TV right now...would give it 10 stars if I could!\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 1.828547477722168,
+        "negative": 1.8892861604690552,
+        "neutral": 0.5968811511993408,
+        "positive": 0.6943770051002502,
+        "very positive": 0.30999481678009033
+      },
+      "sentence": "Title: Cupcake Companion\nText: This is more of a coffee table book than a cook book.If you love cuipcakes, you will love this book!\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.12958118319511414,
+        "negative": 0.6916117072105408,
+        "neutral": 1.650978446006775,
+        "positive": 2.6559627056121826,
+        "very positive": 2.6054527759552
+      },
+      "sentence": "Title: taking it back tomorrow...\nText: this thing has NEVER worked... the cable broke right away. We have had it for maybe a month. In a months time, we have struggled with it and basically hate the thing by now.I thought Radio Flyer was a good name brand too... ????I do not recommend. Our Daughter is two. Got it for her b-day in April and we are finally getting the reciept from the gift-giver and taking it back. We asked for this item, thought it would be fun.NOPE!needless to say the german bike/trike is our next buy.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 1.111202359199524,
+        "negative": 1.2244797945022583,
+        "neutral": 0.45393672585487366,
+        "positive": 0.795142650604248,
+        "very positive": 0.45902666449546814
+      },
+      "sentence": "Title: paper bunches up\nText: paper bunches up when using for hand sanding. Product is very suitable for hand work especially in tight or small curves.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.7982433438301086,
+        "negative": 1.545171856880188,
+        "neutral": 0.446243017911911,
+        "positive": 0.6596168875694275,
+        "very positive": 0.6335976719856262
+      },
+      "sentence": "Title: Good but could be better!\nText: After using a hand pump for two years, this product was a welcomed change. We bought it and needed to use it immediately for some guests we had. The disappointment was, it has to be charged. It doesn't work by just plugging it in. You have to charge it over night which for us, was too late. When we finally had it charged it worked great, so quickly. As long as you remember to charge it the day before (ish), you'll be pleased.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "negative",
+      "scores": {
+        "very negative": 0.5894520282745361,
+        "negative": 0.3256569802761078,
+        "neutral": 0.6757797598838806,
+        "positive": 1.9414576292037964,
+        "very positive": 2.6597373485565186
+      },
+      "sentence": "Title: Probably Not\nText: I went for this Athena unit based on price, the reviews and the quality of my Athena sub, but when I got it home, I was disappointed. Design is nice and the unit has some punch and bass, but you pay for it in accuracy in the mids and highs. Vocals receded to the background and even sounded muffled compared to a much lower powered Tivoli iSongbook. The Songbook has less power, but I'll take it for it's true mids and highs.All these machines are basically a boombox with a dock. I should be able to get decent sound for $100, shouldn't I?Vann's was good about taking it back.\n"
+    },
+    {
+      "gold": "neutral",
+      "prediction": "neutral",
+      "scores": {
+        "very negative": 0.5486342906951904,
+        "negative": 0.49040788412094116,
+        "neutral": 0.4874758720397949,
+        "positive": 1.6903769969940186,
+        "very positive": 2.5356733798980713
+      },
+      "sentence": "Title: Does the job\nText: Can't get real excited over this product. It does the job, but is fairly noisy and overpriced.I purchased a dual fan laptop pad at the same time I purchased this fan. It was half the priceand much quieter. But I couldn't really find anything else that was as unobtrusive.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3497166335582733,
+        "negative": 0.3592676818370819,
+        "neutral": 1.1185194253921509,
+        "positive": 1.7542603015899658,
+        "very positive": 2.421956777572632
+      },
+      "sentence": "Title: Great seller, bad product\nText: Great communication with the seller and I will buy from them again. However, this product id not worth the money - it becomes yellow when next to heat so it's kind of useless in the kitchen.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.3465278148651123,
+        "negative": 0.7531546950340271,
+        "neutral": 0.6146030426025391,
+        "positive": 1.199101448059082,
+        "very positive": 1.5180588960647583
+      },
+      "sentence": "Title: Get your act together\nText: I originally asked for D. Niven's version, yet, I got a cartoon one from you guys(!) So I reordered, hoping this time I get the right thing. It's no big deal, especially considering the lower price of the item, a used one. Only thing, is, I hate having no choice over things, and accepting them because again, it's \"no big deal.\" I gave the cartoon version to a friend's kids.\n"
+    },
+    {
+      "gold": "very negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.2568289339542389,
+        "negative": 0.43430572748184204,
+        "neutral": 1.279489517211914,
+        "positive": 2.1354312896728516,
+        "very positive": 2.4635074138641357
+      },
+      "sentence": "Title: Received a LEMON\nText: I bought this item from Amazon as a Christmas present for my niece. It arrived broken and I believe they have sent me a returned item!!! The reason I think they have sent me a used item is because it arrived with batteries already installed. From my past experience, if a manufacturer is kind enough to include batteries they would include unused batteries packed inside the box with the toy and not installed in it becuase anyone with some sense would know an installed battery would drain quickly and if left in a toy long enough it would ruin the toy completely. I feel so bad having to have my busy relative to go through the trouble of returning a Christmas present.\n"
+    },
+    {
+      "gold": "positive",
+      "prediction": "positive",
+      "scores": {
+        "very negative": 2.661318063735962,
+        "negative": 2.3870108127593994,
+        "neutral": 1.0231467485427856,
+        "positive": 0.32566216588020325,
+        "very positive": 0.38223668932914734
+      },
+      "sentence": "Title: westerns\nText: When I heard about this movie, I wanted to buy it, Lee van cleef is great in this movie,I learned alot about this great actor and his westerns, There is a good story to this movie.I am glad that I bougth this movie.thank you.\n"
+    },
+    {
+      "gold": "negative",
+      "prediction": "very negative",
+      "scores": {
+        "very negative": 0.4218176603317261,
+        "negative": 0.5808427333831787,
+        "neutral": 0.7234624028205872,
+        "positive": 0.9781476259231567,
+        "very positive": 1.9324175119400024
+      },
+      "sentence": "Title: windows ME watch out\nText: This is a great math game for children with windows 98 (5 stars). My kids spent lots of time with the game every day for months until we \"upgraded\" with a new computer system. Be wary if you have ME and forget it with windows 2000. Who knows about XP. With ME, the keyboard arrows don't work correctly and youngsters can't advance in the math portion from atleast the 3rd level. Technical support indicated that there will be no fix for any problems experienced for systems with Windows ME, 2000, XP. A suggestion was made to purchase a gamepad controller to see if that helped. The children are quite disappointed and want to go back to windows 98.\n"
+    },
+    {
+      "gold": "very positive",
+      "prediction": "very positive",
+      "scores": {
+        "very negative": 2.6679747104644775,
+        "negative": 3.148021936416626,
+        "neutral": 1.8499128818511963,
+        "positive": 1.0584661960601807,
+        "very positive": 0.06638267636299133
+      },
+      "sentence": "Title: You have to have this CD!!\nText: I bought this a few months ago for my 2 1/2 year old son. He LOVES it & we listen to it ( per his request ) every time we are in the car!! I picked this up for the Dora & Blue's Clues songs b/c they are familiar to him, but now he sings along with each & every song!! It is absolutely adorable to listen to the kids sing along to these quick & fun little songs!!! Since it is all little theme-type songs, it is quick to listen to each song ~ NO BOREDOM!! Your child will LOVE this. You have to get it! It is the best $$ you will spend if you want to make car rides *fun* and carefree!! Your child will love you for it!!!\n"
+    }
+  ]
+}
