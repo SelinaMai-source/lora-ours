@@ -1,0 +1,432 @@
+{
+  "policy": {
+    "anchor": "results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/2-amazon/adapter",
+    "uses_dev_or_test": false,
+    "diagnostic": "new-rank LoRA output-update interference vs amazon anchor update",
+    "candidate_control": "For later rounds, penalize new-rank output updates that project onto or dominate the amazon anchor update subspace on q/v modules; promote only via v76 train-heldout gate."
+  },
+  "candidates": [
+    {
+      "name": "v70b_r3",
+      "adapter_dir": "results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/3-yahoo/adapter",
+      "heldout_em": 51.4,
+      "heldout_rougeL": 70.3,
+      "new_rank_interference": {
+        "overall": {
+          "new_to_anchor_l2_ratio": 0.37757991219683085,
+          "projection_ratio": 7.572177563912508e-08,
+          "module_count": 144
+        },
+        "by_kind": {
+          "q": {
+            "new_to_anchor_l2_ratio": 0.5364418087641118,
+            "projection_ratio": 4.2821620888579486e-08,
+            "modules": 72.0
+          },
+          "v": {
+            "new_to_anchor_l2_ratio": 0.3050324658009183,
+            "projection_ratio": 1.1042509972788643e-07,
+            "modules": 72.0
+          }
+        },
+        "by_stack": {
+          "decoder": {
+            "new_to_anchor_l2_ratio": 0.32973467671035694,
+            "projection_ratio": 1.1197882116552053e-07,
+            "modules": 96.0
+          },
+          "encoder": {
+            "new_to_anchor_l2_ratio": 0.5360630999791167,
+            "projection_ratio": 1.7027161430963726e-08,
+            "modules": 48.0
+          }
+        },
+        "top_modules": [
+          {
+            "module": "base_model.model.decoder.block.16.layer.1.EncDecAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.5630311444645895,
+            "new_l2": 0.6856184701947656,
+            "new_to_anchor_l2_ratio": 0.4386467106703889,
+            "cosine_new_vs_anchor": 0.0009421764686924527,
+            "projection_ratio": 8.876964981577802e-07,
+            "interference_score": 0.000413282608862987
+          },
+          {
+            "module": "base_model.model.decoder.block.21.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 2.0597462621914904,
+            "new_l2": 0.9645735945460573,
+            "new_to_anchor_l2_ratio": 0.468297290909895,
+            "cosine_new_vs_anchor": -0.0007301639040851668,
+            "projection_ratio": 5.331393268288926e-07,
+            "interference_score": 0.000341933778203276
+          },
+          {
+            "module": "base_model.model.decoder.block.21.layer.0.SelfAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 4.215925839649555,
+            "new_l2": 0.8563092775083052,
+            "new_to_anchor_l2_ratio": 0.20311298397494706,
+            "cosine_new_vs_anchor": 0.0012731700774969929,
+            "projection_ratio": 1.6209620462336987e-06,
+            "interference_score": 0.0002585973735480288
+          },
+          {
+            "module": "base_model.model.decoder.block.12.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.4314657523441758,
+            "new_l2": 0.779000056059888,
+            "new_to_anchor_l2_ratio": 0.5441974806482051,
+            "cosine_new_vs_anchor": 0.0004167969858857555,
+            "projection_ratio": 1.737197274434506e-07,
+            "interference_score": 0.00022681986966079364
+          },
+          {
+            "module": "base_model.model.encoder.block.22.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "encoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.1187550145042178,
+            "new_l2": 0.7606301378187874,
+            "new_to_anchor_l2_ratio": 0.679889813191912,
+            "cosine_new_vs_anchor": 0.00030757726980188825,
+            "projection_ratio": 9.460377689878354e-08,
+            "interference_score": 0.00020911865250768411
+          },
+          {
+            "module": "base_model.model.decoder.block.6.layer.0.SelfAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.125872697365567,
+            "new_l2": 0.43988629502941184,
+            "new_to_anchor_l2_ratio": 0.39070695653132287,
+            "cosine_new_vs_anchor": 0.0005097945318248665,
+            "projection_ratio": 2.5989046467853477e-07,
+            "interference_score": 0.0001991802699856042
+          },
+          {
+            "module": "base_model.model.decoder.block.14.layer.1.EncDecAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.1961697265892723,
+            "new_l2": 0.6932945758466539,
+            "new_to_anchor_l2_ratio": 0.5795954875262529,
+            "cosine_new_vs_anchor": -0.0003392244110640036,
+            "projection_ratio": 1.1507320106172006e-07,
+            "interference_score": 0.00019661293791144714
+          },
+          {
+            "module": "base_model.model.decoder.block.1.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 0.7806942298067094,
+            "new_l2": 0.39766830171260675,
+            "new_to_anchor_l2_ratio": 0.5093777903431728,
+            "cosine_new_vs_anchor": 0.0003830678861784311,
+            "projection_ratio": 1.4674100542121143e-07,
+            "interference_score": 0.00019512627341299925
+          },
+          {
+            "module": "base_model.model.decoder.block.14.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.63012620355424,
+            "new_l2": 1.0795383863810903,
+            "new_to_anchor_l2_ratio": 0.6622422141471762,
+            "cosine_new_vs_anchor": -0.0002846591500803497,
+            "projection_ratio": 8.103083172446707e-08,
+            "interference_score": 0.0001885133058264641
+          },
+          {
+            "module": "base_model.model.encoder.block.21.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "encoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.1233316342447563,
+            "new_l2": 0.7775821416094384,
+            "new_to_anchor_l2_ratio": 0.6922106686083189,
+            "cosine_new_vs_anchor": -0.00026497305907082505,
+            "projection_ratio": 7.021072203335096e-08,
+            "interference_score": 0.0001834171783826074
+          },
+          {
+            "module": "base_model.model.decoder.block.4.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 0.947371486765519,
+            "new_l2": 0.6318247586282862,
+            "new_to_anchor_l2_ratio": 0.6669239759214616,
+            "cosine_new_vs_anchor": -0.0002748012597485983,
+            "projection_ratio": 7.551573235941661e-08,
+            "interference_score": 0.0001832715487397615
+          },
+          {
+            "module": "base_model.model.decoder.block.7.layer.0.SelfAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 24,
+            "new_rank": 8,
+            "anchor_l2": 1.2885536345427469,
+            "new_l2": 0.3777748204603255,
+            "new_to_anchor_l2_ratio": 0.2931774125136683,
+            "cosine_new_vs_anchor": -0.000608249240426725,
+            "projection_ratio": 3.6996713847968785e-07,
+            "interference_score": 0.00017832493847171142
+          }
+        ]
+      },
+      "gate_signal": {
+        "exceeds_v69_heldout_baseline": false,
+        "baseline_heldout_em": 55.2
+      }
+    },
+    {
+      "name": "v70b_r4",
+      "adapter_dir": "results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/4-agnews/adapter",
+      "heldout_em": 47.2,
+      "heldout_rougeL": 68.9,
+      "new_rank_interference": {
+        "overall": {
+          "new_to_anchor_l2_ratio": 0.42509157715485324,
+          "projection_ratio": 6.400733766940039e-08,
+          "module_count": 144
+        },
+        "by_kind": {
+          "q": {
+            "new_to_anchor_l2_ratio": 0.6166348005476167,
+            "projection_ratio": 3.492390827456954e-08,
+            "modules": 72.0
+          },
+          "v": {
+            "new_to_anchor_l2_ratio": 0.3356350895053256,
+            "projection_ratio": 9.748745646170135e-08,
+            "modules": 72.0
+          }
+        },
+        "by_stack": {
+          "decoder": {
+            "new_to_anchor_l2_ratio": 0.358241285118177,
+            "projection_ratio": 1.017126642396623e-07,
+            "modules": 96.0
+          },
+          "encoder": {
+            "new_to_anchor_l2_ratio": 0.6362072167566628,
+            "projection_ratio": 1.28550318452675e-08,
+            "modules": 48.0
+          }
+        },
+        "top_modules": [
+          {
+            "module": "base_model.model.decoder.block.16.layer.1.EncDecAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.5630311444645895,
+            "new_l2": 0.7277182134450302,
+            "new_to_anchor_l2_ratio": 0.4655813903786974,
+            "cosine_new_vs_anchor": 0.0008546113982055406,
+            "projection_ratio": 7.30360641942829e-07,
+            "interference_score": 0.00039789116301001823
+          },
+          {
+            "module": "base_model.model.decoder.block.21.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 2.0597462621914904,
+            "new_l2": 1.0816146103529571,
+            "new_to_anchor_l2_ratio": 0.5251203171026324,
+            "cosine_new_vs_anchor": -0.000669049543871484,
+            "projection_ratio": 4.4762729215464076e-07,
+            "interference_score": 0.00035133150863516526
+          },
+          {
+            "module": "base_model.model.decoder.block.21.layer.0.SelfAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 4.215925839649555,
+            "new_l2": 0.914036090175865,
+            "new_to_anchor_l2_ratio": 0.21680554282516587,
+            "cosine_new_vs_anchor": 0.001327711097013176,
+            "projection_ratio": 1.762816757131931e-06,
+            "interference_score": 0.0002878551251029381
+          },
+          {
+            "module": "base_model.model.decoder.block.6.layer.0.SelfAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.125872697365567,
+            "new_l2": 0.46274783350449217,
+            "new_to_anchor_l2_ratio": 0.41101257236921834,
+            "cosine_new_vs_anchor": 0.0006390240047467133,
+            "projection_ratio": 4.0835167864252735e-07,
+            "interference_score": 0.0002626468999966262
+          },
+          {
+            "module": "base_model.model.decoder.block.14.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.63012620355424,
+            "new_l2": 1.1374103762353742,
+            "new_to_anchor_l2_ratio": 0.6977437536771235,
+            "cosine_new_vs_anchor": -0.00032438616262808387,
+            "projection_ratio": 1.0522638250457369e-07,
+            "interference_score": 0.00022633841875303707
+          },
+          {
+            "module": "base_model.model.decoder.block.1.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 0.7806942298067094,
+            "new_l2": 0.40464176449768263,
+            "new_to_anchor_l2_ratio": 0.5183101770815791,
+            "cosine_new_vs_anchor": 0.0004258063775447591,
+            "projection_ratio": 1.8131107115778995e-07,
+            "interference_score": 0.0002206997789476899
+          },
+          {
+            "module": "base_model.model.encoder.block.22.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "encoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.1187550145042178,
+            "new_l2": 0.94860314394868,
+            "new_to_anchor_l2_ratio": 0.8479096242255133,
+            "cosine_new_vs_anchor": 0.00025548084982870116,
+            "projection_ratio": 6.527046462919537e-08,
+            "interference_score": 0.0002166246713750688
+          },
+          {
+            "module": "base_model.model.decoder.block.12.layer.1.EncDecAttention.q",
+            "kind": "q",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.4314657523441758,
+            "new_l2": 0.8868811034408571,
+            "new_to_anchor_l2_ratio": 0.619561524254769,
+            "cosine_new_vs_anchor": 0.0003453524765817973,
+            "projection_ratio": 1.1926833308118083e-07,
+            "interference_score": 0.00021396710679617774
+          },
+          {
+            "module": "base_model.model.decoder.block.14.layer.1.EncDecAttention.v",
+            "kind": "v",
+            "stack": "decoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.1961697265892723,
+            "new_l2": 0.7206218642657063,
+            "new_to_anchor_l2_ratio": 0.602441148816288,
+            "cosine_new_vs_anchor": -0.0003252639301400599,
+            "projection_ratio": 1.0579662425015778e-07,
+            "interference_score": 0.0001959523757420785
+          },
+          {
+            "module": "base_model.model.encoder.block.20.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "encoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.1472765705442447,
+            "new_l2": 0.9163523626459723,
+            "new_to_anchor_l2_ratio": 0.7987196689733439,
+            "cosine_new_vs_anchor": -0.00021794564250859745,
+            "projection_ratio": 4.750030308848536e-08,
+            "interference_score": 0.00017407747143864967
+          },
+          {
+            "module": "base_model.model.encoder.block.8.layer.0.SelfAttention.v",
+            "kind": "v",
+            "stack": "encoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.1219489793107855,
+            "new_l2": 0.7386785175059116,
+            "new_to_anchor_l2_ratio": 0.6583886889042696,
+            "cosine_new_vs_anchor": -0.0002590376281691879,
+            "projection_ratio": 6.710049280751845e-08,
+            "interference_score": 0.0001705474443871833
+          },
+          {
+            "module": "base_model.model.encoder.block.12.layer.0.SelfAttention.q",
+            "kind": "q",
+            "stack": "encoder",
+            "rank_anchor": 16,
+            "rank_candidate": 32,
+            "new_rank": 16,
+            "anchor_l2": 1.0815610449251287,
+            "new_l2": 0.7851653596719665,
+            "new_to_anchor_l2_ratio": 0.7259556576636133,
+            "cosine_new_vs_anchor": -0.00022635303011822784,
+            "projection_ratio": 5.123569424370336e-08,
+            "interference_score": 0.00016432226284362976
+          }
+        ]
+      },
+      "gate_signal": {
+        "exceeds_v69_heldout_baseline": false,
+        "baseline_heldout_em": 55.2
+      }
+    }
+  ]
+}
