@@ -1,7 +1,43 @@
 {
-  "updated_at": "2026-07-05T11:48:29+08:00",
-  "event": "neutral_formal_dry_run",
+  "updated_at": "2026-07-05T11:48:58+08:00",
+  "event": "neutral_formal_preflight",
   "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705",
+  "source_config": "/root/lora-ours/configs/ccfa_three_suite/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal.yaml",
   "runtime_config": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.runtime.yaml",
-  "blocking_processes": []
+  "run_log": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.log",
+  "monitor_log": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.monitor.jsonl",
+  "exit_json": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.exit.json",
+  "blocking_processes": [],
+  "core_train_processes": [],
+  "tmux": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "no server running on /tmp/tmux-0/default\n"
+  },
+  "gpu": {
+    "returncode": 0,
+    "stdout": "0 %, 0 MiB, 49140 MiB\n",
+    "stderr": ""
+  },
+  "comparability": {
+    "preserved": [
+      "stream",
+      "task_order",
+      "T5-large",
+      "LoRA settings",
+      "epochs",
+      "batch sizes",
+      "eval settings"
+    ],
+    "changed": [
+      "run_name",
+      "W&B group/tags",
+      "runtime config path"
+    ]
+  },
+  "state": "launched",
+  "tmux_command": "cd /root/lora-ours && export PYTHONUNBUFFERED=1 WANDB_PROJECT=lora-ours WANDB_MODE=online && : > /root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.monitor.jsonl && (while true; do printf '{\"updated_at\":\"%s\",\"event\":\"heartbeat\",\"run_name\":\"standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705\"}\\n' \"$(date -Iseconds)\" >> /root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.monitor.jsonl; sleep 60; done) & monitor_pid=$! && python -m core.train --config /root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.runtime.yaml 2>&1 | tee /root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.log; status=${PIPESTATUS[0]}; kill $monitor_pid 2>/dev/null || true; printf '{\"updated_at\":\"%s\",\"event\":\"pipeline_exit\",\"run_name\":\"standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705\",\"runtime_config\":\"/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.runtime.yaml\",\"train_exit_status\":%s}\\n' \"$(date -Iseconds)\" \"$status\" > /root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.exit.json; exit $status",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ""
 }
