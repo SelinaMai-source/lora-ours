@@ -29,6 +29,7 @@ REPLAY_PER_TASK="${REPLAY_PER_TASK:-64}"
 AMAZON_REPLAY_MULTIPLIER="${AMAZON_REPLAY_MULTIPLIER:-1}"
 SC_LABEL_CALIBRATION="${SC_LABEL_CALIBRATION:-0}"
 SC_BALANCED_REPLAY="${SC_BALANCED_REPLAY:-0}"
+SC_LEXICAL_REPAIR="${SC_LEXICAL_REPAIR:-0}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -49,7 +50,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -71,6 +72,7 @@ from pathlib import Path
     replay_per_task,
     overlay_manifest,
     sc_balanced_replay,
+    sc_lexical_repair,
 ) = sys.argv[1:]
 
 limits = []
@@ -94,6 +96,7 @@ lines = [
     "- overlay: Ours limited replay overlay on training config only",
     f"- replay_per_prior_task: {replay_per_task}",
     f"- sc_balanced_replay: {sc_balanced_replay}",
+    f"- sc_lexical_repair: {sc_lexical_repair}",
     f"- label: {run_label}",
     f"- W&B project: {project}",
     f"- W&B group: {group}",
@@ -113,7 +116,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -141,6 +144,7 @@ from pathlib import Path
     amazon_replay_multiplier,
     sc_label_calibration,
     sc_balanced_replay,
+    sc_lexical_repair,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -159,6 +163,7 @@ manifest = {
         "amazon_replay_multiplier": maybe_int(amazon_replay_multiplier),
         "sc_label_calibration": sc_label_calibration == "1",
         "sc_balanced_replay": sc_balanced_replay == "1",
+        "sc_lexical_repair": sc_lexical_repair == "1",
         "config_root": overlay_config_root,
         "manifest": overlay_manifest,
         "dev_test_policy": "copied unchanged from official current-round order1 configs",
@@ -330,6 +335,62 @@ new = """        if dataset_name == 'amazon' and subset == 'train' and sampling_
 """
 if old not in text:
     raise SystemExit(f"expected SC sampling call not found in {path}")
+path.write_text(text.replace(old, new, 1), encoding="utf-8")
+PY
+  fi
+  if [[ "$SC_LEXICAL_REPAIR" == "1" ]]; then
+    python - "$RUNTIME_ROOT/src/run_uie_lora.py" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+old = """    # Metric
+    def compute_rouge_metrics(dataset, preds, save_prefix=None):
+        decoded_preds = skip_instructions(model, preds, tokenizer)
+        references = [e[\"Instance\"][\"label\"] for e in dataset]
+"""
+new = """    # Metric
+    def _ours_repair_amazon_sc_prediction(example, prediction):
+        if example.get(\"Task\") != \"SC\" or example.get(\"Dataset\") != \"amazon\":
+            return prediction
+        labels = [\"very negative\", \"negative\", \"neutral\", \"positive\", \"very positive\"]
+        pred = str(prediction).strip().lower()
+        if pred not in labels:
+            for label in labels:
+                if label in pred:
+                    pred = label
+                    break
+            else:
+                return prediction
+        sentence = str(example.get(\"Instance\", {}).get(\"sentence\", \"\")).lower()
+        strong_pos = [\"excellent\", \"amazing\", \"awesome\", \"fantastic\", \"perfect\", \"outstanding\", \"highly recommend\", \"love\", \"loved\", \"best\", \"five stars\", \"wonderful\"]
+        pos = [\"good\", \"great\", \"nice\", \"pleased\", \"recommend\", \"works\", \"enjoy\", \"happy\", \"like\", \"useful\"]
+        strong_neg = [\"worst\", \"terrible\", \"awful\", \"horrible\", \"waste\", \"broken\", \"boring\", \"useless\", \"disappointed\", \"poor\", \"junk\", \"garbage\", \"avoid\"]
+        neg = [\"bad\", \"not good\", \"weak\", \"slow\", \"problem\", \"difficult\", \"cheap\", \"fails\", \"failed\", \"return\", \"complaint\"]
+        strong_pos_count = sum(item in sentence for item in strong_pos)
+        pos_count = sum(item in sentence for item in pos)
+        strong_neg_count = sum(item in sentence for item in strong_neg)
+        neg_count = sum(item in sentence for item in neg)
+        if pred == \"very positive\" and strong_pos_count == 0 and pos_count > 0:
+            return \"positive\"
+        if pred == \"very negative\" and strong_neg_count == 0 and neg_count > 0:
+            return \"negative\"
+        if pred == \"neutral\" and strong_pos_count >= 2 and neg_count == 0 and strong_neg_count == 0:
+            return \"positive\"
+        if pred == \"neutral\" and strong_neg_count >= 2 and pos_count == 0 and strong_pos_count == 0:
+            return \"negative\"
+        return pred
+
+    def _ours_repair_predictions(dataset, decoded_preds):
+        return [_ours_repair_amazon_sc_prediction(example, pred) for example, pred in zip(dataset, decoded_preds)]
+
+    def compute_rouge_metrics(dataset, preds, save_prefix=None):
+        decoded_preds = _ours_repair_predictions(dataset, skip_instructions(model, preds, tokenizer))
+        references = [e[\"Instance\"][\"label\"] for e in dataset]
+"""
+if old not in text:
+    raise SystemExit(f"expected metric block not found in {path}")
 path.write_text(text.replace(old, new, 1), encoding="utf-8")
 PY
   fi
