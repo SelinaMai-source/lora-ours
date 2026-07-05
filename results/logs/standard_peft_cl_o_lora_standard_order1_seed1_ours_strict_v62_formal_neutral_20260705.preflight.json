@@ -1,0 +1,7 @@
+{
+  "updated_at": "2026-07-05T11:48:29+08:00",
+  "event": "neutral_formal_dry_run",
+  "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705",
+  "runtime_config": "/root/lora-ours/results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.runtime.yaml",
+  "blocking_processes": []
+}
