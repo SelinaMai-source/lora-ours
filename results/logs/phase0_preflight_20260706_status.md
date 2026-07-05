@@ -36,9 +36,11 @@
 | `preflight_citb_official_split_counts.py` | **PARTIAL** (exit 3) | policy `500/50/50`, 19 tasks, **4 short tasks** (expected for official short-stream); CITB root: `autodl-tmp/.../citb_official` (commit `c964185`, not submodule pin); out: `results/logs/citb_official_split_counts_preflight_20260706.json` |
 
 ## tmux (prefix `lora-ours-`)
-- `lora-ours-monitor` — placeholder (created 2026-07-06)
-- `lora-ours-sentinel` — placeholder (created 2026-07-06)
-- `lora-ours-sentinel-v73` — pre-existing monitor session
+- `lora-ours-sentinel` — active (`lora_ours_sentinel.py`)
+- `lora-ours-agent-loop` — active (`sota_agent_loop.sh`)
+- `lora-ours-overlay-queue` — serial GPU queue (`run_ours_overlay_iterate_queue.sh`)
+- `lora-ours-standard-v85-smoke` — **running** (SSRG+assess gate overlay)
+- `lora-ours-citb-replay50-smoke` — smoke completed; **note:** accidental formal relaunch without `SMOKE=1` may share GPU (blocker)
 
 ## Next
 - GPU queue: `scripts/run_ours_overlay_iterate_queue.sh` (serial, prefix `lora-ours-`).
