@@ -20,7 +20,37 @@ Scope: official reproducibility gate only. No Ours candidate and no GPU training
   - extracted path: `/root/autodl-tmp/todcl_official_data_20260705/dstc8-schema-guided-dialogue`
   - ToDCL expected path linked at `data/dstc8-schema-guided-dialogue`
 
-Taskmaster and MultiWOZ are still not downloaded. Apply the same `curl --http1.1 --retry --retry-all-errors` plus zip validation pattern next.
+- Taskmaster archive:
+  - path: `/root/autodl-tmp/todcl_official_data_20260705/archives/Taskmaster.zip`
+  - size: `138699973` bytes
+  - validation: Python `zipfile.testzip()` passed
+  - entries: `161`
+  - note: first attempt hit `IncompleteRead` after the 20MB progress point; automatic retry completed and validated.
+- MultiWOZ archive:
+  - path: `/root/autodl-tmp/todcl_official_data_20260705/archives/multiwoz.zip`
+  - size: `60601152` bytes
+  - validation: Python `zipfile.testzip()` passed
+  - entries: `70`
+
+Taskmaster and MultiWOZ source archives are now downloaded and zip-validated. Remaining data work is controlled extraction/layout into ToDCL's expected `data/` paths, MultiWOZ 2.1 unzip plus 2.2 conversion, and a full ToDCL data-loader smoke.
+
+## System Disk Cleanup
+
+- Trigger: `/root` overlay was critically low while Taskmaster download was in progress.
+- Before cleanup:
+  - `/root` overlay: `30G` size, `30G` used, `561M` available, `99%` used.
+  - `/root/autodl-tmp`: `150G` size, `101G` used, `50G` available, `67%` used.
+- Safe cleanup performed:
+  - purged pip cache with `python -m pip cache purge`
+  - removed `/root/.cache/pip`
+  - ran `conda clean -a -y`
+  - cleared `/root/miniconda3/pkgs/*` package cache contents
+- Preserved:
+  - git repositories, official results, logs, checkpoints, submodule/gitlink metadata, and traceable artifacts
+  - `/root/.cache/huggingface`, because it may contain model assets/checkpoints rather than disposable package cache
+- After cleanup:
+  - `/root` overlay: `30G` size, `27G` used, `3.3G` available, `90%` used.
+  - `/root/autodl-tmp`: `150G` size, `100G` used, `51G` available, `67%` used.
 
 ## Legacy Environment
 

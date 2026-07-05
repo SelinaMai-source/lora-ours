@@ -1,6 +1,6 @@
 # Dialogue NLG Official Repo / Code Status
 
-- Updated: `2026-07-05T22:32+08:00`
+- Updated: `2026-07-05T23:02+08:00`
 - Current selected runnable base: ARPER official WOZ3 SCLSTM.
 - Current ours overlay anchor: v81 post-decode slot repair overlay on ARPER/SCLSTM output path.
 - Official archive branch: `official-method-code-archive-20260705` commit `b060357`.
@@ -53,16 +53,19 @@
   - clone `https://github.com/google-research-datasets/Taskmaster.git`
   - clone `https://github.com/budzianowski/multiwoz.git`
   - unzip/convert MultiWOZ 2.1/2.2
-- Current data availability: `SGD_AVAILABLE_FOR_SMOKE`, `TM_MISSING`, `MWOZ_MISSING`; `data/download.sh`, `data/TM.py`, `data/SGD.py`, and `data/MWOZ.py` are present.
+- Current data availability: `SGD_AVAILABLE_FOR_SMOKE`, `TM_ARCHIVE_VALIDATED`, `MWOZ_ARCHIVE_VALIDATED`; `data/download.sh`, `data/TM.py`, `data/SGD.py`, and `data/MWOZ.py` are present.
 - Data size/download audit:
   - GitHub repo API reports approximate repository sizes: SGD `51095 KB`, Taskmaster `111002 KB`, MultiWOZ `125780 KB`.
   - `/root/autodl-tmp` has enough capacity for these source repos.
   - `git clone --depth 1` for SGD failed with `GnuTLS recv error` / `early EOF`.
   - A codeload SGD zip attempt left `/root/autodl-tmp/todcl_official_data_20260705/archives/dstc8-schema-guided-dialogue.zip` at `23068672` bytes, but Python `zipfile` reports `BadZipFile`, so it is not a valid completed archive.
   - GitHub codeload HEAD returns `application/zip` but no `Content-Length`, so the current download path cannot reliably pre-estimate or verify size without a checksum/complete archive test.
-  - Retrying codeload with `curl --http1.1 --retry --retry-all-errors` produced a valid SGD archive at `/root/autodl-tmp/todcl_official_data_20260705/archives/dstc8-schema-guided-dialogue.zip`, size `36962546` bytes, `234` zip entries.
+  - Retrying codeload with retry plus Python `zipfile.testzip()` validation produced a valid SGD archive at `/root/autodl-tmp/todcl_official_data_20260705/archives/dstc8-schema-guided-dialogue.zip`, size `36962546` bytes, `234` zip entries.
+  - The same validated archive path now also has Taskmaster at `/root/autodl-tmp/todcl_official_data_20260705/archives/Taskmaster.zip`, size `138699973` bytes, `161` zip entries. The first Taskmaster attempt hit `IncompleteRead`; the automatic retry completed and validated.
+  - MultiWOZ official archive is at `/root/autodl-tmp/todcl_official_data_20260705/archives/multiwoz.zip`, size `60601152` bytes, `70` zip entries.
   - The invalid earlier `23068672` byte partial is retained as `dstc8-schema-guided-dialogue.zip.bad-23068672` for traceability.
   - SGD is extracted under `/root/autodl-tmp/todcl_official_data_20260705/dstc8-schema-guided-dialogue` and linked into the ToDCL expected path `data/dstc8-schema-guided-dialogue`.
+  - Taskmaster/MultiWOZ are downloaded and validated as source archives, but controlled extraction/layout and MultiWOZ conversion are still pending.
 - Current network/proxy availability:
   - Temporary mihomo proxy is running in tmux `official-gate-mihomo-proxy`.
   - GitHub and HuggingFace are reachable; OpenReview still redirects to browser verification.
@@ -90,10 +93,10 @@
   - REPLAY BLEU `21.4832`, EER `0.0559855`
   - ADAPTER BLEU `21.7719`, EER `0.163975`
   - MULTI BLEU `26.1462`, EER `0.0341823`
-- Status: repo downloaded and clean; faithful legacy help smoke and SGD-only preprocess smoke pass. Official Taskmaster/MultiWOZ download/preprocess/export and method-level training smoke are still required before ToDCL reproduction.
+- Status: repo downloaded and clean; faithful legacy help smoke and SGD-only preprocess smoke pass. Official Taskmaster/MultiWOZ archives are downloaded and validated. Controlled extraction/layout, MultiWOZ conversion, full data-loader smoke, and method-level training smoke are still required before ToDCL reproduction.
 
 ## Gate Decision
 
 - Dialogue ours increments may continue only on the documented ARPER SCLSTM base until ToDCL official data and smoke reproduction are completed.
 - Do not compare ARPER WOZ3 BLEU/SER and ToDCL TOD37/MultiWOZ BLEU/EER as interchangeable SOTA claims.
-- Next safe ToDCL step: apply the validated curl/retry/zip-test pattern to Taskmaster and MultiWOZ, then run full ToDCL data-loader smoke before any method-level training. Do not run full ToDCL training until data layout and method smoke are documented.
+- Next safe ToDCL step: extract/layout Taskmaster and MultiWOZ under `/root/autodl-tmp`, run the official MultiWOZ conversion, then run full ToDCL data-loader smoke before any method-level training. Do not run full ToDCL training until data layout and method smoke are documented.

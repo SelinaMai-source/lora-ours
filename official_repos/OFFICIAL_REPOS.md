@@ -27,7 +27,7 @@ Method coverage in this official repo: FT-init, L2, EWC, AGEM, Replay, and Multi
 | O-LoRA | `https://github.com/cmnfriend/O-LoRA.git` | `official_repos/standard/O-LoRA` | `07117e1fc4a5f5ad9308a815a42cee8f46502dc8` | yes | v55 smoke and v57 official-equivalent formal completed | official_equivalent_anchor | Local v57 uses documented single-GPU engineering substitutions; official order/metric/data path preserved. |
 | LFPT5 | `https://github.com/qcwthu/Lifelong-Fewshot-Language-Learning.git` | `official_repos/standard/Lifelong-Fewshot-Language-Learning` | `cf7d17ce7de6a707d929d0542b3d5e639569855f` | yes | not rerun locally | downloaded_not_runnable | Reference baseline; must be separately smoke/reproduced before using as an Ours base. |
 | Progressive Prompts | `https://github.com/arazd/ProgressivePrompts.git` | `official_repos/standard/ProgressivePrompts` | `01572d6a73c0576b070ceee00dbe4f5bc278423f` | yes | not rerun locally | downloaded_not_runnable | Task-ID/prompt protocol differs; must be separately smoke/reproduced before using as an Ours base. |
-| LB-CL | not confirmed | none | none | no official repo found | no code smoke possible | paper_only_baseline | Web/OpenReview/NeurIPS/author searches have not confirmed an official or author repository. Do not add third-party code or label it official. |
+| LB-CL | not confirmed | none | none | no official repo found | no code smoke possible | paper_only_baseline | NeurIPS paper checklist says code is not attached; NeurIPS/OpenReview/ML Anthology/slides/author/GitHub searches have not confirmed an official or author repository. `yaoyz96/low-rank-cl` and other search hits are not author-linked LB-CL code. Do not add third-party code or label it official. |
 
 Current Standard anchor: O-LoRA official-equivalent v57; current Ours overlay v69 is anchored on O-LoRA and remains the best local Standard result.
 
@@ -46,5 +46,5 @@ Method coverage tracked for Dialogue: ARPER, Replay, AdapterCL, LAMOL, and Multi
 
 - These submodules intentionally point to official upstream URLs.
 - The pinned commits match local official checkouts already audited under `/root/autodl-tmp`.
-- LB-CL is omitted from submodules until an official/author repository or supplement code is confirmed.
+- LB-CL is omitted from submodules until an official/author repository or supplement code is confirmed; paper-only implementation details are not enough for this archive.
 - Do not launch new Ours candidates from this archive alone; method-specific official reproduction gates still apply.
