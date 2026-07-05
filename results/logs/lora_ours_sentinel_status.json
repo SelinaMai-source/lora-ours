@@ -1,0 +1,79 @@
+{
+  "updated_at": "2026-07-05 16:39:32 UTC",
+  "repo": "/root/lora-ours",
+  "suites": [
+    {
+      "suite": "CITB",
+      "state": "completed",
+      "run_id": "citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54",
+      "status_file": "results/logs/citb_official_script_500_50_50_tie_fixed_status.json",
+      "metrics_summary": "no ROUGE-L AR yet (target 53.87)",
+      "metrics": {
+        "log_age_seconds": null
+      },
+      "wake": false
+    },
+    {
+      "suite": "Standard",
+      "state": "incomplete",
+      "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v58",
+      "status_file": "results/logs/standard_peft_ours_v58_status.json",
+      "metrics_summary": "67.2632 / target 84.5 (gap +17.2368)",
+      "metrics": {
+        "avg_em": 67.26315789473685,
+        "latest_segment": 1,
+        "log_age_seconds": 59.69983673095703
+      },
+      "wake": true
+    },
+    {
+      "suite": "Dialogue",
+      "state": "completed",
+      "run_id": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal",
+      "status_file": "results/logs/dialogue_arper_woz3_v68_formal_status.json",
+      "metrics_summary": "0.1060 / target 0.935 (gap +0.8290)",
+      "metrics": {
+        "ser": 0.0,
+        "bleu4": 0.10602405455366919,
+        "latest_segment": 12,
+        "log_age_seconds": 36937.1211745739
+      },
+      "wake": false
+    }
+  ],
+  "gpu_compute_empty": true,
+  "train_process_count": 0,
+  "train_processes": [],
+  "pending_action": "failure_analysis",
+  "wake_reason": "suite=Standard state=incomplete",
+  "wake_items": [
+    {
+      "suite": "Standard",
+      "state": "incomplete",
+      "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v58",
+      "detail": "suite=Standard state=incomplete",
+      "status_file": "results/logs/standard_peft_ours_v58_status.json"
+    }
+  ],
+  "sota_targets": {
+    "CITB": {
+      "metric": "rouge_l_ar",
+      "baseline": 40.4,
+      "target": 53.87,
+      "unit": "ROUGE-L AR"
+    },
+    "Standard": {
+      "metric": "avg_em",
+      "baseline": 76.7,
+      "target": 84.5,
+      "unit": "avg EM"
+    },
+    "Dialogue": {
+      "metric": "bleu4",
+      "baseline": 0.701,
+      "target": 0.935,
+      "unit": "BLEU-4"
+    }
+  },
+  "prompt": "Read results/logs/lora_ours_sentinel_status.md and lora_ours_sentinel_status.json. For any suite with wake_reason or pending_action, run failure analysis per docs/official_alignment/ccfa_experiment_gate.md: diagnose → single-mechanism vN+1 patch → smoke gate → formal. Do not kill healthy training. Update docs/official_alignment/status.md and docs/experiments/* as needed."
+}

@@ -1,6 +1,20 @@
 # Official Alignment Status
 
-Updated: 2026-07-05
+Updated: 2026-07-06
+
+## SOTA 24h Campaign (`sota-24h-campaign-20260706`)
+
+- **Branch:** `sota-24h-campaign-20260706` (tracking `origin`).
+- **Phase0:** `results/logs/phase0_preflight_20260706_status.md`; published-base preflight PASS; CITB split `500/50/50` preflight exit 3 (4 short tasks, expected for official short-stream).
+- **Agent stack:** `scripts/launch_lora_ours_agent_stack.sh` → tmux `lora-ours-sentinel`, `lora-ours-agent-loop`; status `results/logs/lora_ours_sentinel_status.md`.
+- **GPU queue:** serial `scripts/run_ours_overlay_iterate_queue.sh` (prefix `lora-ours-`, W&B `lora-ours`).
+- **Main table:** `results/tables/sota_main_table_20260706.md` — no numerical SOTA margin reached yet; gaps documented honestly.
+- **Baselines in flight:** CITB Replay50 official_script smoke; Standard v85 SSRG+assess-gate overlay; ARPER v86 paper-epoch formal; ToDCL ADAPTER NLG anchor.
+- **Best ours so far:** Standard v69 EM **77.26** (target **84.5**); CITB v47 smoke TA AR **25.0** (target **53.87**); Dialogue v66 BLEU **0.632** (target **0.935**).
+
+---
+
+Updated: 2026-07-05 (historical entries below)
 
 ## Current Gate
 

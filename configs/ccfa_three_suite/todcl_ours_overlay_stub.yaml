@@ -1,0 +1,17 @@
+experiment_name: todcl_ours_overlay_stub
+label: published-base ToDCL ADAPTER NLG + Ours overlay (stub)
+status: post_anchor_stub
+mode: training_overlay
+base:
+  run_id: todcl_adapter_nlg_official_anchor_20260706
+  method: ADAPTER
+  task_type: NLG
+  domains: 37
+  paper_reference:
+    bleu: 21.7719
+    eer: 0.163975
+overlay:
+  type: assess_update_plus_ssrg
+  blocked_until: todcl_adapter_nlg_official_anchor_20260706 completes
+runtime:
+  anchor_launcher: scripts/run_todcl_adapter_nlg_official_anchor.sh

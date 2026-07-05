@@ -1,12 +1,10 @@
 #!/bin/bash
-# Cursor agent wake loop for lora-ours three-suite SOTA campaign.
-# See /root/.cursor/skills-cursor/loop/SKILL.md
+# Cursor agent wake loop for lora-ours SOTA closed-loop (see /root/.cursor/skills-cursor/loop/SKILL.md).
 #
-# Launch (preferred):
-#   bash /root/lora-ours/scripts/launch_lora_ours_agent_stack.sh
-#
-# Or standalone:
+# Launch:
 #   tmux new-session -d -s lora-ours-agent-loop 'bash /root/lora-ours/scripts/sota_agent_loop.sh'
+# Or:
+#   bash scripts/launch_lora_ours_agent_stack.sh
 set -euo pipefail
 cd /root/lora-ours
 
@@ -14,9 +12,8 @@ POLL_SEC="${SOTA_AGENT_POLL_SEC:-30}"
 HEARTBEAT_SEC="${SOTA_AGENT_LOOP_SEC:-300}"
 FLAG="SOTA_AGENT_WAKE.flag"
 WAKE_LOG="SOTA_AGENT_WAKE.log"
-REPO="/root/lora-ours"
 
-PROMPT='Read results/logs/lora_ours_sentinel_status.md and SOTA_AGENT_WAKE.flag. If pending_action or wake_items need work, execute failure analysis → single-mechanism vN+1 patch → smoke gate → formal per docs/official_alignment/ccfa_experiment_gate.md. Do not kill healthy training. Update docs/official_alignment/status.md.'
+PROMPT='Read results/logs/lora_ours_sentinel_status.md and lora_ours_sentinel_status.json. If pending_action or wake_items need work, execute failure analysis → single-mechanism vN+1 patch → smoke gate → formal per docs/official_alignment/ccfa_experiment_gate.md. Do not kill healthy training. Update docs/official_alignment/status.md.'
 
 emit_json() {
   python3 - "$1" "$2" <<'PY'
@@ -27,10 +24,9 @@ print(f'AGENT_LOOP_{kind}_LORA_OURS ' + json.dumps(payload, ensure_ascii=False))
 PY
 }
 
-echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] sota_agent_loop started poll=${POLL_SEC}s heartbeat=${HEARTBEAT_SEC}s repo=${REPO}" | tee -a "${WAKE_LOG}"
+echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] sota_agent_loop started poll=${POLL_SEC}s heartbeat=${HEARTBEAT_SEC}s repo=lora-ours" | tee -a "${WAKE_LOG}"
 
 last_heartbeat=$(date +%s)
-# Per loop skill: first sentinel after initial sleep (no double-run on startup).
 sleep "${POLL_SEC}"
 
 while true; do
