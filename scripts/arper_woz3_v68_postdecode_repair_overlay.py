@@ -250,7 +250,7 @@ def write_status(path_json: Path, path_md: Path, payload: dict[str, Any]) -> Non
     raw = payload.get("raw", {})
     repaired = payload.get("repaired", {})
     lines = [
-        "# ARPER WOZ3 v68 Published-Base + Ours Post-Decode Repair Overlay",
+        "# ARPER WOZ3 Published-Base + Ours Post-Decode Repair Overlay",
         "",
         f"- Updated: `{payload.get('updated_at')}`",
         f"- State: `{payload.get('state')}`",
