@@ -1,0 +1,22 @@
+# olora_v76_trainheldout_gate_dryrun
+
+- updated: 2026-07-05T20:15:00
+- state: ready
+- reason: 
+- selected base: O-LoRA official T5-large Standard CL order1 seed1
+- overlay: Ours limited replay overlay on training config only
+- replay_per_prior_task: 64
+- sc_balanced_replay: 0
+- sc_lexical_repair: 0
+- train_heldout_gate: 1
+- train_heldout_slice: amazon/train[4500:5000]
+- label: published_base_olora_official_runtime_plus_ours_limited_replay_overlay_v58
+- W&B project: lora-ours
+- W&B group: published-base-standard-olora-plus-ours-overlay-v58
+- log: /root/lora-ours/results/logs/olora_v76_trainheldout_gate_dryrun.log
+- manifest: /root/lora-ours/results/runs/olora_v76_trainheldout_gate_dryrun/run_manifest.json
+- overlay manifest: /root/lora-ours/results/runs/olora_v76_trainheldout_gate_dryrun/ours_overlay_manifest.json
+- setting: dbpedia -> amazon -> yahoo -> agnews; max_steps=20; max_predict_samples=200
+- gradient_accumulation_steps: 8
+- comparability: ours-overlay diagnostic; not an official-base result and not paper-comparable while smoke caps/single-GPU runtime are present
+- preserved: official task order, official entry/scorer, T5-large, O-LoRA adapter chain, current-round dev/test configs, cumulative test metric surface

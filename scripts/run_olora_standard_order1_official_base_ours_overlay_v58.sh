@@ -30,6 +30,12 @@ AMAZON_REPLAY_MULTIPLIER="${AMAZON_REPLAY_MULTIPLIER:-1}"
 SC_LABEL_CALIBRATION="${SC_LABEL_CALIBRATION:-0}"
 SC_BALANCED_REPLAY="${SC_BALANCED_REPLAY:-0}"
 SC_LEXICAL_REPAIR="${SC_LEXICAL_REPAIR:-0}"
+TRAIN_HELDOUT_GATE="${TRAIN_HELDOUT_GATE:-0}"
+TRAIN_HELDOUT_OFFSET="${TRAIN_HELDOUT_OFFSET:-4500}"
+TRAIN_HELDOUT_LIMIT="${TRAIN_HELDOUT_LIMIT:-500}"
+TRAIN_HELDOUT_DROP_TOLERANCE="${TRAIN_HELDOUT_DROP_TOLERANCE:-3.0}"
+TRAIN_HELDOUT_FINAL_BASELINE_EM="${TRAIN_HELDOUT_FINAL_BASELINE_EM:-55.2}"
+TRAIN_HELDOUT_MODERATE_MIN_COUNT="${TRAIN_HELDOUT_MODERATE_MIN_COUNT:-5}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -50,7 +56,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -73,6 +79,9 @@ from pathlib import Path
     overlay_manifest,
     sc_balanced_replay,
     sc_lexical_repair,
+    train_heldout_gate,
+    train_heldout_offset,
+    train_heldout_limit,
 ) = sys.argv[1:]
 
 limits = []
@@ -97,6 +106,8 @@ lines = [
     f"- replay_per_prior_task: {replay_per_task}",
     f"- sc_balanced_replay: {sc_balanced_replay}",
     f"- sc_lexical_repair: {sc_lexical_repair}",
+    f"- train_heldout_gate: {train_heldout_gate}",
+    f"- train_heldout_slice: amazon/train[{train_heldout_offset}:{int(train_heldout_offset) + int(train_heldout_limit)}]",
     f"- label: {run_label}",
     f"- W&B project: {project}",
     f"- W&B group: {group}",
@@ -116,7 +127,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -145,6 +156,11 @@ from pathlib import Path
     sc_label_calibration,
     sc_balanced_replay,
     sc_lexical_repair,
+    train_heldout_gate,
+    train_heldout_offset,
+    train_heldout_limit,
+    train_heldout_drop_tolerance,
+    train_heldout_final_baseline_em,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -164,6 +180,15 @@ manifest = {
         "sc_label_calibration": sc_label_calibration == "1",
         "sc_balanced_replay": sc_balanced_replay == "1",
         "sc_lexical_repair": sc_lexical_repair == "1",
+        "train_heldout_gate": {
+            "enabled": train_heldout_gate == "1",
+            "source": "amazon/train.json",
+            "offset": maybe_int(train_heldout_offset),
+            "limit": maybe_int(train_heldout_limit),
+            "drop_tolerance_em": float(train_heldout_drop_tolerance),
+            "final_baseline_em": float(train_heldout_final_baseline_em),
+            "leakage_policy": "training split only; no dev/test split or test targets/confusion",
+        },
         "config_root": overlay_config_root,
         "manifest": overlay_manifest,
         "dev_test_policy": "copied unchanged from official current-round order1 configs",
@@ -561,6 +586,136 @@ run_round() {
   return "$code"
 }
 
+run_train_heldout_gate() {
+  local index="$1"
+  local task="$2"
+  local adapter_path="$3"
+
+  if [[ "$TRAIN_HELDOUT_GATE" != "1" ]]; then
+    return 0
+  fi
+  if (( index < 2 )); then
+    return 0
+  fi
+
+  local gate_dir="${RUN_DIR}/train_heldout_gate"
+  local gate_state="${gate_dir}/gate_state.json"
+  local diag_run="${RUN_NAME}_trainheldout_round${index}_${task}"
+  local diag_log="${LOG_DIR}/${diag_run}.log"
+  mkdir -p "$gate_dir"
+
+  echo "[heldout-gate] evaluating ${task} round=${index} adapter=${adapter_path}"
+  python "${REPO_ROOT}/scripts/run_olora_amazon_dev_diagnostic.py" \
+    --run-name "$diag_run" \
+    --adapter "$adapter_path" \
+    --source-split train \
+    --train-offset "$TRAIN_HELDOUT_OFFSET" \
+    --train-limit "$TRAIN_HELDOUT_LIMIT"
+
+  python - "$gate_state" "$diag_run" "$diag_log" "$index" "$task" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" "$TRAIN_HELDOUT_MODERATE_MIN_COUNT" "${#TASKS[@]}" <<'PY'
+import json
+import re
+import sys
+from collections import Counter
+from datetime import datetime
+from pathlib import Path
+
+(
+    gate_state,
+    diag_run,
+    diag_log,
+    index,
+    task,
+    drop_tolerance,
+    final_baseline_em,
+    moderate_min_count,
+    total_rounds,
+) = sys.argv[1:]
+gate_state = Path(gate_state)
+diag_log = Path(diag_log)
+index_i = int(index)
+total_rounds_i = int(total_rounds)
+drop_tolerance_f = float(drop_tolerance)
+final_baseline_f = float(final_baseline_em)
+moderate_min_count_i = int(moderate_min_count)
+
+text = diag_log.read_text(encoding="utf-8")
+match = re.search(r"predict_exact_match_for_amazon\s*=\s*([0-9.]+)", text)
+if not match:
+    raise RuntimeError(f"missing heldout amazon EM in {diag_log}")
+em = float(match.group(1))
+rouge_match = re.search(r"predict_rougeL_for_amazon\s*=\s*([0-9.]+)", text)
+rouge = float(rouge_match.group(1)) if rouge_match else None
+
+prediction_path = Path("/root/autodl-tmp/lora-ours-devdiag") / diag_run / "outputs/predict_eval_predictions.jsonl"
+pred_counts: Counter[str] = Counter()
+if prediction_path.exists():
+    with prediction_path.open(encoding="utf-8") as handle:
+        for line in handle:
+            if line.strip():
+                row = json.loads(line)
+                pred_counts[str(row.get("Prediction", "")).strip()] += 1
+
+if gate_state.exists():
+    state = json.loads(gate_state.read_text(encoding="utf-8"))
+else:
+    state = {"evaluations": [], "best_em": None, "decision": "running"}
+
+best_before = state.get("best_em")
+drop_fail = best_before is not None and em < float(best_before) - drop_tolerance_f
+final_fail = index_i == total_rounds_i and em < final_baseline_f
+moderate_fail = (
+    index_i == total_rounds_i
+    and (
+        pred_counts.get("negative", 0) < moderate_min_count_i
+        or pred_counts.get("positive", 0) < moderate_min_count_i
+    )
+)
+fail_reasons = []
+if drop_fail:
+    fail_reasons.append(f"heldout EM dropped below best by > {drop_tolerance_f}: best={best_before}, current={em}")
+if final_fail:
+    fail_reasons.append(f"final heldout EM {em} below v69 baseline {final_baseline_f}")
+if moderate_fail:
+    fail_reasons.append(
+        "moderate label collapse: "
+        f"negative={pred_counts.get('negative', 0)}, positive={pred_counts.get('positive', 0)}, "
+        f"min={moderate_min_count_i}"
+    )
+
+record = {
+    "updated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    "diag_run": diag_run,
+    "round": index_i,
+    "task": task,
+    "heldout_em": em,
+    "heldout_rougeL": rouge,
+    "prediction_counts": dict(pred_counts),
+    "best_before": best_before,
+    "fail_reasons": fail_reasons,
+    "source": "amazon/train.json heldout slice",
+    "leakage_policy": "train-only; no dev/test split or test targets/confusion",
+}
+state.setdefault("evaluations", []).append(record)
+state["best_em"] = max(em, float(best_before)) if best_before is not None else em
+state["decision"] = "rejected" if fail_reasons else "running"
+state["last_record"] = record
+gate_state.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+
+print(json.dumps(record, indent=2))
+if fail_reasons:
+    raise SystemExit(42)
+PY
+  local gate_code=$?
+  if [[ "$gate_code" != "0" ]]; then
+    echo "TRAIN_HELDOUT_GATE_REJECTED round=${index} task=${task} state=${gate_state}"
+    write_manifest "rejected" "train-heldout gate rejected round ${index} ${task}"
+    write_status "rejected" "train-heldout gate rejected round ${index} ${task}"
+    return "$gate_code"
+  fi
+  echo "TRAIN_HELDOUT_GATE_PASSED round=${index} task=${task} state=${gate_state}"
+}
+
 main() {
   write_manifest "preflight" ""
   write_status "preflight" ""
@@ -589,6 +744,10 @@ main() {
     echo "[round] ${idx} ${task} model=${model_path}"
     run_round "$idx" "$task" "$model_path"
     model_path="${OUTPUT_ROOT}/${idx}-${task}/adapter"
+    if ! run_train_heldout_gate "$idx" "$task" "$model_path"; then
+      echo "[heldout-gate] rejected ${RUN_NAME}; stopping before promotion"
+      return 0
+    fi
     idx=$((idx + 1))
   done
   write_manifest "completed" ""
