@@ -4,7 +4,7 @@ Updated: 2026-07-06
 
 ## SOTA 24h Campaign (`sota-24h-campaign-20260706`)
 
-**2026-07-06 summary:** On branch `sota-24h-campaign-20260706`, Phase0 preflight and agent stack (`lora-ours-sentinel`, `lora-ours-agent-loop`, serial `run_ours_overlay_iterate_queue.sh`) are live. CITB Replay50 official_script `500/50/50` smoke **passed** (EM/ROUGE-L 50.0, W&B `a2jh0n4y`). Standard v85 SSRG+assess-retention overlay smoke **started but is incomplete** — dbpedia train reached step 14/20 with no eval EM due to GPU serial contention with CITB; gate **indeterminate**, re-queue pending. ARPER v86 paper-epoch formal and ToDCL ADAPTER NLG anchor are **queued** (preflight PASS for ToDCL); CITB ours v85 smoke awaits serial GPU. Main table `results/tables/sota_main_table_20260706.md` and iteration log `docs/experiments/overlay_iteration_log_20260706.md` document honest gaps: **no suite reached SOTA targets** (CITB 53.87, Standard 84.5, Dialogue BLEU 0.935); best prior ours remain Standard v69 EM **77.26**, CITB v54 **33.1**, ARPER v66 BLEU **0.632**. Ablation stubs and 3×3 seed/order expansion deferred until first margin hit.
+**2026-07-06 summary:** On branch `sota-24h-campaign-20260706`, Phase0 preflight and agent stack are live. CITB Replay50 smoke **PASS** (`a2jh0n4y`). Standard v85 smoke **rerunning** solo on GPU0 after first attempt failed at dbpedia step 14/20 due to accidental CITB formal GPU contention (formal stopped; queue fixed with `SMOKE=1`). ARPER v86 / ToDCL / CITB ours v85 **queued** via `run_ours_overlay_iterate_queue.sh`. **No numerical SOTA** yet.
 
 - **Branch:** `sota-24h-campaign-20260706` (tracking `origin`).
 - **Phase0:** `results/logs/phase0_preflight_20260706_status.md`
