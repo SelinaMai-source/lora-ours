@@ -1,0 +1,72 @@
+{
+  "policy": {
+    "candidate": "behavior_retention_regularizer",
+    "teacher_source": "/root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v69_r2/outputs/predict_eval_predictions.jsonl",
+    "teacher_anchor": {
+      "heldout_em": 53.4,
+      "prediction_counts": {
+        "very negative": 84,
+        "negative": 40,
+        "neutral": 228,
+        "positive": 13,
+        "very positive": 135
+      }
+    },
+    "uses_dev_or_test": false,
+    "regularizer_design": "During later-task training, penalize divergence from the amazon-adapter teacher predictions/distribution on amazon train-heldout prompts; promote only if v76 heldout EM exceeds the v69 baseline.",
+    "thresholds": {
+      "baseline_em": 55.2,
+      "min_teacher_agreement": 60.0,
+      "max_label_distribution_l1": 0.35,
+      "moderate_min_count": 5
+    }
+  },
+  "candidates": [
+    {
+      "name": "v69_r4",
+      "prediction_path": "/root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v69_r4/outputs/predict_eval_predictions.jsonl",
+      "manifest_path": "results/logs/olora_v78_retention_anchor_trainheldout500_v69_r4.manifest.json",
+      "heldout_em_from_predictions": 55.2,
+      "heldout_em_from_manifest": 55.2,
+      "heldout_rougeL_from_manifest": 71.0,
+      "teacher_agreement": 64.2,
+      "label_distribution_l1": 0.624,
+      "prediction_counts": {
+        "very negative": 128,
+        "negative": 107,
+        "neutral": 72,
+        "positive": 38,
+        "very positive": 155
+      },
+      "decision": "reject",
+      "reasons": [
+        "label distribution L1 0.624 > 0.35",
+        "v76 heldout EM 55.2 does not exceed baseline 55.2"
+      ]
+    },
+    {
+      "name": "v70b_r4",
+      "prediction_path": "/root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/outputs/predict_eval_predictions.jsonl",
+      "manifest_path": "results/logs/olora_v78_retention_anchor_trainheldout500_v70b_r4.manifest.json",
+      "heldout_em_from_predictions": 47.2,
+      "heldout_em_from_manifest": 47.2,
+      "heldout_rougeL_from_manifest": 68.9,
+      "teacher_agreement": 59.2,
+      "label_distribution_l1": 0.784,
+      "prediction_counts": {
+        "very negative": 224,
+        "negative": 11,
+        "neutral": 72,
+        "positive": 2,
+        "very positive": 191
+      },
+      "decision": "reject",
+      "reasons": [
+        "teacher agreement 59.2 < 60.0",
+        "label distribution L1 0.784 > 0.35",
+        "v76 heldout EM 47.2 does not exceed baseline 55.2",
+        "moderate label collapse: negative=11, positive=2"
+      ]
+    }
+  ]
+}

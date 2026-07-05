@@ -1,0 +1,39 @@
+$ conda run -p /root/autodl-tmp/conda_envs/lora_v10_o_lora --no-capture-output python /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/official_runtime/src/run_uie_lora.py --do_predict --predict_with_generate --model_name_or_path /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/4-agnews/adapter --data_dir /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/official_runtime/CL_Benchmark --task_config_dir /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/task_config_amazon_dev_as_test --instruction_file /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/official_runtime/configs/instruction_config.json --instruction_strategy single --output_dir /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/outputs --per_device_eval_batch_size 16 --max_source_length 512 --max_target_length 50 --generation_max_length 50 --add_task_name True --add_dataset_name True --overwrite_output_dir --overwrite_cache --seed 1 --report_to none
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/deepspeed/runtime/zero/linear.py:53: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  def forward(ctx, input, weight, bias=None):
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/deepspeed/runtime/zero/linear.py:79: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  def backward(ctx, grad_output):
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/accelerate/utils/torch_xla.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/fairscale/experimental/nn/offload.py:19: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  return torch.cuda.amp.custom_fwd(orig_func)  # type: ignore
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/fairscale/experimental/nn/offload.py:30: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  return torch.cuda.amp.custom_bwd(orig_func)  # type: ignore
+07/05/2026 20:21:54 - WARNING - __main__ - Process rank: -1, device: cuda:0, n_gpu: 1distributed training: False, 16-bits training: False
+07/05/2026 20:21:54 - WARNING - datasets.builder - Using custom data configuration default-3eef9a744f4296b7
+Downloading and preparing dataset uie_instructions/default to /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/outputs/196fca5cc3d5e82ef40baa97212bdd9d/uie_instructions/default-3eef9a744f4296b7/2.0.0/2c0f50f16903ef244e6dafccaebe808d676f050a5063287a84bdbbc00e738ab1...
+0 examples [00:00, ? examples/s]                                0 examples [00:00, ? examples/s]                                0 examples [00:00, ? examples/s]42 examples [00:00, 373.89 examples/s]                                      Dataset uie_instructions downloaded and prepared to /root/autodl-tmp/lora-ours-devdiag/olora_v78_retention_anchor_trainheldout500_v70b_r4/outputs/196fca5cc3d5e82ef40baa97212bdd9d/uie_instructions/default-3eef9a744f4296b7/2.0.0/2c0f50f16903ef244e6dafccaebe808d676f050a5063287a84bdbbc00e738ab1. Subsequent calls will reuse this data.
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 1095.21it/s]
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:3596: UserWarning: `as_target_tokenizer` is deprecated and will be removed in v5 of Transformers. You can tokenize your labels by using the argument `text_target` of the regular `__call__` method (either in the same call as your input texts if you use the same keyword arguments, or in a separate call.
+  warnings.warn(
+-----Gradient checkpointing: False -----
+  0%|          | 0/32 [00:00<?, ?it/s]  6%|▋         | 2/32 [00:00<00:04,  6.49it/s]  9%|▉         | 3/32 [00:00<00:06,  4.55it/s] 12%|█▎        | 4/32 [00:00<00:06,  4.18it/s] 16%|█▌        | 5/32 [00:01<00:06,  3.88it/s] 19%|█▉        | 6/32 [00:01<00:06,  3.72it/s] 22%|██▏       | 7/32 [00:01<00:07,  3.55it/s] 25%|██▌       | 8/32 [00:02<00:06,  3.62it/s] 28%|██▊       | 9/32 [00:02<00:06,  3.33it/s] 31%|███▏      | 10/32 [00:02<00:06,  3.23it/s] 34%|███▍      | 11/32 [00:03<00:06,  3.29it/s] 38%|███▊      | 12/32 [00:03<00:06,  3.31it/s] 41%|████      | 13/32 [00:03<00:05,  3.43it/s] 44%|████▍     | 14/32 [00:03<00:05,  3.31it/s] 47%|████▋     | 15/32 [00:04<00:05,  3.15it/s] 50%|█████     | 16/32 [00:04<00:05,  3.12it/s] 53%|█████▎    | 17/32 [00:04<00:04,  3.34it/s] 56%|█████▋    | 18/32 [00:05<00:04,  3.44it/s] 59%|█████▉    | 19/32 [00:05<00:03,  3.43it/s] 62%|██████▎   | 20/32 [00:05<00:03,  3.37it/s] 66%|██████▌   | 21/32 [00:05<00:03,  3.57it/s] 69%|██████▉   | 22/32 [00:06<00:02,  3.61it/s] 72%|███████▏  | 23/32 [00:06<00:02,  3.79it/s] 75%|███████▌  | 24/32 [00:06<00:02,  3.89it/s] 78%|███████▊  | 25/32 [00:06<00:01,  3.98it/s] 81%|████████▏ | 26/32 [00:07<00:01,  3.71it/s] 84%|████████▍ | 27/32 [00:07<00:01,  3.82it/s] 88%|████████▊ | 28/32 [00:07<00:01,  3.78it/s] 91%|█████████ | 29/32 [00:08<00:00,  3.77it/s] 94%|█████████▍| 30/32 [00:08<00:00,  3.73it/s] 97%|█████████▋| 31/32 [00:08<00:00,  3.64it/s]100%|██████████| 32/32 [00:08<00:00,  4.36it/s]100%|██████████| 32/32 [00:08<00:00,  3.59it/s]
+***** predict metrics *****
+  predict_exact_match            =       47.2
+  predict_exact_match_for_SC     =       47.2
+  predict_exact_match_for_amazon =       47.2
+  predict_gen_len                =       2.83
+  predict_global_step            =          0
+  predict_loss                   =     0.4859
+  predict_rouge1                 =       68.9
+  predict_rouge1_for_SC          =       68.9
+  predict_rouge1_for_amazon      =       68.9
+  predict_rougeL                 =       68.9
+  predict_rougeL_for_SC          =       68.9
+  predict_rougeL_for_amazon      =       68.9
+  predict_runtime                = 0:00:09.40
+  predict_samples                =        500
+  predict_samples_per_second     =     53.158
+  predict_steps_per_second       =      3.402
+
+EXIT_CODE=0
