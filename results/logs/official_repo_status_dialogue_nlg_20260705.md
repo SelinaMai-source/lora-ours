@@ -98,6 +98,12 @@
   - Result: passed; model initialized, Lightning train/val step ran on GPU, checkpoint was written and reloaded, final model/tokenizer save completed, bounded final generation wrote `FINAL/generated_responses.json`.
   - Official scorer path: `scorer.py --task_type NLG` ran on a clean smoke root and returned `VANILLA BLEU=0, EER=1` for the one-sample tiny-model smoke.
   - Trace: `results/logs/official_todcl_method_smoke_bounded_vanilla_nlg_sgd_debug_20260705.md`.
+- Bounded strong-base smoke:
+  - Published-base decision: `ADAPTER` is the best non-MULTI modularized NLG BLEU row (`21.7719`); `REPLAY` is the best non-MULTI modularized NLG EER row (`0.0559855`).
+  - ADAPTER bounded NLG smoke passed with `GPT2Adapter`, one selected SGD debug task, checkpoint reload/save, bounded generation, and scorer entry.
+  - REPLAY bounded NLG smoke passed with two selected SGD debug tasks and `Memory Size 1` on the second task, exercising replay memory.
+  - Tiny smoke scorer outputs were `ADAPTER BLEU=0, EER=1` and `REPLAY BLEU=0, EER=1`; these are path checks only, not metrics.
+  - Trace: `results/logs/official_todcl_adapter_replay_anchor_plan_20260705.md`.
 - Official examples:
   - `python train.py --CL VANILLA --task_type NLG`
   - `python train.py --task_type NLG --CL REPLAY --episodic_mem_size 10`
@@ -107,10 +113,10 @@
   - REPLAY BLEU `21.4832`, EER `0.0559855`
   - ADAPTER BLEU `21.7719`, EER `0.163975`
   - MULTI BLEU `26.1462`, EER `0.0341823`
-- Status: repo downloaded; faithful legacy help smoke, SGD-only preprocess smoke, full 37-domain data-loader smoke, and bounded VANILLA/NLG method smoke pass. Paper-number reproduction is still required before ToDCL can be treated as an official reproduction anchor.
+- Status: repo downloaded; faithful legacy help smoke, SGD-only preprocess smoke, full 37-domain data-loader smoke, bounded VANILLA/NLG method smoke, and bounded ADAPTER/REPLAY NLG smokes pass. Paper-number reproduction is still required before ToDCL can be treated as an official reproduction anchor.
 
 ## Gate Decision
 
 - Dialogue ours increments may continue only on the documented ARPER SCLSTM base until ToDCL official data and smoke reproduction are completed.
 - Do not compare ARPER WOZ3 BLEU/SER and ToDCL TOD37/MultiWOZ BLEU/EER as interchangeable SOTA claims.
-- Next safe ToDCL step: run an official-scale or official-equivalent reproduction for the strongest ToDCL NLG base (`ADAPTER` or `REPLAY`) with full settings documented. Do not run Ours on ToDCL until that reproduction/anchor is available.
+- Next safe ToDCL step: run official-scale or official-equivalent ADAPTER NLG first for BLEU, then REPLAY NLG for EER, with full settings documented. Do not run Ours on ToDCL until the strongest-base reproduction/anchor is available.

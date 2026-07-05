@@ -1,0 +1,100 @@
+BOUNDED_METHOD_SMOKE_START {'CL': 'REPLAY', 'model_checkpoint': 'tiny-gpt2-local', 'train_batch_size': 1, 'valid_batch_size': 1, 'test_batch_size': 1, 'gradient_accumulation_steps': 1, 'dataset_list': 'SGD', 'max_history': 5, 'max_norm': 1.0, 'setting': 'single', 'verbose': False, 'test_every_step': False, 'length': 8, 'debug': True, 'n_epochs': 1, 'bottleneck_size': 50, 'number_of_adpt': 40, 'lr': 6.25e-05, 'percentage_LAM0L': 0.2, 'reg': 0.01, 'episodic_mem_size': 1, 'task_type': 'NLG', 'seed': 1}
+Special tokens have been added in the vocabulary, make sure the associated word embedding are fine-tuned or trained.
+  0%|          | 0/128 [00:00<?, ?it/s]  1%|          | 1/128 [00:00<00:09, 13.94it/s]
+  0%|          | 0/21 [00:00<?, ?it/s]  5%|▍         | 1/21 [00:00<00:01, 18.64it/s]
+  0%|          | 0/35 [00:00<?, ?it/s]  3%|▎         | 1/35 [00:00<00:01, 22.20it/s]
+  0%|          | 0/652 [00:00<?, ?it/s] 32%|███▏      | 207/652 [00:00<00:00, 2065.53it/s] 63%|██████▎   | 414/652 [00:00<00:00, 2016.78it/s] 95%|█████████▌| 622/652 [00:00<00:00, 2038.92it/s]100%|██████████| 652/652 [00:00<00:00, 2037.03it/s]LOAD SGD
+Domain 10
+Intent 17
+Avg. Turns 13.887218045112782
+Domain 10
+Intent 17
+Avg. Turns 13.887218045112782
+Domain 10
+Intent 17
+Avg. Turns 13.887218045112782
+Name      Trn    Val    Tst    Dom    Int      Tur
+------  -----  -----  -----  -----  -----  -------
+SGD       532     78    158     10     17  13.8872
+TOT       532     78    158     10     17  13.8872
+TOT       532     78    158     10     17  13.8872
+SINGLE DOMAIN: 10
+SINGLE DOMAIN: 10
+SINGLE DOMAIN: 10
+Tasks: ["['sgd_rentalcars']", "['sgd_media']", "['sgd_alarm']", "['sgd_hotels']", "['sgd_restaurants']", "['sgd_buses']", "['sgd_events']", "['sgd_music']", "['sgd_ridesharing']", "['sgd_flights']"]
+Num of Tasks 10
+dom                    train    dev    test
+-------------------  -------  -----  ------
+['sgd_restaurants']      922    124     262
+['sgd_media']             97     14      34
+['sgd_flights']          190     47      87
+['sgd_ridesharing']       80     14      23
+['sgd_rentalcars']       130     13      33
+['sgd_buses']            146     24      40
+['sgd_alarm']             12      4       4
+['sgd_hotels']           140     31      79
+['sgd_music']             71     11      25
+['sgd_events']           128     29      65
+BOUNDED_TASKS_SELECTED ["['sgd_alarm']", "['sgd_buses']"]
+BOUNDED_TASK_DETAIL ['sgd_alarm'] train_batches 12 val_batches 4
+BOUNDED_TASK_DETAIL ['sgd_buses'] train_batches 146 val_batches 24
+
+Global seed set to 1
+GPU available: True, used: True
+TPU available: None, using: 0 TPU cores
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name  | Type            | Params
+------------------------------------------
+0 | model | GPT2LMHeadModel | 102 K 
+------------------------------------------
+102 K     Trainable params
+0         Non-trainable params
+102 K     Total params
+0.411     Total estimated model params size (MB)
+RUNNING WITH SEED 1
+['sgd_buses']
+['sgd_alarm']
+
+Memory Size 0
+
+TASK:['sgd_buses']
+Training: 0it [00:00, ?it/s]Training:   0%|          | 0/2 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/2 [00:00<?, ?it/s] torch.Size([1, 49])
+Epoch 0:  50%|█████     | 1/2 [00:00<00:00,  3.46it/s]Epoch 0:  50%|█████     | 1/2 [00:00<00:00,  3.46it/s, loss=10.8, v_num=0]
+Validating: 0it [00:00, ?it/s][A
+Validating:   0%|          | 0/1 [00:00<?, ?it/s][Atorch.Size([1, 52])
+Epoch 0: 100%|██████████| 2/2 [00:00<00:00,  6.80it/s, loss=10.8, v_num=0]
+                                                 [AEpoch 0: 100%|██████████| 2/2 [00:00<00:00,  6.65it/s, loss=10.8, v_num=0]
+BOUNDED_CHECKPOINT_FOUND runs_NLG/SGD/REPLAY_EM_1_LAMOL_0.2_REG_0.01_PERM_1_tiny-gpt2-local/0_['sgd_buses']/lightning_logs/version_0/checkpoints/epoch=0-step=0.ckpt
+/root/autodl-tmp/conda_envs/todcl_legacy_py37/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py:52: UserWarning: The dataloader, train dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 128 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  warnings.warn(*args, **kwargs)
+/root/autodl-tmp/conda_envs/todcl_legacy_py37/lib/python3.7/site-packages/pytorch_lightning/utilities/distributed.py:52: UserWarning: The dataloader, val dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 128 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  warnings.warn(*args, **kwargs)
+GPU available: True, used: True
+TPU available: None, using: 0 TPU cores
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+  | Name  | Type            | Params
+------------------------------------------
+0 | model | GPT2LMHeadModel | 102 K 
+------------------------------------------
+102 K     Trainable params
+0         Non-trainable params
+102 K     Total params
+0.411     Total estimated model params size (MB)
+Time elapsed: 2.2892119884490967
+load from: runs_NLG/SGD/REPLAY_EM_1_LAMOL_0.2_REG_0.01_PERM_1_tiny-gpt2-local/0_['sgd_buses']/lightning_logs/version_0/checkpoints/epoch=0-step=0.ckpt
+Memory Size 1
+
+TASK:['sgd_alarm']
+Training: 0it [00:00, ?it/s]Training:   0%|          | 0/2 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/2 [00:00<?, ?it/s] torch.Size([1, 51])
+Epoch 0:  50%|█████     | 1/2 [00:00<00:00, 151.93it/s, loss=10.8, v_num=0]
+Validating: 0it [00:00, ?it/s][A
+Validating:   0%|          | 0/1 [00:00<?, ?it/s][Atorch.Size([1, 60])
+Epoch 0: 100%|██████████| 2/2 [00:00<00:00, 183.51it/s, loss=10.8, v_num=0]
+                                                 [AEpoch 0: 100%|██████████| 2/2 [00:00<00:00, 117.22it/s, loss=10.8, v_num=0]
+BOUNDED_CHECKPOINT_FOUND runs_NLG/SGD/REPLAY_EM_1_LAMOL_0.2_REG_0.01_PERM_1_tiny-gpt2-local/1_['sgd_alarm']/lightning_logs/version_0/checkpoints/epoch=0-step=0.ckpt
+Time elapsed: 0.024621963500976562
+load from: runs_NLG/SGD/REPLAY_EM_1_LAMOL_0.2_REG_0.01_PERM_1_tiny-gpt2-local/1_['sgd_alarm']/lightning_logs/version_0/checkpoints/epoch=0-step=0.ckpt
+BOUNDED_EVAL_WRITTEN runs_NLG/SGD/REPLAY_EM_1_LAMOL_0.2_REG_0.01_PERM_1_tiny-gpt2-local/FINAL/generated_responses.json rows 1
+BOUNDED_METHOD_SMOKE_DONE runs_NLG/SGD/REPLAY_EM_1_LAMOL_0.2_REG_0.01_PERM_1_tiny-gpt2-local
