@@ -1,0 +1,97 @@
+{
+  "runs": [
+    {
+      "path": "results/runs/olora_official_base_ours_overlay_replay64_sc_lexical_v72_smoke_order1_seed1/official_outputs/2-amazon/predict_eval_predictions.jsonl",
+      "total": 200,
+      "accuracy": 27.0,
+      "gold_counts": {
+        "negative": 44,
+        "neutral": 36,
+        "very positive": 30,
+        "positive": 44,
+        "very negative": 46
+      },
+      "prediction_counts": {
+        "neutral": 158,
+        "very positive": 13,
+        "positive": 16,
+        "negative": 2,
+        "very negative": 11
+      },
+      "per_label": {
+        "very negative": {
+          "total": 46,
+          "correct": 9,
+          "accuracy": 19.5652
+        },
+        "negative": {
+          "total": 44,
+          "correct": 1,
+          "accuracy": 2.2727
+        },
+        "neutral": {
+          "total": 36,
+          "correct": 31,
+          "accuracy": 86.1111
+        },
+        "positive": {
+          "total": 44,
+          "correct": 6,
+          "accuracy": 13.6364
+        },
+        "very positive": {
+          "total": 30,
+          "correct": 7,
+          "accuracy": 23.3333
+        }
+      },
+      "top_confusions": [
+        {
+          "gold": "negative",
+          "prediction": "neutral",
+          "count": 41
+        },
+        {
+          "gold": "very negative",
+          "prediction": "neutral",
+          "count": 36
+        },
+        {
+          "gold": "positive",
+          "prediction": "neutral",
+          "count": 32
+        },
+        {
+          "gold": "very positive",
+          "prediction": "neutral",
+          "count": 18
+        },
+        {
+          "gold": "positive",
+          "prediction": "very positive",
+          "count": 6
+        },
+        {
+          "gold": "neutral",
+          "prediction": "positive",
+          "count": 5
+        },
+        {
+          "gold": "very positive",
+          "prediction": "positive",
+          "count": 5
+        },
+        {
+          "gold": "negative",
+          "prediction": "very negative",
+          "count": 2
+        },
+        {
+          "gold": "very negative",
+          "prediction": "negative",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}
