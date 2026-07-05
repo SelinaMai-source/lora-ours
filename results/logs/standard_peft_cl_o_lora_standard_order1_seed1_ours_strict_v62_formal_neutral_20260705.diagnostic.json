@@ -1,0 +1,105 @@
+{
+  "updated_at": "2026-07-05T16:12:20+08:00",
+  "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705",
+  "state": "running_segment3_eval",
+  "judgement": "not_stuck_in_segment0; full core.train adapted Ours route is long because each segment trains full routed examples and evals all seen segments",
+  "not_comparable_result": true,
+  "config_evidence": {
+    "max_train_examples_per_segment": -1,
+    "max_eval_examples_per_segment": -1,
+    "epochs_per_segment": 1,
+    "batch_size": 8,
+    "gradient_accumulation_steps": 8,
+    "router_training_strategy": "learned_router"
+  },
+  "train_metrics": [
+    {
+      "time": "2026-07-05 12:07:04",
+      "routed_train_examples": 14000,
+      "batches": 1750,
+      "optimizer_steps": 219,
+      "gradient_accumulation_steps": 8,
+      "num_branches": 1,
+      "branch": "b0"
+    },
+    {
+      "time": "2026-07-05 12:39:47",
+      "routed_train_examples": 5000,
+      "batches": 625,
+      "optimizer_steps": 79,
+      "gradient_accumulation_steps": 8,
+      "num_branches": 2,
+      "branch": "b1"
+    },
+    {
+      "time": "2026-07-05 14:10:26",
+      "routed_train_examples": 10000,
+      "batches": 1250,
+      "optimizer_steps": 157,
+      "gradient_accumulation_steps": 8,
+      "num_branches": 3,
+      "branch": "b2"
+    },
+    {
+      "time": "2026-07-05 16:10:39",
+      "routed_train_examples": 4000,
+      "batches": 500,
+      "optimizer_steps": 63,
+      "gradient_accumulation_steps": 8,
+      "num_branches": 4,
+      "branch": "b3"
+    }
+  ],
+  "eval_starts": [
+    {
+      "time": "2026-07-05 12:07:04",
+      "segment_id": 0,
+      "segment_name": "dbpedia",
+      "num_seen_segments": 1,
+      "timeout_seconds": 0
+    },
+    {
+      "time": "2026-07-05 12:39:47",
+      "segment_id": 1,
+      "segment_name": "amazon",
+      "num_seen_segments": 2,
+      "timeout_seconds": 0
+    },
+    {
+      "time": "2026-07-05 14:10:26",
+      "segment_id": 2,
+      "segment_name": "yahoo",
+      "num_seen_segments": 3,
+      "timeout_seconds": 0
+    },
+    {
+      "time": "2026-07-05 16:10:39",
+      "segment_id": 3,
+      "segment_name": "agnews",
+      "num_seen_segments": 4,
+      "timeout_seconds": 0
+    }
+  ],
+  "eval_ends": [
+    {
+      "time": "2026-07-05 12:26:16",
+      "segment_id": 0,
+      "segment_name": "dbpedia",
+      "elapsed_seconds": 1151.4161801338196
+    },
+    {
+      "time": "2026-07-05 13:31:17",
+      "segment_id": 1,
+      "segment_name": "amazon",
+      "elapsed_seconds": 3090.6142387390137
+    },
+    {
+      "time": "2026-07-05 15:56:03",
+      "segment_id": 2,
+      "segment_name": "yahoo",
+      "elapsed_seconds": 6337.1121916770935
+    }
+  ],
+  "expected_remaining": "segment3/agnews eval is expected to be long; previous evals took 1151s, 3091s, and 6337s as seen segments grew from 1 to 3. Segment3 eval over 4 seen segments can plausibly take roughly 2h+ in this runner.",
+  "action": "continue_monitoring; do_not_start_O-LoRA_overlay_formal_until_GPU_is_free"
+}
