@@ -45,7 +45,7 @@ This is the only allowed workflow for CITB, Standard PEFT CL, and Dialogue NLG e
 
 - CITB: blocked for paper-comparable `500/50/100`; script-strict `500/50/50` official run exists.
 - Standard PEFT CL: O-LoRA official-equivalent anchor exists; LB-CL remains paper-only because no official/author code is found.
-- Dialogue NLG: ARPER official SCLSTM anchor exists; ToDCL repo and faithful legacy env are available, and SGD/Taskmaster/MultiWOZ source archives are downloaded and zip-validated. ToDCL is still not an official reproduction because full data layout, MultiWOZ conversion, full data-loader smoke, and method-level smoke are pending.
+- Dialogue NLG: ARPER official SCLSTM anchor exists; ToDCL repo and faithful legacy env are available, SGD/Taskmaster/MultiWOZ source archives are downloaded and laid out, MultiWOZ conversion completed, and full 37-domain data-loader smoke passes. ToDCL is still not an official reproduction because method-level smoke and paper-number reproduction are pending.
 
 ## Network And Proxy Gate
 
@@ -70,6 +70,7 @@ export ALL_PROXY=socks5://127.0.0.1:7891
   - GitHub unauthenticated API repository search is reachable but rate-limited (`403`), so do not treat API search failure as proof that code does not exist.
   - ToDCL upstream data repos are reachable by `git ls-remote`.
   - ToDCL SGD, Taskmaster, and MultiWOZ source archives were downloaded to `/root/autodl-tmp/todcl_official_data_20260705/archives` and passed Python `zipfile.testzip()` validation.
+  - ToDCL full data layout and full 37-domain data-loader smoke now pass under `/root/autodl-tmp/conda_envs/todcl_legacy_py37`.
   - Large official data files must continue to live under `/root/autodl-tmp`, not `/root`.
 
 ## Launch Rule

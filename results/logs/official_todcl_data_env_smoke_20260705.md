@@ -32,7 +32,24 @@ Scope: official reproducibility gate only. No Ours candidate and no GPU training
   - validation: Python `zipfile.testzip()` passed
   - entries: `70`
 
-Taskmaster and MultiWOZ source archives are now downloaded and zip-validated. Remaining data work is controlled extraction/layout into ToDCL's expected `data/` paths, MultiWOZ 2.1 unzip plus 2.2 conversion, and a full ToDCL data-loader smoke.
+Taskmaster and MultiWOZ source archives are now downloaded and zip-validated.
+
+## Controlled Extraction And Layout
+
+- Taskmaster extracted to `/root/autodl-tmp/todcl_official_data_20260705/Taskmaster`.
+  - extracted size: `978M`
+  - ToDCL expected path linked at `data/Taskmaster`
+- MultiWOZ extracted to `/root/autodl-tmp/todcl_official_data_20260705/multiwoz`.
+  - extracted size: `311M` before generated conversion output
+  - ToDCL expected path linked at `data/multiwoz`
+- Archives are preserved under `/root/autodl-tmp/todcl_official_data_20260705/archives`.
+- MultiWOZ official conversion:
+  - extracted `MultiWOZ_2.1.zip` to `data/multiwoz/data/MultiWOZ_2.1`
+  - ran `data/multiwoz/data/MultiWOZ_2.2/convert_to_multiwoz_format.py`
+  - output: `data/multiwoz/data/MultiWOZ_2.2/data.json`
+  - output size: `263592313` bytes
+  - converted dialogues: `10437`
+  - conversion note: official script logged that `SNG01862.json` does not exist in MultiWOZ 2.2, then completed.
 
 ## System Disk Cleanup
 
@@ -87,5 +104,31 @@ Result:
 
 Gate status:
 
-- ToDCL is upgraded from entrypoint-only smoke to `partial_data_smoke`.
-- This is not a full ToDCL data-loader or method reproduction because Taskmaster and MultiWOZ are missing.
+- ToDCL was previously upgraded from entrypoint-only smoke to `partial_data_smoke`.
+
+## Full Data-Loader Smoke
+
+Scope: no training, no Ours candidate. This only validates that the official ToDCL preprocessing path can read the full 37-domain data under the faithful legacy environment.
+
+Command shape:
+
+```python
+from utils.preprocess import get_datasets
+out = get_datasets(dataset_list=['TM19', 'TM20', 'MWOZ', 'SGD'], setting='single', verbose=False, develop=False)
+```
+
+Result:
+
+- smoke summary: `results/logs/official_todcl_full_dataloader_smoke_20260705.md`
+- train/dev/test totals after service filtering: `31425/4035/4742`
+- BYDOMAIN counts: train `37`, dev `37`, test `37`
+- aggregate train domains/intents: `37` domains, `79` intents
+- dataset contributions after filtering:
+  - train: MWOZ `7905`, SGD `5278`, TMA `4403`, TMB `13839`
+  - dev: MWOZ `1000`, SGD `753`, TMA `551`, TMB `1731`
+  - test: MWOZ `1000`, SGD `1455`, TMA `553`, TMB `1734`
+
+Gate status:
+
+- ToDCL is upgraded to `full_data_loader_smoke_passed`.
+- This is still not an official method reproduction: method-level training/eval smoke and paper-number reproduction are pending.
