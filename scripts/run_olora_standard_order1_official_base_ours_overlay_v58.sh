@@ -34,6 +34,7 @@ AMAZON_REPLAY_MULTIPLIER="${AMAZON_REPLAY_MULTIPLIER:-1}"
 SC_LABEL_CALIBRATION="${SC_LABEL_CALIBRATION:-0}"
 SC_BALANCED_REPLAY="${SC_BALANCED_REPLAY:-0}"
 SC_LEXICAL_REPAIR="${SC_LEXICAL_REPAIR:-0}"
+SC_CLASS_COVERAGE_ORDER="${SC_CLASS_COVERAGE_ORDER:-0}"
 TRAIN_HELDOUT_GATE="${TRAIN_HELDOUT_GATE:-0}"
 TRAIN_HELDOUT_OFFSET="${TRAIN_HELDOUT_OFFSET:-4500}"
 TRAIN_HELDOUT_LIMIT="${TRAIN_HELDOUT_LIMIT:-500}"
@@ -60,7 +61,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" "$SC_CLASS_COVERAGE_ORDER" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -90,6 +91,7 @@ from pathlib import Path
     amazon_learning_rate,
     stop_after_round,
     do_predict,
+    sc_class_coverage_order,
 ) = sys.argv[1:]
 
 limits = []
@@ -114,6 +116,7 @@ lines = [
     f"- replay_per_prior_task: {replay_per_task}",
     f"- sc_balanced_replay: {sc_balanced_replay}",
     f"- sc_lexical_repair: {sc_lexical_repair}",
+    f"- sc_class_coverage_order: {sc_class_coverage_order}",
     f"- train_heldout_gate: {train_heldout_gate}",
     f"- train_heldout_slice: amazon/train[{train_heldout_offset}:{int(train_heldout_offset) + int(train_heldout_limit)}]",
     f"- label: {run_label}",
@@ -139,7 +142,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" "$SC_CLASS_COVERAGE_ORDER" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -177,6 +180,7 @@ from pathlib import Path
     amazon_learning_rate,
     stop_after_round,
     do_predict,
+    sc_class_coverage_order,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -196,6 +200,7 @@ manifest = {
         "sc_label_calibration": sc_label_calibration == "1",
         "sc_balanced_replay": sc_balanced_replay == "1",
         "sc_lexical_repair": sc_lexical_repair == "1",
+        "sc_class_coverage_order": sc_class_coverage_order == "1",
         "train_heldout_gate": {
             "enabled": train_heldout_gate == "1",
             "source": "amazon/train.json",
@@ -377,6 +382,74 @@ new = """        if dataset_name == 'amazon' and subset == 'train' and sampling_
             instances = self._balanced_label_sample(instances, max_num_instances)
         else:
             instances = self._sampling_dataset(instances, sampling_strategy, max_num_instances)
+
+        for idx, instance in enumerate(instances):
+"""
+if old not in text:
+    raise SystemExit(f"expected SC sampling call not found in {path}")
+path.write_text(text.replace(old, new, 1), encoding="utf-8")
+PY
+  fi
+  if [[ "$SC_CLASS_COVERAGE_ORDER" == "1" ]]; then
+    python - "$RUNTIME_ROOT/src/uie_dataset_lora.py" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+old = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_instances):
+        if sampling_strategy == 'random' and max_num_instances is not None and max_num_instances >= 0:
+            instances = instances[:max_num_instances]
+        if max_num_instances!=None and self.config.over_sampling and len(instances) < max_num_instances:
+            origin_instances = instances.copy()
+            while len(instances) < max_num_instances:
+                instances.append(random.choice(origin_instances))
+
+        return instances
+"""
+new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_instances):
+        if sampling_strategy == 'random' and max_num_instances is not None and max_num_instances >= 0:
+            instances = instances[:max_num_instances]
+        if max_num_instances!=None and self.config.over_sampling and len(instances) < max_num_instances:
+            origin_instances = instances.copy()
+            while len(instances) < max_num_instances:
+                instances.append(random.choice(origin_instances))
+
+        return instances
+
+    def _class_coverage_order(self, instances):
+        buckets = {}
+        for instance in instances:
+            buckets.setdefault(instance.get('label', ''), []).append(instance)
+        if len(buckets) <= 1:
+            return instances
+        labels = sorted(buckets)
+        ordered = []
+        offset = 0
+        while len(ordered) < len(instances):
+            made_progress = False
+            for label in labels:
+                bucket = buckets[label]
+                if offset < len(bucket):
+                    ordered.append(bucket[offset])
+                    made_progress = True
+            if not made_progress:
+                break
+            offset += 1
+        return ordered
+"""
+if old not in text:
+    raise SystemExit(f"expected sampling helper not found in {path}")
+text = text.replace(old, new, 1)
+old = """        labels_str = ', '.join(labels)
+        instances = self._sampling_dataset(instances, sampling_strategy, max_num_instances)
+
+        for idx, instance in enumerate(instances):
+"""
+new = """        labels_str = ', '.join(labels)
+        if dataset_name == 'amazon' and subset == 'train' and sampling_strategy == 'full':
+            instances = self._class_coverage_order(instances)
+        instances = self._sampling_dataset(instances, sampling_strategy, max_num_instances)
 
         for idx, instance in enumerate(instances):
 """

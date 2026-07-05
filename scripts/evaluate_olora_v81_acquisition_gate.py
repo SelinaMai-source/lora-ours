@@ -31,6 +31,7 @@ def load_runs(confusion_paths: list[Path]) -> list[dict[str, Any]]:
 def infer_name(path: str) -> str:
     explicit_names = {
         "olora_v82_low_lr_round2_trainheldout_diag": "v82_r2",
+        "olora_v83_classcov_round2_trainheldout_diag": "v83_r2",
     }
     for marker, name in explicit_names.items():
         if marker in path:

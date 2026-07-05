@@ -1,0 +1,27 @@
+# olora_official_base_ours_overlay_replay64_classcov_v83_round2_diag_order1_seed1
+
+- updated: 2026-07-05T21:07:55
+- state: stopped
+- reason: stop_after_round=2
+- selected base: O-LoRA official T5-large Standard CL order1 seed1
+- overlay: Ours limited replay overlay on training config only
+- replay_per_prior_task: 64
+- sc_balanced_replay: 0
+- sc_lexical_repair: 0
+- sc_class_coverage_order: 1
+- train_heldout_gate: 0
+- train_heldout_slice: amazon/train[4500:5000]
+- label: v83_classcov_round2_diag
+- W&B project: lora-ours
+- W&B group: published-base-standard-olora-plus-ours-overlay-v83-classcov-round2
+- log: /root/lora-ours/results/logs/olora_official_base_ours_overlay_replay64_classcov_v83_round2_diag_order1_seed1.log
+- manifest: /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_classcov_v83_round2_diag_order1_seed1/run_manifest.json
+- overlay manifest: /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_classcov_v83_round2_diag_order1_seed1/ours_overlay_manifest.json
+- setting: dbpedia -> amazon -> yahoo -> agnews; max_steps=-1
+- gradient_accumulation_steps: 8
+- learning_rate: 1e-03
+- amazon_learning_rate: 
+- stop_after_round: 2
+- do_predict: 0
+- comparability: ours-overlay diagnostic; not an official-base result and not paper-comparable while smoke caps/single-GPU runtime are present
+- preserved: official task order, official entry/scorer, T5-large, O-LoRA adapter chain, current-round dev/test configs, cumulative test metric surface
