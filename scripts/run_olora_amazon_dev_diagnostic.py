@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Run an O-LoRA amazon/SC dev-only prediction diagnostic.
+"""Run an O-LoRA amazon/SC non-test prediction diagnostic.
 
 The official order1 dev task configs are empty, although the dataset contains
 `dev.json`. This diagnostic creates an isolated runtime under /root/autodl-tmp,
-patches only that runtime so the prediction split reads dev.json, and evaluates
-an existing adapter without training. It never reads test.json.
+patches only that runtime so the prediction split reads a requested non-test
+source split, and evaluates an existing adapter without training.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def run(command: list[str], log_file: Path) -> int:
         return proc.returncode
 
 
-def patch_runtime(runtime: Path) -> None:
+def patch_runtime(runtime: Path, source_split: str) -> None:
     path = runtime / "src/uie_dataset_lora.py"
     text = path.read_text(encoding="utf-8")
     old = '''            datasets.SplitGenerator(
@@ -55,12 +55,12 @@ def patch_runtime(runtime: Path) -> None:
                     "path": split_dir,
                     "task_config": task_configs['test'],
                     "max_num_instances_per_task": None,
-                    "subset": "dev"
+                    "subset": "SOURCE_SPLIT_PLACEHOLDER"
                 }),
 '''
     if old not in text:
         raise RuntimeError(f"expected test split block not found in {path}")
-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+    path.write_text(text.replace(old, new.replace("SOURCE_SPLIT_PLACEHOLDER", source_split), 1), encoding="utf-8")
 
 
 def write_task_config(task_config_dir: Path) -> None:
@@ -81,6 +81,7 @@ def main() -> int:
     parser.add_argument("--run-name", required=True)
     parser.add_argument("--adapter", default=str(DEFAULT_ADAPTER))
     parser.add_argument("--max-predict-samples", type=int, default=-1)
+    parser.add_argument("--source-split", choices=["dev", "train"], default="dev")
     parser.add_argument("--official-root", default=str(DEFAULT_OFFICIAL_ROOT))
     parser.add_argument("--env-prefix", default=str(DEFAULT_ENV_PREFIX))
     parser.add_argument("--base-model", default=str(DEFAULT_BASE_MODEL))
@@ -100,7 +101,7 @@ def main() -> int:
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     shutil.copytree(args.official_root, runtime)
-    patch_runtime(runtime)
+    patch_runtime(runtime, args.source_split)
     write_task_config(task_config_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -151,7 +152,8 @@ def main() -> int:
     manifest = {
         "updated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "run_name": args.run_name,
-        "purpose": "dev_only_amazon_sc_prediction_diagnostic",
+        "purpose": f"{args.source_split}_only_amazon_sc_prediction_diagnostic",
+        "source_split": args.source_split,
         "uses_test_json": False,
         "adapter": args.adapter,
         "runtime": str(runtime),
@@ -167,8 +169,8 @@ def main() -> int:
                 f"# {args.run_name}",
                 "",
                 "- state: running",
-                "- diagnostic: dev-only amazon/SC prediction",
-                "- no train; no test.json; v69 final adapter",
+                f"- diagnostic: {args.source_split}-only amazon/SC prediction",
+                "- no training in this diagnostic; no test.json; v69 final adapter",
                 f"- output_dir: `{output_dir}`",
             ]
         )
