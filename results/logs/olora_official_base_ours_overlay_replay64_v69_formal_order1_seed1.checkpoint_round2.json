@@ -1,0 +1,43 @@
+{
+  "updated_at": "2026-07-05T17:16:20+08:00",
+  "event": "v69_formal_checkpoint_after_round2",
+  "run_name": "olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1",
+  "baseline_reference": {
+    "v57_official_olora": 76.8059,
+    "lb_cl_published": 76.7
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "task": "dbpedia",
+      "predict_exact_match": 98.8026,
+      "predict_rougeL": 98.8026,
+      "train_loss": 0.12077015165000334,
+      "predict_loss": 0.024251841008663177,
+      "samples": 7600,
+      "status": "completed"
+    },
+    {
+      "round": 2,
+      "task": "amazon",
+      "predict_exact_match": 73.9211,
+      "predict_rougeL": 78.898,
+      "train_loss": 69.36635464052611,
+      "predict_loss": 0.2447003424167633,
+      "samples": 15200,
+      "status": "completed"
+    },
+    {
+      "round": 3,
+      "task": "yahoo",
+      "status": "pending_or_running"
+    },
+    {
+      "round": 4,
+      "task": "agnews",
+      "status": "pending_or_running"
+    }
+  ],
+  "decision": "continue_monitoring_not_final; round2 below target but run remains comparable/no-cap and has no runtime failure; wait for full formal before claiming or replacing",
+  "blockers": []
+}
