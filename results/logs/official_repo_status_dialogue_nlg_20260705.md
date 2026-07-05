@@ -46,7 +46,7 @@
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl`
 - Commit: `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`
 - Official archive submodule: `official_repos/dialogue/ToDCL`.
-- Dirty status: untracked local smoke stdout only: `results/logs/official_todcl_full_dataloader_smoke_20260705.log`.
+- Dirty status: untracked local smoke stdout/artifacts only, including `results/logs/official_todcl_full_dataloader_smoke_20260705.log` and bounded method smoke outputs.
 - Official data setup: `data/download.sh`.
 - Data requirements from `data/download.sh`:
   - clone `https://github.com/google-research-datasets/dstc8-schema-guided-dialogue.git`
@@ -92,6 +92,12 @@
   - Final train/dev/test totals after service filtering: `31425/4035/4742`.
   - BYDOMAIN counts: train `37`, dev `37`, test `37`.
   - Aggregate train domains/intents: `37` domains, `79` intents.
+- Bounded method-level smoke:
+  - Anchor: official README `python train.py --CL VANILLA --task_type NLG --n_epochs 1`.
+  - Bounded config: `CL=VANILLA`, `task_type=NLG`, `dataset_list=SGD`, `debug=True`, one selected continual task `['sgd_alarm']`, one train/val batch, tiny local GPT-2 checkpoint.
+  - Result: passed; model initialized, Lightning train/val step ran on GPU, checkpoint was written and reloaded, final model/tokenizer save completed, bounded final generation wrote `FINAL/generated_responses.json`.
+  - Official scorer path: `scorer.py --task_type NLG` ran on a clean smoke root and returned `VANILLA BLEU=0, EER=1` for the one-sample tiny-model smoke.
+  - Trace: `results/logs/official_todcl_method_smoke_bounded_vanilla_nlg_sgd_debug_20260705.md`.
 - Official examples:
   - `python train.py --CL VANILLA --task_type NLG`
   - `python train.py --task_type NLG --CL REPLAY --episodic_mem_size 10`
@@ -101,10 +107,10 @@
   - REPLAY BLEU `21.4832`, EER `0.0559855`
   - ADAPTER BLEU `21.7719`, EER `0.163975`
   - MULTI BLEU `26.1462`, EER `0.0341823`
-- Status: repo downloaded and clean; faithful legacy help smoke, SGD-only preprocess smoke, and full 37-domain data-loader smoke pass. Method-level training smoke and paper-number reproduction are still required before ToDCL reproduction.
+- Status: repo downloaded; faithful legacy help smoke, SGD-only preprocess smoke, full 37-domain data-loader smoke, and bounded VANILLA/NLG method smoke pass. Paper-number reproduction is still required before ToDCL can be treated as an official reproduction anchor.
 
 ## Gate Decision
 
 - Dialogue ours increments may continue only on the documented ARPER SCLSTM base until ToDCL official data and smoke reproduction are completed.
 - Do not compare ARPER WOZ3 BLEU/SER and ToDCL TOD37/MultiWOZ BLEU/EER as interchangeable SOTA claims.
-- Next safe ToDCL step: run a minimal official method-level smoke, such as a tightly bounded NLG `VANILLA` or `ADAPTER` smoke, before any full ToDCL training/reproduction. Do not run full ToDCL training until the method smoke is documented.
+- Next safe ToDCL step: run an official-scale or official-equivalent reproduction for the strongest ToDCL NLG base (`ADAPTER` or `REPLAY`) with full settings documented. Do not run Ours on ToDCL until that reproduction/anchor is available.
