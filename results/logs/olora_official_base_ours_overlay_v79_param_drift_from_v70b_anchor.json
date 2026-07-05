@@ -1,0 +1,99 @@
+{
+  "policy": {
+    "anchor": "results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/2-amazon/adapter",
+    "anchor_role": "amazon round2 adapter parameter anchor",
+    "uses_dev_or_test": false,
+    "diagnostic": "adapter_model.bin parameter-space drift vs train-heldout outcomes",
+    "candidate_regularizer": "For later rounds, penalize drift from the amazon anchor in sensitive LoRA matrices; promote only if v76 train-heldout gate exceeds the v69 baseline."
+  },
+  "candidates": [
+    {
+      "name": "v70b_r3",
+      "adapter_dir": "results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/3-yahoo/adapter",
+      "heldout_em": 51.4,
+      "heldout_rougeL": 70.3,
+      "param_drift": {
+        "overall": {
+          "l2": 0.0,
+          "relative_l2": 0.0,
+          "cosine": 1.0,
+          "new_rank_l2": 23.57596258431295,
+          "new_rank_energy_ratio": 0.2936648168765111,
+          "params": 4718592,
+          "new_params": 2359296,
+          "keys": 288
+        },
+        "groups": {
+          "lora_A": {
+            "l2": 0.0,
+            "relative_l2": 0.0,
+            "cosine": 1.0,
+            "new_rank_l2": 19.48959981678752,
+            "new_rank_energy_ratio": 0.27201154776581354,
+            "params": 2359296,
+            "new_params": 1179648,
+            "keys": 144
+          },
+          "lora_B": {
+            "l2": 0.0,
+            "relative_l2": 0.0,
+            "cosine": 1.0,
+            "new_rank_l2": 13.265802303607572,
+            "new_rank_energy_ratio": 0.3545907748043821,
+            "params": 2359296,
+            "new_params": 1179648,
+            "keys": 144
+          }
+        }
+      },
+      "gate_signal": {
+        "exceeds_v69_heldout_baseline": false,
+        "baseline_heldout_em": 55.2
+      }
+    },
+    {
+      "name": "v70b_r4",
+      "adapter_dir": "results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/4-agnews/adapter",
+      "heldout_em": 47.2,
+      "heldout_rougeL": 68.9,
+      "param_drift": {
+        "overall": {
+          "l2": 0.0,
+          "relative_l2": 0.0,
+          "cosine": 1.0,
+          "new_rank_l2": 31.315547895664924,
+          "new_rank_energy_ratio": 0.42314482484005644,
+          "params": 4718592,
+          "new_params": 4718592,
+          "keys": 288
+        },
+        "groups": {
+          "lora_A": {
+            "l2": 0.0,
+            "relative_l2": 0.0,
+            "cosine": 1.0,
+            "new_rank_l2": 27.521858969170797,
+            "new_rank_energy_ratio": 0.42696579487656544,
+            "params": 2359296,
+            "new_params": 2359296,
+            "keys": 144
+          },
+          "lora_B": {
+            "l2": 0.0,
+            "relative_l2": 0.0,
+            "cosine": 1.0,
+            "new_rank_l2": 14.940241593988931,
+            "new_rank_energy_ratio": 0.4106733627307479,
+            "params": 2359296,
+            "new_params": 2359296,
+            "keys": 144
+          }
+        }
+      },
+      "gate_signal": {
+        "exceeds_v69_heldout_baseline": false,
+        "baseline_heldout_em": 55.2
+      }
+    }
+  ]
+}
