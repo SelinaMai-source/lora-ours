@@ -1,0 +1,24 @@
+{
+  "updated_at": "2026-07-05T16:53:13+08:00",
+  "event": "overlay_formal_launch_verified",
+  "run_name": "olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1",
+  "tmux_session": "standard-olora-replay-overlay-v69-formal",
+  "base": "O-LoRA official T5-large Standard CL order1 seed1",
+  "overlay": "ours limited prior-task replay overlay on official train config only",
+  "setting": "formal_no_smoke_caps; task order dbpedia->amazon->yahoo->agnews; seed=1; replay_per_prior_task=64",
+  "wandb_project": "lora-ours",
+  "wandb_group": "published-base-standard-olora-plus-ours-overlay-v69-formal",
+  "sentinel_monitor": "/root/lora-ours/results/logs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1.monitor.jsonl",
+  "verified": {
+    "uses_v69_run_path": true,
+    "no_max_steps_arg_observed_in_train_cmd": true,
+    "no_max_predict_samples_arg_observed_in_train_cmd": true,
+    "round1_started": true,
+    "training_steps_visible": true
+  },
+  "notes": "Actual active run_uie_lora.py train command is under the v69 run directory and does not include smoke caps. This remains an ours-overlay result, not a replacement for the official O-LoRA baseline.",
+  "train_commands": [
+    "811092 /root/miniconda3/bin/python /root/miniconda3/bin/conda run -p /root/autodl-tmp/conda_envs/lora_v10_o_lora --no-capture-output python /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/src/run_uie_lora.py --do_train --do_predict --predict_with_generate --model_name_or_path /root/autodl-tmp/model_cache/hf_snapshots/t5-large --data_dir /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/CL_Benchmark --task_config_dir /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/overlay_order1_configs/dbpedia --instruction_file /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/configs/instruction_config.json --instruction_strategy single --output_dir /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_outputs/1-dbpedia --per_device_train_batch_size 8 --per_device_eval_batch_size 16 --gradient_accumulation_steps 8 --learning_rate 1e-03 --num_train_epochs 1 --run_name olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1_round1_dbpedia --max_source_length 512 --max_target_length 50 --generation_max_length 50 --max_num_instances_per_task 64 --add_task_name True --add_dataset_name True --overwrite_output_dir --overwrite_cache --lr_scheduler_type constant --warmup_steps 0 --logging_strategy steps --logging_steps 1 --evaluation_strategy no --save_strategy no --lamda_1 0.5 --lamda_2 0 --lora_dim 8 --seed 1 --report_to wandb",
+    "811101 python /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/src/run_uie_lora.py --do_train --do_predict --predict_with_generate --model_name_or_path /root/autodl-tmp/model_cache/hf_snapshots/t5-large --data_dir /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/CL_Benchmark --task_config_dir /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/overlay_order1_configs/dbpedia --instruction_file /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_runtime/configs/instruction_config.json --instruction_strategy single --output_dir /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_outputs/1-dbpedia --per_device_train_batch_size 8 --per_device_eval_batch_size 16 --gradient_accumulation_steps 8 --learning_rate 1e-03 --num_train_epochs 1 --run_name olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1_round1_dbpedia --max_source_length 512 --max_target_length 50 --generation_max_length 50 --max_num_instances_per_task 64 --add_task_name True --add_dataset_name True --overwrite_output_dir --overwrite_cache --lr_scheduler_type constant --warmup_steps 0 --logging_strategy steps --logging_steps 1 --evaluation_strategy no --save_strategy no --lamda_1 0.5 --lamda_2 0 --lora_dim 8 --seed 1 --report_to wandb"
+  ]
+}
