@@ -25,6 +25,10 @@ PER_DEVICE_TRAIN_BATCH_SIZE="${PER_DEVICE_TRAIN_BATCH_SIZE:-8}"
 PER_DEVICE_EVAL_BATCH_SIZE="${PER_DEVICE_EVAL_BATCH_SIZE:-16}"
 GRADIENT_ACCUMULATION_STEPS="${GRADIENT_ACCUMULATION_STEPS:-8}"
 LORA_DIM="${LORA_DIM:-8}"
+LEARNING_RATE="${LEARNING_RATE:-1e-03}"
+AMAZON_LEARNING_RATE="${AMAZON_LEARNING_RATE:-}"
+STOP_AFTER_ROUND="${STOP_AFTER_ROUND:-0}"
+DO_PREDICT="${DO_PREDICT:-1}"
 REPLAY_PER_TASK="${REPLAY_PER_TASK:-64}"
 AMAZON_REPLAY_MULTIPLIER="${AMAZON_REPLAY_MULTIPLIER:-1}"
 SC_LABEL_CALIBRATION="${SC_LABEL_CALIBRATION:-0}"
@@ -56,7 +60,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -82,6 +86,10 @@ from pathlib import Path
     train_heldout_gate,
     train_heldout_offset,
     train_heldout_limit,
+    learning_rate,
+    amazon_learning_rate,
+    stop_after_round,
+    do_predict,
 ) = sys.argv[1:]
 
 limits = []
@@ -116,6 +124,10 @@ lines = [
     f"- overlay manifest: {overlay_manifest}",
     f"- setting: {setting}",
     f"- gradient_accumulation_steps: {gradient_accumulation_steps}",
+    f"- learning_rate: {learning_rate}",
+    f"- amazon_learning_rate: {amazon_learning_rate}",
+    f"- stop_after_round: {stop_after_round}",
+    f"- do_predict: {do_predict}",
     "- comparability: ours-overlay diagnostic; not an official-base result and not paper-comparable while smoke caps/single-GPU runtime are present",
     "- preserved: official task order, official entry/scorer, T5-large, O-LoRA adapter chain, current-round dev/test configs, cumulative test metric surface",
     "",
@@ -127,7 +139,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" "$SC_LEXICAL_REPAIR" "$TRAIN_HELDOUT_GATE" "$TRAIN_HELDOUT_OFFSET" "$TRAIN_HELDOUT_LIMIT" "$TRAIN_HELDOUT_DROP_TOLERANCE" "$TRAIN_HELDOUT_FINAL_BASELINE_EM" "$LEARNING_RATE" "$AMAZON_LEARNING_RATE" "$STOP_AFTER_ROUND" "$DO_PREDICT" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -161,6 +173,10 @@ from pathlib import Path
     train_heldout_limit,
     train_heldout_drop_tolerance,
     train_heldout_final_baseline_em,
+    learning_rate,
+    amazon_learning_rate,
+    stop_after_round,
+    do_predict,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -211,6 +227,12 @@ manifest = {
         "lamda_1": "0.5",
         "lamda_2": "0",
         "lora_dim": "8",
+        "learning_rate": learning_rate,
+        "amazon_learning_rate": amazon_learning_rate,
+    },
+    "diagnostic_controls": {
+        "stop_after_round": maybe_int(stop_after_round),
+        "do_predict": do_predict == "1",
     },
     "smoke_limits": {
         "max_steps": maybe_int(max_steps),
@@ -526,7 +548,12 @@ run_round() {
   local output_dir="${OUTPUT_ROOT}/${index}-${task}"
   local round_name="${RUN_NAME}_round${index}_${task}"
   local task_config_dir="${OVERLAY_CONFIG_ROOT}/${task}"
+  local round_learning_rate="$LEARNING_RATE"
+  if [[ "$task" == "amazon" && -n "$AMAZON_LEARNING_RATE" ]]; then
+    round_learning_rate="$AMAZON_LEARNING_RATE"
+  fi
   local limit_args=()
+  local predict_args=()
   if [[ -n "${MAX_STEPS}" && "${MAX_STEPS}" != "-1" ]]; then
     limit_args+=(--max_steps "${MAX_STEPS}")
   fi
@@ -535,6 +562,9 @@ run_round() {
   fi
   if [[ -n "${MAX_PREDICT_SAMPLES}" ]]; then
     limit_args+=(--max_predict_samples "${MAX_PREDICT_SAMPLES}")
+  fi
+  if [[ "$DO_PREDICT" == "1" ]]; then
+    predict_args+=(--do_predict --predict_with_generate)
   fi
 
   set +e
@@ -546,8 +576,7 @@ run_round() {
   WANDB_NAME="$round_name" \
   conda run -p "$ENV_PREFIX" --no-capture-output python "$RUNTIME_ROOT/src/run_uie_lora.py" \
     --do_train \
-    --do_predict \
-    --predict_with_generate \
+    "${predict_args[@]}" \
     --model_name_or_path "$model_path" \
     --data_dir "$RUNTIME_ROOT/CL_Benchmark" \
     --task_config_dir "$task_config_dir" \
@@ -557,7 +586,7 @@ run_round() {
     --per_device_train_batch_size "$PER_DEVICE_TRAIN_BATCH_SIZE" \
     --per_device_eval_batch_size "$PER_DEVICE_EVAL_BATCH_SIZE" \
     --gradient_accumulation_steps "$GRADIENT_ACCUMULATION_STEPS" \
-    --learning_rate 1e-03 \
+    --learning_rate "$round_learning_rate" \
     --num_train_epochs 1 \
     --run_name "$round_name" \
     --max_source_length 512 \
@@ -746,6 +775,12 @@ main() {
     model_path="${OUTPUT_ROOT}/${idx}-${task}/adapter"
     if ! run_train_heldout_gate "$idx" "$task" "$model_path"; then
       echo "[heldout-gate] rejected ${RUN_NAME}; stopping before promotion"
+      return 0
+    fi
+    if [[ "$STOP_AFTER_ROUND" != "0" && "$idx" -ge "$STOP_AFTER_ROUND" ]]; then
+      echo "[stop-after-round] stopping after round ${idx}"
+      write_manifest "stopped" "stop_after_round=${STOP_AFTER_ROUND}"
+      write_status "stopped" "stop_after_round=${STOP_AFTER_ROUND}"
       return 0
     fi
     idx=$((idx + 1))

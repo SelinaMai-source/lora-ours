@@ -1,0 +1,231 @@
+[run] olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1
+[base] O-LoRA official T5-large Standard CL order1 seed1
+[overlay] Ours limited replay, replay_per_task=64
+[wandb] project=lora-ours group=published-base-standard-olora-plus-ours-overlay-v82-low-lr-round2
+[round] 1 dbpedia model=/root/autodl-tmp/model_cache/hf_snapshots/t5-large
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/deepspeed/runtime/zero/linear.py:53: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  def forward(ctx, input, weight, bias=None):
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/deepspeed/runtime/zero/linear.py:79: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  def backward(ctx, grad_output):
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/accelerate/utils/torch_xla.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/fairscale/experimental/nn/offload.py:19: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  return torch.cuda.amp.custom_fwd(orig_func)  # type: ignore
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/fairscale/experimental/nn/offload.py:30: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  return torch.cuda.amp.custom_bwd(orig_func)  # type: ignore
+07/05/2026 20:39:36 - WARNING - __main__ - Process rank: -1, device: cuda:0, n_gpu: 1distributed training: False, 16-bits training: False
+07/05/2026 20:39:36 - WARNING - datasets.builder - Using custom data configuration default-7322b48278d99266
+Downloading and preparing dataset uie_instructions/default to /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1/official_outputs/1-dbpedia/f80a71ca52f29fdba450c80329077b43/uie_instructions/default-7322b48278d99266/2.0.0/c490e7f13dec80785fc335819009163a45c86ae2816040c8d81800108e7e4374...
+0 examples [00:00, ? examples/s]1 examples [00:00,  6.33 examples/s]4008 examples [00:00, 19035.99 examples/s]8053 examples [00:00, 27691.24 examples/s]11181 examples [00:00, 28632.05 examples/s]                                           0 examples [00:00, ? examples/s]                                0 examples [00:00, ? examples/s]3654 examples [00:00, 36536.81 examples/s]                                          Dataset uie_instructions downloaded and prepared to /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1/official_outputs/1-dbpedia/f80a71ca52f29fdba450c80329077b43/uie_instructions/default-7322b48278d99266/2.0.0/c490e7f13dec80785fc335819009163a45c86ae2816040c8d81800108e7e4374. Subsequent calls will reuse this data.
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 1050.85it/s]
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/torch/nn/init.py:582: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/transformers/optimization.py:391: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  warnings.warn(
+wandb: Currently logged in as: sheungyingmai-the-university-of-hong-kong (use `wandb login --relogin` to force relogin)
+-----Gradient checkpointing: False -----
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version  # type: ignore
+wandb: wandb version 0.28.0 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.12.10
+wandb: Syncing run olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1_round1_dbpedia
+wandb: ⭐️ View project at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours
+wandb: 🚀 View run at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/k914y9rn
+wandb: Run data is saved locally in /root/lora-ours/wandb/run-20260705_203948-k914y9rn
+wandb: Run `wandb offline` to turn off syncing.
+
+  0%|                                                    | 0/40 [00:00<?, ?it/s]/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:3596: UserWarning: `as_target_tokenizer` is deprecated and will be removed in v5 of Transformers. You can tokenize your labels by using the argument `text_target` of the regular `__call__` method (either in the same call as your input texts if you use the same keyword arguments, or in a separate call.
+  warnings.warn(
+  2%|█                                           | 1/40 [00:03<02:04,  3.19s/it]                                                                                  2%|█                                           | 1/40 [00:03<02:04,  3.19s/it]  5%|██▏                                         | 2/40 [00:06<01:53,  3.00s/it]                                                                                  5%|██▏                                         | 2/40 [00:06<01:53,  3.00s/it]  8%|███▎                                        | 3/40 [00:08<01:48,  2.93s/it]                                                                                  8%|███▎                                        | 3/40 [00:08<01:48,  2.93s/it] 10%|████▍                                       | 4/40 [00:11<01:44,  2.90s/it]                                                                                 10%|████▍                                       | 4/40 [00:11<01:44,  2.90s/it] 12%|█████▌                                      | 5/40 [00:14<01:41,  2.89s/it]                                                                                 12%|█████▌                                      | 5/40 [00:14<01:41,  2.89s/it] 15%|██████▌                                     | 6/40 [00:17<01:38,  2.90s/it]                                                                                 15%|██████▌                                     | 6/40 [00:17<01:38,  2.90s/it] 18%|███████▋                                    | 7/40 [00:20<01:35,  2.91s/it]                                                                                 18%|███████▋                                    | 7/40 [00:20<01:35,  2.91s/it] 20%|████████▊                                   | 8/40 [00:23<01:32,  2.89s/it]                                                                                 20%|████████▊                                   | 8/40 [00:23<01:32,  2.89s/it] 22%|█████████▉                                  | 9/40 [00:26<01:29,  2.88s/it]                                                                                 22%|█████████▉                                  | 9/40 [00:26<01:29,  2.88s/it] 25%|██████████▊                                | 10/40 [00:29<01:26,  2.87s/it]                                                                                 25%|██████████▊                                | 10/40 [00:29<01:26,  2.87s/it] 28%|███████████▊                               | 11/40 [00:31<01:23,  2.88s/it]                                                                                 28%|███████████▊                               | 11/40 [00:31<01:23,  2.88s/it] 30%|████████████▉                              | 12/40 [00:34<01:20,  2.88s/it]                                                                                 30%|████████████▉                              | 12/40 [00:34<01:20,  2.88s/it] 32%|█████████████▉                             | 13/40 [00:37<01:18,  2.89s/it]                                                                                 32%|█████████████▉                             | 13/40 [00:37<01:18,  2.89s/it] 35%|███████████████                            | 14/40 [00:40<01:15,  2.89s/it]                                                                                 35%|███████████████                            | 14/40 [00:40<01:15,  2.89s/it] 38%|████████████████▏                          | 15/40 [00:43<01:12,  2.89s/it]                                                                                 38%|████████████████▏                          | 15/40 [00:43<01:12,  2.89s/it] 40%|█████████████████▏                         | 16/40 [00:46<01:09,  2.91s/it]                                                                                 40%|█████████████████▏                         | 16/40 [00:46<01:09,  2.91s/it] 42%|██████████████████▎                        | 17/40 [00:49<01:07,  2.93s/it]                                                                                 42%|██████████████████▎                        | 17/40 [00:49<01:07,  2.93s/it] 45%|███████████████████▎                       | 18/40 [00:52<01:04,  2.92s/it]                                                                                 45%|███████████████████▎                       | 18/40 [00:52<01:04,  2.92s/it] 48%|████████████████████▍                      | 19/40 [00:55<01:01,  2.92s/it]                                                                                 48%|████████████████████▍                      | 19/40 [00:55<01:01,  2.92s/it] 50%|█████████████████████▌                     | 20/40 [00:58<00:58,  2.92s/it]                                                                                 50%|█████████████████████▌                     | 20/40 [00:58<00:58,  2.92s/it] 52%|██████████████████████▌                    | 21/40 [01:01<00:55,  2.91s/it]                                                                                 52%|██████████████████████▌                    | 21/40 [01:01<00:55,  2.91s/it] 55%|███████████████████████▋                   | 22/40 [01:03<00:52,  2.91s/it]                                                                                 55%|███████████████████████▋                   | 22/40 [01:03<00:52,  2.91s/it] 57%|████████████████████████▋                  | 23/40 [01:06<00:49,  2.92s/it]                                                                                 57%|████████████████████████▋                  | 23/40 [01:06<00:49,  2.92s/it] 60%|█████████████████████████▊                 | 24/40 [01:09<00:46,  2.93s/it]                                                                                 60%|█████████████████████████▊                 | 24/40 [01:09<00:46,  2.93s/it] 62%|██████████████████████████▉                | 25/40 [01:12<00:43,  2.92s/it]                                                                                 62%|██████████████████████████▉                | 25/40 [01:12<00:43,  2.92s/it] 65%|███████████████████████████▉               | 26/40 [01:15<00:40,  2.92s/it]                                                                                 65%|███████████████████████████▉               | 26/40 [01:15<00:40,  2.92s/it] 68%|█████████████████████████████              | 27/40 [01:18<00:37,  2.90s/it]                                                                                 68%|█████████████████████████████              | 27/40 [01:18<00:37,  2.90s/it] 70%|██████████████████████████████             | 28/40 [01:21<00:34,  2.89s/it]                                                                                 70%|██████████████████████████████             | 28/40 [01:21<00:34,  2.89s/it] 72%|███████████████████████████████▏           | 29/40 [01:24<00:31,  2.89s/it]                                                                                 72%|███████████████████████████████▏           | 29/40 [01:24<00:31,  2.89s/it] 75%|████████████████████████████████▎          | 30/40 [01:27<00:28,  2.89s/it]                                                                                 75%|████████████████████████████████▎          | 30/40 [01:27<00:28,  2.89s/it] 78%|█████████████████████████████████▎         | 31/40 [01:30<00:25,  2.88s/it]                                                                                 78%|█████████████████████████████████▎         | 31/40 [01:30<00:25,  2.88s/it] 80%|██████████████████████████████████▍        | 32/40 [01:32<00:23,  2.89s/it]                                                                                 80%|██████████████████████████████████▍        | 32/40 [01:32<00:23,  2.89s/it] 82%|███████████████████████████████████▍       | 33/40 [01:35<00:20,  2.89s/it]                                                                                 82%|███████████████████████████████████▍       | 33/40 [01:35<00:20,  2.89s/it] 85%|████████████████████████████████████▌      | 34/40 [01:38<00:17,  2.89s/it]                                                                                 85%|████████████████████████████████████▌      | 34/40 [01:38<00:17,  2.89s/it] 88%|█████████████████████████████████████▋     | 35/40 [01:41<00:14,  2.90s/it]                                                                                 88%|█████████████████████████████████████▋     | 35/40 [01:41<00:14,  2.90s/it] 90%|██████████████████████████████████████▋    | 36/40 [01:44<00:11,  2.89s/it]                                                                                 90%|██████████████████████████████████████▋    | 36/40 [01:44<00:11,  2.89s/it] 92%|███████████████████████████████████████▊   | 37/40 [01:47<00:08,  2.89s/it]                                                                                 92%|███████████████████████████████████████▊   | 37/40 [01:47<00:08,  2.89s/it] 95%|████████████████████████████████████████▊  | 38/40 [01:50<00:05,  2.88s/it]                                                                                 95%|████████████████████████████████████████▊  | 38/40 [01:50<00:05,  2.88s/it] 98%|█████████████████████████████████████████▉ | 39/40 [01:53<00:02,  2.88s/it]                                                                                 98%|█████████████████████████████████████████▉ | 39/40 [01:53<00:02,  2.88s/it]100%|███████████████████████████████████████████| 40/40 [01:56<00:00,  2.89s/it]                                                                                100%|███████████████████████████████████████████| 40/40 [01:56<00:00,  2.89s/it]                                                                                100%|███████████████████████████████████████████| 40/40 [01:56<00:00,  2.89s/it]100%|███████████████████████████████████████████| 40/40 [01:56<00:00,  2.90s/it]
+{'loss': 6.6925, 'learning_rate': 0.001, 'epoch': 0.0}
+{'loss': 5.2518, 'learning_rate': 0.001, 'epoch': 0.01}
+{'loss': 2.5181, 'learning_rate': 0.001, 'epoch': 0.01}
+{'loss': 0.979, 'learning_rate': 0.001, 'epoch': 0.02}
+{'loss': 0.7959, 'learning_rate': 0.001, 'epoch': 0.02}
+{'loss': 0.495, 'learning_rate': 0.001, 'epoch': 0.03}
+{'loss': 0.3851, 'learning_rate': 0.001, 'epoch': 0.03}
+{'loss': 0.1682, 'learning_rate': 0.001, 'epoch': 0.04}
+{'loss': 0.1599, 'learning_rate': 0.001, 'epoch': 0.04}
+{'loss': 0.165, 'learning_rate': 0.001, 'epoch': 0.05}
+{'loss': 0.1437, 'learning_rate': 0.001, 'epoch': 0.05}
+{'loss': 0.1989, 'learning_rate': 0.001, 'epoch': 0.05}
+{'loss': 0.1925, 'learning_rate': 0.001, 'epoch': 0.06}
+{'loss': 0.0892, 'learning_rate': 0.001, 'epoch': 0.06}
+{'loss': 0.0973, 'learning_rate': 0.001, 'epoch': 0.07}
+{'loss': 0.133, 'learning_rate': 0.001, 'epoch': 0.07}
+{'loss': 0.0965, 'learning_rate': 0.001, 'epoch': 0.08}
+{'loss': 0.085, 'learning_rate': 0.001, 'epoch': 0.08}
+{'loss': 0.1801, 'learning_rate': 0.001, 'epoch': 0.09}
+{'loss': 0.0181, 'learning_rate': 0.001, 'epoch': 0.09}
+{'loss': 0.1278, 'learning_rate': 0.001, 'epoch': 0.1}
+{'loss': 0.1136, 'learning_rate': 0.001, 'epoch': 0.1}
+{'loss': 0.0357, 'learning_rate': 0.001, 'epoch': 0.11}
+{'loss': 0.0581, 'learning_rate': 0.001, 'epoch': 0.11}
+{'loss': 0.0159, 'learning_rate': 0.001, 'epoch': 0.11}
+{'loss': 0.0921, 'learning_rate': 0.001, 'epoch': 0.12}
+{'loss': 0.0868, 'learning_rate': 0.001, 'epoch': 0.12}
+{'loss': 0.0386, 'learning_rate': 0.001, 'epoch': 0.13}
+{'loss': 0.0373, 'learning_rate': 0.001, 'epoch': 0.13}
+{'loss': 0.0411, 'learning_rate': 0.001, 'epoch': 0.14}
+{'loss': 0.0424, 'learning_rate': 0.001, 'epoch': 0.14}
+{'loss': 0.0586, 'learning_rate': 0.001, 'epoch': 0.15}
+{'loss': 0.0265, 'learning_rate': 0.001, 'epoch': 0.15}
+{'loss': 0.0486, 'learning_rate': 0.001, 'epoch': 0.16}
+{'loss': 0.0067, 'learning_rate': 0.001, 'epoch': 0.16}
+{'loss': 0.0271, 'learning_rate': 0.001, 'epoch': 0.16}
+{'loss': 0.0229, 'learning_rate': 0.001, 'epoch': 0.17}
+{'loss': 0.1149, 'learning_rate': 0.001, 'epoch': 0.17}
+{'loss': 0.0153, 'learning_rate': 0.001, 'epoch': 0.18}
+{'loss': 0.1042, 'learning_rate': 0.001, 'epoch': 0.18}
+{'train_runtime': 122.507, 'train_samples_per_second': 20.897, 'train_steps_per_second': 0.327, 'train_loss': 0.4989781320444308, 'epoch': 0.18}
+***** train metrics *****
+  epoch                    =       0.18
+  train_loss               =      0.499
+  train_runtime            = 0:02:02.50
+  train_samples            =      14000
+  train_samples_per_second =     20.897
+  train_steps_per_second   =      0.327
+wandb: Waiting for W&B process to finish, PID 865228... (success).
+wandb: - 0.00MB of 0.00MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.00MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.01MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb:                                                                                
+wandb: Run history:
+wandb:                      train/epoch ▁▁▁▂▂▂▂▃▃▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇████
+wandb:                train/global_step ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb:              train/learning_rate ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/loss █▆▄▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                 train/total_flos ▁
+wandb:                 train/train_loss ▁
+wandb:              train/train_runtime ▁
+wandb:   train/train_samples_per_second ▁
+wandb:     train/train_steps_per_second ▁
+wandb: 
+wandb: Run summary:
+wandb:                      train/epoch 0.18
+wandb:                train/global_step 40
+wandb:              train/learning_rate 0.001
+wandb:                       train/loss 0.1042
+wandb:                 train/total_flos 2112251460354048.0
+wandb:                 train/train_loss 0.49898
+wandb:              train/train_runtime 122.507
+wandb:   train/train_samples_per_second 20.897
+wandb:     train/train_steps_per_second 0.327
+wandb: 
+wandb: Synced 6 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Synced olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1_round1_dbpedia: https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/k914y9rn
+wandb: Find logs at: ./wandb/run-20260705_203948-k914y9rn/logs/debug.log
+wandb: 
+
+ROUND_EXIT_CODE:0 round=1 task=dbpedia
+[round] 2 amazon model=/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1/official_outputs/1-dbpedia/adapter
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/deepspeed/runtime/zero/linear.py:53: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  def forward(ctx, input, weight, bias=None):
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/deepspeed/runtime/zero/linear.py:79: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  def backward(ctx, grad_output):
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/accelerate/utils/torch_xla.py:18: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/fairscale/experimental/nn/offload.py:19: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  return torch.cuda.amp.custom_fwd(orig_func)  # type: ignore
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/fairscale/experimental/nn/offload.py:30: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  return torch.cuda.amp.custom_bwd(orig_func)  # type: ignore
+07/05/2026 20:42:05 - WARNING - __main__ - Process rank: -1, device: cuda:0, n_gpu: 1distributed training: False, 16-bits training: False
+07/05/2026 20:42:05 - WARNING - datasets.builder - Using custom data configuration default-9845349fb93a4cbd
+Downloading and preparing dataset uie_instructions/default to /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1/official_outputs/2-amazon/df88fc1fa1749999ddab1b4490062225/uie_instructions/default-9845349fb93a4cbd/2.0.0/c490e7f13dec80785fc335819009163a45c86ae2816040c8d81800108e7e4374...
+0 examples [00:00, ? examples/s]1 examples [00:00,  7.38 examples/s]3946 examples [00:00, 20247.23 examples/s]                                          0 examples [00:00, ? examples/s]                                0 examples [00:00, ? examples/s]3403 examples [00:00, 34022.49 examples/s]7386 examples [00:00, 37431.77 examples/s]11130 examples [00:00, 33707.55 examples/s]                                           Dataset uie_instructions downloaded and prepared to /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1/official_outputs/2-amazon/df88fc1fa1749999ddab1b4490062225/uie_instructions/default-9845349fb93a4cbd/2.0.0/c490e7f13dec80785fc335819009163a45c86ae2816040c8d81800108e7e4374. Subsequent calls will reuse this data.
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 1070.79it/s]
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/transformers/optimization.py:391: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  warnings.warn(
+wandb: Currently logged in as: sheungyingmai-the-university-of-hong-kong (use `wandb login --relogin` to force relogin)
+-----Gradient checkpointing: False -----
+/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/wandb/sdk/internal/internal_api.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version  # type: ignore
+wandb: wandb version 0.28.0 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.12.10
+wandb: Syncing run olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1_round2_amazon
+wandb: ⭐️ View project at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours
+wandb: 🚀 View run at https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/d2qn238c
+wandb: Run data is saved locally in /root/lora-ours/wandb/run-20260705_204217-d2qn238c
+wandb: Run `wandb offline` to turn off syncing.
+
+  0%|                                                    | 0/40 [00:00<?, ?it/s]/root/autodl-tmp/conda_envs/lora_v10_o_lora/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:3596: UserWarning: `as_target_tokenizer` is deprecated and will be removed in v5 of Transformers. You can tokenize your labels by using the argument `text_target` of the regular `__call__` method (either in the same call as your input texts if you use the same keyword arguments, or in a separate call.
+  warnings.warn(
+  2%|█                                           | 1/40 [00:03<02:17,  3.53s/it]                                                                                  2%|█                                           | 1/40 [00:03<02:17,  3.53s/it]  5%|██▏                                         | 2/40 [00:06<02:05,  3.30s/it]                                                                                  5%|██▏                                         | 2/40 [00:06<02:05,  3.30s/it]  8%|███▎                                        | 3/40 [00:09<01:59,  3.24s/it]                                                                                  8%|███▎                                        | 3/40 [00:09<01:59,  3.24s/it] 10%|████▍                                       | 4/40 [00:12<01:55,  3.20s/it]                                                                                 10%|████▍                                       | 4/40 [00:12<01:55,  3.20s/it] 12%|█████▌                                      | 5/40 [00:16<01:50,  3.15s/it]                                                                                 12%|█████▌                                      | 5/40 [00:16<01:50,  3.15s/it] 15%|██████▌                                     | 6/40 [00:19<01:48,  3.18s/it]                                                                                 15%|██████▌                                     | 6/40 [00:19<01:48,  3.18s/it] 18%|███████▋                                    | 7/40 [00:22<01:45,  3.20s/it]                                                                                 18%|███████▋                                    | 7/40 [00:22<01:45,  3.20s/it] 20%|████████▊                                   | 8/40 [00:25<01:43,  3.23s/it]                                                                                 20%|████████▊                                   | 8/40 [00:25<01:43,  3.23s/it] 22%|█████████▉                                  | 9/40 [00:29<01:40,  3.24s/it]                                                                                 22%|█████████▉                                  | 9/40 [00:29<01:40,  3.24s/it] 25%|██████████▊                                | 10/40 [00:32<01:37,  3.25s/it]                                                                                 25%|██████████▊                                | 10/40 [00:32<01:37,  3.25s/it] 28%|███████████▊                               | 11/40 [00:35<01:34,  3.24s/it]                                                                                 28%|███████████▊                               | 11/40 [00:35<01:34,  3.24s/it] 30%|████████████▉                              | 12/40 [00:38<01:31,  3.26s/it]                                                                                 30%|████████████▉                              | 12/40 [00:38<01:31,  3.26s/it] 32%|█████████████▉                             | 13/40 [00:41<01:26,  3.22s/it]                                                                                 32%|█████████████▉                             | 13/40 [00:41<01:26,  3.22s/it] 35%|███████████████                            | 14/40 [00:45<01:23,  3.20s/it]                                                                                 35%|███████████████                            | 14/40 [00:45<01:23,  3.20s/it] 38%|████████████████▏                          | 15/40 [00:48<01:19,  3.19s/it]                                                                                 38%|████████████████▏                          | 15/40 [00:48<01:19,  3.19s/it] 40%|█████████████████▏                         | 16/40 [00:51<01:15,  3.15s/it]                                                                                 40%|█████████████████▏                         | 16/40 [00:51<01:15,  3.15s/it] 42%|██████████████████▎                        | 17/40 [00:54<01:13,  3.19s/it]                                                                                 42%|██████████████████▎                        | 17/40 [00:54<01:13,  3.19s/it] 45%|███████████████████▎                       | 18/40 [00:57<01:10,  3.20s/it]                                                                                 45%|███████████████████▎                       | 18/40 [00:57<01:10,  3.20s/it] 48%|████████████████████▍                      | 19/40 [01:01<01:07,  3.20s/it]                                                                                 48%|████████████████████▍                      | 19/40 [01:01<01:07,  3.20s/it] 50%|█████████████████████▌                     | 20/40 [01:04<01:03,  3.18s/it]                                                                                 50%|█████████████████████▌                     | 20/40 [01:04<01:03,  3.18s/it] 52%|██████████████████████▌                    | 21/40 [01:07<01:00,  3.19s/it]                                                                                 52%|██████████████████████▌                    | 21/40 [01:07<01:00,  3.19s/it] 55%|███████████████████████▋                   | 22/40 [01:10<00:56,  3.16s/it]                                                                                 55%|███████████████████████▋                   | 22/40 [01:10<00:56,  3.16s/it] 57%|████████████████████████▋                  | 23/40 [01:13<00:53,  3.14s/it]                                                                                 57%|████████████████████████▋                  | 23/40 [01:13<00:53,  3.14s/it] 60%|█████████████████████████▊                 | 24/40 [01:16<00:50,  3.13s/it]                                                                                 60%|█████████████████████████▊                 | 24/40 [01:16<00:50,  3.13s/it] 62%|██████████████████████████▉                | 25/40 [01:19<00:47,  3.16s/it]                                                                                 62%|██████████████████████████▉                | 25/40 [01:19<00:47,  3.16s/it] 65%|███████████████████████████▉               | 26/40 [01:23<00:44,  3.17s/it]                                                                                 65%|███████████████████████████▉               | 26/40 [01:23<00:44,  3.17s/it] 68%|█████████████████████████████              | 27/40 [01:26<00:40,  3.14s/it]                                                                                 68%|█████████████████████████████              | 27/40 [01:26<00:40,  3.14s/it] 70%|██████████████████████████████             | 28/40 [01:29<00:37,  3.11s/it]                                                                                 70%|██████████████████████████████             | 28/40 [01:29<00:37,  3.11s/it] 72%|███████████████████████████████▏           | 29/40 [01:32<00:34,  3.15s/it]                                                                                 72%|███████████████████████████████▏           | 29/40 [01:32<00:34,  3.15s/it] 75%|████████████████████████████████▎          | 30/40 [01:35<00:31,  3.12s/it]                                                                                 75%|████████████████████████████████▎          | 30/40 [01:35<00:31,  3.12s/it] 78%|█████████████████████████████████▎         | 31/40 [01:38<00:28,  3.14s/it]                                                                                 78%|█████████████████████████████████▎         | 31/40 [01:38<00:28,  3.14s/it] 80%|██████████████████████████████████▍        | 32/40 [01:41<00:25,  3.16s/it]                                                                                 80%|██████████████████████████████████▍        | 32/40 [01:41<00:25,  3.16s/it] 82%|███████████████████████████████████▍       | 33/40 [01:45<00:22,  3.14s/it]                                                                                 82%|███████████████████████████████████▍       | 33/40 [01:45<00:22,  3.14s/it] 85%|████████████████████████████████████▌      | 34/40 [01:47<00:18,  3.08s/it]                                                                                 85%|████████████████████████████████████▌      | 34/40 [01:47<00:18,  3.08s/it] 88%|█████████████████████████████████████▋     | 35/40 [01:51<00:15,  3.11s/it]                                                                                 88%|█████████████████████████████████████▋     | 35/40 [01:51<00:15,  3.11s/it] 90%|██████████████████████████████████████▋    | 36/40 [01:54<00:12,  3.13s/it]                                                                                 90%|██████████████████████████████████████▋    | 36/40 [01:54<00:12,  3.13s/it] 92%|███████████████████████████████████████▊   | 37/40 [01:57<00:09,  3.15s/it]                                                                                 92%|███████████████████████████████████████▊   | 37/40 [01:57<00:09,  3.15s/it] 95%|████████████████████████████████████████▊  | 38/40 [02:00<00:06,  3.16s/it]                                                                                 95%|████████████████████████████████████████▊  | 38/40 [02:00<00:06,  3.16s/it] 98%|█████████████████████████████████████████▉ | 39/40 [02:03<00:03,  3.14s/it]                                                                                 98%|█████████████████████████████████████████▉ | 39/40 [02:03<00:03,  3.14s/it]100%|███████████████████████████████████████████| 40/40 [02:06<00:00,  3.16s/it]                                                                                100%|███████████████████████████████████████████| 40/40 [02:06<00:00,  3.16s/it]                                                                                100%|███████████████████████████████████████████| 40/40 [02:06<00:00,  3.16s/it]100%|███████████████████████████████████████████| 40/40 [02:06<00:00,  3.17s/it]
+{'loss': 335.7844, 'learning_rate': 0.0005, 'epoch': 0.01}
+{'loss': 248.8119, 'learning_rate': 0.0005, 'epoch': 0.03}
+{'loss': 185.183, 'learning_rate': 0.0005, 'epoch': 0.04}
+{'loss': 140.463, 'learning_rate': 0.0005, 'epoch': 0.05}
+{'loss': 111.8273, 'learning_rate': 0.0005, 'epoch': 0.06}
+{'loss': 96.0304, 'learning_rate': 0.0005, 'epoch': 0.08}
+{'loss': 87.4522, 'learning_rate': 0.0005, 'epoch': 0.09}
+{'loss': 84.1476, 'learning_rate': 0.0005, 'epoch': 0.1}
+{'loss': 82.4587, 'learning_rate': 0.0005, 'epoch': 0.11}
+{'loss': 80.6724, 'learning_rate': 0.0005, 'epoch': 0.13}
+{'loss': 77.5073, 'learning_rate': 0.0005, 'epoch': 0.14}
+{'loss': 73.8494, 'learning_rate': 0.0005, 'epoch': 0.15}
+{'loss': 69.4897, 'learning_rate': 0.0005, 'epoch': 0.16}
+{'loss': 64.4308, 'learning_rate': 0.0005, 'epoch': 0.18}
+{'loss': 59.1242, 'learning_rate': 0.0005, 'epoch': 0.19}
+{'loss': 53.7722, 'learning_rate': 0.0005, 'epoch': 0.2}
+{'loss': 50.2027, 'learning_rate': 0.0005, 'epoch': 0.21}
+{'loss': 46.3727, 'learning_rate': 0.0005, 'epoch': 0.23}
+{'loss': 44.7658, 'learning_rate': 0.0005, 'epoch': 0.24}
+{'loss': 42.6776, 'learning_rate': 0.0005, 'epoch': 0.25}
+{'loss': 41.6756, 'learning_rate': 0.0005, 'epoch': 0.27}
+{'loss': 40.1969, 'learning_rate': 0.0005, 'epoch': 0.28}
+{'loss': 37.7811, 'learning_rate': 0.0005, 'epoch': 0.29}
+{'loss': 36.4359, 'learning_rate': 0.0005, 'epoch': 0.3}
+{'loss': 34.0549, 'learning_rate': 0.0005, 'epoch': 0.32}
+{'loss': 32.5053, 'learning_rate': 0.0005, 'epoch': 0.33}
+{'loss': 32.0059, 'learning_rate': 0.0005, 'epoch': 0.34}
+{'loss': 30.6398, 'learning_rate': 0.0005, 'epoch': 0.35}
+{'loss': 29.847, 'learning_rate': 0.0005, 'epoch': 0.37}
+{'loss': 29.0324, 'learning_rate': 0.0005, 'epoch': 0.38}
+{'loss': 27.7355, 'learning_rate': 0.0005, 'epoch': 0.39}
+{'loss': 26.3699, 'learning_rate': 0.0005, 'epoch': 0.4}
+{'loss': 25.5263, 'learning_rate': 0.0005, 'epoch': 0.42}
+{'loss': 25.2616, 'learning_rate': 0.0005, 'epoch': 0.43}
+{'loss': 25.0429, 'learning_rate': 0.0005, 'epoch': 0.44}
+{'loss': 24.3561, 'learning_rate': 0.0005, 'epoch': 0.45}
+{'loss': 23.7931, 'learning_rate': 0.0005, 'epoch': 0.47}
+{'loss': 22.8107, 'learning_rate': 0.0005, 'epoch': 0.48}
+{'loss': 22.0641, 'learning_rate': 0.0005, 'epoch': 0.49}
+{'loss': 21.7514, 'learning_rate': 0.0005, 'epoch': 0.51}
+{'train_runtime': 133.7453, 'train_samples_per_second': 19.141, 'train_steps_per_second': 0.299, 'train_loss': 65.59774265289306, 'epoch': 0.51}
+***** train metrics *****
+  epoch                    =       0.51
+  train_loss               =    65.5977
+  train_runtime            = 0:02:13.74
+  train_samples            =       5064
+  train_samples_per_second =     19.141
+  train_steps_per_second   =      0.299
+wandb: Waiting for W&B process to finish, PID 865745... (success).
+wandb: - 0.00MB of 0.00MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.00MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.00MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.01MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: | 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: / 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: - 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb: \ 0.02MB of 0.02MB uploaded (0.00MB deduped)wandb:                                                                                
+wandb: Run history:
+wandb:                      train/epoch ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇███
+wandb:                train/global_step ▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▄▅▅▅▅▅▅▆▆▆▆▆▇▇▇▇▇▇███
+wandb:              train/learning_rate ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                       train/loss █▆▅▄▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:                 train/total_flos ▁
+wandb:                 train/train_loss ▁
+wandb:              train/train_runtime ▁
+wandb:   train/train_samples_per_second ▁
+wandb:     train/train_steps_per_second ▁
+wandb: 
+wandb: Run summary:
+wandb:                      train/epoch 0.51
+wandb:                train/global_step 40
+wandb:              train/learning_rate 0.0005
+wandb:                       train/loss 21.7514
+wandb:                 train/total_flos 2670110219796480.0
+wandb:                 train/train_loss 65.59774
+wandb:              train/train_runtime 133.7453
+wandb:   train/train_samples_per_second 19.141
+wandb:     train/train_steps_per_second 0.299
+wandb: 
+wandb: Synced 6 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Synced olora_official_base_ours_overlay_replay64_low_lr_v82_round2_diag_order1_seed1_round2_amazon: https://wandb.ai/sheungyingmai-the-university-of-hong-kong/lora-ours/runs/d2qn238c
+wandb: Find logs at: ./wandb/run-20260705_204217-d2qn238c/logs/debug.log
+wandb: 
+
+ROUND_EXIT_CODE:0 round=2 task=amazon
+[stop-after-round] stopping after round 2
