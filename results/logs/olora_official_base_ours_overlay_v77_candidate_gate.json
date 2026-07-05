@@ -1,0 +1,147 @@
+{
+  "policy": {
+    "source": "v75 train-heldout diagnostics",
+    "uses_test_json": false,
+    "uses_test_targets": false,
+    "baseline_em": 55.2,
+    "moderate_min_count": 5,
+    "rp_mapping": {
+      "lora_bank": "round adapters are treated as a published-base adapter bank",
+      "prototype_router": "train-heldout EM selects the amazon/SC adapter without test labels",
+      "drift_assess_update": "heldout drop and moderate-label collapse reject harmful updates",
+      "overlap_or_spectral_replay": "not enabled as a new training change unless gate evidence exceeds baseline"
+    }
+  },
+  "candidates": [
+    {
+      "family": "v69",
+      "adapter_selection_policy": {
+        "selected_run": "olora_v75_amazon_sc_trainheldout500_v69_r4",
+        "selected_round": "r4",
+        "selected_adapter": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_outputs/4-agnews/adapter",
+        "selected_heldout_em": 55.2,
+        "selected_heldout_rougeL": 71.0
+      },
+      "final_adapter": {
+        "run": "olora_v75_amazon_sc_trainheldout500_v69_r4",
+        "heldout_em": 55.2,
+        "heldout_rougeL": 71.0,
+        "prediction_counts": {
+          "negative": 107,
+          "very negative": 128,
+          "very positive": 155,
+          "neutral": 72,
+          "positive": 38
+        }
+      },
+      "trajectory": [
+        {
+          "round": "r2",
+          "heldout_em": 53.4,
+          "heldout_rougeL": 64.0333,
+          "prediction_counts": {
+            "neutral": 228,
+            "very negative": 84,
+            "very positive": 135,
+            "negative": 40,
+            "positive": 13
+          }
+        },
+        {
+          "round": "r3",
+          "heldout_em": 53.4,
+          "heldout_rougeL": 71.6333,
+          "prediction_counts": {
+            "negative": 58,
+            "very negative": 160,
+            "very positive": 185,
+            "neutral": 87,
+            "positive": 10
+          }
+        },
+        {
+          "round": "r4",
+          "heldout_em": 55.2,
+          "heldout_rougeL": 71.0,
+          "prediction_counts": {
+            "negative": 107,
+            "very negative": 128,
+            "very positive": 155,
+            "neutral": 72,
+            "positive": 38
+          }
+        }
+      ],
+      "decision": "reject",
+      "reasons": [
+        "best heldout EM 55.2 does not exceed v69 baseline 55.2"
+      ]
+    },
+    {
+      "family": "v70b",
+      "adapter_selection_policy": {
+        "selected_run": "olora_v75_amazon_sc_trainheldout500_v70b_r2",
+        "selected_round": "r2",
+        "selected_adapter": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay128_v70b_formal_order1_seed1/official_outputs/2-amazon/adapter",
+        "selected_heldout_em": 51.4,
+        "selected_heldout_rougeL": 65.6
+      },
+      "final_adapter": {
+        "run": "olora_v75_amazon_sc_trainheldout500_v70b_r4",
+        "heldout_em": 47.2,
+        "heldout_rougeL": 68.9,
+        "prediction_counts": {
+          "negative": 11,
+          "very negative": 224,
+          "very positive": 191,
+          "neutral": 72,
+          "positive": 2
+        }
+      },
+      "trajectory": [
+        {
+          "round": "r2",
+          "heldout_em": 51.4,
+          "heldout_rougeL": 65.6,
+          "prediction_counts": {
+            "neutral": 196,
+            "very negative": 121,
+            "very positive": 167,
+            "negative": 12,
+            "positive": 4
+          }
+        },
+        {
+          "round": "r3",
+          "heldout_em": 51.4,
+          "heldout_rougeL": 70.3,
+          "prediction_counts": {
+            "negative": 48,
+            "very negative": 184,
+            "very positive": 189,
+            "neutral": 72,
+            "positive": 7
+          }
+        },
+        {
+          "round": "r4",
+          "heldout_em": 47.2,
+          "heldout_rougeL": 68.9,
+          "prediction_counts": {
+            "negative": 11,
+            "very negative": 224,
+            "very positive": 191,
+            "neutral": 72,
+            "positive": 2
+          }
+        }
+      ],
+      "decision": "reject",
+      "reasons": [
+        "best heldout EM 51.4 does not exceed v69 baseline 55.2",
+        "final heldout EM 47.2 below v69 baseline 55.2",
+        "final moderate-label collapse: negative=11, positive=2"
+      ]
+    }
+  ]
+}
