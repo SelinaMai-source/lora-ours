@@ -2,7 +2,7 @@
 # Quick check: should Cursor agent wake? Exit 0 = yes, 1 = no.
 # Usage: bash scripts/sota_agent_check.sh
 set -euo pipefail
-cd /root/autodl-tmp/Lora-code
+cd /root/lora-ours
 
 if [[ -f SOTA_AGENT_WAKE.flag ]]; then
   echo "WAKE: flag present"
@@ -10,18 +10,24 @@ if [[ -f SOTA_AGENT_WAKE.flag ]]; then
   exit 0
 fi
 
-if grep -q "AWAITING_AGENT:" SOTA_MONITOR.log 2>/dev/null; then
-  last=$(grep "AWAITING_AGENT:" SOTA_MONITOR.log | tail -1)
-  echo "WAKE: ${last}"
-  exit 0
-fi
-
-if [[ -f SOTA_MONITOR_STATE.json ]]; then
-  action=$(python3 -c "import json;print(json.load(open('SOTA_MONITOR_STATE.json')).get('pending_action') or '')" 2>/dev/null || true)
-  if [[ -n "${action}" && "${action}" != "None" ]]; then
-    echo "WAKE: pending_action=${action}"
+if [[ -f results/logs/lora_ours_sentinel_status.json ]]; then
+  pending=$(python3 - <<'PY'
+import json
+from pathlib import Path
+p = Path("results/logs/lora_ours_sentinel_status.json")
+data = json.loads(p.read_text(encoding="utf-8"))
+print(data.get("pending_action") or "")
+PY
+)
+  if [[ -n "${pending}" && "${pending}" != "None" ]]; then
+    echo "WAKE: sentinel pending_action=${pending}"
     exit 0
   fi
+fi
+
+if grep -q "Needs Agent Attention" results/logs/lora_ours_sentinel_status.md 2>/dev/null; then
+  echo "WAKE: sentinel status lists agent attention items"
+  exit 0
 fi
 
 echo "IDLE: no agent action needed"

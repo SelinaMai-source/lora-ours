@@ -1,30 +1,33 @@
 #!/bin/bash
-# Cursor agent wake loop for SOTA closed-loop (see /root/.cursor/skills-cursor/loop/SKILL.md).
+# Cursor agent wake loop for lora-ours three-suite SOTA campaign.
+# See /root/.cursor/skills-cursor/loop/SKILL.md
 #
-# Launch:
-#   tmux new-session -d -s sota_agent_loop 'bash /root/autodl-tmp/Lora-code/scripts/sota_agent_loop.sh'
+# Launch (preferred):
+#   bash /root/lora-ours/scripts/launch_lora_ours_agent_stack.sh
 #
-# Or in Cursor chat: /loop 5m Check SOTA_MONITOR.log ...
+# Or standalone:
+#   tmux new-session -d -s lora-ours-agent-loop 'bash /root/lora-ours/scripts/sota_agent_loop.sh'
 set -euo pipefail
-cd /root/autodl-tmp/Lora-code
+cd /root/lora-ours
 
 POLL_SEC="${SOTA_AGENT_POLL_SEC:-30}"
 HEARTBEAT_SEC="${SOTA_AGENT_LOOP_SEC:-300}"
 FLAG="SOTA_AGENT_WAKE.flag"
 WAKE_LOG="SOTA_AGENT_WAKE.log"
+REPO="/root/lora-ours"
 
-PROMPT='Check SOTA_MONITOR.log and SOTA_MONITOR_STATE.json. If AWAITING_AGENT or pending_action needs work, execute failure analysis → implement → launch per SOTA_PROGRESS.md Iteration Protocol. Do not kill healthy training. Update SOTA_PROGRESS.md.'
+PROMPT='Read results/logs/lora_ours_sentinel_status.md and SOTA_AGENT_WAKE.flag. If pending_action or wake_items need work, execute failure analysis → single-mechanism vN+1 patch → smoke gate → formal per docs/official_alignment/ccfa_experiment_gate.md. Do not kill healthy training. Update docs/official_alignment/status.md.'
 
 emit_json() {
   python3 - "$1" "$2" <<'PY'
 import json, sys
 kind, prompt = sys.argv[1], sys.argv[2]
-payload = {"prompt": prompt, "kind": kind, "repo": "/root/autodl-tmp/Lora-code"}
-print(f'AGENT_LOOP_{kind}_SOTA ' + json.dumps(payload, ensure_ascii=False))
+payload = {"prompt": prompt, "kind": kind, "repo": "/root/lora-ours"}
+print(f'AGENT_LOOP_{kind}_LORA_OURS ' + json.dumps(payload, ensure_ascii=False))
 PY
 }
 
-echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] sota_agent_loop started poll=${POLL_SEC}s heartbeat=${HEARTBEAT_SEC}s" | tee -a "${WAKE_LOG}"
+echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] sota_agent_loop started poll=${POLL_SEC}s heartbeat=${HEARTBEAT_SEC}s repo=${REPO}" | tee -a "${WAKE_LOG}"
 
 last_heartbeat=$(date +%s)
 # Per loop skill: first sentinel after initial sleep (no double-run on startup).
@@ -34,20 +37,20 @@ while true; do
   now=$(date +%s)
 
   if [[ -f "${FLAG}" ]]; then
-  payload=$(cat "${FLAG}")
-  python3 - "${payload}" <<'PY'
+    payload=$(cat "${FLAG}")
+    python3 - "${payload}" <<'PY'
 import json, sys
 flag = json.loads(sys.argv[1])
-flag["wake_reason"] = "SOTA_AGENT_WAKE.flag"
+flag["wake_reason"] = flag.get("wake_reason") or "SOTA_AGENT_WAKE.flag"
 flag["kind"] = "wake"
-print("AGENT_LOOP_WAKE_SOTA " + json.dumps(flag, ensure_ascii=False))
+print("AGENT_LOOP_WAKE_LORA_OURS " + json.dumps(flag, ensure_ascii=False))
 PY
-    echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] emitted AGENT_LOOP_WAKE_SOTA (flag present)" >> "${WAKE_LOG}"
+    echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] emitted AGENT_LOOP_WAKE_LORA_OURS (flag present)" >> "${WAKE_LOG}"
   fi
 
   if (( now - last_heartbeat >= HEARTBEAT_SEC )); then
     emit_json "TICK" "${PROMPT}"
-    echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] emitted AGENT_LOOP_TICK_SOTA (heartbeat)" >> "${WAKE_LOG}"
+    echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] emitted AGENT_LOOP_TICK_LORA_OURS (heartbeat)" >> "${WAKE_LOG}"
     last_heartbeat=$now
   fi
 
