@@ -2,14 +2,16 @@
 
 **Branch:** `sota-24h-campaign-20260706`  
 **W&B project:** `lora-ours`  
-**Campaign status:** CITB Replay(50) smoke PASS; Standard v85 smoke **rerunning** (solo GPU); ARPER/ToDCL queued. **No numerical SOTA margin yet.**
+**Campaign status:** CITB smoke PASS; ARPER v86 **running**; Standard v85 **relaunch queued** (SSRG fix); ToDCL preflight PASS. **No numerical SOTA margin yet.**
 
 ## Campaign smoke snapshot (2026-07-06)
 
 | Job | Key metric | Value | W&B |
 |-----|------------|-------|-----|
 | CITB Replay(50) base | EM / ROUGE-L (1-task smoke) | **50.0 / 50.0** | `a2jh0n4y` |
-| Standard v85 overlay | cumulative EM | **pending rerun** | `qrvfbn3t` (round1) |
+| Standard v85 overlay | cumulative EM | **pending relaunch** (SSRG `import re` fix) | `qrvfbn3t` (round1 only) |
+| ARPER v86 formal | Inform SER (ep2) | **14.455** (running) | n/a |
+| ToDCL preflight | 37-domain load | **PASS** | n/a |
 
 ## Main results (order1 seed1)
 
@@ -55,10 +57,10 @@ Stub paths:
 | Item | Status |
 |------|--------|
 | CITB Replay50 base smoke | **PASS** (`a2jh0n4y`); accidental formal stopped |
-| Standard v85 smoke | **RERUNNING** after GPU contention failure |
+| Standard v85 smoke | **FAIL** round2 SSRG `import re` bug (**fixed** `11c8ecc`); relaunch after ARPER |
 | CITB ours v85 | **queued** |
-| ARPER v86 formal | **queued** (paper-epoch re-anchor) |
-| ToDCL ADAPTER anchor | **queued** (preflight PASS) |
+| ARPER v86 formal | **RUNNING** (`lora-ours-arper-v86-formal`, Inform SER 14.455 @ ep2) |
+| ToDCL ADAPTER anchor | **preflight PASS**; train launch queued |
 | Numerical SOTA | **not reached** on any suite |
 | 3 seeds × 3 orders | **deferred** until first margin hit |
 | Full ablation grid | **stub paths only**; not executed |

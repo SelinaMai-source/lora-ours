@@ -21,4 +21,9 @@
 
 ## Gate status
 
-**FAIL** (incomplete). Relaunch required before ARPER v86 / ToDCL / CITB ours v85.
+**FAIL** (round2 amazon `NameError: re`). Fixed in `run_olora_standard_order1_official_base_ours_overlay_v58.sh` (inject `import re`). **Relaunch pending** after ARPER v86 releases GPU.
+
+## Round1 partial (before round2 crash)
+
+- dbpedia: ROUND_EXIT_CODE=0
+- W&B rerun round1: `qrvfbn3t`
