@@ -1,0 +1,14 @@
+{
+  "updated_at": "2026-07-05T19:40:41+08:00",
+  "run_name": "olora_v69_final_adapter_amazon_sc_devdiag_v73",
+  "purpose": "dev_only_amazon_sc_prediction_diagnostic",
+  "uses_test_json": false,
+  "adapter": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_outputs/4-agnews/adapter",
+  "runtime": "/root/autodl-tmp/lora-ours-devdiag/olora_v69_final_adapter_amazon_sc_devdiag_v73/official_runtime",
+  "output_dir": "/root/autodl-tmp/lora-ours-devdiag/olora_v69_final_adapter_amazon_sc_devdiag_v73/outputs",
+  "task_config_dir": "/root/autodl-tmp/lora-ours-devdiag/olora_v69_final_adapter_amazon_sc_devdiag_v73/task_config_amazon_dev_as_test",
+  "log_file": "/root/lora-ours/results/logs/olora_v69_final_adapter_amazon_sc_devdiag_v73.log",
+  "max_predict_samples": -1,
+  "exit_code": 0,
+  "completed_at": "2026-07-05T19:43:21+08:00"
+}

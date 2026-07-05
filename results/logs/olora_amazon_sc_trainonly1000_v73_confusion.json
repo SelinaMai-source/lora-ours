@@ -1,0 +1,142 @@
+{
+  "runs": [
+    {
+      "path": "/root/autodl-tmp/lora-ours-devdiag/olora_v69_final_adapter_amazon_sc_trainonly1000_v73/outputs/predict_eval_predictions.jsonl",
+      "total": 1000,
+      "accuracy": 59.6,
+      "gold_counts": {
+        "negative": 198,
+        "very negative": 212,
+        "positive": 200,
+        "very positive": 189,
+        "neutral": 201
+      },
+      "prediction_counts": {
+        "negative": 253,
+        "neutral": 191,
+        "very negative": 208,
+        "very positive": 263,
+        "positive": 85
+      },
+      "per_label": {
+        "very negative": {
+          "total": 212,
+          "correct": 137,
+          "accuracy": 64.6226
+        },
+        "negative": {
+          "total": 198,
+          "correct": 126,
+          "accuracy": 63.6364
+        },
+        "neutral": {
+          "total": 201,
+          "correct": 101,
+          "accuracy": 50.2488
+        },
+        "positive": {
+          "total": 200,
+          "correct": 61,
+          "accuracy": 30.5
+        },
+        "very positive": {
+          "total": 189,
+          "correct": 171,
+          "accuracy": 90.4762
+        }
+      },
+      "top_confusions": [
+        {
+          "gold": "positive",
+          "prediction": "very positive",
+          "count": 73
+        },
+        {
+          "gold": "very negative",
+          "prediction": "negative",
+          "count": 61
+        },
+        {
+          "gold": "neutral",
+          "prediction": "negative",
+          "count": 57
+        },
+        {
+          "gold": "positive",
+          "prediction": "neutral",
+          "count": 53
+        },
+        {
+          "gold": "negative",
+          "prediction": "very negative",
+          "count": 52
+        },
+        {
+          "gold": "negative",
+          "prediction": "neutral",
+          "count": 19
+        },
+        {
+          "gold": "neutral",
+          "prediction": "very positive",
+          "count": 17
+        },
+        {
+          "gold": "neutral",
+          "prediction": "very negative",
+          "count": 13
+        },
+        {
+          "gold": "neutral",
+          "prediction": "positive",
+          "count": 13
+        },
+        {
+          "gold": "very negative",
+          "prediction": "neutral",
+          "count": 12
+        },
+        {
+          "gold": "very positive",
+          "prediction": "positive",
+          "count": 10
+        },
+        {
+          "gold": "positive",
+          "prediction": "negative",
+          "count": 9
+        },
+        {
+          "gold": "very positive",
+          "prediction": "neutral",
+          "count": 6
+        },
+        {
+          "gold": "positive",
+          "prediction": "very negative",
+          "count": 4
+        },
+        {
+          "gold": "very positive",
+          "prediction": "very negative",
+          "count": 2
+        },
+        {
+          "gold": "negative",
+          "prediction": "very positive",
+          "count": 1
+        },
+        {
+          "gold": "very negative",
+          "prediction": "positive",
+          "count": 1
+        },
+        {
+          "gold": "very negative",
+          "prediction": "very positive",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}
