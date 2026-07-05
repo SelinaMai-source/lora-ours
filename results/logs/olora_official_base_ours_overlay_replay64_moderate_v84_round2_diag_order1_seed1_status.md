@@ -1,0 +1,29 @@
+# olora_official_base_ours_overlay_replay64_moderate_v84_round2_diag_order1_seed1
+
+- updated: 2026-07-05T21:20:02
+- state: stopped
+- reason: paused_by_official_reproducibility_gate_before_round1_completion
+- selected base: O-LoRA official T5-large Standard CL order1 seed1
+- overlay: Ours limited replay overlay on training config only
+- replay_per_prior_task: 64
+- sc_balanced_replay: 0
+- sc_lexical_repair: 0
+- sc_class_coverage_order: 0
+- sc_moderate_curriculum: 1
+- sc_moderate_curriculum_ratio: 0.15
+- train_heldout_gate: 0
+- train_heldout_slice: amazon/train[4500:5000]
+- label: v84_moderate_curriculum_round2_diag
+- W&B project: lora-ours
+- W&B group: published-base-standard-olora-plus-ours-overlay-v84-moderate-round2
+- log: /root/lora-ours/results/logs/olora_official_base_ours_overlay_replay64_moderate_v84_round2_diag_order1_seed1.log
+- manifest: /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_moderate_v84_round2_diag_order1_seed1/run_manifest.json
+- overlay manifest: /root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_moderate_v84_round2_diag_order1_seed1/ours_overlay_manifest.json
+- setting: dbpedia -> amazon -> yahoo -> agnews; max_steps=-1
+- gradient_accumulation_steps: 8
+- learning_rate: 1e-03
+- amazon_learning_rate: 
+- stop_after_round: 2
+- do_predict: 0
+- comparability: ours-overlay diagnostic; not an official-base result and not paper-comparable while smoke caps/single-GPU runtime are present
+- preserved: official task order, official entry/scorer, T5-large, O-LoRA adapter chain, current-round dev/test configs, cumulative test metric surface
