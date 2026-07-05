@@ -144,7 +144,17 @@ def evaluate_raw_and_repaired(
     cwd = Path.cwd()
     os.chdir(ARPER_ROOT)
     try:
-        dataset, model = official.run_woz3.read(config, args)
+        original_torch_load = torch.load
+
+        def trusted_legacy_load(*load_args: Any, **load_kwargs: Any) -> Any:
+            load_kwargs.setdefault("weights_only", False)
+            return original_torch_load(*load_args, **load_kwargs)
+
+        torch.load = trusted_legacy_load
+        try:
+            dataset, model = official.run_woz3.read(config, args)
+        finally:
+            torch.load = original_torch_load
         task_ids = [int(tid) for tid in task_sequence.split(",")]
         task, task_name, _ = official.generate_task(dataset, task_ids, old_exemplars=None)
         beam_size = config.getint("TESTING", "beam_size")
