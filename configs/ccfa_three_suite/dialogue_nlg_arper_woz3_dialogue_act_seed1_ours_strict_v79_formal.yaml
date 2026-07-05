@@ -1,0 +1,158 @@
+experiment_name: dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v79_formal
+mode: ours
+seed: 1
+strict_alignment:
+  status: ready
+  blocker: ''
+  official_evidence: ARPER config/config.cfg; run.sh; run_woz3.py evaluate(); bleu.py; resource/woz3 unique DA split
+paths:
+  project_root: /root/Lora-Baselines
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/arper/arper_woz3_unique_dialogue_act.json
+  processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/arper
+  results_dir: /root/autodl-tmp/lora-baselines-run_v1/results
+data:
+  suite: Dialogue NLG
+  benchmark: ARPER WOZ3 dialogue-act
+  stream_format: unified_ccfa_stream
+  ready: true
+model:
+  architecture: seq2seq_lm
+  task_type: seq2seq_lm
+  backbone: 'Path A v79 formal: semantic-cluster support prototypes'
+  hf_model_name_or_path: /root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt
+  base_model_path: /root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt
+  torch_dtype: bfloat16
+  device: auto
+  max_source_len: 512
+  max_target_len: 128
+  gen_max_new_tokens: 96
+  gen_num_beams: 2
+  gen_do_sample: false
+  gen_min_new_tokens: 4
+  gen_no_repeat_ngram_size: 3
+  gen_repetition_penalty: 1.05
+  activation_batch_size: 1
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  train_lora_a: true
+  optimizer: adamw
+  weight_decay: 0.01
+  target_modules:
+  - q
+  - v
+train:
+  lr: 1e-04
+  epochs_per_segment: 1
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  hard_early_stop_enabled: false
+  grad_clip_norm: 1.0
+  log_every: 10
+modules:
+  use_drift_detector: true
+  use_lora_bank: true
+  use_router: true
+  use_overlap_loss: true
+router:
+  routing_backend: prototype
+  training_strategy: learned_router
+  router_warmup_segments: 1
+  prototype_calibration: true
+  prototype_calibration_prior: 8.0
+  nll_arbitration: false
+  spawn_sync_prototype_init: true
+  segment_anchor_prototype_refresh: true
+  anchor_prototype_refresh_beta: 0.35
+  prototype_update_steps: 2
+  task_aware_fallback: true
+  task_aware_fallback_force_assigned: true
+  force_active_branch_on_spawn_segment: true
+assess_update:
+  isolated_energy_threshold: 0.12
+spectral_replay:
+  enabled: false
+  buffer_size: 1024
+  replay_ratio: 0.0
+  min_replay_per_segment: 0
+  selection_strategy: label_balanced
+  max_replay_per_label: 0
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
+eval_normalization:
+  enable_task_aware_score: true
+  auto_short_answer_max_new_tokens: false
+  eval_task_support_nll_fallback:
+    enabled: true
+    force: true
+    max_support_examples: 64
+    min_loss_margin: 0.0
+  dialogue_act_echo_repair:
+    enabled: true
+  da_signature_support_template_fallback:
+    enabled: true
+    force: false
+    max_support_examples: 256
+    min_support_examples_per_signature: 1
+    min_support_score_margin: 0.05
+    min_support_score_margin_by_act:
+      inform: 0.0
+      nobook: 0.0
+      nooffer: 0.0
+    min_support_mean_score: 0.45
+    min_support_candidates_for_confidence: 2
+    support_confidence_mode: semantic_or_score
+    prototype_selection_mode: semantic_cluster
+    min_semantic_support_score: 0.62
+    min_prediction_words: 4
+    segment_name_patterns:
+    - .*
+    signature_name_patterns:
+    - ^booking:book:.*
+    - ^.*:inform:.*
+    - ^booking:nobook:(day|name|people|ref|stay|time)$
+    - ^booking:nobook:day\|booking:nobook:time$
+    - ^booking:nobook:name\|booking:nobook:time$
+    - ^booking:nobook:people\|booking:nobook:stay$
+  generation_overrides:
+  - segment_name_patterns:
+    - .*
+    use_train_target_length_prior: true
+    train_target_length_quantile: 0.25
+    train_target_min_new_tokens_floor: 4
+    train_target_min_new_tokens_ceiling: 32
+    num_beams: 2
+    no_repeat_ngram_size: 3
+    repetition_penalty: 1.05
+output:
+  run_name: dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v79_formal
+  tracking:
+    use_wandb: true
+    wandb_project: lora-ours
+    wandb_group: ccfa_dialogue_arper_woz3_patha_v79_formal
+    wandb_mode: online
+    wandb_tags:
+    - ccfa_v2
+    - dialogue_nlg
+    - arper_woz3
+    - path_a_adapted
+    - formal
+    - v79
+paper:
+  strict_ready: true
+  status: formal_if_smoke_gate_passes
+  metrics:
+  - BLEU-4
+  - SER
+  - forgetting
+  postprocess: ccfa_postprocess/summary.json
+  notes: v79 formal uses train-only semantic-cluster prototype selection for support templates.
+official_reference:
+  official_config: /root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/config/config.cfg
+  official_run_script: /root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/run.sh
+  official_metric_code: /root/autodl-tmp/lora-baselines-run_v1/external_sources/arper/run_woz3.py
+  official_model_type: lm
+  official_decoder: sclstm
+  official_exemplar_size: 250

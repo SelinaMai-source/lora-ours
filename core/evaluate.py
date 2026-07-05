@@ -1370,12 +1370,20 @@ def _build_da_signature_support_templates(
         unique_outputs = list(dict.fromkeys(outputs))
         if len(unique_outputs) < min_examples:
             continue
-        selected, selected_support_score = _select_central_support_output_with_score(unique_outputs)
+        if str(cfg.get("prototype_selection_mode", "")).strip().lower() == "semantic_cluster":
+            selected, selected_support_score, selection_detail = _select_semantic_support_output_with_score(
+                unique_outputs,
+                signature=signature,
+            )
+        else:
+            selected, selected_support_score = _select_central_support_output_with_score(unique_outputs)
+            selection_detail = {}
         out[signature] = {
             "output": selected,
             "num_candidates": int(len(unique_outputs)),
             "support_outputs": unique_outputs,
             "support_mean_rouge_l": float(selected_support_score),
+            **selection_detail,
         }
     return out
 
@@ -1433,12 +1441,19 @@ def _maybe_apply_da_signature_support_template(
     min_candidates = int(cfg.get("min_support_candidates_for_confidence", 1))
     num_candidates = int(support_templates[signature].get("num_candidates", 0))
     confidence_mode = str(cfg.get("support_confidence_mode", "score_or_count")).strip().lower()
+    semantic_support_score = float(support_templates[signature].get("semantic_support_score", 0.0))
+    min_semantic_score = float(cfg.get("min_semantic_support_score", 0.0))
     if confidence_mode == "score":
         support_confident = replacement_support_score >= min_support_score
     elif confidence_mode == "score_and_count":
         support_confident = (
             replacement_support_score >= min_support_score
             and num_candidates >= max(1, min_candidates)
+        )
+    elif confidence_mode == "semantic_or_score":
+        support_confident = (
+            replacement_support_score >= min_support_score
+            or semantic_support_score >= min_semantic_score
         )
     else:
         support_confident = (
@@ -1476,6 +1491,10 @@ def _maybe_apply_da_signature_support_template(
         "da_signature_support_template_replacement_support_score": float(replacement_support_score),
         "da_signature_support_template_support_margin": float(support_margin),
         "da_signature_support_template_confidence_mode": confidence_mode,
+        "da_signature_support_template_semantic_support_score": semantic_support_score,
+        "da_signature_support_template_selection_pattern": str(
+            support_templates[signature].get("selection_pattern", "")
+        ),
         "da_signature_support_template_reason": (
             "force" if force else
             "support_margin_prompt_template" if prompt_template else
@@ -1533,6 +1552,72 @@ def _select_central_support_output_with_score(outputs: Sequence[str]) -> Tuple[s
     return best_output, float(best_score)
 
 
+def _select_semantic_support_output_with_score(
+    outputs: Sequence[str],
+    *,
+    signature: str,
+) -> Tuple[str, float, Dict[str, Any]]:
+    if not outputs:
+        return "", 0.0, {}
+    if len(outputs) == 1:
+        return str(outputs[0]), 1.0, {
+            "selection_pattern": _support_language_pattern(str(outputs[0]), signature),
+            "semantic_support_score": 1.0,
+            "semantic_cluster_size": 1,
+        }
+
+    expected_slots = _signature_slot_tokens(signature)
+    median_len = max(1, _median_word_count(outputs))
+    pattern_counts: Dict[str, int] = {}
+    for output in outputs:
+        pattern = _support_language_pattern(str(output), signature)
+        pattern_counts[pattern] = pattern_counts.get(pattern, 0) + 1
+
+    best_output = str(outputs[0])
+    best_support_score = 0.0
+    best_pattern = ""
+    best_semantic_score = -1.0
+    best_key = (-1.0, -1.0, 0, "")
+    for output in outputs:
+        text = str(output)
+        support_score = _mean_support_score(text, [str(other) for other in outputs if str(other) != text])
+        pred_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", text.lower()))
+        slot_coverage = (
+            len(expected_slots & pred_slots) / max(1, len(expected_slots))
+            if expected_slots
+            else 1.0
+        )
+        words = _prediction_words(text)
+        length_score = max(0.0, 1.0 - (abs(len(words) - median_len) / max(1.0, float(median_len))))
+        pattern = _support_language_pattern(text, signature)
+        cluster_ratio = pattern_counts.get(pattern, 1) / max(1, len(outputs))
+        act_score = _act_semantic_fit_score(text, signature)
+        semantic_score = (
+            0.35 * float(support_score)
+            + 0.25 * float(slot_coverage)
+            + 0.20 * float(cluster_ratio)
+            + 0.10 * float(length_score)
+            + 0.10 * float(act_score)
+        )
+        key = (
+            semantic_score,
+            support_score,
+            -abs(len(words) - median_len),
+            text,
+        )
+        if key > best_key:
+            best_key = key
+            best_output = text
+            best_support_score = float(support_score)
+            best_pattern = pattern
+            best_semantic_score = float(semantic_score)
+    return best_output, float(best_support_score), {
+        "selection_pattern": best_pattern,
+        "semantic_support_score": max(0.0, best_semantic_score),
+        "semantic_cluster_size": int(pattern_counts.get(best_pattern, 1)),
+    }
+
+
 def _mean_support_score(prediction: str, support_outputs: Sequence[str]) -> float:
     outputs = [str(output) for output in support_outputs if str(output).strip()]
     if not outputs:
@@ -1555,6 +1640,73 @@ def _median_word_count(outputs: Sequence[str]) -> int:
     if not counts:
         return 0
     return int(counts[len(counts) // 2])
+
+
+def _signature_slot_tokens(signature: str) -> set:
+    tokens = set()
+    for part in str(signature or "").split("|"):
+        bits = part.split(":")
+        if len(bits) != 3:
+            continue
+        domain, act, slot = [bit.strip().lower() for bit in bits]
+        if not domain or not act or not slot or slot == "none":
+            continue
+        tokens.add(f"slot-{domain}-{act}-{slot}")
+    return tokens
+
+
+def _signature_act(signature: str) -> str:
+    part = str(signature or "").split("|")[0]
+    bits = part.split(":")
+    return bits[1].strip().lower() if len(bits) == 3 else ""
+
+
+def _support_language_pattern(output: str, signature: str) -> str:
+    text = str(output or "").lower()
+    act = _signature_act(signature)
+    if act in {"nobook", "nooffer"}:
+        if "reference number" in text:
+            return "nobook_reference"
+        if any(term in text for term in ["unable", "not able", "n't able", "can not", "cannot", "unsuccessful"]):
+            return "nobook_unable"
+        if any(term in text for term in ["not available", "no availability", "no reservations", "no tables", "booked", "full"]):
+            return "nobook_unavailable"
+        if "sorry" in text or "unfortunately" in text:
+            return "nobook_apology"
+        return "nobook_other"
+    if act == "inform":
+        if "?" in text:
+            return "inform_question"
+        if "pick you up" in text or "taxi" in text:
+            return "inform_taxi"
+        if any(term in text for term in ["there are", "i have", "we have"]):
+            return "inform_offer_count"
+        if any(term in text for term in ["address", "postcode", "phone", "number"]):
+            return "inform_contact"
+        return "inform_statement"
+    if act == "book":
+        if "reference number" in text:
+            return "book_reference"
+        return "book_other"
+    return "other"
+
+
+def _act_semantic_fit_score(output: str, signature: str) -> float:
+    text = str(output or "").lower()
+    act = _signature_act(signature)
+    if act in {"nobook", "nooffer"}:
+        if "reference number" in text and "ref" not in signature:
+            return 0.1
+        if any(term in text for term in ["unable", "not available", "no availability", "no reservations", "no tables", "booked", "full", "unsuccessful", "sorry", "unfortunately"]):
+            return 1.0
+        return 0.4
+    if act == "inform":
+        if _signature_slot_tokens(signature) and not _signature_slot_tokens(signature).issubset(
+            set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", text))
+        ):
+            return 0.2
+        return 0.9 if "?" not in text else 0.6
+    return 0.8
 
 
 def _looks_like_generic_da_template(prediction: str) -> bool:
