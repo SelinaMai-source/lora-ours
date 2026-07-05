@@ -1,0 +1,48 @@
+/root/miniconda3/lib/python3.12/site-packages/torch/__init__.py:1264: UserWarning: torch.set_default_tensor_type() is deprecated as of PyTorch 2.1, please use torch.set_default_dtype() and torch.set_default_device() as alternatives. (Triggered internally at /pytorch/torch/csrc/tensor/python_tensor.cpp:434.)
+  _C._set_default_tensor_type(t)
+Processing data...
+Whole Data Set INFO
+***** DATA INFO *****
+# of turns
+Train: 50256
+Valid: 6700
+Test: 6690
+# of batches: Train 785 Valid 104 Test 104
+The model path is /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0.pt
+The mode is test
+Using deep version with 1 layer
+Using sclstm as decoder with module list!
+Testing at /root/lora-ours/results/runs/arper_woz3_official_sclstm_formal_v66/1111/exemplar_ewc_loss_250_formal_v66_0.5_300000.0/lm/model/exemplar_ewc_loss_250_formal_v66_0.5_300000.0_1706428.pt
+/root/lora-ours/baselines/advanced_baselines/arper_dialog_nlg/external
+***** DATA INFO *****
+Using 100.0% of training data
+BATCH SIZE: 64
+Train: 50256 turns
+Valid: 6700 turns
+Test: 6690 turns
+# of batches: Train 785 Valid 104 Test 104
+*************************
+
+Using deep version with 1 layer
+Number of layer is 1
+Traceback (most recent call last):
+  File "/root/lora-ours/scripts/arper_woz3_v68_postdecode_repair_overlay.py", line 385, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/root/lora-ours/scripts/arper_woz3_v68_postdecode_repair_overlay.py", line 294, in main
+    result = evaluate_raw_and_repaired(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/lora-ours/scripts/arper_woz3_v68_postdecode_repair_overlay.py", line 147, in evaluate_raw_and_repaired
+    dataset, model = official.run_woz3.read(config, args)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/lora-ours/baselines/advanced_baselines/arper_dialog_nlg/external/run_woz3.py", line 382, in read
+    state = torch.load(model_path)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/serialization.py", line 1529, in load
+    raise pickle.UnpicklingError(_get_wo_message(str(e))) from None
+_pickle.UnpicklingError: Weights only load failed. This file can still be loaded, to do so you have two options, [1mdo those steps only if you trust the source of the checkpoint[0m. 
+	(1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+	(2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+	WeightsUnpickler error: Unsupported global: GLOBAL collections.defaultdict was not an allowed global by default. Please use `torch.serialization.add_safe_globals([collections.defaultdict])` or the `torch.serialization.safe_globals([collections.defaultdict])` context manager to allowlist this global if you trust this class/function.
+
+Check the documentation of torch.load to learn more about types accepted by default with weights_only https://pytorch.org/docs/stable/generated/torch.load.html.
