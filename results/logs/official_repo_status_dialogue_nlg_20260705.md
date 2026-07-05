@@ -1,6 +1,6 @@
 # Dialogue NLG Official Repo / Code Status
 
-- Updated: `2026-07-05T21:25+08:00`
+- Updated: `2026-07-05T21:50+08:00`
 - Current selected runnable base: ARPER official WOZ3 SCLSTM.
 - Current ours overlay anchor: v81 post-decode slot repair overlay on ARPER/SCLSTM output path.
 
@@ -51,10 +51,16 @@
   - clone `https://github.com/budzianowski/multiwoz.git`
   - unzip/convert MultiWOZ 2.1/2.2
 - Current data availability: `SGD_MISSING`, `TM_MISSING`, `MWOZ_MISSING`; only `data/download.sh`, `data/TM.py`, `data/SGD.py`, and `data/MWOZ.py` are present.
+- Current network/proxy availability:
+  - Temporary mihomo proxy is running in tmux `official-gate-mihomo-proxy`.
+  - GitHub and HuggingFace are reachable; OpenReview still redirects to browser verification.
+  - `git ls-remote` succeeds for the three upstream data repos: SGD, Taskmaster, and MultiWOZ.
 - Current environment availability:
-  - No dedicated ToDCL conda env is present.
-  - `python train.py --help` smoke fails before parsing args with `ModuleNotFoundError: No module named 'pytorch_lightning'`.
-  - `requirements.txt` pins an old stack including `torch==1.4.0`, `pytorch-lightning==1.2.5`, and `transformers==3.5.1`, so it should be isolated before any install.
+  - Isolated smoke venv: `/root/autodl-tmp/venvs/todcl_official_smoke_py39`.
+  - The venv inherits the existing O-LoRA Python 3.9 environment with system-site packages and installs only minimal ToDCL smoke deps inside the venv.
+  - Added inside venv: `pytorch-lightning==1.2.5`, `torchmetrics==0.3.2`, `dictdiffer==0.8.1`, `termcolor==1.1.0`, `tabulate==0.8.9`, `sentencepiece==0.1.99`, `sacremoses==0.0.45`.
+  - `python train.py --help` now passes in the isolated venv. This verifies the official entrypoint can parse args, but it is not a training/data smoke.
+  - `requirements.txt` still pins a legacy full stack including `torch==1.4.0`, `pytorch-lightning==1.2.5`, and `transformers==3.5.1`; a fully faithful runtime remains unresolved because local inherited torch/transformers versions are newer.
 - Official examples:
   - `python train.py --CL VANILLA --task_type NLG`
   - `python train.py --task_type NLG --CL REPLAY --episodic_mem_size 10`
@@ -64,10 +70,10 @@
   - REPLAY BLEU `21.4832`, EER `0.0559855`
   - ADAPTER BLEU `21.7719`, EER `0.163975`
   - MULTI BLEU `26.1462`, EER `0.0341823`
-- Status: repo downloaded and clean, but not yet runnable. Official data download/preprocess/export and an isolated legacy environment are required before even a minimal official smoke.
+- Status: repo downloaded and clean; entrypoint help smoke passes in an isolated venv. Official data download/preprocess/export and a faithful legacy runtime are still required before any ToDCL training smoke or reproduction.
 
 ## Gate Decision
 
 - Dialogue ours increments may continue only on the documented ARPER SCLSTM base until ToDCL official data and smoke reproduction are completed.
 - Do not compare ARPER WOZ3 BLEU/SER and ToDCL TOD37/MultiWOZ BLEU/EER as interchangeable SOTA claims.
-- Next safe ToDCL step: create an isolated legacy environment and run data download/preprocess only if disk budget is confirmed; otherwise keep ToDCL as blocked.
+- Next safe ToDCL step: plan controlled data download/preprocess into `/root/autodl-tmp` using proxy, then run a no/cheap data-loader smoke before any training. Do not run full ToDCL training until data layout and faithful runtime are documented.

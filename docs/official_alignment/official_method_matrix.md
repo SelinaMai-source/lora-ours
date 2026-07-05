@@ -81,27 +81,28 @@ ToDCL status:
 - URL: `https://github.com/andreamad8/ToDCL`
 - local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl`
 - commit: `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`
-- status: downloaded clean, not runnable; missing data and legacy environment.
+- status: downloaded clean; official `train.py --help` entrypoint smoke passes in isolated venv; training/data smoke still blocked by missing data layout and faithful legacy runtime.
 - network/proxy: temporary mihomo proxy is available; `git ls-remote` reaches `google-research-datasets/dstc8-schema-guided-dialogue`, `google-research-datasets/Taskmaster`, and `budzianowski/multiwoz`. Data has not been downloaded because the official data layout and legacy environment still need controlled setup.
+- smoke venv: `/root/autodl-tmp/venvs/todcl_official_smoke_py39`, with minimal local-only installs for help parsing.
 
 | Method | Paper Result | Official Repo Found | Commit / Path | Downloaded | Runnable | Smoke / Repro Result | Reproduced | Gate | Blocker / Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | ARPER | ARPER paper: best non-Full, e.g. exemplar 250/500 tables; user target BLEU4 `0.701`, SER `3.63` | yes | `99019d...` / ARPER repo | yes | yes | v58 one-epoch smoke completed; v66 formal SCLSTM completed | partial | official_equivalent_anchor | v66 final BLEU4 `0.63231`, SER `4.817`; below user target but official SCLSTM path is runnable. |
 | Replay / ER | ARPER paper ER/random/prioritized baselines, e.g. ERprio improves over random but below ARPER | yes, inside ARPER repo | ARPER repo | yes | not rerun separately | no local separate smoke | no | downloaded_not_runnable | baseline variants need script/config isolation. |
-| LAMOL | ToDCL README NLG Modularized BLEU `3.49649`, EER `0.35664`; E2E BLEU `3.55622`, EER `0.638889` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | no | `python train.py --help` fails: missing `pytorch_lightning` | no | downloaded_not_runnable | needs isolated legacy env and data download. |
-| AdapterCL / ADAPTER | ToDCL README NLG Modularized BLEU `21.7719`, EER `0.163975`; E2E BLEU `16.5768`, EER `0.331949` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | no | same help smoke fails | no | downloaded_not_runnable | likely best non-Multi ToDCL NLG baseline, but not runnable yet. |
-| Replay / REPLAY | ToDCL README NLG Modularized BLEU `21.4832`, EER `0.0559855`; E2E BLEU `16.2668`, EER `0.190309` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | no | same help smoke fails | no | downloaded_not_runnable | strong EER; needs ToDCL env/data. |
-| Multi upper bound | ToDCL README NLG Modularized BLEU `26.1462`, EER `0.0341823`; E2E BLEU `23.6073`, EER `0.12558` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | no | same help smoke fails | no | downloaded_not_runnable | upper bound, not deployed CL base. |
-| VANILLA/L2/EWC/AGEM | ToDCL README includes low NLG BLEU/EER baselines | yes via ToDCL repo | `e70c1...` / ToDCL | yes | no | same help smoke fails | no | downloaded_not_runnable | not best bases; still matrix candidates for comparison. |
+| LAMOL | ToDCL README NLG Modularized BLEU `3.49649`, EER `0.35664`; E2E BLEU `3.55622`, EER `0.638889` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | `train.py --help` passes in isolated smoke venv; no data/training smoke | no | downloaded_not_runnable | needs official data download/layout and faithful legacy runtime before method smoke. |
+| AdapterCL / ADAPTER | ToDCL README NLG Modularized BLEU `21.7719`, EER `0.163975`; E2E BLEU `16.5768`, EER `0.331949` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | likely best non-Multi ToDCL NLG baseline, but data/training smoke is still blocked. |
+| Replay / REPLAY | ToDCL README NLG Modularized BLEU `21.4832`, EER `0.0559855`; E2E BLEU `16.2668`, EER `0.190309` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | strong EER; needs ToDCL env/data. |
+| Multi upper bound | ToDCL README NLG Modularized BLEU `26.1462`, EER `0.0341823`; E2E BLEU `23.6073`, EER `0.12558` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | upper bound, not deployed CL base. |
+| VANILLA/L2/EWC/AGEM | ToDCL README includes low NLG BLEU/EER baselines | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | not best bases; still matrix candidates for comparison. |
 
 Current Dialogue decision:
 - ARPER is the only runnable official anchor.
-- ToDCL is blocked by missing `SGD/Taskmaster/MultiWOZ` data and no legacy env (`pytorch_lightning` missing).
+- ToDCL help smoke passes after an isolated minimal dependency install; ToDCL remains blocked by missing `SGD/Taskmaster/MultiWOZ` data layout and a faithful legacy runtime for training.
 - No Dialogue Ours work on ToDCL until the official smoke passes.
 
 ## Immediate Blockers
 
 1. LB-CL official/author code source not found.
 2. CITB public script/data mismatch: paper `500/50/100` vs script-strict `500/50/50`; released scores explain short train counts but not dev/test ambiguity. Network is not the current blocker.
-3. ToDCL lacks official data and legacy environment; upstream data repos are reachable through proxy, so the next blocker is controlled download/layout plus `pytorch_lightning` legacy env setup.
+3. ToDCL lacks official data and faithful legacy training environment; upstream data repos are reachable through proxy, and `train.py --help` now passes in an isolated smoke venv.
 4. Potential newer Standard methods (MoRA/OLieRA) may supersede LB-CL/O-LoRA but must first pass this same official repo gate.

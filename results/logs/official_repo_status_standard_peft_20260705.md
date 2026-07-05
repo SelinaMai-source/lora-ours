@@ -1,6 +1,6 @@
 # Standard PEFT CL Official Repo / Code Status
 
-- Updated: `2026-07-05T21:25+08:00`
+- Updated: `2026-07-05T21:50+08:00`
 - Selected runnable base for ours: O-LoRA official T5-large Standard CL order1.
 - Current best ours anchored on this base: v69 formal EM `77.2566`, ROUGE-L `81.1919`.
 
@@ -56,8 +56,9 @@
   - NeurIPS/OpenReview paper reports T5-large Standard CL LB-CL `76.9/76.5/76.8`, avg `76.7`.
 - Additional search on `2026-07-05`:
   - Web search for `"Learn more, but bother less" LB-CL code GitHub`, `"LB-CL" "Learn more, but bother less" GitHub`, and OpenReview ID `ZxtaNh5UYB` found paper/OpenReview/NeurIPS pages but no canonical code repository.
-  - `gh` CLI is not installed in this environment, so GitHub API search could not be run locally.
-  - Direct OpenReview fetch is blocked by browser verification; web snippets and downloaded paper PDFs are available, but no code link was exposed there.
+  - With the mihomo proxy, GitHub and HuggingFace are reachable, but unauthenticated GitHub API repository search is rate-limited (`403`).
+  - Follow-up web searches for `"Fuli Qiao" "Learn More, but Bother Less" GitHub`, `"Mehrdad Mahdavi" "LB-CL" GitHub`, and `"Learn more, but bother less" "github.com"` found paper/OpenReview/NeurIPS/ML Anthology/proceedings pages and a generic author GitHub profile, but no LB-CL source repository or supplement code.
+  - Direct non-browser OpenReview/NeurIPS/ML Anthology fetch via local proxy hit SSL/browser-access issues; web-indexed snippets and downloaded paper PDFs are available, but no code link was exposed there.
 - Dedicated official repo: not found in current local external sources and not found via web search.
 - Status: paper result can be cited as a published baseline, but code-level reproducibility remains a blocker until an official/author repository or supplement code is located. Do not use third-party code as LB-CL official code.
 
