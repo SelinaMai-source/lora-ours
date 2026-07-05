@@ -1,0 +1,12 @@
+{
+  "updated_at": "2026-07-05T16:48:55+08:00",
+  "event": "manual_user_stop_after_sigterm",
+  "run_name": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705",
+  "train_exit_status": null,
+  "state": "stopped_by_user_request",
+  "reason": "Stopped because user directed that v62 diagnostic has no SOTA/final result and must release GPU for O-LoRA official-base + ours replay overlay formal.",
+  "not_reportable_as_published_base": true,
+  "matching_processes_after_stop": [
+    "809970 /bin/bash -O extglob -c snap=$(command cat <&3) && builtin shopt -s extglob && builtin eval -- \"$snap\" && { builtin set +u 2>/dev/null || true; builtin eval \"${__CURSOR_SANDBOX_ENV_RESTORE:-}\" 2>/dev/null; builtin export PWD=\"$(builtin pwd)\"; builtin shopt -s expand_aliases 2>/dev/null; builtin eval \"$1\"; }; COMMAND_EXIT_CODE=$?; dump_bash_state >&4; builtin exit $COMMAND_EXIT_CODE -- python - <<'PY' import json, subprocess from datetime import datetime from pathlib import Path run='standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705' repo=Path('/root/lora-ours') log_dir=repo/'results/logs' proc=subprocess.run(['ps','-eo','pid,args='], text=True, capture_output=True) matching=[line.strip() for line in proc.stdout.splitlines() if run in line or 'python -m core.train' in line] record={  'updated_at': datetime.now().astimezone().isoformat(timespec='seconds'),  'event': 'manual_user_stop_after_sigterm',  'run_name': run,  'train_exit_status': None,  'state': 'stopped_by_user_request',  'reason': 'Stopped because user directed that v62 diagnostic has no SOTA/final result and must release GPU for O-LoRA official-base + ours replay overlay formal.',  'not_reportable_as_published_base': True,  'matching_processes_after_stop': matching, } (log_dir/f'{run}.manual_exit.json').write_text(json.dumps(record, indent=2)+'\\n', encoding='utf-8') print(json.dumps(record, indent=2)) PY git status --short results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.user_stop.* results/logs/standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v62_formal_neutral_20260705.manual_exit.json"
+  ]
+}
