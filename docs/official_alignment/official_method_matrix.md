@@ -86,31 +86,32 @@ ToDCL status:
 - URL: `https://github.com/andreamad8/ToDCL`
 - local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl`
 - commit: `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`
-- status: downloaded clean; official `train.py --help` entrypoint smoke passes in isolated venv; training/data smoke still blocked by missing data layout and faithful legacy runtime.
+- status: downloaded clean; official `train.py --help` passes in faithful legacy Python 3.7 / torch 1.4 env, and SGD-only preprocess smoke passes. Full training/reproduction remains blocked by incomplete Taskmaster/MultiWOZ data.
 - network/proxy: temporary mihomo proxy is available; `git ls-remote` reaches `google-research-datasets/dstc8-schema-guided-dialogue`, `google-research-datasets/Taskmaster`, and `budzianowski/multiwoz`. Data has not been downloaded because the official data layout and legacy environment still need controlled setup.
-- smoke venv: `/root/autodl-tmp/venvs/todcl_official_smoke_py39`, with minimal local-only installs for help parsing.
+- smoke envs: `/root/autodl-tmp/venvs/todcl_official_smoke_py39` for import/help triage; `/root/autodl-tmp/conda_envs/todcl_legacy_py37` for faithful Python 3.7 / torch 1.4.0 / CUDA 10.1 smoke.
 - official archive path: `official_repos/dialogue/ToDCL` pinned to `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`.
-- data download audit: GitHub repo API sizes are roughly SGD `51 MB`, Taskmaster `111 MB`, MultiWOZ `126 MB`; `git clone --depth 1` failed with GnuTLS/RPC EOF; partial codeload SGD zip `23 MB` is invalid (`BadZipFile`). No data-loader smoke yet.
-- legacy env audit: pip dry-run under Python 3.9 cannot resolve `torch==1.4.0` from the available index; faithful ToDCL env remains blocked.
+- data download audit: GitHub repo API sizes are roughly SGD `51 MB`, Taskmaster `111 MB`, MultiWOZ `126 MB`; `git clone --depth 1` failed with GnuTLS/RPC EOF; retrying codeload with curl/retry produced a valid SGD zip `36,962,546` bytes (`234` entries). Taskmaster and MultiWOZ are not yet downloaded.
+- legacy env audit: Python 3.9 pip cannot resolve `torch==1.4.0`; conda can resolve and create Python 3.7 + pytorch 1.4.0 + CUDA 10.1 when `CONDA_PKGS_DIRS` is moved to `/root/autodl-tmp/conda_pkgs` to avoid `/root` space limits.
+- data smoke: ToDCL `get_datasets(dataset_list=['SGD'], develop=True)` passes with train/dev/test totals `532/78/158` over `10` domains. This is not the full ToDCL 37-domain smoke.
 
 | Method | Paper Result | Official Repo Found | Commit / Path | Downloaded | Runnable | Smoke / Repro Result | Reproduced | Gate | Blocker / Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | ARPER | ARPER paper: best non-Full, e.g. exemplar 250/500 tables; user target BLEU4 `0.701`, SER `3.63` | yes | `99019d...` / ARPER repo | yes | yes | v58 one-epoch smoke completed; v66 formal SCLSTM completed | partial | official_equivalent_anchor | v66 final BLEU4 `0.63231`, SER `4.817`; below user target but official SCLSTM path is runnable. |
 | Replay / ER | ARPER paper ER/random/prioritized baselines, e.g. ERprio improves over random but below ARPER | yes, inside ARPER repo | ARPER repo | yes | not rerun separately | no local separate smoke | no | downloaded_not_runnable | baseline variants need script/config isolation. |
-| LAMOL | ToDCL README NLG Modularized BLEU `3.49649`, EER `0.35664`; E2E BLEU `3.55622`, EER `0.638889` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | `train.py --help` passes in isolated smoke venv; no data/training smoke | no | downloaded_not_runnable | needs official data download/layout and faithful legacy runtime before method smoke. |
-| AdapterCL / ADAPTER | ToDCL README NLG Modularized BLEU `21.7719`, EER `0.163975`; E2E BLEU `16.5768`, EER `0.331949` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | likely best non-Multi ToDCL NLG baseline, but data/training smoke is still blocked. |
-| Replay / REPLAY | ToDCL README NLG Modularized BLEU `21.4832`, EER `0.0559855`; E2E BLEU `16.2668`, EER `0.190309` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | strong EER; needs ToDCL env/data. |
-| Multi upper bound | ToDCL README NLG Modularized BLEU `26.1462`, EER `0.0341823`; E2E BLEU `23.6073`, EER `0.12558` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | upper bound, not deployed CL base. |
-| VANILLA/L2/EWC/AGEM | ToDCL README includes low NLG BLEU/EER baselines | yes via ToDCL repo | `e70c1...` / ToDCL | yes | entrypoint only | same help smoke passes; no data/training smoke | no | downloaded_not_runnable | not best bases; still matrix candidates for comparison. |
+| LAMOL | ToDCL README NLG Modularized BLEU `3.49649`, EER `0.35664`; E2E BLEU `3.55622`, EER `0.638889` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | partial data smoke | `train.py --help` passes in legacy env; SGD-only preprocess smoke passes | no | downloaded_not_runnable | needs Taskmaster/MultiWOZ data and method-level smoke before reproduction. |
+| AdapterCL / ADAPTER | ToDCL README NLG Modularized BLEU `21.7719`, EER `0.163975`; E2E BLEU `16.5768`, EER `0.331949` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | partial data smoke | same legacy help + SGD preprocess smoke | no | downloaded_not_runnable | likely best non-Multi ToDCL NLG baseline, but full data/method smoke is still blocked. |
+| Replay / REPLAY | ToDCL README NLG Modularized BLEU `21.4832`, EER `0.0559855`; E2E BLEU `16.2668`, EER `0.190309` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | partial data smoke | same legacy help + SGD preprocess smoke | no | downloaded_not_runnable | strong EER; needs full ToDCL env/data. |
+| Multi upper bound | ToDCL README NLG Modularized BLEU `26.1462`, EER `0.0341823`; E2E BLEU `23.6073`, EER `0.12558` | yes via ToDCL repo | `e70c1...` / ToDCL | yes | partial data smoke | same legacy help + SGD preprocess smoke | no | downloaded_not_runnable | upper bound, not deployed CL base; full data still required. |
+| VANILLA/L2/EWC/AGEM | ToDCL README includes low NLG BLEU/EER baselines | yes via ToDCL repo | `e70c1...` / ToDCL | yes | partial data smoke | same legacy help + SGD preprocess smoke | no | downloaded_not_runnable | not best bases; still matrix candidates for comparison. |
 
 Current Dialogue decision:
 - ARPER is the only runnable official anchor.
-- ToDCL help smoke passes after an isolated minimal dependency install; ToDCL remains blocked by missing `SGD/Taskmaster/MultiWOZ` data layout and a faithful legacy runtime for training.
+- ToDCL legacy help smoke and SGD-only preprocess smoke pass; ToDCL remains blocked by missing Taskmaster/MultiWOZ data and no full method-level smoke/reproduction.
 - No Dialogue Ours work on ToDCL until the official smoke passes.
 
 ## Immediate Blockers
 
 1. LB-CL official/author code source not found.
 2. CITB public script/data mismatch: paper `500/50/100` vs script-strict `500/50/50`; released scores explain short train counts but not dev/test ambiguity. Network is not the current blocker.
-3. ToDCL lacks official data and faithful legacy training environment; upstream data repos are reachable through proxy, and `train.py --help` now passes in an isolated smoke venv. Data clone/download is currently blocked by unstable GitHub TLS/RPC/codeload transfer and needs resumable verified download before data-loader smoke.
+3. ToDCL is partially unblocked: faithful legacy env exists and SGD preprocess smoke passes. Full gate remains blocked by Taskmaster/MultiWOZ download/layout and method-level smoke/reproduction.
 4. Potential newer Standard methods (MoRA/OLieRA) may supersede LB-CL/O-LoRA but must first pass this same official repo gate.
