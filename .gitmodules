@@ -1,0 +1,29 @@
+[submodule "official_repos/citb/CITB"]
+	path = official_repos/citb/CITB
+	url = https://github.com/hyintell/CITB.git
+	ignore = dirty
+
+[submodule "official_repos/standard/O-LoRA"]
+	path = official_repos/standard/O-LoRA
+	url = https://github.com/cmnfriend/O-LoRA.git
+	ignore = dirty
+
+[submodule "official_repos/standard/Lifelong-Fewshot-Language-Learning"]
+	path = official_repos/standard/Lifelong-Fewshot-Language-Learning
+	url = https://github.com/qcwthu/Lifelong-Fewshot-Language-Learning.git
+	ignore = dirty
+
+[submodule "official_repos/standard/ProgressivePrompts"]
+	path = official_repos/standard/ProgressivePrompts
+	url = https://github.com/arazd/ProgressivePrompts.git
+	ignore = dirty
+
+[submodule "official_repos/dialogue/Continual-Learning-for-NLG"]
+	path = official_repos/dialogue/Continual-Learning-for-NLG
+	url = https://github.com/MiFei/Continual-Learning-for-NLG.git
+	ignore = dirty
+
+[submodule "official_repos/dialogue/ToDCL"]
+	path = official_repos/dialogue/ToDCL
+	url = https://github.com/andreamad8/ToDCL.git
+	ignore = dirty
