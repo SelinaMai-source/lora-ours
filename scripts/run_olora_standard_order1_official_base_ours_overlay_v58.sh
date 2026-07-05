@@ -28,6 +28,7 @@ LORA_DIM="${LORA_DIM:-8}"
 REPLAY_PER_TASK="${REPLAY_PER_TASK:-64}"
 AMAZON_REPLAY_MULTIPLIER="${AMAZON_REPLAY_MULTIPLIER:-1}"
 SC_LABEL_CALIBRATION="${SC_LABEL_CALIBRATION:-0}"
+SC_BALANCED_REPLAY="${SC_BALANCED_REPLAY:-0}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -48,7 +49,7 @@ mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${OUTPUT_ROOT}"
 write_status() {
   local state="$1"
   local reason="${2:-}"
-  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" <<'PY'
+  python - "$STATUS_FILE" "$RUN_NAME" "$state" "$reason" "$WANDB_PROJECT" "$WANDB_GROUP" "$LOG_FILE" "$MANIFEST_FILE" "$RUN_LABEL" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$OVERLAY_MANIFEST" "$SC_BALANCED_REPLAY" <<'PY'
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -69,6 +70,7 @@ from pathlib import Path
     gradient_accumulation_steps,
     replay_per_task,
     overlay_manifest,
+    sc_balanced_replay,
 ) = sys.argv[1:]
 
 limits = []
@@ -91,6 +93,7 @@ lines = [
     "- selected base: O-LoRA official T5-large Standard CL order1 seed1",
     "- overlay: Ours limited replay overlay on training config only",
     f"- replay_per_prior_task: {replay_per_task}",
+    f"- sc_balanced_replay: {sc_balanced_replay}",
     f"- label: {run_label}",
     f"- W&B project: {project}",
     f"- W&B group: {group}",
@@ -110,7 +113,7 @@ PY
 write_manifest() {
   local state="$1"
   local reason="${2:-}"
-  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" <<'PY'
+  python - "$MANIFEST_FILE" "$RUN_NAME" "$state" "$reason" "$OFFICIAL_ROOT" "$ENV_PREFIX" "$BASE_MODEL" "$RUNTIME_ROOT" "$OUTPUT_ROOT" "$OVERLAY_CONFIG_ROOT" "$OVERLAY_MANIFEST" "$WANDB_PROJECT" "$WANDB_GROUP" "$MAX_STEPS" "$MAX_TRAIN_SAMPLES" "$MAX_PREDICT_SAMPLES" "$RUN_LABEL" "$GRADIENT_ACCUMULATION_STEPS" "$REPLAY_PER_TASK" "$AMAZON_REPLAY_MULTIPLIER" "$SC_LABEL_CALIBRATION" "$SC_BALANCED_REPLAY" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -137,6 +140,7 @@ from pathlib import Path
     replay_per_task,
     amazon_replay_multiplier,
     sc_label_calibration,
+    sc_balanced_replay,
 ) = sys.argv[1:]
 
 def maybe_int(value):
@@ -154,6 +158,7 @@ manifest = {
         "replay_per_prior_task": maybe_int(replay_per_task),
         "amazon_replay_multiplier": maybe_int(amazon_replay_multiplier),
         "sc_label_calibration": sc_label_calibration == "1",
+        "sc_balanced_replay": sc_balanced_replay == "1",
         "config_root": overlay_config_root,
         "manifest": overlay_manifest,
         "dev_test_policy": "copied unchanged from official current-round order1 configs",
@@ -254,6 +259,77 @@ new = '''            instruction += "Option: " + labels_str + " \\n"
 '''
 if old not in text:
     raise SystemExit(f"expected SC instruction line not found in {path}")
+path.write_text(text.replace(old, new, 1), encoding="utf-8")
+PY
+  fi
+  if [[ "$SC_BALANCED_REPLAY" == "1" ]]; then
+    python - "$RUNTIME_ROOT/src/uie_dataset_lora.py" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+old = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_instances):
+        if sampling_strategy == 'random' and max_num_instances is not None and max_num_instances >= 0:
+            instances = instances[:max_num_instances]
+        if max_num_instances!=None and self.config.over_sampling and len(instances) < max_num_instances:
+            origin_instances = instances.copy()
+            while len(instances) < max_num_instances:
+                instances.append(random.choice(origin_instances))
+
+        return instances
+"""
+new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_instances):
+        if sampling_strategy == 'random' and max_num_instances is not None and max_num_instances >= 0:
+            instances = instances[:max_num_instances]
+        if max_num_instances!=None and self.config.over_sampling and len(instances) < max_num_instances:
+            origin_instances = instances.copy()
+            while len(instances) < max_num_instances:
+                instances.append(random.choice(origin_instances))
+
+        return instances
+
+    def _balanced_label_sample(self, instances, max_num_instances):
+        if max_num_instances is None or max_num_instances < 0 or len(instances) <= max_num_instances:
+            return instances
+        buckets = {}
+        for instance in instances:
+            buckets.setdefault(instance.get('label', ''), []).append(instance)
+        if not buckets:
+            return instances[:max_num_instances]
+        labels = sorted(buckets)
+        selected = []
+        offset = 0
+        while len(selected) < max_num_instances:
+            made_progress = False
+            for label in labels:
+                bucket = buckets[label]
+                if offset < len(bucket):
+                    selected.append(bucket[offset])
+                    made_progress = True
+                    if len(selected) >= max_num_instances:
+                        break
+            if not made_progress:
+                break
+            offset += 1
+        return selected
+"""
+if old not in text:
+    raise SystemExit(f"expected sampling helper not found in {path}")
+text = text.replace(old, new, 1)
+old = """        instances = self._sampling_dataset(instances, sampling_strategy, max_num_instances)
+
+        for idx, instance in enumerate(instances):
+"""
+new = """        if dataset_name == 'amazon' and subset == 'train' and sampling_strategy == 'random':
+            instances = self._balanced_label_sample(instances, max_num_instances)
+        else:
+            instances = self._sampling_dataset(instances, sampling_strategy, max_num_instances)
+
+        for idx, instance in enumerate(instances):
+"""
+if old not in text:
+    raise SystemExit(f"expected SC sampling call not found in {path}")
 path.write_text(text.replace(old, new, 1), encoding="utf-8")
 PY
   fi
