@@ -710,7 +710,10 @@ new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_i
 """.replace("SSRG_TOP_K", repr(top_k)).replace("SSRG_ENERGY_THRESHOLD", repr(energy_threshold))
 if old not in text:
     raise SystemExit(f"expected sampling helper not found in {path}")
-path.write_text(text.replace(old, new, 1), encoding="utf-8")
+text = text.replace(old, new, 1)
+if "import re" not in text:
+    text = text.replace("import random\n", "import random\nimport re\n", 1)
+path.write_text(text, encoding="utf-8")
 PY
   fi
   if [[ "$SC_LEXICAL_REPAIR" == "1" ]]; then
