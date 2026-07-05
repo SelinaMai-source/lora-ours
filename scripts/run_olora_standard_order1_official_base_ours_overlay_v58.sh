@@ -212,6 +212,9 @@ preflight() {
     [[ -f "$OFFICIAL_ROOT/configs/order1_configs/${task}/dev_tasks.json" ]] || blockers+=("missing ${task} dev config")
     [[ -f "$OFFICIAL_ROOT/configs/order1_configs/${task}/test_tasks.json" ]] || blockers+=("missing ${task} test config")
   done
+  if [[ "$AMAZON_REPLAY_MULTIPLIER" != "1" ]]; then
+    blockers+=("unsupported amazon replay multiplier: duplicate dataset entries produce non-unique HuggingFace dataset keys; use REPLAY_PER_TASK for replay boost")
+  fi
   if (( ${#blockers[@]} > 0 )); then
     printf '%s\n' "${blockers[@]}" >&2
     write_manifest "blocked" "$(IFS='; '; echo "${blockers[*]}")"
