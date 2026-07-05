@@ -1,0 +1,125 @@
+{
+  "updated_at": "2026-07-05T17:56:05+08:00",
+  "event": "v69_formal_final_metrics",
+  "run_name": "olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1",
+  "route": "published_base_olora_official_runtime_plus_ours_limited_replay_overlay",
+  "comparability": "official_runtime_no_smoke_caps; O-LoRA official-base path with ours limited replay overlay; no test target/oracle used",
+  "pipeline_exit": {
+    "updated_at": "2026-07-05T17:47:59+08:00",
+    "event": "pipeline_exit",
+    "run_name": "olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1",
+    "status": 0
+  },
+  "baselines": {
+    "v57_official_olora": 76.8059,
+    "lb_cl_published": 76.7
+  },
+  "final": {
+    "predict_exact_match": 77.2566,
+    "predict_rougeL": 81.1919,
+    "delta_vs_v57_official_olora": 0.4507,
+    "delta_vs_lb_cl_published": 0.5566,
+    "per_task_exact_match": {
+      "SC": 54.4079,
+      "TC": 84.8728,
+      "agnews": 85.6974,
+      "amazon": 54.4079,
+      "dbpedia": 98.4211,
+      "yahoo": 70.5
+    },
+    "per_task_rougeL": {
+      "SC": 70.1491,
+      "TC": 84.8728,
+      "agnews": 85.6974,
+      "amazon": 70.1491,
+      "dbpedia": 98.4211,
+      "yahoo": 70.5
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "task": "dbpedia",
+      "predict_exact_match": 98.8026,
+      "predict_rougeL": 98.8026,
+      "train_loss": 0.12077015165000334,
+      "predict_loss": 0.024251841008663177,
+      "predict_samples": 7600,
+      "task_breakdown": {
+        "predict_exact_match_for_TC": 98.8026,
+        "predict_exact_match_for_dbpedia": 98.8026,
+        "predict_rougeL_for_TC": 98.8026,
+        "predict_rougeL_for_dbpedia": 98.8026
+      }
+    },
+    {
+      "round": 2,
+      "task": "amazon",
+      "predict_exact_match": 73.9211,
+      "predict_rougeL": 78.898,
+      "train_loss": 69.36635464052611,
+      "predict_loss": 0.2447003424167633,
+      "predict_samples": 15200,
+      "task_breakdown": {
+        "predict_exact_match_for_SC": 49.1184,
+        "predict_exact_match_for_TC": 98.7237,
+        "predict_exact_match_for_amazon": 49.1184,
+        "predict_exact_match_for_dbpedia": 98.7237,
+        "predict_rougeL_for_SC": 59.0724,
+        "predict_rougeL_for_TC": 98.7237,
+        "predict_rougeL_for_amazon": 59.0724,
+        "predict_rougeL_for_dbpedia": 98.7237
+      }
+    },
+    {
+      "round": 3,
+      "task": "yahoo",
+      "predict_exact_match": 74.4781,
+      "predict_rougeL": 80.0636,
+      "train_loss": 75.86601783655867,
+      "predict_loss": 0.2264980971813202,
+      "predict_samples": 22800,
+      "task_breakdown": {
+        "predict_exact_match_for_SC": 53.3289,
+        "predict_exact_match_for_TC": 85.0526,
+        "predict_exact_match_for_amazon": 53.3289,
+        "predict_exact_match_for_dbpedia": 98.3684,
+        "predict_exact_match_for_yahoo": 71.7368,
+        "predict_rougeL_for_SC": 70.0855,
+        "predict_rougeL_for_TC": 85.0526,
+        "predict_rougeL_for_amazon": 70.0855,
+        "predict_rougeL_for_dbpedia": 98.3684,
+        "predict_rougeL_for_yahoo": 71.7368
+      }
+    },
+    {
+      "round": 4,
+      "task": "agnews",
+      "predict_exact_match": 77.2566,
+      "predict_rougeL": 81.1919,
+      "train_loss": 149.87645768385667,
+      "predict_loss": 0.22212103009223938,
+      "predict_samples": 30400,
+      "task_breakdown": {
+        "predict_exact_match_for_SC": 54.4079,
+        "predict_exact_match_for_TC": 84.8728,
+        "predict_exact_match_for_agnews": 85.6974,
+        "predict_exact_match_for_amazon": 54.4079,
+        "predict_exact_match_for_dbpedia": 98.4211,
+        "predict_exact_match_for_yahoo": 70.5,
+        "predict_rougeL_for_SC": 70.1491,
+        "predict_rougeL_for_TC": 84.8728,
+        "predict_rougeL_for_agnews": 85.6974,
+        "predict_rougeL_for_amazon": 70.1491,
+        "predict_rougeL_for_dbpedia": 98.4211,
+        "predict_rougeL_for_yahoo": 70.5
+      }
+    }
+  ],
+  "decision": "current_best_standard_published_base_overlay; keep as traceable candidate, no incomparable SOTA claim",
+  "blockers": [],
+  "notes": [
+    "Round2/3 intermediate EM was below target but final round recovered above v57 official O-LoRA and LB-CL references.",
+    "Amazon/SC task remains the weakest per-task exact match and is the main next diagnostic target if iterating."
+  ]
+}
