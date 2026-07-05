@@ -1,14 +1,16 @@
 # Dialogue NLG Official Repo / Code Status
 
-- Updated: `2026-07-05T21:50+08:00`
+- Updated: `2026-07-05T22:15+08:00`
 - Current selected runnable base: ARPER official WOZ3 SCLSTM.
 - Current ours overlay anchor: v81 post-decode slot repair overlay on ARPER/SCLSTM output path.
+- Official archive branch: `official-method-code-archive-20260705` commit `b060357`.
 
 ## ARPER / Continual-Learning-for-NLG
 
 - Official repo: `https://github.com/MiFei/Continual-Learning-for-NLG`
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/arper`
 - Commit: `99019defe6bf35e8459ca6abd6f25882724bc956`
+- Official archive submodule: `official_repos/dialogue/Continual-Learning-for-NLG`.
 - Dirty status: untracked `__pycache__` directories only.
 - Official run script: `run.sh`.
 - Official config: `config/config.cfg`.
@@ -43,6 +45,7 @@
 - Official repo: `https://github.com/andreamad8/ToDCL`
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl`
 - Commit: `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`
+- Official archive submodule: `official_repos/dialogue/ToDCL`.
 - Dirty status: clean.
 - Official data setup: `data/download.sh`.
 - Data requirements from `data/download.sh`:
@@ -51,6 +54,12 @@
   - clone `https://github.com/budzianowski/multiwoz.git`
   - unzip/convert MultiWOZ 2.1/2.2
 - Current data availability: `SGD_MISSING`, `TM_MISSING`, `MWOZ_MISSING`; only `data/download.sh`, `data/TM.py`, `data/SGD.py`, and `data/MWOZ.py` are present.
+- Data size/download audit:
+  - GitHub repo API reports approximate repository sizes: SGD `51095 KB`, Taskmaster `111002 KB`, MultiWOZ `125780 KB`.
+  - `/root/autodl-tmp` has enough capacity for these source repos.
+  - `git clone --depth 1` for SGD failed with `GnuTLS recv error` / `early EOF`.
+  - A codeload SGD zip attempt left `/root/autodl-tmp/todcl_official_data_20260705/archives/dstc8-schema-guided-dialogue.zip` at `23068672` bytes, but Python `zipfile` reports `BadZipFile`, so it is not a valid completed archive.
+  - GitHub codeload HEAD returns `application/zip` but no `Content-Length`, so the current download path cannot reliably pre-estimate or verify size without a checksum/complete archive test.
 - Current network/proxy availability:
   - Temporary mihomo proxy is running in tmux `official-gate-mihomo-proxy`.
   - GitHub and HuggingFace are reachable; OpenReview still redirects to browser verification.
@@ -61,6 +70,7 @@
   - Added inside venv: `pytorch-lightning==1.2.5`, `torchmetrics==0.3.2`, `dictdiffer==0.8.1`, `termcolor==1.1.0`, `tabulate==0.8.9`, `sentencepiece==0.1.99`, `sacremoses==0.0.45`.
   - `python train.py --help` now passes in the isolated venv. This verifies the official entrypoint can parse args, but it is not a training/data smoke.
   - `requirements.txt` still pins a legacy full stack including `torch==1.4.0`, `pytorch-lightning==1.2.5`, and `transformers==3.5.1`; a fully faithful runtime remains unresolved because local inherited torch/transformers versions are newer.
+  - `pip install --dry-run torch==1.4.0 transformers==3.5.1` under the Python 3.9 smoke venv cannot find `torch==1.4.0` from the configured package index, so a faithful env likely needs an older Python/CUDA-compatible channel or container.
 - Official examples:
   - `python train.py --CL VANILLA --task_type NLG`
   - `python train.py --task_type NLG --CL REPLAY --episodic_mem_size 10`
@@ -70,10 +80,10 @@
   - REPLAY BLEU `21.4832`, EER `0.0559855`
   - ADAPTER BLEU `21.7719`, EER `0.163975`
   - MULTI BLEU `26.1462`, EER `0.0341823`
-- Status: repo downloaded and clean; entrypoint help smoke passes in an isolated venv. Official data download/preprocess/export and a faithful legacy runtime are still required before any ToDCL training smoke or reproduction.
+- Status: repo downloaded and clean; entrypoint help smoke passes in an isolated venv. Official data download/preprocess/export and a faithful legacy runtime are still required before any ToDCL data-loader/training smoke or reproduction.
 
 ## Gate Decision
 
 - Dialogue ours increments may continue only on the documented ARPER SCLSTM base until ToDCL official data and smoke reproduction are completed.
 - Do not compare ARPER WOZ3 BLEU/SER and ToDCL TOD37/MultiWOZ BLEU/EER as interchangeable SOTA claims.
-- Next safe ToDCL step: plan controlled data download/preprocess into `/root/autodl-tmp` using proxy, then run a no/cheap data-loader smoke before any training. Do not run full ToDCL training until data layout and faithful runtime are documented.
+- Next safe ToDCL step: replace the unstable GitHub clone/codeload path with a resumable verified download plan, remove invalid partial archive only after recording it, then run a cheap data-loader smoke before any training. Do not run full ToDCL training until data layout and faithful runtime are documented.

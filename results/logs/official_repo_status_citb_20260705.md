@@ -1,11 +1,12 @@
 # CITB Official Repo / Code Status
 
-- Updated: `2026-07-05T21:25+08:00`
+- Updated: `2026-07-05T22:15+08:00`
 - Official repo: `https://github.com/hyintell/CITB`
 - Local checkouts:
   - `/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb`
   - `/root/autodl-tmp/CITB`
 - Commit: `bf50533b5bced4c388691ecc75e26773da96b3fd`
+- Official archive submodule: `official_repos/citb/CITB` on branch `official-method-code-archive-20260705` commit `b060357`.
 - Repo cleanliness:
   - `/root/autodl-tmp/CITB`: clean
   - `/root/autodl-tmp/lora-baselines-run_v1/external_sources/citb`: dirty due to `continual_learning/run_initial_multitask_tuning.py` and untracked `Tk-Instruct/`; do not treat as pristine without diff audit.
@@ -29,6 +30,9 @@
 - Paper setting to verify: InstrDialog 19 tasks with `500/50/100`; InstrDialog++ 38 tasks with `100/50/100`; 3 seeds; Replay/AGEM memory variants.
 - Local official-script reproduction currently validated only for InstrDialog short stream under script-strict `500/50/50`.
 - Blocker: official Stage-2 code uses one `max_num_instances_per_eval_task` for both dev and per-task test, so unpatched official script yields `500/50/50`, not paper `500/50/100`.
+  - `continual_learning/utils.py::train_dev_test_split_by_task` documents that dev and test counts are both set by `max_num_instances_per_eval_task`, then assigns `test=instances[:N]` and `dev=instances[N:2N]`.
+  - `scripts/run_initial_multitask_tuning_with_CL.sh`, `scripts/eval_model.sh`, and `scripts/short_stream_scripts/run_cit_{ft,l2,ewc,agem,replay}*.sh` pass `max_num_instances_per_eval_task=50`.
+  - `scripts/data_scripts/prepare_cl_dialogue_data.sh` also uses `max_num_instances_per_task=500` and `max_num_instances_per_eval_task=50`.
 - Additional blocker: some InstrDialog++ tasks are short or empty under requested split counts, e.g. observed `train=0/dev=0/test<100` tasks in the long stream audit.
 - Official released scores provide partial explanation for the mismatch:
   - `scores/continual_instruction_tuning/stream=cl_dialogue_tasks/CL=FT_INSTR/scores.json` reports order1 ROUGE-L `average_train_samples=411.5`, not 500, which supports the short-task / available-instance constraint.

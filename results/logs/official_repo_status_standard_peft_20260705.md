@@ -1,14 +1,16 @@
 # Standard PEFT CL Official Repo / Code Status
 
-- Updated: `2026-07-05T21:50+08:00`
+- Updated: `2026-07-05T22:15+08:00`
 - Selected runnable base for ours: O-LoRA official T5-large Standard CL order1.
 - Current best ours anchored on this base: v69 formal EM `77.2566`, ROUGE-L `81.1919`.
+- Official archive branch: `official-method-code-archive-20260705` commit `b060357`.
 
 ## O-LoRA
 
 - Official repo: `https://github.com/cmnfriend/O-LoRA`
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/o_lora`
 - Commit: `07117e1fc4a5f5ad9308a815a42cee8f46502dc8`
+- Official archive submodule: `official_repos/standard/O-LoRA`.
 - Dirty status: only Python `__pycache__` artifacts and `src/model/__pycache__/`; source files remain effectively pristine for official reference.
 - Environment: `/root/autodl-tmp/conda_envs/lora_v10_o_lora`.
 - Checkpoint/model: `/root/autodl-tmp/model_cache/hf_snapshots/t5-large`.
@@ -38,6 +40,7 @@
 - Repo: `https://github.com/qcwthu/Lifelong-Fewshot-Language-Learning`
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/lfpt5`
 - Commit: `cf7d17ce7de6a707d929d0542b3d5e639569855f`
+- Official archive submodule: `official_repos/standard/Lifelong-Fewshot-Language-Learning`.
 - Status: downloaded and clean; not yet rerun in this session as selected base.
 - Role: published baseline/reference for Standard CL, not current ours base.
 
@@ -46,6 +49,7 @@
 - Repo: `https://github.com/arazd/ProgressivePrompts`
 - Local path: `/root/autodl-tmp/lora-baselines-run_v1/external_sources/progressive_prompts`
 - Commit: `01572d6a73c0576b070ceee00dbe4f5bc278423f`
+- Official archive submodule: `official_repos/standard/ProgressivePrompts`.
 - Status: downloaded and clean; not yet rerun in this session as selected base.
 - Role: published baseline/reference for Standard CL, task-aware prompt baseline.
 
@@ -58,6 +62,7 @@
   - Web search for `"Learn more, but bother less" LB-CL code GitHub`, `"LB-CL" "Learn more, but bother less" GitHub`, and OpenReview ID `ZxtaNh5UYB` found paper/OpenReview/NeurIPS pages but no canonical code repository.
   - With the mihomo proxy, GitHub and HuggingFace are reachable, but unauthenticated GitHub API repository search is rate-limited (`403`).
   - Follow-up web searches for `"Fuli Qiao" "Learn More, but Bother Less" GitHub`, `"Mehrdad Mahdavi" "LB-CL" GitHub`, and `"Learn more, but bother less" "github.com"` found paper/OpenReview/NeurIPS/ML Anthology/proceedings pages and a generic author GitHub profile, but no LB-CL source repository or supplement code.
+  - Further searches for `"Learn More, but Bother Less" "code" "Fuli Qiao"` and `"LB-CL" "github" "Fuli Qiao" "Mahdavi"` again found paper/index/slides pages only, with no official repo.
   - Direct non-browser OpenReview/NeurIPS/ML Anthology fetch via local proxy hit SSL/browser-access issues; web-indexed snippets and downloaded paper PDFs are available, but no code link was exposed there.
 - Dedicated official repo: not found in current local external sources and not found via web search.
 - Status: paper result can be cited as a published baseline, but code-level reproducibility remains a blocker until an official/author repository or supplement code is located. Do not use third-party code as LB-CL official code.

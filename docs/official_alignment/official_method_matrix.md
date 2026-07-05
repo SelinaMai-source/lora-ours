@@ -4,6 +4,8 @@ Updated: 2026-07-05
 
 This matrix is the gate for future Ours work. A method can be used as an Ours base only after official code and a runnable anchor are documented.
 
+Official source archive branch: `official-method-code-archive-20260705` at commit `b060357`, with pinned submodules and manifest in `official_repos/OFFICIAL_REPOS.md`.
+
 ## CITB Continual Instruction Tuning
 
 Benchmark: InstrDialog / InstrDialog++ from `hyintell/CITB`.
@@ -18,10 +20,11 @@ Primary repo status:
 - base model/tokenizer asset: `/root/autodl-tmp/model_cache/hf_snapshots/google__t5-small-lm-adapt`
 - status doc: `results/logs/official_repo_status_citb_20260705.md`
 - network/proxy: GitHub/HF reachable through temporary mihomo proxy; OpenReview redirects to browser verification. No new CITB download is currently blocked by network, but the split-setting ambiguity remains unresolved.
+- official archive path: `official_repos/citb/CITB` pinned to `bf50533b5bced4c388691ecc75e26773da96b3fd`.
 
 | Method | Paper Result | Official Repo Found | Commit / Path | Downloaded | Runnable | Smoke / Repro Result | Reproduced | Gate | Blocker / Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| FT-init | InstrDialog ROUGE-L AR `35.7`, BWT `-4.6`; released score order1 `average_train_samples=411.5` | yes | `bf50533...` / CITB repo | yes | yes for script-strict short stream | `v54` completed 19/19 under `500/50/50`; local aggregate `predict_official_rougeL=33.109` | partial | blocked | paper says `500/50/100`, public script uses eval count 50 for dev/test; short tasks reduce train count. |
+| FT-init | InstrDialog ROUGE-L AR `35.7`, BWT `-4.6`; released score order1 `average_train_samples=411.5` | yes | `bf50533...` / CITB repo and `official_repos/citb/CITB` | yes | yes for script-strict short stream | `v54` completed 19/19 under `500/50/50`; local aggregate `predict_official_rougeL=33.109` | partial | blocked | Paper says `500/50/100`; public scripts pass `max_num_instances_per_eval_task=50`, and split code uses the same value for dev and test, yielding `500/50/50`. |
 | L2 | paper InstrDialog AR around `35.6`, BWT around `-3.8` | yes | same CITB repo | yes | not rerun locally | no local smoke for this method | no | downloaded_not_runnable | needs official method-specific script smoke after split blocker decision. |
 | EWC | paper InstrDialog AR around `34.5`, BWT around `-6.8` | yes | same CITB repo | yes | not rerun locally | no local smoke for this method | no | downloaded_not_runnable | needs official method-specific script smoke after split blocker decision. |
 | AGEM | paper AGEM(10) AR around `33.2`, AGEM(50) AR around `34.9` | yes | same CITB repo | yes | not rerun locally | no local smoke for this method | no | downloaded_not_runnable | official memory variants exist in scripts; split comparability unresolved. |
@@ -44,13 +47,14 @@ Primary selected base status:
 - checkpoint: `/root/autodl-tmp/model_cache/hf_snapshots/t5-large`
 - official script: `scripts/order_1.sh`
 - status doc: `results/logs/official_repo_status_standard_peft_20260705.md`
+- official archive paths: `official_repos/standard/O-LoRA`, `official_repos/standard/Lifelong-Fewshot-Language-Learning`, `official_repos/standard/ProgressivePrompts`.
 
 | Method | Paper Result | Official Repo Found | Commit / Path | Downloaded | Runnable | Smoke / Repro Result | Reproduced | Gate | Blocker / Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | O-LoRA | O-LoRA paper table: T5-large avg about `75.8`; order1/2/3 reported around `75.4/75.7/76.3` in O-LoRA paper; LB-CL paper reports O-LoRA avg `75.4` | yes | `07117e1...` / `external_sources/o_lora` | yes | yes | v55 smoke completed; v57 formal official-equivalent completed | partial official-equivalent | official_equivalent_anchor | v57 final EM `76.8059`, ROUGE-L `79.9715`; single-GPU grad accumulation/eval batch/runtime-copy engineering deltas documented. |
 | LFPT5 | O-LoRA/LB-CL tables: avg roughly `72.7` or `71.3` depending paper table | yes | `cf7d17ce7de6a707d929d0542b3d5e639569855f` / `external_sources/lfpt5` | yes | not rerun locally | no local smoke | no | downloaded_not_runnable | reference baseline, not current Ours base. |
 | Progressive Prompts | O-LoRA table reports avg about `75.1`; user baseline notes `76.1` in related setting | yes | `01572d6a73c0576b070ceee00dbe4f5bc278423f` / `external_sources/progressive_prompts` | yes | not rerun locally | no local smoke | no | downloaded_not_runnable | task-ID/prompt protocol differs; must be separately reproduced before claims. |
-| LB-CL | NeurIPS/OpenReview: T5-large order1/2/3 `76.9/76.5/76.8`, avg `76.7` | no official repo found | none | no | no | no | no | paper_only_baseline | Web search found paper/OpenReview/NeurIPS only. Temporary proxy reaches GitHub, but unauthenticated GitHub API repository search is rate-limited (`403`); do not treat this as proof of absence. Do not use non-official code as official. |
+| LB-CL | NeurIPS/OpenReview: T5-large order1/2/3 `76.9/76.5/76.8`, avg `76.7` | no official repo found | none | no | no | no | no | paper_only_baseline | Rechecked with method/title/author searches; results expose paper, OpenReview, NeurIPS, NSF/ML Anthology, and slide pages, but no official/author code. Temporary proxy reaches GitHub, but unauthenticated GitHub API repository search is rate-limited (`403`). Do not use non-official code as official. |
 | SeqLoRA | O-LoRA paper table: avg about `43.7`; LB-CL paper table reports lower avg `39.3` | baseline in O-LoRA paper, no separate official repo needed if reproduced through O-LoRA code | O-LoRA repo path | yes via O-LoRA source | not run locally | no local smoke | no | downloaded_not_runnable | implement only if official O-LoRA repo exposes exact baseline path or paper scripts are located. |
 | IncLoRA | O-LoRA paper table: avg about `66.4`; LB-CL paper table about `63.6` | baseline in O-LoRA/LB-CL papers | O-LoRA repo path maybe | yes for O-LoRA source | not run locally | no local smoke | no | downloaded_not_runnable | exact official baseline path needs script verification. |
 | Replay | O-LoRA paper table: avg about `57.8` | baseline in paper, exact code path not yet verified | not isolated | no dedicated repo | no | no local smoke | no | blocked | only paper reference until exact official implementation/script is identified. |
@@ -76,6 +80,7 @@ Primary ARPER status:
 - official script: `run.sh`
 - official config: `config/config.cfg`
 - status doc: `results/logs/official_repo_status_dialogue_nlg_20260705.md`
+- official archive path: `official_repos/dialogue/Continual-Learning-for-NLG` pinned to `99019defe6bf35e8459ca6abd6f25882724bc956`.
 
 ToDCL status:
 - URL: `https://github.com/andreamad8/ToDCL`
@@ -84,6 +89,9 @@ ToDCL status:
 - status: downloaded clean; official `train.py --help` entrypoint smoke passes in isolated venv; training/data smoke still blocked by missing data layout and faithful legacy runtime.
 - network/proxy: temporary mihomo proxy is available; `git ls-remote` reaches `google-research-datasets/dstc8-schema-guided-dialogue`, `google-research-datasets/Taskmaster`, and `budzianowski/multiwoz`. Data has not been downloaded because the official data layout and legacy environment still need controlled setup.
 - smoke venv: `/root/autodl-tmp/venvs/todcl_official_smoke_py39`, with minimal local-only installs for help parsing.
+- official archive path: `official_repos/dialogue/ToDCL` pinned to `e70c1edf937f6eb570296ea2897dbc8d6815bc6d`.
+- data download audit: GitHub repo API sizes are roughly SGD `51 MB`, Taskmaster `111 MB`, MultiWOZ `126 MB`; `git clone --depth 1` failed with GnuTLS/RPC EOF; partial codeload SGD zip `23 MB` is invalid (`BadZipFile`). No data-loader smoke yet.
+- legacy env audit: pip dry-run under Python 3.9 cannot resolve `torch==1.4.0` from the available index; faithful ToDCL env remains blocked.
 
 | Method | Paper Result | Official Repo Found | Commit / Path | Downloaded | Runnable | Smoke / Repro Result | Reproduced | Gate | Blocker / Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -104,5 +112,5 @@ Current Dialogue decision:
 
 1. LB-CL official/author code source not found.
 2. CITB public script/data mismatch: paper `500/50/100` vs script-strict `500/50/50`; released scores explain short train counts but not dev/test ambiguity. Network is not the current blocker.
-3. ToDCL lacks official data and faithful legacy training environment; upstream data repos are reachable through proxy, and `train.py --help` now passes in an isolated smoke venv.
+3. ToDCL lacks official data and faithful legacy training environment; upstream data repos are reachable through proxy, and `train.py --help` now passes in an isolated smoke venv. Data clone/download is currently blocked by unstable GitHub TLS/RPC/codeload transfer and needs resumable verified download before data-loader smoke.
 4. Potential newer Standard methods (MoRA/OLieRA) may supersede LB-CL/O-LoRA but must first pass this same official repo gate.
