@@ -1401,6 +1401,11 @@ def _maybe_apply_da_signature_support_template(
     signature = _dialogue_act_signature(input_text)
     if not signature or signature not in support_templates:
         return prediction, {}
+    signature_patterns = cfg.get("signature_name_patterns", [])
+    if isinstance(signature_patterns, str):
+        signature_patterns = [signature_patterns]
+    if signature_patterns and not any(re.search(str(pattern), signature) for pattern in signature_patterns):
+        return prediction, {}
 
     replacement = str(support_templates[signature].get("output", "")).strip()
     if not replacement:
@@ -1427,10 +1432,19 @@ def _maybe_apply_da_signature_support_template(
     min_support_score = float(cfg.get("min_support_mean_score", 0.0))
     min_candidates = int(cfg.get("min_support_candidates_for_confidence", 1))
     num_candidates = int(support_templates[signature].get("num_candidates", 0))
-    support_confident = (
-        num_candidates >= max(1, min_candidates)
-        or replacement_support_score >= min_support_score
-    )
+    confidence_mode = str(cfg.get("support_confidence_mode", "score_or_count")).strip().lower()
+    if confidence_mode == "score":
+        support_confident = replacement_support_score >= min_support_score
+    elif confidence_mode == "score_and_count":
+        support_confident = (
+            replacement_support_score >= min_support_score
+            and num_candidates >= max(1, min_candidates)
+        )
+    else:
+        support_confident = (
+            num_candidates >= max(1, min_candidates)
+            or replacement_support_score >= min_support_score
+        )
     pred_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", str(prediction or "").lower()))
     repl_slots = set(re.findall(r"\bslot-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", replacement.lower()))
     expected_slots = {feat["slot_token"] for feat in features if feat["slot"] != "none"}
@@ -1461,6 +1475,7 @@ def _maybe_apply_da_signature_support_template(
         "da_signature_support_template_prediction_support_score": float(prediction_support_score),
         "da_signature_support_template_replacement_support_score": float(replacement_support_score),
         "da_signature_support_template_support_margin": float(support_margin),
+        "da_signature_support_template_confidence_mode": confidence_mode,
         "da_signature_support_template_reason": (
             "force" if force else
             "support_margin_prompt_template" if prompt_template else
