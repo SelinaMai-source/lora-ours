@@ -1,0 +1,21 @@
+{
+  "updated_at": "2026-07-05T20:04:54+08:00",
+  "run_name": "olora_v75_amazon_sc_trainheldout500_v69_r3",
+  "purpose": "train_only_amazon_sc_prediction_diagnostic",
+  "source_split": "train",
+  "uses_test_json": false,
+  "adapter": "/root/lora-ours/results/runs/olora_official_base_ours_overlay_replay64_v69_formal_order1_seed1/official_outputs/3-yahoo/adapter",
+  "runtime": "/root/autodl-tmp/lora-ours-devdiag/olora_v75_amazon_sc_trainheldout500_v69_r3/official_runtime",
+  "output_dir": "/root/autodl-tmp/lora-ours-devdiag/olora_v75_amazon_sc_trainheldout500_v69_r3/outputs",
+  "task_config_dir": "/root/autodl-tmp/lora-ours-devdiag/olora_v75_amazon_sc_trainheldout500_v69_r3/task_config_amazon_dev_as_test",
+  "log_file": "/root/lora-ours/results/logs/olora_v75_amazon_sc_trainheldout500_v69_r3.log",
+  "max_predict_samples": -1,
+  "train_slice": {
+    "original_train_size": 5000,
+    "train_offset": 4500,
+    "train_limit": 500,
+    "sliced_train_size": 500
+  },
+  "exit_code": 0,
+  "completed_at": "2026-07-05T20:05:18+08:00"
+}

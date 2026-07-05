@@ -76,12 +76,29 @@ def write_task_config(task_config_dir: Path) -> None:
         (task_config_dir / name).write_text(json.dumps(payload, indent=4), encoding="utf-8")
 
 
+def slice_train_split(runtime: Path, offset: int, limit: int) -> dict[str, int]:
+    if offset < 0:
+        raise ValueError("--train-offset must be >= 0")
+    if limit == 0 or limit < -1:
+        raise ValueError("--train-limit must be -1 or a positive integer")
+    path = runtime / "CL_Benchmark/SC/amazon/train.json"
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    end = None if limit < 0 else offset + limit
+    sliced = rows[offset:end]
+    if not sliced:
+        raise ValueError(f"empty train slice: offset={offset}, limit={limit}, total={len(rows)}")
+    path.write_text(json.dumps(sliced, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"original_train_size": len(rows), "train_offset": offset, "train_limit": limit, "sliced_train_size": len(sliced)}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-name", required=True)
     parser.add_argument("--adapter", default=str(DEFAULT_ADAPTER))
     parser.add_argument("--max-predict-samples", type=int, default=-1)
     parser.add_argument("--source-split", choices=["dev", "train"], default="dev")
+    parser.add_argument("--train-offset", type=int, default=0)
+    parser.add_argument("--train-limit", type=int, default=-1)
     parser.add_argument("--official-root", default=str(DEFAULT_OFFICIAL_ROOT))
     parser.add_argument("--env-prefix", default=str(DEFAULT_ENV_PREFIX))
     parser.add_argument("--base-model", default=str(DEFAULT_BASE_MODEL))
@@ -101,6 +118,9 @@ def main() -> int:
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     shutil.copytree(args.official_root, runtime)
+    train_slice = None
+    if args.source_split == "train" and (args.train_offset or args.train_limit >= 0):
+        train_slice = slice_train_split(runtime, args.train_offset, args.train_limit)
     patch_runtime(runtime, args.source_split)
     write_task_config(task_config_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -161,6 +181,7 @@ def main() -> int:
         "task_config_dir": str(task_config_dir),
         "log_file": str(log_file),
         "max_predict_samples": args.max_predict_samples,
+        "train_slice": train_slice,
     }
     manifest_file.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     status_file.write_text(
@@ -171,6 +192,7 @@ def main() -> int:
                 "- state: running",
                 f"- diagnostic: {args.source_split}-only amazon/SC prediction",
                 "- no training in this diagnostic; no test.json; v69 final adapter",
+                f"- train_slice: `{train_slice}`",
                 f"- output_dir: `{output_dir}`",
             ]
         )
