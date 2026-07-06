@@ -4,6 +4,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TODCL_ROOT="${TODCL_ROOT:-/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl}"
+GPT2_LOCAL="${GPT2_LOCAL:-${TODCL_ROOT}/gpt2}"
 PYTHON_BIN="${PYTHON_BIN:-/root/autodl-tmp/conda_envs/todcl_legacy_py37/bin/python}"
 RUN_ID="${RUN_ID:-todcl_adapter_nlg_official_anchor_20260706}"
 SESSION="${TMUX_SESSION:-lora-ours-todcl-adapter-anchor}"
@@ -34,6 +35,8 @@ require_file() {
 require_dir "${TODCL_ROOT}"
 require_file "${TODCL_ROOT}/train.py"
 require_file "${PYTHON_BIN}"
+require_file "${GPT2_LOCAL}/pytorch_model.bin"
+require_file "${GPT2_LOCAL}/config.json"
 
 PREFLIGHT_JSON="/root/autodl-tmp/lora-ours-logs/${RUN_ID}_preflight.json"
 ln -sf "${PREFLIGHT_JSON}" "${REPO_ROOT}/results/logs/${RUN_ID}_preflight.json" 2>/dev/null || true
@@ -105,7 +108,7 @@ TRAIN_ARGS=(
   --dataset_list SGD,TM19,TM20,MWOZ
   --setting single
   --seed 1
-  --model_checkpoint gpt2
+  --model_checkpoint "${GPT2_LOCAL}"
 )
 
 if [[ "${BOUNDED_SMOKE}" == "1" ]]; then
