@@ -10,10 +10,10 @@
 | Job | Gate criteria | Verdict | Evidence |
 |-----|---------------|---------|----------|
 | citb-replay50-smoke | exit 0; collator ok; W&B sync | **PASS** | EM/ROUGE-L **50.0**; W&B `a2jh0n4y` |
-| standard-v85-smoke | 4-round smoke; dbpedia EM ≥90; no OOM | **INDETERMINATE** | train 14/20 only; no EM; GPU serial violation |
-| arper-v86-formal | formal train starts; monitor updates | **PENDING** | queued; GPU busy |
-| todcl-adapter-anchor | preflight pass; train log non-empty | **PENDING** | preflight PASS; launch queued |
-| citb-ours-v85-smoke | 5-segment smoke; SSRG on; no task574 patch | **PENDING** | queued |
+| standard-v85-smoke | 4-round smoke; dbpedia EM ≥90; no OOM | **PASS (early)** | dbpedia EM **98.5**; amazon pending |
+| arper-v86-formal | formal train starts; monitor updates | **DONE** | BLEU 0.632 / SER 4.817 (= v66) |
+| todcl-adapter-anchor | preflight pass; train log non-empty | **PENDING** | preflight PASS; queued after v85 |
+| citb-ours-v85-smoke | 5-segment smoke; SSRG on; no task574 patch | **PASS** | ROUGE-L AR **24.6** |
 
 ## Standard v85 smoke gate detail
 

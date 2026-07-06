@@ -2,15 +2,15 @@
 
 **Branch:** `sota-24h-campaign-20260706`  
 **W&B project:** `lora-ours`  
-**Campaign status:** ARPER v86 **done** (no gain vs v66); CITB ours v85 smoke **done** (AR 24.6); Standard v85 smoke **RUNNING** (SSRG fix relaunch); ToDCL anchor **queued** after v85. **No numerical SOTA margin yet.**
+**Campaign status:** ARPER v86 **done** (no gain vs v66); CITB ours v85 smoke **done** (AR 24.6); Standard v85 smoke **RUNNING** (dbpedia gate **PASS** EM 98.5); ToDCL anchor **queued** after v85. Disk `/` **3.2G free**. **No numerical SOTA margin yet.**
 
-## Campaign snapshot (2026-07-06 13:37 UTC+8)
+## Campaign snapshot (2026-07-06 13:40 UTC+8)
 
 | Job | Key metric | Value | W&B / notes |
 |-----|------------|-------|-------------|
 | CITB Replay(50) base smoke | EM / ROUGE-L | **50.0 / 50.0** | `a2jh0n4y` |
 | CITB ours v85 smoke | ROUGE-L AR | **24.6** | 5-segment smoke; gate PASS |
-| Standard v85 overlay | cumulative EM | **running** (dbpedia round1) | SSRG fix `11c8ecc` |
+| Standard v85 overlay | dbpedia EM / cumulative | **98.5** / running (amazon r2) | dbpedia gate **PASS**; SSRG `11c8ecc` |
 | ARPER v86 formal | BLEU / SER | **0.632 / 4.817** | same as v66; below paper 0.701/3.63 |
 | ToDCL ADAPTER anchor | — | **queued** | preflight PASS; launch after v85 |
 
@@ -36,7 +36,7 @@
 |------|--------|
 | CITB Replay50 base smoke | **PASS** |
 | CITB ours v85 smoke | **DONE** AR 24.6 — early gate PASS, SOTA gap large |
-| Standard v85 smoke | **RUNNING** (`lora-ours-standard-v85-smoke`) |
+| Standard v85 smoke | **RUNNING** — dbpedia gate **PASS** (EM 98.5); amazon pending |
 | ARPER v86 formal | **DONE** BLEU 0.632 / SER 4.817 — no v66 improvement |
 | ToDCL ADAPTER anchor | **queued** (`lora-ours-sota-gpu-queue` continue) |
 | Numerical SOTA | **not reached** on any suite |
