@@ -4,13 +4,14 @@ Updated: 2026-07-06
 
 ## SOTA 24h Campaign (`sota-24h-campaign-20260706`)
 
-**2026-07-06 summary:** On branch `sota-24h-campaign-20260706`, Phase0 preflight and agent stack are live. CITB Replay50 smoke **PASS** (`a2jh0n4y`). Standard v85 smoke **rerunning** solo on GPU0 after first attempt failed at dbpedia step 14/20 due to accidental CITB formal GPU contention (formal stopped; queue fixed with `SMOKE=1`). ARPER v86 / ToDCL / CITB ours v85 **queued** via `run_ours_overlay_iterate_queue.sh`. **No numerical SOTA** yet.
+**2026-07-06 13:37 summary:** ARPER v86 formal **completed** (BLEU **0.632** / SER **4.817**, no gain vs v66). CITB ours v85 smoke **completed** (ROUGE-L AR **24.6**, early gate PASS). Standard v85 smoke **relaunched** on GPU after SSRG fix (`11c8ecc`). ToDCL ADAPTER anchor **queued** via `lora_ours_gpu_queue_continue.sh`. GPU queue blocker fixed (ARPER monitor infinite loop). **No numerical SOTA** on any suite.
 
 - **Branch:** `sota-24h-campaign-20260706` (tracking `origin`).
 - **Phase0:** `results/logs/phase0_preflight_20260706_status.md`
 - **Agent stack:** `scripts/launch_lora_ours_agent_stack.sh`
-- **GPU queue:** `scripts/run_ours_overlay_iterate_queue.sh`
+- **GPU queue:** `scripts/lora_ours_gpu_queue_continue.sh` (tmux `lora-ours-sota-gpu-queue`)
 - **Gate doc:** `results/logs/ours_overlay_iterate_smoke_gates_20260706.md`
+- **Main table:** `results/tables/sota_main_table_20260706.md`
 
 ---
 

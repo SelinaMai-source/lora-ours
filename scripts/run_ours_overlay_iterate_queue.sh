@@ -52,13 +52,39 @@ JOBS=(
 completed=()
 failed=()
 
+job_status_basename() {
+  case "$1" in
+    arper-v86-formal) echo "arper_woz3_official_sclstm_formal_v86_status" ;;
+    *) echo "" ;;
+  esac
+}
+
+session_done() {
+  local basename="$1"
+  [[ -z "$basename" ]] && return 1
+  python3 - <<PY
+import json
+from pathlib import Path
+p = Path("results/logs/${basename}.json")
+if not p.exists():
+    raise SystemExit(1)
+raise SystemExit(0 if json.loads(p.read_text()).get("state") == "completed_or_stopped" else 1)
+PY
+}
+
 for entry in "${JOBS[@]}"; do
   IFS='|' read -r job_id session cmd <<< "$entry"
+  status_base="$(job_status_basename "$job_id")"
   if tmux has-session -t "$session" 2>/dev/null; then
-    log "job ${job_id}: session ${session} exists; waiting for GPU release"
-    while ! gpu_empty; do sleep "$POLL_SEC"; done
-    completed+=("$job_id:existing")
-    continue
+    if [[ -n "$status_base" ]] && session_done "$status_base" && gpu_empty; then
+      log "job ${job_id}: session ${session} monitor-only after completion; releasing"
+      tmux kill-session -t "$session" 2>/dev/null || true
+    else
+      log "job ${job_id}: session ${session} exists; waiting for GPU release"
+      while ! gpu_empty; do sleep "$POLL_SEC"; done
+      completed+=("$job_id:existing")
+      continue
+    fi
   fi
   wait_gpu
   if ! launch_tmux "$session" "$cmd"; then

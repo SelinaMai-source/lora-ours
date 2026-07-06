@@ -67,6 +67,8 @@ MONITOR_CMD="cd ${REPO_ROOT} && while true; do \
     --run-id ${RUN_ID} \
     --log-path ${LOG_PATH} \
     --status-basename ${STATUS_BASENAME}; \
+  st=\$(python3 -c \"import json; print(json.load(open('results/logs/${STATUS_BASENAME}.json')).get('state',''))\" 2>/dev/null || echo running); \
+  [[ \"\$st\" == \"completed_or_stopped\" ]] && break; \
   sleep 60; \
 done"
 

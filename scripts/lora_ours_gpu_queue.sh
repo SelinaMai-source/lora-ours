@@ -95,9 +95,38 @@ launch_arper() {
   bash scripts/run_arper_woz3_official_sclstm_formal_v86.sh
 }
 
+session_completed() {
+  local status_basename="$1"
+  [[ -z "$status_basename" ]] && return 1
+  python3 - <<PY
+import json
+from pathlib import Path
+p = Path("results/logs/${status_basename}.json")
+if not p.exists():
+    raise SystemExit(1)
+state = json.loads(p.read_text()).get("state", "")
+raise SystemExit(0 if state == "completed_or_stopped" else 1)
+PY
+}
+
+release_monitor_session() {
+  local sess="$1"
+  local status_basename="$2"
+  if session_completed "$status_basename" && gpu_idle; then
+    log "Training complete for $sess (monitor-only tmux); releasing session"
+    tmux kill-session -t "$sess" 2>/dev/null || true
+    return 0
+  fi
+  return 1
+}
+
 wait_session() {
   local sess="$1"
+  local status_basename="${2:-}"
   while tmux has-session -t "$sess" 2>/dev/null; do
+    if release_monitor_session "$sess" "$status_basename"; then
+      break
+    fi
     log "Waiting for tmux session $sess"
     write_status "running: $sess"
     sleep "$POLL_SEC"
@@ -120,7 +149,7 @@ write_status "started"
 
 wait_for_gpu_and_citb
 launch_arper
-wait_session "$ARPER_SESSION"
+wait_session "$ARPER_SESSION" "arper_woz3_official_sclstm_formal_v86_status"
 wait_for_gpu_and_citb
 launch_todcl
 wait_session "$TODCL_SESSION"
