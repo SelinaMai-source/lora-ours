@@ -39,6 +39,8 @@ ARPER v86 training completed but monitor `while true` loop kept tmux alive → G
 - SSRG `import re` fix: `11c8ecc`
 - tmux: `lora-ours-standard-v85-smoke`
 - Early gate: dbpedia EM≥90, amazon EM≥45
+- **13:42:** round1 dbpedia EM **98.5 PASS**; round2 amazon in progress
+- GPU queue: `lora-ours-sota-gpu-queue` waiting for v85 + idle GPU → ToDCL anchor
 
 ## ToDCL — queued
 

@@ -39,3 +39,10 @@
 ## Queue
 
 ToDCL ADAPTER anchor remains queued in `lora-ours-sota-gpu-queue` via `scripts/lora_ours_gpu_queue_continue.sh`.
+
+## Progress check 13:42 CST
+
+- Round 1 dbpedia: **PASS** EM 98.5.
+- Round 2 amazon: **running** (W&B `round2_amazon`).
+- `lora-ours-sota-gpu-queue`: active; ToDCL auto-start **confirmed** in `lora_ours_gpu_queue_continue.sh` (waits v85 session end + idle GPU).
+- Final report: `standard_v85_smoke_final_20260706.md` — **not written** until rounds 3–4 complete.

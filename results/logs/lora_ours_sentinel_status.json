@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-05 16:39:32 UTC",
+  "updated_at": "2026-07-06 05:41:59 UTC",
   "repo": "/root/lora-ours",
   "suites": [
     {
@@ -28,24 +28,21 @@
     },
     {
       "suite": "Dialogue",
-      "state": "completed",
-      "run_id": "dialogue_nlg_arper_woz3_dialogue_act_seed1_ours_strict_v68_formal",
-      "status_file": "results/logs/dialogue_arper_woz3_v68_formal_status.json",
-      "metrics_summary": "0.1060 / target 0.935 (gap +0.8290)",
+      "state": "completed_or_stopped",
+      "run_id": "arper_woz3_official_sclstm_formal_v86",
+      "status_file": "results/logs/arper_woz3_official_sclstm_formal_v86_status.json",
+      "metrics_summary": "no BLEU-4 yet (target 0.935)",
       "metrics": {
-        "ser": 0.0,
-        "bleu4": 0.10602405455366919,
-        "latest_segment": 12,
-        "log_age_seconds": 36937.1211745739
+        "log_age_seconds": null
       },
-      "wake": false
+      "wake": true
     }
   ],
-  "gpu_compute_empty": true,
+  "gpu_compute_empty": false,
   "train_process_count": 0,
   "train_processes": [],
   "pending_action": "failure_analysis",
-  "wake_reason": "suite=Standard state=incomplete",
+  "wake_reason": "suite=Standard state=incomplete; suite=Dialogue state=completed_or_stopped",
   "wake_items": [
     {
       "suite": "Standard",
@@ -53,6 +50,13 @@
       "run_id": "standard_peft_cl_o_lora_standard_order1_seed1_ours_strict_v58",
       "detail": "suite=Standard state=incomplete",
       "status_file": "results/logs/standard_peft_ours_v58_status.json"
+    },
+    {
+      "suite": "Dialogue",
+      "state": "completed_or_stopped",
+      "run_id": "arper_woz3_official_sclstm_formal_v86",
+      "detail": "suite=Dialogue state=completed_or_stopped",
+      "status_file": "results/logs/arper_woz3_official_sclstm_formal_v86_status.json"
     }
   ],
   "sota_targets": {
