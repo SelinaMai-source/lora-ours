@@ -17,10 +17,10 @@
 
 | Suite | Target method | Paper ref | Local status |
 |-------|---------------|-----------|--------------|
-| **1 — CITB** | **Replay(50)** | ROUGE-L AR **40.4** | **running** (~22% task 1/19) |
+| **1 — CITB** | **Replay(50)** | ROUGE-L AR **40.4** | **done** AR **32.442** (`formal_v56`, 19/19) — gap −7.96 vs paper |
 | **2 — Standard** | **O-LoRA** (LB-CL **76.7** = paper_only) | EM **75.8** avg | **done** v57 EM **76.81** |
 | **3a — ARPER** | **SCLSTM exemplar** (paper 250/500) | BLEU **0.701**, SER **3.63** | v66/v86 done (DA/250); **queued** v87 domain/exemplar500 |
-| **3b — ToDCL** | **ADAPTER** modular NLG | BLEU **21.77**, EER **0.164** | **queued** (priority 2 after Replay50) |
+| **3b — ToDCL** | **ADAPTER** modular NLG | BLEU **21.77**, EER **0.164** | **running** (`lora-ours-todcl-adapter-anchor`, ~19:11) |
 
 **Skipped from queue:** CITB FT-init/L2/EWC/AGEM/Replay(10); Standard SeqLoRA/IncLoRA/Replay/LFPT5/ProgPrompts; ToDCL REPLAY/LAMOL; ARPER ER baselines.
 
@@ -36,7 +36,7 @@
 | AGEM(10) | **~33.2** | — | — | — | **skipped** | Out of best-method scope |
 | AGEM(50) | **~34.9** | — | — | — | **skipped** | Out of best-method scope |
 | Replay(10) | **~38.4** | — | — | — | **skipped** | Out of best-method scope |
-| Replay(50) | **40.4** | up to **1.6** | — | — | **running** (~**22%** task 1/19, ETA **~9–12h**) | Formal 19-task `lora-ours-citb-replay50-formal` 16:53; **best-method target** |
+| Replay(50) | **40.4** | up to **1.6** | **32.442** | — | **done** (`formal_v56`, 19/19, EXIT 0) | W&B `4r1vg0x9`; gap −7.96 vs paper under `official_script_500_50_50` |
 | Multi | **~42.1** | — | — | — | **blocked** | `MULTI_TASK` uses different entrypoint; launcher pending |
 
 **CITB launcher:** `scripts/run_citb_instrdialog_all_baselines_repro.sh`  
@@ -67,7 +67,7 @@
 |--------|--------------|-------|--------|---------------|
 | ARPER SCLSTM | BLEU **0.701**, SER **3.63** | BLEU **0.632**, SER **4.817** | **partial** (`v66`/`v86` DA/250); **queued** v87 | v66/v86 below paper. **Best-method repro:** v87 domain-wise + exemplar **500** (`lora-ours-arper-v87-formal`) after ToDCL |
 | ARPER Replay/ER baselines | paper tables | — | **skipped** | Not best-method |
-| ToDCL ADAPTER (=AdapterCL) | BLEU **21.77**, EER **0.164** | — | **queued** (priority **2**) | **Best-method target** for ToDCL track; bounded smoke passed |
+| ToDCL ADAPTER (=AdapterCL) | BLEU **21.77**, EER **0.164** | — | **running** | Full 37-domain NLG anchor; log `todcl_adapter_nlg_official_anchor_20260706.log` |
 | ToDCL REPLAY | BLEU **21.48**, EER **0.056** | — | **skipped** | Not best-method (ADAPTER wins BLEU) |
 | LAMOL | BLEU **3.50**, EER **0.357** | — | **skipped** | Not best-method |
 | Multi upper bound | BLEU **26.15** | — | **not run** | Ceiling reference |
@@ -78,10 +78,9 @@
 
 | Item | State |
 |------|-------|
-| GPU owner | **CITB Replay(50) formal** — tmux `lora-ours-citb-replay50-formal`, GPU **75%** / **16.4 GiB** |
-| **Progress (17:02)** | Task **0/19** complete; task **1/19** (`task611`) ~**16%** train steps; overall ~**6%**; ETA **~02:00–05:00** Jul 7 (replay memory grows per task) |
-| **Handoff (16:53)** | Stopped stuck **v85 Ours overlay smoke**; see `results/logs/baseline_repro_gpu_handoff_20260706.md` |
-| **Queued next** | ToDCL ADAPTER → ARPER v87 (domain/exemplar500); L2/EWC/AGEM/Replay(10) **removed from queue** |
+| GPU owner | **ToDCL ADAPTER** anchor — tmux `lora-ours-todcl-adapter-anchor` |
+| **Just completed** | CITB Replay(50) formal — ROUGE-L AR **32.442** (paper **40.4**); W&B `4r1vg0x9` |
+| **Queued next** | ARPER v87 (domain/exemplar500) after ToDCL |
 | Ours overlay queue | `lora-ours-sota-gpu-queue` — **paused** until baseline queue empty |
 
 ---
@@ -98,4 +97,4 @@
 
 ---
 
-*Updated: 2026-07-06 17:15. Scope narrowed to best-method-only; queue orchestrator restarted; CITB Replay(50) formal still running (~22% task 1/19).*
+*Updated: 2026-07-06 19:12. CITB Replay(50) formal complete; ToDCL ADAPTER anchor running.*
