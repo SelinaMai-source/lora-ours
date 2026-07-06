@@ -23,6 +23,7 @@ ALLOW_PAPER_TARGET_SHORT_TASKS="${ALLOW_PAPER_TARGET_SHORT_TASKS:-0}"
 PAPER_TARGET_PREFLIGHT_OUTPUT="${PAPER_TARGET_PREFLIGHT_OUTPUT:-${REPO_ROOT}/results/logs/citb_official_split_counts_500_50_100_replay50.json}"
 REPLAY_NUM_INSTANCE_PER_TASK="${REPLAY_NUM_INSTANCE_PER_TASK:-50}"
 CL_METHOD="${CL_METHOD:-REPLAY}"
+CL_REG="${CL_REG:-}"
 
 if [[ "${SPLIT_POLICY}" == "paper_target_500_50_100" ]]; then
   RUN_NAME="${RUN_NAME:-citb_instrdialog_order1_seed1_paper_target_500_50_100_replay${REPLAY_NUM_INSTANCE_PER_TASK}_stage2}"
@@ -224,7 +225,6 @@ CMD=(
   --tokenizer_name "${TOKENIZER_NAME}"
   --use_fast_tokenizer False
   --cl_method "${CL_METHOD}"
-  --replay_num_instance_per_task "${REPLAY_NUM_INSTANCE_PER_TASK}"
   --order "${ORDER}"
   --data_dir_for_task_order "${DATA_DIR_FOR_TASK_ORDER}"
   --task_split_file_name cl_dialogue_tasks
@@ -265,6 +265,12 @@ CMD=(
 
 if [[ -n "${MODEL_CONFIG_NAME}" ]]; then
   CMD+=(--config_name "${MODEL_CONFIG_NAME}")
+fi
+if [[ -n "${CL_REG}" ]]; then
+  CMD+=(--reg "${CL_REG}")
+fi
+if [[ "${CL_METHOD}" == "REPLAY" || "${CL_METHOD}" == "AGEM" ]]; then
+  CMD+=(--replay_num_instance_per_task "${REPLAY_NUM_INSTANCE_PER_TASK}")
 fi
 CMD+=("${EVAL_STRATEGY_ARGS[@]}" "${SAVE_STRATEGY_ARGS[@]}" "${PREDICT_ARGS[@]}" "${BF16_ARGS[@]}" "${REPORT_ARGS[@]}" "${MAX_STEPS_ARGS[@]}")
 "${CMD[@]}"
