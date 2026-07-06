@@ -1,0 +1,51 @@
+{
+  "completed_at": "2026-07-07T04:02:30",
+  "overall_status": "complete_with_blocker",
+  "branch": "best-method-repro-results-20260706",
+  "watch_md": "results/logs/best_method_repro_watch_20260706.md",
+  "blockers": [
+    "ToDCL ADAPTER: corrupt/missing GPT-2 weights; network unreachable for re-download"
+  ],
+  "suites": {
+    "citb_replay50": {
+      "method": "Replay(50) formal 19-task",
+      "status": "done",
+      "paper_metric": "ROUGE-L AR 40.4",
+      "local_metric": "ROUGE-L AR 32.4417",
+      "match": "No",
+      "notes": "official_script_500_50_50; gap \u22127.96 vs paper",
+      "tmux": "lora-ours-citb-replay50-formal",
+      "wandb": "4r1vg0x9 / citb_instrdialog_order1_official_replay50_base_repro"
+    },
+    "standard_olora_v57": {
+      "method": "O-LoRA v57 formal",
+      "status": "done",
+      "paper_metric": "EM avg 75.8",
+      "local_metric": "EM 76.8059",
+      "match": "Yes / Close",
+      "notes": "single-GPU grad_accum=8 official-equivalent",
+      "tmux": "(completed prior)",
+      "wandb": "published-base-standard-olora-order1-formal-v57"
+    },
+    "todcl_adapter": {
+      "method": "ADAPTER 37-domain NLG anchor",
+      "status": "blocker",
+      "paper_metric": "BLEU 21.77 / EER 0.164",
+      "local_metric": "\u2014",
+      "match": "\u2014",
+      "notes": "gpt2 load failure EXIT=1",
+      "tmux": "lora-ours-todcl-adapter-anchor",
+      "wandb": "\u2014"
+    },
+    "arper_v87": {
+      "method": "v87 paper-aligned domain/exemplar500",
+      "status": "done",
+      "paper_metric": "BLEU 0.701 / SER 3.63",
+      "local_metric": "BLEU 0.60059 SER error:",
+      "match": "TBD",
+      "notes": "granularity=0 exemplar 500",
+      "tmux": "lora-ours-arper-v87-formal",
+      "wandb": "\u2014"
+    }
+  }
+}

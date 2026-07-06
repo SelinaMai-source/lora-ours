@@ -20,7 +20,7 @@
 | **1 — CITB** | **Replay(50)** | ROUGE-L AR **40.4** | **done** AR **32.442** (`formal_v56`, 19/19) — gap −7.96 vs paper |
 | **2 — Standard** | **O-LoRA** (LB-CL **76.7** = paper_only) | EM **75.8** avg | **done** v57 EM **76.81** |
 | **3a — ARPER** | **SCLSTM exemplar** (paper 250/500) | BLEU **0.701**, SER **3.63** | v66/v86 done (DA/250); **queued** v87 domain/exemplar500 |
-| **3b — ToDCL** | **ADAPTER** modular NLG | BLEU **21.77**, EER **0.164** | **running** (`lora-ours-todcl-adapter-anchor`, ~19:11) |
+| **3b — ToDCL** | **ADAPTER** modular NLG | BLEU **21.77**, EER **0.164** | **queued** — GPT-2 fixed (`gpt2-local` 548118077B); relaunch when GPU free |
 
 **Skipped from queue:** CITB FT-init/L2/EWC/AGEM/Replay(10); Standard SeqLoRA/IncLoRA/Replay/LFPT5/ProgPrompts; ToDCL REPLAY/LAMOL; ARPER ER baselines.
 
@@ -67,7 +67,7 @@
 |--------|--------------|-------|--------|---------------|
 | ARPER SCLSTM | BLEU **0.701**, SER **3.63** | BLEU **0.632**, SER **4.817** | **partial** (`v66`/`v86` DA/250); **queued** v87 | v66/v86 below paper. **Best-method repro:** v87 domain-wise + exemplar **500** (`lora-ours-arper-v87-formal`) after ToDCL |
 | ARPER Replay/ER baselines | paper tables | — | **skipped** | Not best-method |
-| ToDCL ADAPTER (=AdapterCL) | BLEU **21.77**, EER **0.164** | — | **running** | Full 37-domain NLG anchor; log `todcl_adapter_nlg_official_anchor_20260706.log` |
+| ToDCL ADAPTER (=AdapterCL) | BLEU **21.77**, EER **0.164** | — | **queued** | GPT-2 weights repaired; `run_todcl_adapter_nlg_official_anchor.sh` exit 75 until ARPER v87 finishes |
 | ToDCL REPLAY | BLEU **21.48**, EER **0.056** | — | **skipped** | Not best-method (ADAPTER wins BLEU) |
 | LAMOL | BLEU **3.50**, EER **0.357** | — | **skipped** | Not best-method |
 | Multi upper bound | BLEU **26.15** | — | **not run** | Ceiling reference |
@@ -78,9 +78,9 @@
 
 | Item | State |
 |------|-------|
-| GPU owner | **ToDCL ADAPTER** anchor — tmux `lora-ours-todcl-adapter-anchor` |
+| GPU owner | **ARPER v87** (`lora-ours-arper-v87-formal`); ToDCL anchor queued |
 | **Just completed** | CITB Replay(50) formal — ROUGE-L AR **32.442** (paper **40.4**); W&B `4r1vg0x9` |
-| **Queued next** | ARPER v87 (domain/exemplar500) after ToDCL |
+| **Queued next** | ToDCL ADAPTER anchor after ARPER v87 |
 | Ours overlay queue | `lora-ours-sota-gpu-queue` — **paused** until baseline queue empty |
 
 ---
@@ -97,4 +97,4 @@
 
 ---
 
-*Updated: 2026-07-06 19:12. CITB Replay(50) formal complete; ToDCL ADAPTER anchor running.*
+*Updated: 2026-07-06T20:16:15+08:00. GPT-2 corrupt bin replaced; ToDCL ADAPTER queued pending GPU.*
