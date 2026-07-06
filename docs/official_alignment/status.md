@@ -4,7 +4,7 @@ Updated: 2026-07-06
 
 ## SOTA 24h Campaign (`sota-24h-campaign-20260706`)
 
-**2026-07-06 13:40 summary:** ARPER v86 formal **completed** (BLEU **0.632** / SER **4.817**, no gain vs v66). CITB ours v85 smoke **completed** (ROUGE-L AR **24.6**, early gate PASS; v86 Replay50-ratio plan doc only). Standard v85 smoke **running** — dbpedia early gate **PASS** (EM **98.5**); amazon round2 in progress. ToDCL ADAPTER anchor **queued** (`lora-ours-sota-gpu-queue`). Root `/` disk cleaned to **3.2G free** (apt/vscode/btmp). **No numerical SOTA** on any suite.
+**2026-07-06 17:05 summary:** Baseline reproduction queue **active** — CITB Replay(50) formal **running** (~**6%**, task 1/19, GPU 75%). Completed anchors unchanged: O-LoRA v57 EM **76.81** (close/yes); ARPER v66/v86 BLEU **0.632** / SER **4.817** (gap vs paper 0.701/3.63; next = exemplar **500** + domain-vs-DA audit, launch when GPU free). **Queued:** ToDCL ADAPTER → CITB L2/EWC/AGEM. **Blocked:** LFPT5 (no LM-adapted T5-large), ProgPrompts (env/protocol), LB-CL (no code). Ours v85 **not restarted** (baselines first).
 
 - **Branch:** `sota-24h-campaign-20260706` (tracking `origin`).
 - **Phase0:** `results/logs/phase0_preflight_20260706_status.md`

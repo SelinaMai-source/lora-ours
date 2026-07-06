@@ -15,7 +15,7 @@
 
 | Suite | Best local formal anchor | Matches paper? | Main blocker |
 |-------|--------------------------|----------------|--------------|
-| **CITB** | FT-init v54 AR **33.1** | **No** (setting + gap) | Paper `500/50/100` vs script `500/50/50`; Replay(50) formal not run |
+| **CITB** | FT-init v54 AR **33.1** | **No** (setting + gap) | Paper `500/50/100` vs script `500/50/50`; Replay(50) formal **running** (~6%) |
 | **Standard** | O-LoRA v57 EM **76.81** | **Close / Yes** | Single-GPU `grad_accum=8` official-equivalent |
 | **Standard Ours** | v69 overlay EM **77.26** | N/A (increment) | Overlay on official base; beats paper O-LoRA ref |
 | **Dialogue ARPER** | v66/v86 BLEU **0.632** SER **4.82** | **No** | Large BLEU/SER gap vs paper SCLSTM |
@@ -29,7 +29,7 @@
 |-------|--------|--------|-----------------|--------------|--------|----------------------------|
 | CITB | FT-init | ROUGE-L AR | **35.7** | **33.109** (`v54` formal, 19/19 tasks) | **No** | **RED FLAG:** local uses official-script `500/50/50` (`max_num_instances_per_eval_task=50`); paper text says `500/50/100`. Gap −2.6 even under script-strict setting. Run: `citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_ft_instr_stage1_v54`. |
 | CITB | FT-init | BWT | **−4.6** | *not reported* | — | v54 status logs ROUGE-L only; no BWT in artifact. |
-| CITB | Replay(50) | ROUGE-L AR | **40.4** | *no formal run* | — | **RED FLAG:** full 19-task Replay(50) formal **not started**. Only single-task smoke below. |
+| CITB | Replay(50) | ROUGE-L AR | **40.4** | *running* (~6%, task 1/19) | — | Formal launched 2026-07-06 16:53 `lora-ours-citb-replay50-formal`; task0 done, task1 ~16% steps |
 | CITB | Replay(50) | ROUGE-L AR (smoke) | **40.4** | **50.0** (`replay50_v55_smoke`, 1 task) | **N/A** | **RED FLAG:** `SMOKE=1`, `max_steps=50`, `max_eval_samples=10`, single task `task848_pubmedqa_classification` — not paper-comparable. W&B `a2jh0n4y`. |
 | CITB | Replay(50) | exact_match (smoke) | — | **50.0** | **N/A** | Same smoke run; EM=ROUGE-L=50.0 on n=10 eval. |
 | CITB | Ours overlay | ROUGE-L AR | **40.4** (Replay ref) | **24.6** (`ours_v85_smoke_strict`) | **No** | **RED FLAG:** 5-segment smoke (`train50_eval10_v1`), not 19-task formal. BWT **−1.25**. Early gate PASS but far below Replay paper. |
@@ -75,7 +75,7 @@
 
 | Suite | Method | Metric | Paper published | Local result | Match? | Notes (setting differences) |
 |-------|--------|--------|-----------------|--------------|--------|----------------------------|
-| Dialogue | ARPER (SCLSTM) | BLEU-4 | **0.701** | **0.63231** (`v66` formal) | **No** | Gap **−0.069** (~10% relative). Official `run.sh` / `config.cfg` path. |
+| Dialogue | ARPER (SCLSTM) | BLEU-4 | **0.701** | **0.63231** (`v66`/`v86`) | **No** | Gap −0.069. Local used DA-wise `granularity=1`, `exemplar_size=250`, `n_epochs=100`. Official default `config.cfg` is **domain-wise** (`granularity=0`). **Next:** exemplar_500 sweep when GPU free. |
 | Dialogue | ARPER (SCLSTM) | SER | **3.63** | **4.817** (`v66` formal) | **No** | Gap **+1.19** (worse). |
 | Dialogue | ARPER (SCLSTM) | BLEU-4 | **0.701** | **0.63231** (`v86` formal) | **No** | Identical to v66; paper-epoch repro did not improve. |
 | Dialogue | ARPER (SCLSTM) | SER | **3.63** | **4.817** (`v86` formal) | **No** | Identical to v66. |
@@ -92,9 +92,9 @@
 |-----|-------|-----------------|
 | `olora_official_base_ours_overlay_ssrg_v85_smoke` | running / partial | Only dbpedia EM 98.5; no 4-task cumulative |
 | ToDCL ADAPTER anchor | **queued** (priority 2) | No training metrics yet |
-| CITB Replay(50) formal 19-task | **queued** | Priority 1 in `run_baseline_reproduction_queue.sh`; tracker: `baseline_reproduction_tracker_20260706.md` |
+| CITB Replay(50) formal 19-task | **running** (~6%) | `lora-ours-citb-replay50-formal`; ETA ~9–12h |
 | `olora_t5large_standard_order1_seed1_official_base_smoke_v55` | completed toy | `max_steps=1`, 8 train samples — not benchmark |
-| LB-CL / ProgPrompt / LFPT5 Standard baselines | not run | Paper-only or not rerun |
+| LB-CL / ProgPrompt / LFPT5 Standard baselines | not run | LFPT5 blocked (no LM-adapted T5-large); ProgPrompts blocked (protocol/env) |
 
 ---
 
@@ -124,4 +124,4 @@
 | ARPER v86 | `results/logs/arper_woz3_official_sclstm_formal_v86_status.md` |
 | ARPER v81 overlay | `results/logs/arper_woz3_official_sclstm_v66_plus_ours_overlay_v81_formal_status.md` |
 
-*Generated: 2026-07-06 from live log artifacts. Numbers are not invented.*
+*Generated: 2026-07-06 17:05. CITB Replay(50) formal in progress; numbers from completed artifacts only.*
