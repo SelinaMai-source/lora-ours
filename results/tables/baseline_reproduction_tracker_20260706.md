@@ -80,10 +80,10 @@
 
 | Item | State |
 |------|-------|
-| GPU owner | **ToDCL ADAPTER** (`lora-ours-todcl-adapter-anchor`) |
+| GPU owner | **ARPER v88** (`lora-ours-arper-v88-formal`, Restaurant ~E27) |
 | **Just completed** | ARPER v87 — BLEU **0.601**, SER **7.831** (FAIL ±1) |
-| **Queued next** | ARPER v88 → optional CITB Stage-1 strict parity |
-| **Orchestrator** | `scripts/run_strict_paper_repro_iteration.sh` |
+| **Queued next** | ToDCL ADAPTER anchor (GPT-2 fixed) → optional CITB Stage-1 if `FORCE_CITB_STAGE1=1` |
+| **Orchestrator** | `scripts/run_strict_paper_repro_iteration.sh` (tmux `lora-ours-strict-paper-repro`) |
 | Ours overlay queue | `lora-ours-sota-gpu-queue` — **paused** until baseline queue empty |
 
 ---
@@ -96,8 +96,8 @@
 4. **LFPT5:** `Classification.sh` runnable in principle; **blocked** on LM-adapted T5-large weights + few-shot protocol ≠ O-LoRA order1.
 5. **Progressive Prompts:** T5 CL entrypoint exists; **blocked** on conda env `nlp` + order1 task-list launcher vs paper table protocol.
 6. **CITB Multi:** Different training entrypoint — not yet wired in master launcher.
-7. **ARPER:** Runnable but **below paper**; next attempt = exemplar **500** sweep + domain-vs-DA setting check (launch only when GPU free).
+7. **ARPER:** v88 running with paper-exact `config.cfg` (exemplar 250, batch 128, domain-wise); v87 failed due to exemplar 500 / batch 64 drift.
 
 ---
 
-*Updated: 2026-07-07T13:30+08:00. CITB AR metric corrected (39.98 PASS); strict repro orchestrator added.*
+*Updated: 2026-07-07T16:40+08:00. Gap analysis: `docs/experiments/paper_repro_gap_analysis_20260707.md`; iteration tracker: `results/tables/paper_repro_iteration_tracker_20260707.md`.*

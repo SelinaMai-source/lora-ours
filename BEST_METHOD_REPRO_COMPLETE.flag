@@ -1,19 +1,20 @@
 {
-  "completed_at": "2026-07-07T04:02:30",
-  "overall_status": "complete_with_blocker",
+  "completed_at": "2026-07-07T16:40:00",
+  "overall_status": "partial_pass_with_blockers",
   "branch": "best-method-repro-results-20260706",
   "watch_md": "results/logs/best_method_repro_watch_20260706.md",
   "blockers": [
-    "ToDCL ADAPTER: corrupt/missing GPT-2 weights; network unreachable for re-download"
+    "ARPER: BLEU/SER below paper; v88 running with paper-exact config.cfg",
+    "ToDCL ADAPTER: queued after ARPER v88 (GPT-2 fixed 2026-07-07)"
   ],
   "suites": {
     "citb_replay50": {
       "method": "Replay(50) formal 19-task",
       "status": "done",
       "paper_metric": "ROUGE-L AR 40.4",
-      "local_metric": "ROUGE-L AR 32.4417",
-      "match": "No",
-      "notes": "official_script_500_50_50; gap \u22127.96 vs paper",
+      "local_metric": "ROUGE-L AR 39.98 (average_accuracy matrix)",
+      "match": "Yes",
+      "notes": "official_script_500_50_50; gap -0.42; prior 32.44 was FR misread",
       "tmux": "lora-ours-citb-replay50-formal",
       "wandb": "4r1vg0x9 / citb_instrdialog_order1_official_replay50_base_repro"
     },
@@ -22,30 +23,30 @@
       "status": "done",
       "paper_metric": "EM avg 75.8",
       "local_metric": "EM 76.8059",
-      "match": "Yes / Close",
+      "match": "Yes (borderline +1.01)",
       "notes": "single-GPU grad_accum=8 official-equivalent",
       "tmux": "(completed prior)",
       "wandb": "published-base-standard-olora-order1-formal-v57"
     },
     "todcl_adapter": {
       "method": "ADAPTER 37-domain NLG anchor",
-      "status": "blocker",
+      "status": "queued",
       "paper_metric": "BLEU 21.77 / EER 0.164",
-      "local_metric": "\u2014",
-      "match": "\u2014",
-      "notes": "gpt2 load failure EXIT=1",
+      "local_metric": "—",
+      "match": "—",
+      "notes": "GPT-2 fixed; launch after GPU free",
       "tmux": "lora-ours-todcl-adapter-anchor",
-      "wandb": "\u2014"
+      "wandb": "—"
     },
-    "arper_v87": {
-      "method": "v87 paper-aligned domain/exemplar500",
-      "status": "done",
+    "arper_v88": {
+      "method": "v88 paper-exact config.cfg (exemplar250, batch128, domain)",
+      "status": "running",
       "paper_metric": "BLEU 0.701 / SER 3.63",
-      "local_metric": "BLEU 0.60059 SER error:",
+      "local_metric": "—",
       "match": "TBD",
-      "notes": "granularity=0 exemplar 500",
-      "tmux": "lora-ours-arper-v87-formal",
-      "wandb": "\u2014"
+      "notes": "v87 failed: exemplar500+batch64 drift",
+      "tmux": "lora-ours-arper-v88-formal",
+      "wandb": "—"
     }
   }
 }

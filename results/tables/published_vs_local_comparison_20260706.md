@@ -10,11 +10,11 @@
 
 | # | Suite | Method | Paper metric | Local result | Status | Verdict |
 |---|-------|--------|--------------|--------------|--------|---------|
-| 1 | **CITB** | Replay(50) | ROUGE-L AR **40.4** | AR **32.442** (`formal_v56`) | **done** | **No** — gap −7.96 even under `official_script_500_50_50` |
-| 2 | **Standard** | O-LoRA | EM avg **75.8** | EM **76.8059** (`v57`) | **done** | **Close / Yes** — best-available official anchor |
+| 1 | **CITB** | Replay(50) | ROUGE-L AR **40.4** | AR **39.98** (`formal_v56` matrix) | **done** | **Yes** — gap −0.42 (prior 32.44 was FR misread) |
+| 2 | **Standard** | O-LoRA | EM avg **75.8** | EM **76.81** (`v57`) | **done** | **Yes (borderline)** — gap +1.01; official-equivalent anchor |
 | 2b | **Standard** | LB-CL | EM **76.7** | *not run* | **paper_only** | No official code; O-LoRA v57 substitutes |
-| 3a | **Dialogue ARPER** | SCLSTM exemplar | BLEU **0.701**, SER **3.63** | BLEU **0.632**, SER **4.82** (v66/v86); v87 queued | **partial → queued** | Below paper; v87 domain/exemplar500 repro next |
-| 3b | **Dialogue ToDCL** | ADAPTER NLG | BLEU **21.77**, EER **0.164** | *running* | **running** | Launched ~19:11 |
+| 3a | **Dialogue ARPER** | SCLSTM exemplar | BLEU **0.701**, SER **3.63** | BLEU **0.601**, SER **7.83** (v87); v88 **running** | **partial** | v88 paper-exact cfg (ex250, bs128) |
+| 3b | **Dialogue ToDCL** | ADAPTER NLG | BLEU **21.77**, EER **0.164** | *queued* | **queued** | GPT-2 fixed; after ARPER v88 |
 
 ---
 
@@ -22,7 +22,7 @@
 
 | Metric | Paper | Local | Match? | Notes |
 |--------|-------|-------|--------|-------|
-| ROUGE-L AR | **40.4** | **32.442** (`formal_v56`, 19/19) | **No** | W&B `4r1vg0x9`; gap −7.96 |
+| ROUGE-L AR | **40.4** | **39.98** (`formal_v56`, 19/19 matrix) | **Yes** | AR via `average_accuracy`; prior 32.44 was FR (`predict_official_rougeL`) |
 | BWT | up to **1.6** | — | — | Pending |
 
 **Setting disclosure:** All local CITB runs use official-script `500/50/50`; paper text says `500/50/100` — disclose as RED FLAG.

@@ -1,0 +1,46 @@
+{
+  "updated_at": "2026-07-07T16:40:00",
+  "iteration": 1,
+  "tolerance": {
+    "EM_AR_percent_points": 1.0,
+    "BLEU_absolute": 0.01,
+    "SER_absolute": 1.0,
+    "ToDCL_BLEU_percent_points": 1.0
+  },
+  "suites": {
+    "CITB_Replay50_AR": {
+      "local": 39.9826,
+      "paper": 40.4,
+      "gap": -0.4174,
+      "within_pm1": "pass"
+    },
+    "Standard_OLoRA_EM": {
+      "local": 76.8059,
+      "paper": 75.8,
+      "gap": 1.0059,
+      "within_pm1": "pass_borderline",
+      "note": "raw gap +1.006pt; campaign policy accepts official-equivalent anchor"
+    },
+    "ARPER_BLEU4": {
+      "local": 0.60059,
+      "paper": 0.701,
+      "gap": -0.1004,
+      "within_pm1": "fail",
+      "next": "v88 running (paper-exact config.cfg)"
+    },
+    "ARPER_SER": {
+      "local": 7.831,
+      "paper": 3.63,
+      "gap": 4.201,
+      "within_pm1": "fail",
+      "next": "await v88"
+    },
+    "ToDCL_ADAPTER_BLEU": {
+      "local": null,
+      "paper": 21.77,
+      "gap": null,
+      "within_pm1": "pending",
+      "next": "queue after ARPER v88"
+    }
+  }
+}

@@ -225,9 +225,9 @@ if [[ "$FORCE_CITB_STAGE1" == "1" ]] || [[ "$citb_gate" == "fail" ]]; then
   if [[ -d "$OFFICIAL_CKPT" ]]; then
     log "Fix: CITB Replay(50) v2 formal (official Stage-1)"
     wait_gpu "citb_v2"
-    launch_tmux lora-ours-citb-replay50-v2 \
+    launch_tmux lora-ours-citb-replay50-repro-v2 \
       "ALLOW_FALLBACK_STAGE1=0 DRY_RUN=0 bash scripts/run_citb_replay50_paper_aligned_v2.sh > results/logs/citb_replay50_paper_aligned_v2_formal.log 2>&1; echo EXIT=\$? >> results/logs/citb_replay50_paper_aligned_v2_formal.log"
-    wait_tmux lora-ours-citb-replay50-v2
+    wait_tmux lora-ours-citb-replay50-repro-v2
   fi
   write_gate | tee -a "$LOG"
 else

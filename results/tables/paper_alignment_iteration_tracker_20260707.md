@@ -14,7 +14,8 @@
 | **ARPER SCLSTM** | v87 formal | BLEU 0.701 | **0.601** | −0.10 | Domain-wise but exemplar 500 + batch 64 | **FAIL** |
 | **ARPER SCLSTM** | v87 formal | SER 3.63 | **7.831** | +4.20 | Same as v87 BLEU row | **FAIL** |
 | **ToDCL ADAPTER** | anchor 20260706 | BLEU 21.77 | — | — | GPT-2 corrupt / HF offline | **blocked → fixed** |
-| **ToDCL ADAPTER** | anchor retry (running) | BLEU 21.77 | — | — | Local GPT-2 path + offline transformers | **running** |
+| **ARPER SCLSTM** | v88 formal | BLEU 0.701 | — | — | Paper-exact `config.cfg` (ex250, bs128, domain) | **running** (`lora-ours-arper-v88-formal`) |
+| **ToDCL ADAPTER** | anchor retry (queued) | BLEU 21.77 | — | — | GPT-2 fixed; queue after ARPER v88 | **queued** |
 | **ToDCL ADAPTER** | anchor retry | EER 0.164 | — | — | Same run; use ±10% relative for small metric | **queued** |
 
 ## Next actions (GPU serial — 1×48GB)
