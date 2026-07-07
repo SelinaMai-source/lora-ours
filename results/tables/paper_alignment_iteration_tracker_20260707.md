@@ -7,22 +7,21 @@
 | Suite | Attempt | Paper | Local | Gap | Fix applied | Status |
 |-------|---------|-------|-------|-----|-------------|--------|
 | **Standard O-LoRA** | v57 formal | EM 75.8 | **76.81** | +1.01 | Official-equivalent 1×GPU + grad_accum=8 | **PASS ±1** |
-| **CITB Replay(50)** | v56 formal | ROUGE-L AR 40.4 | **32.44** | −7.96 | Official script 500/50/50; seed469 + tokenizer shim | **FAIL** |
+| **CITB Replay(50)** | v56 formal | ROUGE-L AR 40.4 | **39.98** (matrix) | −0.42 | Official script 500/50/50; seed469 + tokenizer shim | **PASS ±1** (was misread as 32.44) |
 | **CITB Stage-1** | seed50 train (queued) | — (prerequisite) | — | — | Official `run_initial_multitask_tuning.sh` parity; `lora_v10_citb`; tie patch on ckpt-14000 | **queued** (after ToDCL, before v2) |
 | **CITB Replay(50)** | v2 (queued) | ROUGE-L AR 40.4 | — | — | Official checkpoint-14000 path; native tokenizer; seed50; minimal shims | **blocked** — awaits Stage-1 |
 | **ARPER SCLSTM** | v66 formal | BLEU 0.701 | **0.632** | −0.069 | DA-wise granularity=1 (wrong row) | **FAIL** |
-| **ARPER SCLSTM** | v87 formal | BLEU 0.701 | **~0.601** (4/6 dom) | −0.10 | Domain-wise but exemplar 500 + batch 64 | **FAIL / running** |
-| **ARPER SCLSTM** | v88 (queued) | BLEU 0.701 | — | — | Exact config.cfg: exemplar 250, batch 128, granularity=0 | **queued** (after v2) |
-| **ARPER SCLSTM** | v87 formal | SER 3.63 | TBD | — | Same as v87 BLEU row | **running** |
+| **ARPER SCLSTM** | v87 formal | BLEU 0.701 | **0.601** | −0.10 | Domain-wise but exemplar 500 + batch 64 | **FAIL** |
+| **ARPER SCLSTM** | v87 formal | SER 3.63 | **7.831** | +4.20 | Same as v87 BLEU row | **FAIL** |
 | **ToDCL ADAPTER** | anchor 20260706 | BLEU 21.77 | — | — | GPT-2 corrupt / HF offline | **blocked → fixed** |
-| **ToDCL ADAPTER** | anchor retry (queued) | BLEU 21.77 | — | — | Local GPT-2 path + offline transformers | **queued** (after ARPER v87) |
+| **ToDCL ADAPTER** | anchor retry (running) | BLEU 21.77 | — | — | Local GPT-2 path + offline transformers | **running** |
 | **ToDCL ADAPTER** | anchor retry | EER 0.164 | — | — | Same run; use ±10% relative for small metric | **queued** |
 
 ## Next actions (GPU serial — 1×48GB)
 
-1. **Do not interrupt** ARPER v87 (`lora-ours-arper-v87-formal`) — healthy, ~Restaurant epoch 11/100.
-2. After v87: **ToDCL ADAPTER** anchor retry → **CITB Stage-1 seed50** (`scripts/run_citb_stage1_seed50_train.sh`) → **CITB Replay(50) v2** (`scripts/run_citb_replay50_paper_aligned_v2.sh`) → **ARPER v88**.
-3. **No parallel Stage-1** on this host while v87 holds the only GPU; full paper queue is multi-day (~30–40 GPU-h stacked). Optional diagnostic only: `ALLOW_FALLBACK_STAGE1=1` on v2 (not paper-comparable).
+1. **Do not interrupt** ToDCL ADAPTER (`lora-ours-todcl-adapter-anchor`) — healthy on GPU.
+2. After ToDCL: **ARPER v88** (`scripts/run_arper_woz3_paper_aligned_formal_v88.sh`) → optional **CITB Stage-1** strict parity if `FORCE_CITB_STAGE1=1`.
+3. Orchestrator: `scripts/run_strict_paper_repro_iteration.sh` (tmux `lora-ours-strict-paper-repro`).
 4. Monitor: `scripts/monitor_paper_alignment.sh` (tmux `lora-ours-paper-alignment-watch`).
 
 ## CITB v2 Stage-1 blocker — resolution plan (2026-07-07)

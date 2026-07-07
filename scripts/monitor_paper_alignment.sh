@@ -50,17 +50,24 @@ PY
 
 # --- metric extractors ---
 get_citb_ar() {
-  local json="results/logs/citb_replay50_formal_20260706.json"
-  local v2_json="results/logs/citb_replay50_paper_aligned_v2_formal.json"
-  for f in "$v2_json" "${json%.json}_v2.json" "$json"; do
-    [[ -f "$f" ]] || continue
-    python3 -c "import json; d=json.load(open('$f')); print(d.get('all_results',{}).get('predict_official_rougeL',''))" 2>/dev/null | grep -E '^[0-9]' && return
-  done
-  python3 scripts/monitor_citb_official_base_repro.py \
-    --run-name citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_replay50_formal_v56 \
-    --output-dir /root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_replay50_formal_v56 \
-    --expected-tasks 19 --basename citb_replay50_formal_20260706 --log-path results/logs/citb_replay50_formal_20260706.log >/dev/null 2>&1 || true
-  python3 -c "import json; d=json.load(open('results/logs/citb_replay50_formal_20260706.json')); print(d.get('all_results',{}).get('predict_official_rougeL',''))" 2>/dev/null || echo "nan"
+  python3 - <<'PY'
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(".").resolve()))
+from scripts.parse_citb_official_results import summarize_method
+
+candidates = [
+    Path("/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed50_official_script_500_50_50_paper_aligned_replay50_paper_aligned_v2_formal/results"),
+    Path("/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_replay50_formal_v56/results"),
+]
+for p in candidates:
+    if p.is_dir() and list(p.glob("*/metrics.json")):
+        s = summarize_method(p, "rougeL")
+        if s.get("average_accuracy") is not None:
+            print(f"{s['average_accuracy']:.4f}")
+            sys.exit(0)
+print("nan")
+PY
 }
 
 get_std_em() {

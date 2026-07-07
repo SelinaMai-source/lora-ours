@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Serial GPU queue for paper-alignment retries (after current healthy runs complete).
-# Order: ToDCL ADAPTER retry → CITB v2 → ARPER v88
+# Serial GPU queue for paper-alignment retries.
+# Order: wait ToDCL (if running) → ARPER v88 → optional CITB Stage-1/v2
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -12,8 +12,10 @@ STATUS="${STATUS:-results/logs/paper_alignment_queue_status_20260707.md}"
 
 mkdir -p results/logs
 chmod +x scripts/run_citb_replay50_paper_aligned_v2.sh \
+  scripts/run_citb_stage1_seed50_train.sh \
   scripts/run_arper_woz3_paper_aligned_formal_v88.sh \
-  scripts/run_todcl_adapter_nlg_official_anchor.sh
+  scripts/run_todcl_adapter_nlg_official_anchor.sh \
+  scripts/run_strict_paper_repro_iteration.sh
 
 log() { echo "[$(date -Iseconds)] $*" | tee -a "$LOG"; }
 
@@ -38,51 +40,29 @@ Updated: $(date -Iseconds)
 Phase: ${phase}
 
 Priority:
-1. ToDCL ADAPTER (local GPT-2 fixed)
-2. CITB Replay(50) v2 (official Stage-1 path)
-3. ARPER v88 (config.cfg exact: exemplar 250, batch 128)
+1. ToDCL ADAPTER (if not already running)
+2. ARPER v88 (config.cfg exact: exemplar 250, batch 128)
+3. CITB Stage-1 seed50 + Replay v2 (optional strict parity; AR already ±1 on v56)
 
 Standard O-LoRA v57: PASS — no relaunch.
+CITB v56 AR matrix: PASS ±1 — Stage-1 optional.
 
-Do not kill: lora-ours-arper-v87-formal while running.
+Orchestrator: scripts/run_strict_paper_repro_iteration.sh
 EOF
 }
 
-arper_v87_done() {
-  ! pgrep -f 'run_woz3.*formal_v87' >/dev/null 2>&1 && \
-    ! tmux has-session -t lora-ours-arper-v87-formal 2>/dev/null
-}
-
 log "Paper alignment queue started"
-write_status "waiting for ARPER v87"
+write_status "monitor in-flight jobs"
 
-while ! arper_v87_done; do
-  log "ARPER v87 still running — waiting"
-  write_status "waiting: ARPER v87"
+# Respect healthy ToDCL
+while pgrep -f 'todcl.*train.py.*ADAPTER' >/dev/null 2>&1; do
+  log "ToDCL ADAPTER running — waiting"
+  write_status "running: ToDCL ADAPTER"
   sleep "$POLL_SEC"
 done
 
-log "ARPER v87 complete — starting ToDCL"
-write_status "ToDCL ADAPTER retry"
-wait_gpu "before ToDCL"
-bash scripts/run_todcl_adapter_nlg_official_anchor.sh || {
-  ec=$?; [[ "$ec" -eq 75 ]] && log "ToDCL queued (GPU busy)" || exit "$ec"
-}
-while tmux has-session -t lora-ours-todcl-adapter-anchor 2>/dev/null || ! gpu_idle; do
-  sleep "$POLL_SEC"
-done
-
-log "Starting CITB v2"
-write_status "CITB v2 formal"
-wait_gpu "before CITB v2"
-if ALLOW_FALLBACK_STAGE1=1 DRY_RUN=1 bash scripts/run_citb_replay50_paper_aligned_v2.sh; then
-  log "CITB v2 dry-run OK (fallback Stage-1)"
-  tmux new-session -d -s lora-ours-citb-replay50-v2 \
-    "bash -lc 'cd ${REPO_ROOT} && ALLOW_FALLBACK_STAGE1=1 DRY_RUN=0 bash scripts/run_citb_replay50_paper_aligned_v2.sh' > results/logs/citb_replay50_paper_aligned_v2_formal.log 2>&1; echo EXIT_CODE=\$? >> results/logs/citb_replay50_paper_aligned_v2_formal.log"
-else
-  log "CITB v2 blocked — need official checkpoint-14000 (see root cause doc)"
-fi
-while tmux has-session -t lora-ours-citb-replay50-v2 2>/dev/null || ! gpu_idle; do
+while tmux has-session -t lora-ours-todcl-adapter-anchor 2>/dev/null; do
+  log "ToDCL tmux active — waiting"
   sleep "$POLL_SEC"
 done
 
@@ -90,11 +70,40 @@ log "Starting ARPER v88"
 write_status "ARPER v88"
 wait_gpu "before ARPER v88"
 bash scripts/run_arper_woz3_paper_aligned_formal_v88.sh || {
-  ec=$?; [[ "$ec" -eq 75 ]] && log "ARPER v88 queued" || exit "$ec"
+  ec=$?; [[ "$ec" -eq 75 ]] && log "ARPER v88 queued (GPU busy)" || exit "$ec"
 }
 while tmux has-session -t lora-ours-arper-v88-formal 2>/dev/null || ! gpu_idle; do
   sleep "$POLL_SEC"
 done
+
+if [[ "${FORCE_CITB_STAGE1:-0}" == "1" ]]; then
+  OFFICIAL_CKPT="/root/autodl-tmp/Lora-code/external_baselines/citb_official/output/initial_multitask_model/base_epoch15_lr1e-05_seed50/checkpoint-14000"
+  if [[ ! -d "$OFFICIAL_CKPT" ]]; then
+    log "Starting CITB Stage-1 seed50"
+    write_status "CITB Stage-1 seed50"
+    wait_gpu "before CITB Stage-1"
+    tmux new-session -d -s lora-ours-citb-stage1-seed50 \
+      "bash -lc 'cd ${REPO_ROOT} && bash scripts/run_citb_stage1_seed50_train.sh' > results/logs/citb_stage1_seed50_train_formal.log 2>&1; echo EXIT=\$? >> results/logs/citb_stage1_seed50_train_formal.log"
+    while tmux has-session -t lora-ours-citb-stage1-seed50 2>/dev/null || ! gpu_idle; do
+      sleep "$POLL_SEC"
+    done
+  fi
+
+  log "Starting CITB v2"
+  write_status "CITB v2 formal"
+  wait_gpu "before CITB v2"
+  if ALLOW_FALLBACK_STAGE1=0 DRY_RUN=0 bash scripts/run_citb_replay50_paper_aligned_v2.sh; then
+    tmux new-session -d -s lora-ours-citb-replay50-v2 \
+      "bash -lc 'cd ${REPO_ROOT} && ALLOW_FALLBACK_STAGE1=0 DRY_RUN=0 bash scripts/run_citb_replay50_paper_aligned_v2.sh' > results/logs/citb_replay50_paper_aligned_v2_formal.log 2>&1; echo EXIT_CODE=\$? >> results/logs/citb_replay50_paper_aligned_v2_formal.log"
+  else
+    log "CITB v2 blocked — need official checkpoint-14000"
+  fi
+  while tmux has-session -t lora-ours-citb-replay50-v2 2>/dev/null || ! gpu_idle; do
+    sleep "$POLL_SEC"
+  done
+else
+  log "Skipping CITB Stage-1/v2 (AR PASS on v56 matrix; set FORCE_CITB_STAGE1=1 to enable)"
+fi
 
 write_status "complete"
 log "Paper alignment queue finished"

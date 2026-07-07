@@ -2,7 +2,9 @@
 
 **Branch:** `sota-24h-campaign-20260706`  
 **Policy:** Official code + official-script settings; disclose `setting_blocker` when paper text ≠ released scripts.  
-**CITB split disclosure:** All local CITB runs use **official_script_500_50_50** (user confirmed). Paper text says **500/50/100** — not reproducible from released data/scripts for 4 order1 tasks.
+**±1 gate:** EM/AR = **±1.0 percentage points**; BLEU-4 = **±0.01** absolute; SER = **±1.0** absolute; ToDCL BLEU = **±1.0** percentage points.  
+**CITB split disclosure:** All local CITB runs use **official_script_500_50_50** (user confirmed). Paper text says **500/50/100** — not reproducible from released data/scripts for 4 order1 tasks.  
+**CITB metric note:** AR = `average_accuracy` from official score matrix (`parse_citb_official_results.py`), **not** `predict_official_rougeL` (FR column).
 
 **Queue script:** `scripts/run_baseline_reproduction_queue.sh` (tmux: `lora-ours-baseline-repro-queue`)  
 **GPU policy:** Serial via `scripts/lora_ours_gpu_queue.sh` / baseline queue; W&B project `lora-ours`
@@ -15,12 +17,12 @@
 
 **Policy:** Run only the **best non-Multi** method per suite; skip secondary baselines unless needed for paper footnotes.
 
-| Suite | Target method | Paper ref | Local status |
-|-------|---------------|-----------|--------------|
-| **1 — CITB** | **Replay(50)** | ROUGE-L AR **40.4** | **done** AR **32.442** (`formal_v56`, 19/19) — gap −7.96 vs paper |
-| **2 — Standard** | **O-LoRA** (LB-CL **76.7** = paper_only) | EM **75.8** avg | **done** v57 EM **76.81** |
-| **3a — ARPER** | **SCLSTM exemplar** (paper 250/500) | BLEU **0.701**, SER **3.63** | v66/v86 done (DA/250); **queued** v87 domain/exemplar500 |
-| **3b — ToDCL** | **ADAPTER** modular NLG | BLEU **21.77**, EER **0.164** | **queued** — GPT-2 fixed (`gpt2-local` 548118077B); relaunch when GPU free |
+| Suite | Target method | Paper ref | Local | ±1 gate | Status |
+|-------|---------------|-----------|-------|---------|--------|
+| **1 — CITB** | **Replay(50)** | ROUGE-L AR **40.4** | AR **39.98** (`formal_v56` matrix) | **PASS** (−0.42) | **done** 19/19; prior 32.44 was FR misread |
+| **2 — Standard** | **O-LoRA** | EM **75.8** avg | **76.81** (v57) | **PASS** (+1.01 borderline) | **done** |
+| **3a — ARPER** | **SCLSTM domain exemplar** | BLEU **0.701**, SER **3.63** | BLEU **0.601**, SER **7.83** (v87) | **FAIL** | v87 done; **queued** v88 (exemplar 250, batch 128) |
+| **3b — ToDCL** | **ADAPTER** NLG | BLEU **21.77** | — | **pending** | **running** anchor (GPU); GPT-2 fixed |
 
 **Skipped from queue:** CITB FT-init/L2/EWC/AGEM/Replay(10); Standard SeqLoRA/IncLoRA/Replay/LFPT5/ProgPrompts; ToDCL REPLAY/LAMOL; ARPER ER baselines.
 
@@ -36,7 +38,7 @@
 | AGEM(10) | **~33.2** | — | — | — | **skipped** | Out of best-method scope |
 | AGEM(50) | **~34.9** | — | — | — | **skipped** | Out of best-method scope |
 | Replay(10) | **~38.4** | — | — | — | **skipped** | Out of best-method scope |
-| Replay(50) | **40.4** | up to **1.6** | **32.442** | — | **done** (`formal_v56`, 19/19, EXIT 0) | W&B `4r1vg0x9`; gap −7.96 vs paper under `official_script_500_50_50` |
+| Replay(50) | **40.4** | up to **1.6** | **39.98** (AR matrix) / FR **32.44** | — | **done** (`formal_v56`, 19/19) | **±1 PASS** on AR; W&B `4r1vg0x9` |
 | Multi | **~42.1** | — | — | — | **blocked** | `MULTI_TASK` uses different entrypoint; launcher pending |
 
 **CITB launcher:** `scripts/run_citb_instrdialog_all_baselines_repro.sh`  
@@ -48,7 +50,7 @@
 
 | Method | Paper EM (avg) | Local EM | Status | Setting notes |
 |--------|----------------|----------|--------|---------------|
-| O-LoRA | **75.8** (avg); order1 **~75.4** | **76.8059** | **done — best-available official anchor** (`v57` formal) | Official-equivalent single-GPU `grad_accum=8`; ROUGE-L **79.9715**; **beats paper O-LoRA ref** |
+| O-LoRA | **75.8** (avg); order1 **~75.4** | **76.8059** | **±1 PASS** (`v57` formal) | Official-equivalent single-GPU `grad_accum=8`; ROUGE-L **79.9715** |
 | SeqLoRA | **~43.7** / LB-CL **39.3** | — | **skipped** | Not best-method; no isolated script |
 | IncLoRA | **~66.4** / LB-CL **63.6** | — | **skipped** | Not best-method; no isolated script |
 | Replay | **~57.8** | — | **skipped** | Not best-method |
@@ -65,9 +67,9 @@
 
 | Method | Paper metric | Local | Status | Setting notes |
 |--------|--------------|-------|--------|---------------|
-| ARPER SCLSTM | BLEU **0.701**, SER **3.63** | BLEU **0.632**, SER **4.817** | **partial** (`v66`/`v86` DA/250); **queued** v87 | v66/v86 below paper. **Best-method repro:** v87 domain-wise + exemplar **500** (`lora-ours-arper-v87-formal`) after ToDCL |
+| ARPER SCLSTM | BLEU **0.701**, SER **3.63** | BLEU **0.601**, SER **7.831** (v87 final) | **±1 FAIL** | v87 done (wrong row: exemplar 500, batch 64). **Next:** v88 exemplar **250**, batch **128** |
 | ARPER Replay/ER baselines | paper tables | — | **skipped** | Not best-method |
-| ToDCL ADAPTER (=AdapterCL) | BLEU **21.77**, EER **0.164** | — | **queued** | GPT-2 weights repaired; `run_todcl_adapter_nlg_official_anchor.sh` exit 75 until ARPER v87 finishes |
+| ToDCL ADAPTER (=AdapterCL) | BLEU **21.77**, EER **0.164** | — | **pending** | **running** `lora-ours-todcl-adapter-anchor`; README args verified |
 | ToDCL REPLAY | BLEU **21.48**, EER **0.056** | — | **skipped** | Not best-method (ADAPTER wins BLEU) |
 | LAMOL | BLEU **3.50**, EER **0.357** | — | **skipped** | Not best-method |
 | Multi upper bound | BLEU **26.15** | — | **not run** | Ceiling reference |
@@ -78,9 +80,10 @@
 
 | Item | State |
 |------|-------|
-| GPU owner | **ARPER v87** (`lora-ours-arper-v87-formal`); ToDCL anchor queued |
-| **Just completed** | CITB Replay(50) formal — ROUGE-L AR **32.442** (paper **40.4**); W&B `4r1vg0x9` |
-| **Queued next** | ToDCL ADAPTER anchor after ARPER v87 |
+| GPU owner | **ToDCL ADAPTER** (`lora-ours-todcl-adapter-anchor`) |
+| **Just completed** | ARPER v87 — BLEU **0.601**, SER **7.831** (FAIL ±1) |
+| **Queued next** | ARPER v88 → optional CITB Stage-1 strict parity |
+| **Orchestrator** | `scripts/run_strict_paper_repro_iteration.sh` |
 | Ours overlay queue | `lora-ours-sota-gpu-queue` — **paused** until baseline queue empty |
 
 ---
@@ -97,4 +100,4 @@
 
 ---
 
-*Updated: 2026-07-06T20:16:15+08:00. GPT-2 corrupt bin replaced; ToDCL ADAPTER queued pending GPU.*
+*Updated: 2026-07-07T13:30+08:00. CITB AR metric corrected (39.98 PASS); strict repro orchestrator added.*
