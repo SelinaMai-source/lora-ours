@@ -11,9 +11,9 @@
 |-------|--------|-------|-------|-----|-----|------------|------------|
 | **CITB** | Replay(50) AR | 40.4 | **39.98** | −0.42 | **PASS** | Prior −7.96 was **metric misread** (`predict_official_rougeL` = FR, not AR) | No Stage-2 rerun required for ±1; optional v2 for FWT parity |
 | **Standard** | O-LoRA EM | 75.8 | **76.81** | +1.01 | **PASS (borderline)** | Single-GPU `grad_accum=8` official-equivalent port vs paper 8-GPU | Accept anchor; 8-GPU rerun only if strict byte-identical needed |
-| **ARPER** | SCLSTM BLEU | 0.701 | **0.601** (v87) | −0.10 | **FAIL** | v66 DA-wise wrong row; v87 domain-wise but **exemplar 500 + batch 64** vs paper **250 + 128** | **v88 running** (paper-exact `config.cfg`) |
-| **ARPER** | SCLSTM SER | 3.63 | **7.83** (v87) | +4.20 | **FAIL** | Same config drift as BLEU | Await v88 |
-| **ToDCL** | ADAPTER BLEU | 21.77 | — | — | **pending** | GPT-2 corrupt (2026-07-06); **fixed 2026-07-07** | Queue after ARPER v88 |
+| **ARPER** | SCLSTM BLEU | 0.701 | **0.601** (v87) | −0.10 | **FAIL** | v66 DA-wise wrong row; v87 domain-wise but **exemplar 500 + batch 64** vs paper **250 + 128** | **v88 running** (paper-exact `config.cfg`); **v89 queued** (ex500+bs128) |
+| **ARPER** | SCLSTM SER | 3.63 | **7.83** (v87) | +4.20 | **FAIL** | Same config drift as BLEU | Await v88; v89 if v88 FAIL |
+| **ToDCL** | ADAPTER BLEU | 21.77 | — | — | **pending** | GPT-2 corrupt (2026-07-06); **fixed 2026-07-07** | `run_post_arper_v88_gate.sh` after v88 |
 
 ---
 

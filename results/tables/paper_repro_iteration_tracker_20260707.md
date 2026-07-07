@@ -13,6 +13,8 @@
 | 2 | ToDCL | ADAPTER | queued | 21.77 | — | pending | after v88 |
 | 3 | CITB v2 | Replay50 | blocked | 40.4 | — | optional | Stage-1 seed50 |
 
-**GPU:** ARPER v88 (`lora-ours-arper-v88-formal`) → ToDCL anchor → optional CITB Stage-1.
+**GPU:** ARPER v88 (`lora-ours-arper-v88-formal`) → post-v88 gate → v89 if FAIL → ToDCL → optional CITB.
 
-*Updated: 2026-07-07T16:45+08:00*
+**Queue:** `lora-ours-paper-alignment-queue` | **Gate watcher:** `lora-ours-post-arper-v88-gate` (queued)
+
+*Updated: 2026-07-07T16:50+08:00*

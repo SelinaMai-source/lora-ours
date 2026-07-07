@@ -14,6 +14,8 @@ mkdir -p results/logs
 chmod +x scripts/run_citb_replay50_paper_aligned_v2.sh \
   scripts/run_citb_stage1_seed50_train.sh \
   scripts/run_arper_woz3_paper_aligned_formal_v88.sh \
+  scripts/run_arper_woz3_paper_aligned_formal_v89.sh \
+  scripts/run_post_arper_v88_gate.sh \
   scripts/run_todcl_adapter_nlg_official_anchor.sh \
   scripts/run_strict_paper_repro_iteration.sh
 
@@ -40,8 +42,8 @@ Updated: $(date -Iseconds)
 Phase: ${phase}
 
 Priority:
-1. ToDCL ADAPTER (if not already running)
-2. ARPER v88 (config.cfg exact: exemplar 250, batch 128)
+1. ARPER v88 (config.cfg exact: exemplar 250, batch 128)
+2. Post-v88 gate → v89 if FAIL → ToDCL ADAPTER
 3. CITB Stage-1 seed50 + Replay v2 (optional strict parity; AR already ±1 on v56)
 
 Standard O-LoRA v57: PASS — no relaunch.
@@ -75,6 +77,22 @@ bash scripts/run_arper_woz3_paper_aligned_formal_v88.sh || {
 while tmux has-session -t lora-ours-arper-v88-formal 2>/dev/null || ! gpu_idle; do
   sleep "$POLL_SEC"
 done
+
+# Post-v88 gate: v89 on fail, then ToDCL (serial GPU)
+if ! tmux has-session -t lora-ours-post-arper-v88-gate 2>/dev/null; then
+  log "Starting post-v88 gate (v89 if fail → ToDCL)"
+  write_status "post-v88 gate"
+  tmux new-session -d -s lora-ours-post-arper-v88-gate \
+    "bash -lc 'cd ${REPO_ROOT} && bash scripts/run_post_arper_v88_gate.sh' > results/logs/post_arper_v88_gate_20260707.log 2>&1"
+  while tmux has-session -t lora-ours-post-arper-v88-gate 2>/dev/null; do
+    sleep "$POLL_SEC"
+  done
+else
+  log "post-v88 gate tmux already active — waiting"
+  while tmux has-session -t lora-ours-post-arper-v88-gate 2>/dev/null; do
+    sleep "$POLL_SEC"
+  done
+fi
 
 if [[ "${FORCE_CITB_STAGE1:-0}" == "1" ]]; then
   OFFICIAL_CKPT="/root/autodl-tmp/Lora-code/external_baselines/citb_official/output/initial_multitask_model/base_epoch15_lr1e-05_seed50/checkpoint-14000"

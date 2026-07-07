@@ -6,15 +6,15 @@
 
 ## Recent Signals
 
-- `Train Loss: 1.279 | Time: 55.8`
-- `valid Loss: 1.295 | Slot error: 4.236 | BLEU4: 0.00000 | Time: 7.0`
-- `Task Restaurant Epoch 30 (n_layer 1)`
-- `Train Loss: 1.266 | Time: 56.8`
-- `valid Loss: 1.286 | Slot error: 4.739 | BLEU4: 0.00000 | Time: 7.4`
-- `Task Restaurant Epoch 31 (n_layer 1)`
-- `Train Loss: 1.265 | Time: 55.4`
-- `valid Loss: 1.298 | Slot error: 4.850 | BLEU4: 0.00000 | Time: 7.1`
-- `Task Restaurant Epoch 32 (n_layer 1)`
-- `Train Loss: 1.383 | Time: 57.2`
-- `valid Loss: 1.283 | Slot error: 4.628 | BLEU4: 0.00000 | Time: 7.3`
-- `Task Restaurant Epoch 33 (n_layer 1)`
+- `Train Loss: 4.696 | Time: 34.1`
+- `valid Loss: 3.996 | Slot error: 94.417 | BLEU4: 0.00000 | Time: 5.6`
+- `Task Attraction Epoch 1 (n_layer 1)`
+- `Train Loss: 3.617 | Time: 32.3`
+- `valid Loss: 3.102 | Slot error: 84.415 | BLEU4: 0.00000 | Time: 5.6`
+- `Task Attraction Epoch 2 (n_layer 1)`
+- `Train Loss: 2.796 | Time: 32.9`
+- `valid Loss: 2.448 | Slot error: 64.651 | BLEU4: 0.00000 | Time: 5.9`
+- `Task Attraction Epoch 3 (n_layer 1)`
+- `Train Loss: 2.343 | Time: 32.3`
+- `valid Loss: 2.136 | Slot error: 56.399 | BLEU4: 0.00000 | Time: 5.6`
+- `Task Attraction Epoch 4 (n_layer 1)`
