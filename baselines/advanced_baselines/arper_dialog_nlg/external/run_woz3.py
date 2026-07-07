@@ -777,7 +777,11 @@ if __name__ == '__main__':
     torch.manual_seed(args.random_seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.random_seed)
-    torch.backends.cudnn.deterministic = True
+    if os.environ.get("ARPER_CUDNN_BENCHMARK", "").strip() in {"1", "true", "True", "yes"}:
+        torch.backends.cudnn.benchmark = True
+        torch.backends.cudnn.deterministic = False
+    else:
+        torch.backends.cudnn.deterministic = True
 
     # Train from scratch or previous checkpoint
     if args.mode == 'train' or args.mode == 'adapt' or args.mode == 'recover':

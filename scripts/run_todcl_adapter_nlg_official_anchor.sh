@@ -16,6 +16,13 @@ PREFLIGHT_ONLY="${PREFLIGHT_ONLY:-0}"
 FORCE="${FORCE:-0}"
 BOUNDED_SMOKE="${BOUNDED_SMOKE:-0}"
 
+# GPU utilization tuning (effective batch ≈ train_batch_size * gradient_accumulation_steps).
+# Official anchor: 10 × 8 = 80. Defaults below keep effective batch 80 while raising per-step batch.
+TODCL_TRAIN_BATCH_SIZE="${TODCL_TRAIN_BATCH_SIZE:-16}"
+TODCL_GRADIENT_ACCUM="${TODCL_GRADIENT_ACCUM:-5}"
+TODCL_VALID_BATCH_SIZE="${TODCL_VALID_BATCH_SIZE:-32}"
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
+
 mkdir -p /root/autodl-tmp/lora-ours-logs "${OUTPUT_BASE}"
 
 require_dir() {
@@ -103,8 +110,9 @@ TRAIN_ARGS=(
   --bottleneck_size 50
   --lr 6.25e-3
   --n_epochs 10
-  --train_batch_size 10
-  --gradient_accumulation_steps 8
+  --train_batch_size "${TODCL_TRAIN_BATCH_SIZE}"
+  --valid_batch_size "${TODCL_VALID_BATCH_SIZE}"
+  --gradient_accumulation_steps "${TODCL_GRADIENT_ACCUM}"
   --dataset_list SGD,TM19,TM20,MWOZ
   --setting single
   --seed 1
@@ -137,6 +145,12 @@ cat > "/root/autodl-tmp/lora-ours-logs/${RUN_ID}_launch.json" <<EOF
   "method": "ADAPTER NLG official",
   "domains": 37,
   "log_path": "${LOG_PATH}",
+  "gpu_tuning": {
+    "train_batch_size": ${TODCL_TRAIN_BATCH_SIZE},
+    "gradient_accumulation_steps": ${TODCL_GRADIENT_ACCUM},
+    "effective_batch": $((TODCL_TRAIN_BATCH_SIZE * TODCL_GRADIENT_ACCUM)),
+    "valid_batch_size": ${TODCL_VALID_BATCH_SIZE}
+  },
   "paper_reference": {"bleu": 21.7719, "eer": 0.163975}
 }
 EOF

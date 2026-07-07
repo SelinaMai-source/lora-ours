@@ -1,0 +1,43 @@
+{
+  "config": "results/logs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89.cfg",
+  "vram_cap_mib": 39312,
+  "results": [
+    {
+      "batch_size": 128,
+      "peak_mib": 285.4,
+      "ok_under_cap": true,
+      "actual_batch": 128
+    },
+    {
+      "batch_size": 256,
+      "peak_mib": 557.6,
+      "ok_under_cap": true,
+      "actual_batch": 256
+    },
+    {
+      "batch_size": 512,
+      "peak_mib": 1113.5,
+      "ok_under_cap": true,
+      "actual_batch": 512
+    },
+    {
+      "batch_size": 1024,
+      "peak_mib": 2181.0,
+      "ok_under_cap": true,
+      "actual_batch": 1024
+    },
+    {
+      "batch_size": 2048,
+      "peak_mib": 4297.0,
+      "ok_under_cap": true,
+      "actual_batch": 2048
+    },
+    {
+      "batch_size": 4096,
+      "peak_mib": 8616.7,
+      "ok_under_cap": true,
+      "actual_batch": 4096
+    }
+  ],
+  "max_safe_batch": 4096
+}
