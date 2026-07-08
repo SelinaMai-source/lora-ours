@@ -1,14 +1,14 @@
 # ToDCL ADAPTER NLG Official Anchor — 20260706
 
-- Updated: 2026-07-07T04:02:29+08:00
-- State: `failed_blocker`
+- Updated: 2026-07-07T21:10+08:00
+- State: `queued_after_arper_v89` (disk unblocked 2026-07-08, 102G free on autodl-tmp)
 - Session: `lora-ours-todcl-adapter-anchor`
 - Log: `/root/autodl-tmp/lora-ours-logs/todcl_adapter_nlg_official_anchor_20260706.log`
 - Launcher: `scripts/run_todcl_adapter_nlg_official_anchor.sh`
 - Paper reference: BLEU **21.7719**, EER **0.164**
 - Local BLEU: —
 - Local EER: —
-- Notes: GPT-2 pytorch_model.bin corrupt/missing; HF download unreachable — unrecoverable without model fix
+- Notes: GPT-2 weights fixed (548 MB `pytorch_model.bin`); preflight **passed** 2026-07-07T21:10. Prior EXIT=1 was stale (corrupt weights + HF unreachable). Auto-launch via `run_post_arper_v88_gate.sh` when v89 completes and GPU free.
 
 ## Exit / error signals
 - Some weights of GPT2Adapter were not initialized from the model checkpoint at gpt2 and are newly initialized: ['h.0.attn.masked_bias', 'h.1.attn.masked_bias', 'h.2.attn.masked_bias', 'h.3.attn.masked_bias', 'h.4.attn.masked_bias', 'h.5.attn.masked_bias', 'h.6.attn.masked_bias', 'h.7.attn.masked_bias', 'h.8.attn.masked_bias', 'h.9.attn.masked_bias', 'h.10.attn.masked_bias', 'h.11.attn.masked_bias', 'lm_head.weight']

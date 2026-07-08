@@ -1,0 +1,799 @@
+***** DATA INFO *****
+Using 100.0% of training data
+BATCH SIZE: 128
+Train: 43812 turns
+Valid: 5905 turns
+Test: 5916 turns
+# of batches: Train 342 Valid 46 Test 46
+*************************
+
+Using deep version with 1 layer
+Number of layer is 1
+
+***** MODEL INFO *****
+MODEL TYPE: lm
+MODEL PATH: /root/lora-ours/results/runs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89/1111/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0/lm/model/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0.pt
+SIZE OF HIDDEN: 128
+# of LAYER: 1
+SAMPLE/BEAM SIZE: 1
+*************************
+
+Current task: Attraction has batches: {'train': 52, 'valid': 7}
+Task Attraction Epoch 0 (n_layer 1)
+Train Loss: 4.696 | Time: 33.7
+valid Loss: 3.996 | Slot error: 94.417 | BLEU4: 0.00000 | Time: 5.6
+redunt: 132.0, miss: 1965.0, total: 2221.0
+Best loss: 3.996, AND Save model!
+----------------------------------------
+Task Attraction Epoch 1 (n_layer 1)
+Train Loss: 3.617 | Time: 32.6
+valid Loss: 3.102 | Slot error: 84.415 | BLEU4: 0.00000 | Time: 5.6
+redunt: 747.0, miss: 1165.0, total: 2265.0
+Best loss: 3.102, AND Save model!
+----------------------------------------
+Task Attraction Epoch 2 (n_layer 1)
+Train Loss: 2.796 | Time: 33.3
+valid Loss: 2.448 | Slot error: 64.651 | BLEU4: 0.00000 | Time: 5.6
+redunt: 692.0, miss: 762.0, total: 2249.0
+Best loss: 2.448, AND Save model!
+----------------------------------------
+Task Attraction Epoch 3 (n_layer 1)
+Train Loss: 2.343 | Time: 32.2
+valid Loss: 2.136 | Slot error: 56.399 | BLEU4: 0.00000 | Time: 5.6
+redunt: 722.0, miss: 556.0, total: 2266.0
+Best loss: 2.136, AND Save model!
+----------------------------------------
+Task Attraction Epoch 4 (n_layer 1)
+Train Loss: 2.107 | Time: 33.4
+valid Loss: 1.964 | Slot error: 43.772 | BLEU4: 0.00000 | Time: 5.6
+redunt: 466.0, miss: 511.0, total: 2232.0
+Best loss: 1.964, AND Save model!
+----------------------------------------
+Task Attraction Epoch 5 (n_layer 1)
+Train Loss: 1.955 | Time: 31.7
+valid Loss: 1.845 | Slot error: 29.339 | BLEU4: 0.00000 | Time: 5.5
+redunt: 259.0, miss: 402.0, total: 2253.0
+Best loss: 1.845, AND Save model!
+----------------------------------------
+Task Attraction Epoch 6 (n_layer 1)
+Train Loss: 1.851 | Time: 32.7
+valid Loss: 1.776 | Slot error: 28.094 | BLEU4: 0.00000 | Time: 5.6
+redunt: 294.0, miss: 337.0, total: 2246.0
+Best loss: 1.776, AND Save model!
+----------------------------------------
+Task Attraction Epoch 7 (n_layer 1)
+Train Loss: 1.769 | Time: 32.1
+valid Loss: 1.708 | Slot error: 21.623 | BLEU4: 0.00000 | Time: 5.6
+redunt: 297.0, miss: 188.0, total: 2243.0
+Best loss: 1.708, AND Save model!
+----------------------------------------
+Task Attraction Epoch 8 (n_layer 1)
+Train Loss: 1.708 | Time: 32.5
+valid Loss: 1.676 | Slot error: 17.671 | BLEU4: 0.00000 | Time: 5.6
+redunt: 217.0, miss: 176.0, total: 2224.0
+Best loss: 1.676, AND Save model!
+----------------------------------------
+Task Attraction Epoch 9 (n_layer 1)
+Train Loss: 1.653 | Time: 32.9
+valid Loss: 1.644 | Slot error: 12.943 | BLEU4: 0.00000 | Time: 5.5
+redunt: 128.0, miss: 164.0, total: 2256.0
+Best loss: 1.644, AND Save model!
+----------------------------------------
+Task Attraction Epoch 10 (n_layer 1)
+Train Loss: 1.613 | Time: 32.5
+valid Loss: 1.618 | Slot error: 13.476 | BLEU4: 0.00000 | Time: 5.6
+redunt: 155.0, miss: 147.0, total: 2241.0
+Best loss: 1.618, AND Save model!
+----------------------------------------
+Task Attraction Epoch 11 (n_layer 1)
+Train Loss: 1.573 | Time: 33.5
+valid Loss: 1.604 | Slot error: 11.514 | BLEU4: 0.00000 | Time: 5.5
+redunt: 83.0, miss: 174.0, total: 2232.0
+Best loss: 1.604, AND Save model!
+----------------------------------------
+Task Attraction Epoch 12 (n_layer 1)
+Train Loss: 1.541 | Time: 32.2
+valid Loss: 1.576 | Slot error: 10.575 | BLEU4: 0.00000 | Time: 5.6
+redunt: 121.0, miss: 118.0, total: 2260.0
+Best loss: 1.576, AND Save model!
+----------------------------------------
+Task Attraction Epoch 13 (n_layer 1)
+Train Loss: 1.510 | Time: 33.3
+valid Loss: 1.559 | Slot error: 10.031 | BLEU4: 0.00000 | Time: 5.7
+redunt: 121.0, miss: 105.0, total: 2253.0
+Best loss: 1.559, AND Save model!
+----------------------------------------
+Task Attraction Epoch 14 (n_layer 1)
+Train Loss: 1.488 | Time: 32.1
+valid Loss: 1.530 | Slot error: 8.732 | BLEU4: 0.00000 | Time: 5.6
+redunt: 96.0, miss: 101.0, total: 2256.0
+Best loss: 1.530, AND Save model!
+----------------------------------------
+Task Attraction Epoch 15 (n_layer 1)
+Train Loss: 1.463 | Time: 33.0
+valid Loss: 1.524 | Slot error: 9.578 | BLEU4: 0.00000 | Time: 5.6
+redunt: 71.0, miss: 147.0, total: 2276.0
+Best loss: 1.524, AND Save model!
+----------------------------------------
+Task Attraction Epoch 16 (n_layer 1)
+Train Loss: 1.440 | Time: 31.9
+valid Loss: 1.503 | Slot error: 9.974 | BLEU4: 0.00000 | Time: 5.6
+redunt: 105.0, miss: 122.0, total: 2276.0
+Best loss: 1.503, AND Save model!
+----------------------------------------
+Task Attraction Epoch 17 (n_layer 1)
+Train Loss: 1.421 | Time: 33.3
+valid Loss: 1.506 | Slot error: 6.433 | BLEU4: 0.00000 | Time: 5.6
+redunt: 71.0, miss: 74.0, total: 2254.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 18 (n_layer 1)
+Train Loss: 1.395 | Time: 31.8
+valid Loss: 1.498 | Slot error: 6.974 | BLEU4: 0.00000 | Time: 5.7
+redunt: 92.0, miss: 67.0, total: 2280.0
+Best loss: 1.498, AND Save model!
+----------------------------------------
+Task Attraction Epoch 19 (n_layer 1)
+Train Loss: 1.381 | Time: 32.4
+valid Loss: 1.496 | Slot error: 6.802 | BLEU4: 0.00000 | Time: 5.7
+redunt: 83.0, miss: 71.0, total: 2264.0
+Best loss: 1.496, AND Save model!
+----------------------------------------
+Task Attraction Epoch 20 (n_layer 1)
+Train Loss: 1.357 | Time: 33.6
+valid Loss: 1.493 | Slot error: 5.657 | BLEU4: 0.00000 | Time: 5.5
+redunt: 39.0, miss: 88.0, total: 2245.0
+Best loss: 1.493, AND Save model!
+----------------------------------------
+Task Attraction Epoch 21 (n_layer 1)
+Train Loss: 1.342 | Time: 32.1
+valid Loss: 1.483 | Slot error: 5.817 | BLEU4: 0.00000 | Time: 5.7
+redunt: 56.0, miss: 74.0, total: 2235.0
+Best loss: 1.483, AND Save model!
+----------------------------------------
+Task Attraction Epoch 22 (n_layer 1)
+Train Loss: 1.330 | Time: 33.4
+valid Loss: 1.470 | Slot error: 5.310 | BLEU4: 0.00000 | Time: 5.7
+redunt: 33.0, miss: 86.0, total: 2241.0
+Best loss: 1.470, AND Save model!
+----------------------------------------
+Task Attraction Epoch 23 (n_layer 1)
+Train Loss: 1.312 | Time: 32.3
+valid Loss: 1.486 | Slot error: 5.040 | BLEU4: 0.00000 | Time: 5.8
+redunt: 45.0, miss: 68.0, total: 2242.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 24 (n_layer 1)
+Train Loss: 1.303 | Time: 32.9
+valid Loss: 1.481 | Slot error: 3.961 | BLEU4: 0.00000 | Time: 5.8
+redunt: 40.0, miss: 50.0, total: 2272.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 25 (n_layer 1)
+Train Loss: 1.285 | Time: 32.0
+valid Loss: 1.471 | Slot error: 4.928 | BLEU4: 0.00000 | Time: 5.5
+redunt: 43.0, miss: 67.0, total: 2232.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 26 (n_layer 1)
+Train Loss: 1.276 | Time: 33.4
+valid Loss: 1.471 | Slot error: 4.039 | BLEU4: 0.00000 | Time: 5.7
+redunt: 41.0, miss: 51.0, total: 2278.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 27 (n_layer 1)
+Train Loss: 1.264 | Time: 31.9
+valid Loss: 1.464 | Slot error: 3.857 | BLEU4: 0.00000 | Time: 5.5
+redunt: 35.0, miss: 51.0, total: 2230.0
+Best loss: 1.464, AND Save model!
+----------------------------------------
+Task Attraction Epoch 28 (n_layer 1)
+Train Loss: 1.249 | Time: 32.9
+valid Loss: 1.474 | Slot error: 4.481 | BLEU4: 0.00000 | Time: 5.6
+redunt: 52.0, miss: 49.0, total: 2254.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 29 (n_layer 1)
+Train Loss: 1.240 | Time: 32.1
+valid Loss: 1.463 | Slot error: 3.804 | BLEU4: 0.00000 | Time: 5.8
+redunt: 33.0, miss: 53.0, total: 2261.0
+Best loss: 1.463, AND Save model!
+----------------------------------------
+Task Attraction Epoch 30 (n_layer 1)
+Train Loss: 1.228 | Time: 32.5
+valid Loss: 1.470 | Slot error: 4.535 | BLEU4: 0.00000 | Time: 5.5
+redunt: 35.0, miss: 66.0, total: 2227.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 31 (n_layer 1)
+Train Loss: 1.217 | Time: 32.3
+valid Loss: 1.475 | Slot error: 4.998 | BLEU4: 0.00000 | Time: 5.5
+redunt: 58.0, miss: 55.0, total: 2261.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 32 (n_layer 1)
+Train Loss: 1.208 | Time: 32.5
+valid Loss: 1.458 | Slot error: 3.734 | BLEU4: 0.00000 | Time: 5.6
+redunt: 30.0, miss: 53.0, total: 2223.0
+Best loss: 1.458, AND Save model!
+----------------------------------------
+Task Attraction Epoch 33 (n_layer 1)
+Train Loss: 1.197 | Time: 33.3
+valid Loss: 1.464 | Slot error: 3.070 | BLEU4: 0.00000 | Time: 5.5
+redunt: 18.0, miss: 52.0, total: 2280.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 34 (n_layer 1)
+Train Loss: 1.188 | Time: 32.4
+valid Loss: 1.467 | Slot error: 3.855 | BLEU4: 0.00000 | Time: 5.6
+redunt: 40.0, miss: 47.0, total: 2257.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 35 (n_layer 1)
+Train Loss: 1.181 | Time: 32.5
+valid Loss: 1.459 | Slot error: 4.118 | BLEU4: 0.00000 | Time: 5.6
+redunt: 40.0, miss: 52.0, total: 2234.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 36 (n_layer 1)
+Train Loss: 1.172 | Time: 32.7
+valid Loss: 1.452 | Slot error: 3.538 | BLEU4: 0.00000 | Time: 5.6
+redunt: 35.0, miss: 45.0, total: 2261.0
+Best loss: 1.452, AND Save model!
+----------------------------------------
+Task Attraction Epoch 37 (n_layer 1)
+Train Loss: 1.161 | Time: 33.0
+valid Loss: 1.448 | Slot error: 3.742 | BLEU4: 0.00000 | Time: 5.5
+redunt: 23.0, miss: 61.0, total: 2245.0
+Best loss: 1.448, AND Save model!
+----------------------------------------
+Task Attraction Epoch 38 (n_layer 1)
+Train Loss: 1.153 | Time: 32.3
+valid Loss: 1.457 | Slot error: 3.169 | BLEU4: 0.00000 | Time: 5.7
+redunt: 28.0, miss: 44.0, total: 2272.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 39 (n_layer 1)
+Train Loss: 1.148 | Time: 33.6
+valid Loss: 1.475 | Slot error: 3.947 | BLEU4: 0.00000 | Time: 5.5
+redunt: 43.0, miss: 46.0, total: 2255.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 40 (n_layer 1)
+Train Loss: 1.140 | Time: 32.4
+valid Loss: 1.490 | Slot error: 3.644 | BLEU4: 0.00000 | Time: 5.6
+redunt: 37.0, miss: 44.0, total: 2223.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 41 (n_layer 1)
+Train Loss: 1.129 | Time: 32.3
+valid Loss: 1.495 | Slot error: 3.503 | BLEU4: 0.00000 | Time: 5.5
+redunt: 28.0, miss: 51.0, total: 2255.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 42 (n_layer 1)
+Train Loss: 1.123 | Time: 32.8
+valid Loss: 1.487 | Slot error: 3.036 | BLEU4: 0.00000 | Time: 5.6
+redunt: 19.0, miss: 49.0, total: 2240.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 43 (n_layer 1)
+Train Loss: 1.115 | Time: 32.0
+valid Loss: 1.480 | Slot error: 3.309 | BLEU4: 0.00000 | Time: 5.4
+redunt: 29.0, miss: 45.0, total: 2236.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 44 (n_layer 1)
+Train Loss: 1.112 | Time: 32.2
+valid Loss: 1.470 | Slot error: 2.961 | BLEU4: 0.00000 | Time: 5.6
+redunt: 19.0, miss: 48.0, total: 2263.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 45 (n_layer 1)
+Train Loss: 1.108 | Time: 32.4
+valid Loss: 1.472 | Slot error: 2.775 | BLEU4: 0.00000 | Time: 5.6
+redunt: 25.0, miss: 37.0, total: 2234.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 46 (n_layer 1)
+Train Loss: 1.099 | Time: 32.3
+valid Loss: 1.490 | Slot error: 2.952 | BLEU4: 0.00000 | Time: 5.6
+redunt: 34.0, miss: 32.0, total: 2236.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Attraction Epoch 47 (n_layer 1)
+Train Loss: 1.093 | Time: 32.1
+valid Loss: 1.493 | Slot error: 2.982 | BLEU4: 0.00000 | Time: 5.4
+redunt: 30.0, miss: 37.0, total: 2247.0
+So sad. Loss does not decrease
+The algorithm to select exemplars is loss
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+Getting loss exemplars
+Getting loss exemplars
+d:Attraction: the postcode is slot-attraction-inform-post .
+d:Attraction: the phone number is slot-attraction-inform-phone .
+d:Attraction: the address is slot-attraction-inform-addr , slot-attraction-inform-addr .
+d:Attraction: the address is slot-attraction-inform-addr .
+d:Attraction: what type of attraction are you looking for ? 
+The mean sv count is 3.9
+
+CHECKPOINT [0] to /root/lora-ours/results/runs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89/1111/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0/lm/model/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0_0.pt
+
+Evaluate on task 0: Attraction
+BLEU 1-4: [0.7882978346793573, 0.7091449814790546, 0.6427526450047147, 0.5822819633071854]
+test Loss: 1.440 | Slot error: 3.370 | BLEU4: 0.58228 | Time: 7.1
+redunt: 40.0, miss: 46.0, total: 2552.0
+BLEU 1-4: [0.7882978346793573, 0.7091449814790546, 0.6427526450047147, 0.5822819633071854]
+test Loss: 1.440 | Slot error: 3.370 | BLEU4: 0.58228 | Time: 7.2
+redunt: 40.0, miss: 46.0, total: 2552.0
+Evaluate on all previous tasks
+test Loss: 1.440 | Slot error: 3.370 | BLEU4: 0.58228
+***** DATA INFO *****
+Using 100.0% of training data
+BATCH SIZE: 128
+Train: 43812 turns
+Valid: 5905 turns
+Test: 5916 turns
+# of batches: Train 342 Valid 46 Test 46
+*************************
+
+Using deep version with 1 layer
+Number of layer is 1
+
+***** MODEL INFO *****
+MODEL TYPE: lm
+MODEL PATH: /root/lora-ours/results/runs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89/1111/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0/lm/model/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0.pt
+SIZE OF HIDDEN: 128
+# of LAYER: 1
+SAMPLE/BEAM SIZE: 1
+*************************
+
+voc Ratio: 1.8000437440003954 for Train
+Current task: Train has batches: {'train': 82, 'valid': 16}
+Task Train Epoch 0 (n_layer 1)
+Train Loss: 3.035 | Time: 74.7
+valid Loss: 1.797 | Slot error: 28.353 | BLEU4: 0.00000 | Time: 12.9
+redunt: 515.0, miss: 726.0, total: 4377.0
+Best loss: 1.797, AND Save model!
+----------------------------------------
+Task Train Epoch 1 (n_layer 1)
+Train Loss: 1.860 | Time: 73.8
+valid Loss: 1.618 | Slot error: 15.842 | BLEU4: 0.00000 | Time: 12.6
+redunt: 212.0, miss: 483.0, total: 4387.0
+Best loss: 1.618, AND Save model!
+----------------------------------------
+Task Train Epoch 2 (n_layer 1)
+Train Loss: 1.690 | Time: 73.9
+valid Loss: 1.550 | Slot error: 12.275 | BLEU4: 0.00000 | Time: 12.7
+redunt: 148.0, miss: 391.0, total: 4391.0
+Best loss: 1.550, AND Save model!
+----------------------------------------
+Task Train Epoch 3 (n_layer 1)
+Train Loss: 1.587 | Time: 72.8
+valid Loss: 1.507 | Slot error: 8.796 | BLEU4: 0.00000 | Time: 12.7
+redunt: 93.0, miss: 295.0, total: 4411.0
+Best loss: 1.507, AND Save model!
+----------------------------------------
+Task Train Epoch 4 (n_layer 1)
+Train Loss: 1.508 | Time: 73.3
+valid Loss: 1.474 | Slot error: 9.269 | BLEU4: 0.00000 | Time: 12.6
+redunt: 92.0, miss: 316.0, total: 4402.0
+Best loss: 1.474, AND Save model!
+----------------------------------------
+Task Train Epoch 5 (n_layer 1)
+Train Loss: 1.502 | Time: 73.4
+valid Loss: 1.463 | Slot error: 7.774 | BLEU4: 0.00000 | Time: 12.8
+redunt: 68.0, miss: 274.0, total: 4399.0
+Best loss: 1.463, AND Save model!
+----------------------------------------
+Task Train Epoch 6 (n_layer 1)
+Train Loss: 1.465 | Time: 73.1
+valid Loss: 1.447 | Slot error: 7.470 | BLEU4: 0.00000 | Time: 13.0
+redunt: 82.0, miss: 247.0, total: 4404.0
+Best loss: 1.447, AND Save model!
+----------------------------------------
+Task Train Epoch 7 (n_layer 1)
+Train Loss: 1.430 | Time: 73.2
+valid Loss: 1.428 | Slot error: 7.084 | BLEU4: 0.00000 | Time: 12.7
+redunt: 57.0, miss: 253.0, total: 4376.0
+Best loss: 1.428, AND Save model!
+----------------------------------------
+Task Train Epoch 8 (n_layer 1)
+Train Loss: 1.411 | Time: 74.4
+valid Loss: 1.422 | Slot error: 7.037 | BLEU4: 0.00000 | Time: 12.6
+redunt: 71.0, miss: 238.0, total: 4391.0
+Best loss: 1.422, AND Save model!
+----------------------------------------
+Task Train Epoch 9 (n_layer 1)
+Train Loss: 1.357 | Time: 74.9
+valid Loss: 1.411 | Slot error: 6.696 | BLEU4: 0.00000 | Time: 12.9
+redunt: 77.0, miss: 217.0, total: 4391.0
+Best loss: 1.411, AND Save model!
+----------------------------------------
+Task Train Epoch 10 (n_layer 1)
+Train Loss: 1.348 | Time: 75.4
+valid Loss: 1.412 | Slot error: 6.601 | BLEU4: 0.00000 | Time: 12.7
+redunt: 69.0, miss: 221.0, total: 4393.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 11 (n_layer 1)
+Train Loss: 1.295 | Time: 73.1
+valid Loss: 1.399 | Slot error: 6.157 | BLEU4: 0.00000 | Time: 12.7
+redunt: 59.0, miss: 213.0, total: 4418.0
+Best loss: 1.399, AND Save model!
+----------------------------------------
+Task Train Epoch 12 (n_layer 1)
+Train Loss: 1.302 | Time: 73.4
+valid Loss: 1.400 | Slot error: 5.668 | BLEU4: 0.00000 | Time: 12.5
+redunt: 64.0, miss: 185.0, total: 4393.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 13 (n_layer 1)
+Train Loss: 1.285 | Time: 73.6
+valid Loss: 1.392 | Slot error: 5.779 | BLEU4: 0.00000 | Time: 12.6
+redunt: 69.0, miss: 185.0, total: 4395.0
+Best loss: 1.392, AND Save model!
+----------------------------------------
+Task Train Epoch 14 (n_layer 1)
+Train Loss: 1.275 | Time: 72.8
+valid Loss: 1.387 | Slot error: 6.045 | BLEU4: 0.00000 | Time: 12.9
+redunt: 77.0, miss: 189.0, total: 4400.0
+Best loss: 1.387, AND Save model!
+----------------------------------------
+Task Train Epoch 15 (n_layer 1)
+Train Loss: 1.260 | Time: 73.1
+valid Loss: 1.383 | Slot error: 6.337 | BLEU4: 0.00000 | Time: 12.5
+redunt: 102.0, miss: 177.0, total: 4403.0
+Best loss: 1.383, AND Save model!
+----------------------------------------
+Task Train Epoch 16 (n_layer 1)
+Train Loss: 1.273 | Time: 73.6
+valid Loss: 1.378 | Slot error: 6.287 | BLEU4: 0.00000 | Time: 12.6
+redunt: 89.0, miss: 188.0, total: 4406.0
+Best loss: 1.378, AND Save model!
+----------------------------------------
+Task Train Epoch 17 (n_layer 1)
+Train Loss: 1.218 | Time: 73.3
+valid Loss: 1.376 | Slot error: 5.348 | BLEU4: 0.00000 | Time: 12.7
+redunt: 72.0, miss: 163.0, total: 4394.0
+Best loss: 1.376, AND Save model!
+----------------------------------------
+Task Train Epoch 18 (n_layer 1)
+Train Loss: 1.231 | Time: 73.5
+valid Loss: 1.378 | Slot error: 6.179 | BLEU4: 0.00000 | Time: 12.6
+redunt: 85.0, miss: 187.0, total: 4402.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 19 (n_layer 1)
+Train Loss: 1.221 | Time: 74.4
+valid Loss: 1.381 | Slot error: 6.383 | BLEU4: 0.00000 | Time: 12.7
+redunt: 102.0, miss: 180.0, total: 4418.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 20 (n_layer 1)
+Train Loss: 1.200 | Time: 75.1
+valid Loss: 1.367 | Slot error: 5.233 | BLEU4: 0.00000 | Time: 12.7
+redunt: 65.0, miss: 166.0, total: 4414.0
+Best loss: 1.367, AND Save model!
+----------------------------------------
+Task Train Epoch 21 (n_layer 1)
+Train Loss: 1.181 | Time: 74.8
+valid Loss: 1.373 | Slot error: 5.779 | BLEU4: 0.00000 | Time: 12.7
+redunt: 74.0, miss: 179.0, total: 4378.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 22 (n_layer 1)
+Train Loss: 1.193 | Time: 73.1
+valid Loss: 1.373 | Slot error: 5.388 | BLEU4: 0.00000 | Time: 12.8
+redunt: 85.0, miss: 152.0, total: 4399.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 23 (n_layer 1)
+Train Loss: 1.166 | Time: 73.3
+valid Loss: 1.374 | Slot error: 5.561 | BLEU4: 0.00000 | Time: 12.5
+redunt: 76.0, miss: 169.0, total: 4406.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 24 (n_layer 1)
+Train Loss: 1.163 | Time: 73.3
+valid Loss: 1.366 | Slot error: 5.473 | BLEU4: 0.00000 | Time: 12.7
+redunt: 73.0, miss: 167.0, total: 4385.0
+Best loss: 1.366, AND Save model!
+----------------------------------------
+Task Train Epoch 25 (n_layer 1)
+Train Loss: 1.156 | Time: 73.0
+valid Loss: 1.370 | Slot error: 5.729 | BLEU4: 0.00000 | Time: 12.7
+redunt: 76.0, miss: 176.0, total: 4399.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 26 (n_layer 1)
+Train Loss: 1.132 | Time: 73.2
+valid Loss: 1.370 | Slot error: 5.838 | BLEU4: 0.00000 | Time: 12.5
+redunt: 83.0, miss: 173.0, total: 4385.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 27 (n_layer 1)
+Train Loss: 1.144 | Time: 73.4
+valid Loss: 1.365 | Slot error: 5.279 | BLEU4: 0.00000 | Time: 12.6
+redunt: 87.0, miss: 145.0, total: 4395.0
+Best loss: 1.365, AND Save model!
+----------------------------------------
+Task Train Epoch 28 (n_layer 1)
+Train Loss: 1.136 | Time: 73.0
+valid Loss: 1.368 | Slot error: 6.033 | BLEU4: 0.00000 | Time: 12.7
+redunt: 94.0, miss: 172.0, total: 4409.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 29 (n_layer 1)
+Train Loss: 1.147 | Time: 73.6
+valid Loss: 1.362 | Slot error: 5.647 | BLEU4: 0.00000 | Time: 12.8
+redunt: 81.0, miss: 167.0, total: 4392.0
+Best loss: 1.362, AND Save model!
+----------------------------------------
+Task Train Epoch 30 (n_layer 1)
+Train Loss: 1.134 | Time: 74.1
+valid Loss: 1.363 | Slot error: 6.108 | BLEU4: 0.00000 | Time: 12.6
+redunt: 101.0, miss: 168.0, total: 4404.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 31 (n_layer 1)
+Train Loss: 1.102 | Time: 74.6
+valid Loss: 1.364 | Slot error: 5.524 | BLEU4: 0.00000 | Time: 12.7
+redunt: 88.0, miss: 154.0, total: 4381.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 32 (n_layer 1)
+Train Loss: 1.113 | Time: 75.2
+valid Loss: 1.366 | Slot error: 5.869 | BLEU4: 0.00000 | Time: 12.6
+redunt: 93.0, miss: 165.0, total: 4396.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 33 (n_layer 1)
+Train Loss: 1.119 | Time: 73.5
+valid Loss: 1.370 | Slot error: 5.833 | BLEU4: 0.00000 | Time: 12.5
+redunt: 97.0, miss: 160.0, total: 4406.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 34 (n_layer 1)
+Train Loss: 1.085 | Time: 73.5
+valid Loss: 1.367 | Slot error: 5.732 | BLEU4: 0.00000 | Time: 12.4
+redunt: 87.0, miss: 165.0, total: 4396.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 35 (n_layer 1)
+Train Loss: 1.112 | Time: 72.6
+valid Loss: 1.366 | Slot error: 5.637 | BLEU4: 0.00000 | Time: 12.8
+redunt: 95.0, miss: 152.0, total: 4382.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 36 (n_layer 1)
+Train Loss: 1.076 | Time: 72.9
+valid Loss: 1.365 | Slot error: 5.960 | BLEU4: 0.00000 | Time: 12.4
+redunt: 91.0, miss: 171.0, total: 4396.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 37 (n_layer 1)
+Train Loss: 1.101 | Time: 73.4
+valid Loss: 1.366 | Slot error: 5.435 | BLEU4: 0.00000 | Time: 12.5
+redunt: 89.0, miss: 149.0, total: 4379.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 38 (n_layer 1)
+Train Loss: 1.097 | Time: 73.4
+valid Loss: 1.363 | Slot error: 5.446 | BLEU4: 0.00000 | Time: 12.8
+redunt: 84.0, miss: 154.0, total: 4370.0
+So sad. Loss does not decrease
+----------------------------------------
+Task Train Epoch 39 (n_layer 1)
+Train Loss: 1.092 | Time: 73.6
+valid Loss: 1.366 | Slot error: 5.602 | BLEU4: 0.00000 | Time: 12.5
+redunt: 84.0, miss: 162.0, total: 4391.0
+So sad. Loss does not decrease
+The algorithm to select exemplars is loss
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+The loss has shape torch.Size([128])
+Getting loss exemplars
+Getting loss exemplars
+d:Train: slot-train-select-depart or slot-train-select-depart ? 
+d:Train: booking was successful , the total fee is slot-train-offerbooked-ticket payable at the station . 
+d:Train: booking was successful , the total fee is slot-train-offerbooked-ticket payable at the station . reference number is : slot-train-offerbooked-ref .
+d:Train: booking was successful , the total fee is slot-train-offerbooked-ticket payable at the station . reference number is : slot-train-inform-ref . 
+d:Train: we do n't have any trains going from slot-train-nooffer-depart to slot-train-nooffer-dest or slot-train-nooffer-dest .
+The mean sv count is 1.784
+
+CHECKPOINT [0, 5] to /root/lora-ours/results/runs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89/1111/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0/lm/model/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0_05.pt
+
+Evaluate on task 0: Attraction
+BLEU 1-4: [0.7903983814321099, 0.7113464613428128, 0.6452530884677499, 0.585197935846968]
+test Loss: 1.449 | Slot error: 3.487 | BLEU4: 0.58520 | Time: 7.1
+redunt: 44.0, miss: 45.0, total: 2552.0
+
+Evaluate on task 5: Train
+BLEU 1-4: [0.7991071762313666, 0.733409504908559, 0.6806428321272886, 0.6329043779937977]
+test Loss: 1.313 | Slot error: 4.738 | BLEU4: 0.63290 | Time: 12.8
+redunt: 42.0, miss: 90.0, total: 2786.0
+BLEU 1-4: [0.7963185741205692, 0.7278025193646356, 0.672231391940979, 0.6223573173084613]
+test Loss: 1.362 | Slot error: 4.057 | BLEU4: 0.62236 | Time: 19.6
+redunt: 81.0, miss: 134.0, total: 5300.0
+Evaluate on all previous tasks
+test Loss: 1.362 | Slot error: 4.057 | BLEU4: 0.62236
+***** DATA INFO *****
+Using 100.0% of training data
+BATCH SIZE: 128
+Train: 43812 turns
+Valid: 5905 turns
+Test: 5916 turns
+# of batches: Train 342 Valid 46 Test 46
+*************************
+
+Using deep version with 1 layer
+Number of layer is 1
+
+***** MODEL INFO *****
+MODEL TYPE: lm
+MODEL PATH: /root/lora-ours/results/runs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89/1111/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0/lm/model/exemplar_ewc_loss_500_paper_domain_v89_0.5_300000.0.pt
+SIZE OF HIDDEN: 128
+# of LAYER: 1
+SAMPLE/BEAM SIZE: 1
+*************************
+
+voc Ratio: 2.9834252875312615 for Hotel
+Current task: Hotel has batches: {'train': 73, 'valid': 12}
+Task Hotel Epoch 0 (n_layer 1)
+Train Loss: 3.480 | Time: 69.3
+valid Loss: 1.545 | Slot error: 24.117 | BLEU4: 0.00000 | Time: 9.7
+redunt: 456.0, miss: 452.0, total: 3765.0
+Best loss: 1.545, AND Save model!
+----------------------------------------
+Task Hotel Epoch 1 (n_layer 1)
+Train Loss: 1.924 | Time: 68.0
+valid Loss: 1.450 | Slot error: 12.066 | BLEU4: 0.00000 | Time: 9.6
+redunt: 206.0, miss: 249.0, total: 3771.0
+Best loss: 1.450, AND Save model!
+----------------------------------------
