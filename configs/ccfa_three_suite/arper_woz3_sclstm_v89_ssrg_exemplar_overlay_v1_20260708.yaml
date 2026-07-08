@@ -1,0 +1,36 @@
+experiment_name: arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708
+label: published-base ARPER v89 SCLSTM + SSRG exemplar overlay v1
+status: post_v89_anchor
+mode: training_overlay
+base:
+  run_id: arper_woz3_paper_aligned_exemplar500_batch128_formal_v89
+  config: results/logs/arper_woz3_paper_aligned_exemplar500_batch128_formal_v89.cfg
+  observed:
+    bleu4: 0.59890
+    ser: 5.938
+  paper_reference:
+    bleu4: 0.701
+    ser: 3.63
+official_surface:
+  code_root: baselines/advanced_baselines/arper_dialog_nlg/external
+  entry: run_woz3.py
+  path: Path B official SCLSTM
+  task_sequence: 1,7,0,6,4,2,8
+overlay:
+  type: ssrg_exemplar_selection
+  mechanism: replace herding/loss exemplar replay with spectral subspace replay (SSRG)
+  module: scripts/arper_ssrg_exemplar_selection.py
+  single_mechanism: true
+  changes:
+    - exemplar_selection adds ssrg scheme; experiment type includes ssrg token
+    - exemplar budget unchanged (500 train / domain)
+    - scorer, split, decode path unchanged
+  spectral_top_k: 8
+  spectral_energy_threshold: 0.85
+runtime:
+  launcher: scripts/run_arper_woz3_sclstm_plus_ssrg_overlay_v1_20260708.sh
+  tmux_session: lora-ours-arper-v1-ssrg-overlay
+  wandb_group: dialogue_arper_sclstm_ssrg_overlay_v1_20260708
+paper:
+  report_as: published-base + ours overlay / SSRG exemplar selection
+  do_not_report_as: official ARPER SCLSTM baseline

@@ -1,0 +1,30 @@
+experiment_name: todcl_ours_v1_20260708_assess_overlay
+label: published-base ToDCL ADAPTER NLG + Assess-then-Update orthogonal penalty v1
+status: post_anchor_overlay
+mode: training_overlay
+base:
+  run_id: todcl_adapter_nlg_official_anchor_20260706
+  method: ADAPTER
+  task_type: NLG
+  domains: 37
+  paper_reference:
+    bleu: 21.7719
+    eer: 0.163975
+  blocked_until: todcl_adapter_nlg_official_anchor_20260706 completes
+overlay:
+  type: assess_update_orthogonal_penalty
+  mechanism: Assess-then-Update isolated-energy detection on adapter weights; apply orthogonal penalty when interference exceeds threshold
+  module: scripts/todcl_assess_orthogonal_overlay.py
+  single_mechanism: true
+  isolated_energy_threshold: 0.25
+  orthogonal_penalty_weight: 0.1
+  changes:
+    - Hook GPT2Adapter training_step to penalize updates orthogonal to prior-domain adapter subspace
+    - Do not alter NLG scorer, splits, or decode path
+runtime:
+  anchor_launcher: scripts/run_todcl_adapter_nlg_official_anchor.sh
+  overlay_launcher: scripts/run_todcl_adapter_nlg_ours_assess_overlay_v1_20260708.sh
+  tmux_session: lora-ours-todcl-v1-assess-overlay
+paper:
+  report_as: published-base + ours overlay / assess-update orthogonal penalty
+  do_not_report_as: official ToDCL ADAPTER baseline
