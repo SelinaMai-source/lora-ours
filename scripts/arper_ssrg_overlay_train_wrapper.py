@@ -7,16 +7,17 @@ import os
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[1]
 ARPER_ROOT = REPO / "baselines/advanced_baselines/arper_dialog_nlg/external"
 CONFIG = os.environ.get("ARPER_OVERLAY_CONFIG", "")
 TOP_K = int(os.environ.get("SSRG_SPECTRAL_TOP_K", "8"))
 ENERGY = float(os.environ.get("SSRG_ENERGY_THRESHOLD", "0.85"))
 
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "scripts"))
 sys.path.insert(0, str(ARPER_ROOT))
 
-from scripts.arper_ssrg_exemplar_selection import construct_exemplar_indices_ssrg
+from arper_ssrg_exemplar_selection import construct_exemplar_indices_ssrg
 import construct_exemplar as ce
 
 _orig_construct = ce.construct_exemplars

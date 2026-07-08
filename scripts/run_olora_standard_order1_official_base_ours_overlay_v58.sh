@@ -713,6 +713,8 @@ if old not in text:
 text = text.replace(old, new, 1)
 if "import re" not in text:
     text = text.replace("import random\n", "import random\nimport re\n", 1)
+if "import math" not in text:
+    text = text.replace("import random\n", "import random\nimport math\n", 1)
 path.write_text(text, encoding="utf-8")
 PY
   fi
