@@ -1,0 +1,9 @@
+# Optional local path overrides for Ours v1 scripts.
+#
+# Source this file before launching if your machine uses different locations:
+#
+#   source ours_v1/configs/paths.local.example
+
+export TODCL_ROOT="${TODCL_ROOT:-/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl}"
+export TODCL_PYTHON="${TODCL_PYTHON:-/root/autodl-tmp/conda_envs/todcl_legacy_py37/bin/python}"
+export LORA_OURS_LOG_DIR="${LORA_OURS_LOG_DIR:-/root/autodl-tmp/lora-ours-logs}"
