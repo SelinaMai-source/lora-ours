@@ -4,6 +4,8 @@ This directory is the clean GitHub entry point for the `ours-v1` branch. It
 groups the v1 contribution code, suite-specific overlays, launchers, configs,
 and status notes without changing the official experiment settings.
 
+**完整目录树与每个文件夹用途**：见 [`STRUCTURE.md`](STRUCTURE.md)。
+
 ## What To Read First
 
 - `core/`: contribution map for the shared Ours mechanisms.
