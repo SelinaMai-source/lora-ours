@@ -7,10 +7,16 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 POLL_SEC="${POLL_SEC:-300}"
+ONCE="${ONCE:-0}"
 TRACKER="${TRACKER:-results/tables/paper_alignment_iteration_tracker_20260707.md}"
 WATCH_MD="${WATCH_MD:-results/logs/paper_alignment_watch_20260707.md}"
 MONITOR_LOG="${MONITOR_LOG:-results/logs/paper_alignment_monitor_20260707.log}"
 QUEUE_SCRIPT="${QUEUE_SCRIPT:-scripts/run_paper_alignment_queue.sh}"
+
+# ToDCL metrics (paper-alignment watch consumes this JSON).
+TODCL_RUN_ID="${TODCL_RUN_ID:-todcl_adapter_nlg_official_anchor_20260706}"
+TODCL_METRICS_JSON="${TODCL_METRICS_JSON:-results/logs/todcl_adapter_nlg_official_anchor_20260706_metrics.json}"
+TODCL_METRICS_SCRIPT="${TODCL_METRICS_SCRIPT:-scripts/refresh_paper_alignment_todcl_adapter_anchor_metrics.py}"
 
 # Metric targets
 CITB_PAPER=40.4
@@ -56,9 +62,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(".").resolve()))
 from scripts.parse_citb_official_results import summarize_method
 
+# Prefer v56 matrix (PASS ±1); seed50 v2 is optional strict-parity attempt.
 candidates = [
-    Path("/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed50_official_script_500_50_50_paper_aligned_replay50_paper_aligned_v2_formal/results"),
     Path("/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed1_official_script_500_50_50_tie_fixed_replay50_formal_v56/results"),
+    Path("/root/autodl-tmp/citb_official_base_repro/citb_instrdialog_order1_seed50_official_script_500_50_50_paper_aligned_replay50_paper_aligned_v2_formal/results"),
 ]
 for p in candidates:
     if p.is_dir() and list(p.glob("*/metrics.json")):
@@ -149,13 +156,48 @@ log "Paper alignment monitor started (poll=${POLL_SEC}s)"
 while true; do
   citb="$(get_citb_ar)"
   std="$(get_std_em)"
-  arper_b="$(get_arper_bleu arper_woz3_paper_aligned_exemplar500_formal_v87)"
-  arper_s="$(get_arper_ser arper_woz3_paper_aligned_exemplar500_formal_v87)"
+  # Prefer latest *completed* formal run; skip in-progress v88 partial domain metrics.
+  arper_b="$(get_arper_bleu arper_woz3_paper_aligned_exemplar500_batch128_formal_v89)"
+  arper_s="$(get_arper_ser arper_woz3_paper_aligned_exemplar500_batch128_formal_v89)"
+  if [[ "$arper_b" == "nan" || "$arper_s" == "nan" ]]; then
+    arper_b="$(get_arper_bleu arper_woz3_paper_aligned_exemplar500_formal_v87)"
+    arper_s="$(get_arper_ser arper_woz3_paper_aligned_exemplar500_formal_v87)"
+  fi
+  if [[ "$arper_b" == "nan" || "$arper_s" == "nan" ]] && ! arper_running; then
+    arper_b="$(get_arper_bleu arper_woz3_paper_aligned_exemplar250_formal_v88)"
+    arper_s="$(get_arper_ser arper_woz3_paper_aligned_exemplar250_formal_v88)"
+  fi
   todcl_b="nan"
   todcl_e="nan"
-  if [[ -f /root/autodl-tmp/lora-ours-logs/todcl_adapter_nlg_official_anchor_20260706.log ]]; then
-    todcl_b="$(grep -i 'BLEU' /root/autodl-tmp/lora-ours-logs/todcl_adapter_nlg_official_anchor_20260706.log 2>/dev/null | tail -1 | grep -oE '[0-9]+\.[0-9]+' | tail -1 || echo nan)"
-    todcl_e="$(grep -iE 'EER|ERR' /root/autodl-tmp/lora-ours-logs/todcl_adapter_nlg_official_anchor_20260706.log 2>/dev/null | tail -1 | grep -oE '0\.[0-9]+' | tail -1 || echo nan)"
+  if [[ -f "$TODCL_METRICS_JSON" ]]; then
+    todcl_b="$(python3 - "$TODCL_METRICS_JSON" <<'PY'
+import json, sys
+d=json.load(open(sys.argv[1], 'r'))
+print(d.get('local_metric', {}).get('bleu', 'nan'))
+PY
+)"
+    todcl_e="$(python3 - "$TODCL_METRICS_JSON" <<'PY'
+import json, sys
+d=json.load(open(sys.argv[1], 'r'))
+print(d.get('local_metric', {}).get('eer', 'nan'))
+PY
+)"
+  elif [[ -f "$TODCL_METRICS_SCRIPT" ]]; then
+    python3 "$TODCL_METRICS_SCRIPT" >/dev/null 2>&1 || true
+    if [[ -f "$TODCL_METRICS_JSON" ]]; then
+      todcl_b="$(python3 - "$TODCL_METRICS_JSON" <<'PY'
+import json, sys
+d=json.load(open(sys.argv[1], 'r'))
+print(d.get('local_metric', {}).get('bleu', 'nan'))
+PY
+)"
+      todcl_e="$(python3 - "$TODCL_METRICS_JSON" <<'PY'
+import json, sys
+d=json.load(open(sys.argv[1], 'r'))
+print(d.get('local_metric', {}).get('eer', 'nan'))
+PY
+)"
+    fi
   fi
 
   write_watch "$citb" "$std" "$arper_b" "$arper_s" "$todcl_b" "$todcl_e"
@@ -170,5 +212,9 @@ while true; do
       --status-basename arper_woz3_paper_aligned_exemplar500_formal_v87_status >/dev/null 2>&1 || true
   fi
 
+  if [[ "$ONCE" == "1" ]]; then
+    log "ONCE=1; exiting monitor loop"
+    break
+  fi
   sleep "$POLL_SEC"
 done

@@ -6,8 +6,8 @@
 
 | Suite | Attempt | Paper | Local | Gap | Fix applied | Status |
 |-------|---------|-------|-------|-----|-------------|--------|
-| **Standard O-LoRA** | v57 formal | EM 75.8 | **76.81** | +1.01 | Official-equivalent 1×GPU + grad_accum=8 | **PASS ±1** |
-| **CITB Replay(50)** | v56 formal | ROUGE-L AR 40.4 | **39.98** (matrix) | −0.42 | Official script 500/50/50; seed469 + tokenizer shim | **PASS ±1** (was misread as 32.44) |
+| **Standard O-LoRA** | v57 formal | EM 75.8 | **76.81** | +1.01 | Official-equivalent 1×GPU + grad_accum=8 | **FAIL*** (borderline +0.006 over ±1) |
+| **CITB Replay(50)** | v56 formal | ROUGE-L AR 40.4 | **39.98** (matrix) | −0.42 | Official script 500/50/50; seed469 + tokenizer shim | **PASS ±1** |
 | **CITB Stage-1** | seed50 train (queued) | — (prerequisite) | — | — | Official `run_initial_multitask_tuning.sh` parity; `lora_v10_citb`; tie patch on ckpt-14000 | **queued** (after ToDCL, before v2) |
 | **CITB Replay(50)** | v2 (queued) | ROUGE-L AR 40.4 | — | — | Official checkpoint-14000 path; native tokenizer; seed50; minimal shims | **blocked** — awaits Stage-1 |
 | **ARPER SCLSTM** | v66 formal | BLEU 0.701 | **0.632** | −0.069 | DA-wise granularity=1 (wrong row) | **FAIL** |
@@ -15,8 +15,11 @@
 | **ARPER SCLSTM** | v87 formal | SER 3.63 | **7.831** | +4.20 | Same as v87 BLEU row | **FAIL** |
 | **ToDCL ADAPTER** | anchor 20260706 | BLEU 21.77 | — | — | GPT-2 corrupt / HF offline | **blocked → fixed** |
 | **ARPER SCLSTM** | v88 formal | BLEU 0.701 | — | — | Paper-exact `config.cfg` (ex250, bs128, domain) | **running** (`lora-ours-arper-v88-formal`) |
-| **ToDCL ADAPTER** | anchor retry (queued) | BLEU 21.77 | — | — | GPT-2 fixed; queue after ARPER v88 | **queued** |
-| **ToDCL ADAPTER** | anchor retry | EER 0.164 | — | — | Same run; use ±10% relative for small metric | **queued** |
+| **ARPER SCLSTM** | v89 formal | BLEU 0.701 | **0.599** | −0.10 | ex500 + bs128 | **FAIL** |
+| **ARPER SCLSTM** | v89 formal | SER 3.63 | **5.938** | +2.31 | Same as v89 BLEU row | **FAIL** |
+| **ToDCL ADAPTER** | anchor 20260706 | BLEU 21.77 | **22.61** | +0.84 | GPT-2 fixed; scorer JSON | **PASS ±1** |
+| **ToDCL ADAPTER** | anchor 20260706 | EER 0.164 | **0.115** | −0.049 | Same run | **PASS ±10%** |
+| **ARPER SCLSTM** | v90 (queued) | BLEU 0.701 | — | — | ex500 + bs1024 GPU-tuned; after v88 gate | **queued** |
 
 ## Next actions (GPU serial — 1×48GB)
 
@@ -45,4 +48,4 @@
 | CITB v2 formal 19-task | ~8–12 h |
 | ARPER v88 | ~8–12 h |
 
-*Updated: 2026-07-07T07:25+08:00*
+*Updated: 2026-07-09T10:30+08:00*

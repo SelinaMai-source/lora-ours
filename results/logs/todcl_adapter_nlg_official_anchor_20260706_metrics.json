@@ -1,0 +1,21 @@
+{
+  "run_id": "todcl_adapter_nlg_official_anchor_20260706",
+  "suite": "ToDCL_ADAPTER_NLG_official_anchor",
+  "paper_metric": {
+    "bleu": 21.7719,
+    "eer": 0.163975
+  },
+  "local_metric": {
+    "bleu": 22.6105,
+    "eer": 0.115031
+  },
+  "parsed_from": {
+    "scorer_output_table": "tabulate(github)",
+    "selected_row": "ADAPTER (data row, not header)"
+  },
+  "source": {
+    "generated_responses_json": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/runs_NLG/SGD,TM19,TM20,MWOZ/ADAPTER_EPC_10_LR_0.00625_BOTL_50_PERM_1_/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/gpt2/FINAL/generated_responses.json",
+    "wrapper_dir": "/root/lora-ours/results/logs/.todcl_scorer_wrappers/todcl_adapter_nlg_official_anchor_20260706",
+    "folder_with_final": "/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/runs_NLG/SGD,TM19,TM20,MWOZ/ADAPTER_EPC_10_LR_0.00625_BOTL_50_PERM_1_/root/autodl-tmp/lora-baselines-run_v1/external_sources/todcl/gpt2"
+  }
+}
