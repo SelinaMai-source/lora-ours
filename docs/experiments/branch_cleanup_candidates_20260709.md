@@ -9,7 +9,16 @@
 | `ours-v1-20260708` | local + remote | 已完全并入 `ours-v1`（同 commit 线） |
 | `ours-v1-strict-iteration` | local only | 旧 v1 诊断分支，无远端，已被 `ours-v1` 取代 |
 
-## 必须保留
+## 2026-07-11 用户确认批量清理（已执行）
+
+已删除 **本地 + 远端** 共 37 条分支：
+
+- `ours-v18-*` … `ours-v61-*` 中间迭代（**保留 milestone**：`ours-v53`、`ours-v58`、`ours-v62`）
+- `sota-24h-campaign-20260706`
+- `strict-paper-repro-20260707`
+- 远端 `ours_v2`（其余 `ours_v1`…`ours_v9` 远端可能已不存在或需 `git fetch --prune` 刷新）
+
+## 必须保留（当前）
 
 | 分支 | 理由 |
 |------|------|
