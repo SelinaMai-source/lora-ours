@@ -49,12 +49,25 @@ def diagnose_standard(evidence: dict[str, Any]) -> dict[str, Any]:
     reason = (evidence.get("reason") or "").lower()
     version = evidence.get("version", "ours-v1")
 
-    if "early gate" in reason and amazon is not None and dbpedia is not None:
-        if dbpedia >= 90 and amazon < 50:
+    # Parse EM values embedded in early-gate reason strings when not passed explicitly.
+    if amazon is None:
+        m = re.search(r"amazon:?\s*em\s*([0-9.]+)", reason, flags=re.I)
+        if not m:
+            m = re.search(r"round\s*2\s*amazon:\s*em\s*([0-9.]+)", reason, flags=re.I)
+        if m:
+            amazon = float(m.group(1))
+            evidence["amazon_em"] = amazon
+    if dbpedia is None:
+        m = re.search(r"dbpedia:?\s*em\s*([0-9.]+)", reason, flags=re.I)
+        if m:
+            dbpedia = float(m.group(1))
+            evidence["dbpedia_em"] = dbpedia
+
+    if "early gate" in reason and amazon is not None:
+        if (dbpedia is None or dbpedia >= 90) and amazon < 50:
             primary = "current_task_underlearning"
             mechanism_suspect = "assess_retention_gate_interaction_under_smoke_caps"
-            # v1 already had assess on; if amazon round pause already applied, escalate.
-            if "skip" in reason or evidence.get("assess_skip_amazon"):
+            if evidence.get("assess_skip_amazon") or "v2" in version or "skip" in reason:
                 primary = "current_task_underlearning_after_assess_pause"
                 mechanism_suspect = "ssrg_class_coverage_or_replay_budget"
             recommended = (
@@ -67,7 +80,7 @@ def diagnose_standard(evidence: dict[str, Any]) -> dict[str, Any]:
                 "mechanism_suspect": mechanism_suspect,
                 "recommended_next_delta": recommended,
                 "rationale": (
-                    f"dbpedia EM {dbpedia} PASS with amazon EM {amazon} FAIL indicates "
+                    f"dbpedia EM {dbpedia} with amazon EM {amazon} FAIL indicates "
                     "SC current-task underlearning after TC→SC transition, not retention collapse."
                 ),
             }

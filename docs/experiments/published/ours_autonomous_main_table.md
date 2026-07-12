@@ -1,12 +1,12 @@
 # Ours Autonomous Main Table
 
-Updated: 2026-07-12T06:34:56.180338+00:00
+Updated: 2026-07-12T06:59:22.909778+00:00
 
 Sources: published base / local official anchor from frozen matrix; ours from official scorers only.
 
 | Suite | Metric | Base | Ours | Δ | Target | Version | Status |
 |-------|--------|------|------|---|--------|---------|--------|
-| standard | EM | 76.81 | None | None | 84.54 | ours-v2 | proposed |
+| standard | EM | 76.81 | None | None | 84.54 | ours-v3 | failed_diagnosed |
 | citb_instrdialog | AR | 39.98 | None | None | 53.31 | ours-v1 | pending |
 | citb_instrdialog | BWT | None | None | None | None | ours-v1 | pending |
 | citb_instrdialogpp | AR | None | None | None | None | ours-v1 | external_blocker |
@@ -17,5 +17,5 @@ Sources: published base / local official anchor from frozen matrix; ours from of
 
 ## Blockers / Failures
 
-- **standard last failure:** `docs/experiments/standard_failure_v1.md`
-- **citb_instrdialogpp BLOCKED:** {'type': 'external_blocker', 'reason': '2 public tasks under 100/25/25 (task1549 train=42, task459 train=48); paper-exact split not publicly reproducible', 'evidence': 'results/manifests/citb_instrdialogpp_split_gate.json'}
+- **standard last failure:** `docs/experiments/standard_failure_v2.md`
+- **citb_instrdialogpp BLOCKED:** {'type': 'external_blocker', 'reason': 'public split shortfall: 2 tasks under train=100 (task1549=42, task459=48); paper-exact not publicly available', 'updated_at': '2026-07-12T06:54:56.205296+00:00'}

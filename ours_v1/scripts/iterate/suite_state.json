@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-12T14:54:32+08:00",
+  "updated_at": "2026-07-12T14:59:22+08:00",
   "campaign": "ours-autonomous-iteration",
   "policy": {
     "one_mechanism_per_version": true,
@@ -11,9 +11,9 @@
   },
   "suites": {
     "standard": {
-      "current_version": "ours-v2",
-      "next_version": "ours-v3",
-      "status": "running_smoke",
+      "current_version": "ours-v3",
+      "next_version": "ours-v4",
+      "status": "failed_diagnosed",
       "base_method": "O-LoRA official T5-large order1 seed1",
       "metrics": {
         "EM": {
@@ -28,8 +28,21 @@
       "best_result": null,
       "last_failure": {
         "version": "ours-v2",
-        "path": "docs/experiments/standard_ssrg_runtime_hang_fix_20260712.md",
-        "summary": "infra SSRG hang on amazon dataset prepare; fixed pool/vocab cap; retry same version (not a mechanism fail)"
+        "path": "docs/experiments/standard_failure_v2.md",
+        "diagnosis": {
+          "primary_cause": "current_task_underlearning_after_assess_pause",
+          "mechanism_suspect": "ssrg_class_coverage_or_replay_budget",
+          "recommended_next_delta": "replay_budget",
+          "rationale": "dbpedia EM 98.5 with amazon EM 38.5 FAIL indicates SC current-task underlearning after TC→SC transition, not retention collapse."
+        },
+        "evidence": {
+          "version": "ours-v2",
+          "suite": "standard",
+          "dbpedia_em": 98.5,
+          "amazon_em": 38.5,
+          "reason": "early gate rejected round 2 amazon: EM 38.5 < 50",
+          "assess_skip_amazon": true
+        }
       },
       "blocker": null,
       "overlay_active": [
@@ -38,8 +51,19 @@
       ],
       "planned_delta_v2": "pause Assess retention gate on amazon round only; keep class-coverage SSRG",
       "planned_delta": {
-        "key": "amazon_round_assess_pause",
-        "description": "Pause Assess retention gate on amazon round only"
+        "key": "replay_budget",
+        "meta": {
+          "suites": [
+            "standard",
+            "citb_instrdialog"
+          ],
+          "env": {
+            "REPLAY_PER_TASK": "96"
+          },
+          "citb_note": "increase min_replay_per_segment / replay budget in YAML only",
+          "description": "Increase replay budget one notch; keep SSRG mode."
+        },
+        "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v3_proposal.md"
       }
     },
     "citb_instrdialog": {
@@ -92,8 +116,8 @@
       "last_failure": null,
       "blocker": {
         "type": "external_blocker",
-        "reason": "2 public tasks under 100/25/25 (task1549 train=42, task459 train=48)",
-        "evidence": "results/manifests/citb_instrdialogpp_split_gate.json"
+        "reason": "public split shortfall: 2 tasks under train=100 (task1549=42, task459=48); paper-exact not publicly available",
+        "updated_at": "2026-07-12T06:54:56.205296+00:00"
       },
       "overlay_active": [
         "SSRG same as InstrDialog"

@@ -1,0 +1,10 @@
+{
+  "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v3_proposal.md",
+  "delta": "replay_budget",
+  "version": "ours-v3",
+  "launcher": "/root/lora-ours-ours-v1/ours_v1/scripts/launchers/run_standard_v3.sh",
+  "git": {
+    "branch": "ours-v3",
+    "created": false
+  }
+}

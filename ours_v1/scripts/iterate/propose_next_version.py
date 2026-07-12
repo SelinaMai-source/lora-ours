@@ -164,7 +164,6 @@ Updated: {datetime.now(timezone.utc).isoformat()}
 def maybe_create_git_branch(version: str, dry_run: bool) -> dict[str, Any]:
     if dry_run:
         return {"branch": version, "created": False, "dry_run": True}
-    # Create branch from current HEAD if missing
     existing = subprocess.run(
         ["git", "rev-parse", "--verify", version],
         cwd=REPO,
@@ -172,10 +171,22 @@ def maybe_create_git_branch(version: str, dry_run: bool) -> dict[str, Any]:
         text=True,
     )
     if existing.returncode == 0:
-        subprocess.run(["git", "checkout", version], cwd=REPO, check=False)
-        return {"branch": version, "created": False}
-    subprocess.run(["git", "checkout", "-b", version], cwd=REPO, check=True)
-    return {"branch": version, "created": True}
+        # Do not force checkout when the worktree is dirty; files are versioned by path.
+        return {"branch": version, "created": False, "checked_out": False}
+    # Create branch pointer at HEAD without switching away from the running worktree.
+    created = subprocess.run(
+        ["git", "branch", version],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
+    if created.returncode != 0:
+        return {
+            "branch": version,
+            "created": False,
+            "error": created.stderr.strip(),
+        }
+    return {"branch": version, "created": True, "checked_out": False}
 
 
 def main() -> int:
