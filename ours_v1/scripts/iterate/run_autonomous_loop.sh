@@ -20,6 +20,63 @@ mkdir -p results/logs results/tables results/manifests docs/experiments
 
 log() { echo "[$(date -Iseconds)] $*" | tee -a "$LOOP_LOG"; }
 
+CAMPAIGN_STATUS="${CAMPAIGN_STATUS:-results/logs/ours_autonomous_campaign_status.md}"
+
+write_campaign_status() {
+  local running_now="$1"
+  local next_jobs="$2"
+  python3 - "$running_now" "$next_jobs" <<'PY' || true
+import json, sys
+from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
+running, nxt = sys.argv[1], sys.argv[2]
+now = datetime.now(ZoneInfo("Asia/Shanghai")).isoformat(timespec="seconds")
+repo = Path("/root/lora-ours-ours-v1")
+st = json.loads((repo / "ours_v1/scripts/iterate/suite_state.json").read_text())
+std = st["suites"]["standard"]
+citb = st["suites"]["citb_instrdialog"]
+lines = [
+    "# Ours Autonomous Campaign Status",
+    "",
+    f"- Updated: {now}",
+    f"- Branches: **ours-v1** / **ours-v2** / **ours-v3** (Standard current={std.get('current_version')}, status={std.get('status')})",
+    f"- Running now: **{running}**",
+    f"- Next: {nxt}",
+    f"- CITB InstrDialog: {citb.get('status')} ({citb.get('current_version')})",
+    "- InstrDialog++: **external_blocker**",
+    "- Loop: `tmux a -t lora-ours-autonomous-loop`",
+    "- Leaderboard: `results/tables/ours_iteration_leaderboard.md`",
+    "",
+]
+(repo / "results/logs/ours_autonomous_campaign_status.md").write_text("\n".join(lines) + "\n")
+print("refreshed campaign status")
+PY
+}
+
+ensure_clean_for_branch() {
+  # Only stash known branch-switch blockers. Never -u: active results/runs must stay.
+  local blockers=()
+  local f
+  for f in \
+    ours_v1/scripts/iterate/suite_state.json \
+    docs/experiments/proposals \
+    docs/experiments/standard_failure_v1.md \
+    docs/experiments/standard_failure_v1_20260712.md \
+    docs/experiments/standard_failure_v2.md \
+    docs/experiments/standard_failure_v2_20260712.md
+  do
+    if [[ -e "$f" ]] && ! git diff --quiet -- "$f" 2>/dev/null; then
+      blockers+=("$f")
+    elif [[ -e "$f" ]] && ! git diff --cached --quiet -- "$f" 2>/dev/null; then
+      blockers+=("$f")
+    fi
+  done
+  if ((${#blockers[@]})); then
+    git stash push -m "autonomous-loop-auto-stash-$(date +%Y%m%d%H%M%S)" -- "${blockers[@]}" >/dev/null 2>&1 || true
+  fi
+}
+
 gpu_empty() {
   local out
   out="$(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null || true)"
@@ -191,32 +248,42 @@ run_standard_version() {
 advance_standard() {
   local cur
   cur="$(suite_version standard)"
+  ensure_clean_for_branch
   python3 "${ITER_DIR}/propose_next_version.py" --suite standard --from-version "$cur" --create-branch
 }
 
 # ---------- CITB InstrDialog v1 ----------
 run_citb_v1() {
-  log "CITB InstrDialog v1 smoke"
-  wait_gpu
-  local session="lora-ours-citb-ours-v1-smoke"
-  bash ours_v1/scripts/launchers/run_citb_v1.sh || true
-  wait_tmux "$session"
-  local run_smoke="citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict"
-  if [[ ! -f "results/runs/${run_smoke}/ccfa_postprocess/summary.json" ]] && \
-     [[ ! -f "results/runs/${run_smoke}/run_manifest.json" ]]; then
-    # smoke may still be success if final_metrics exists
-    if [[ ! -f "results/runs/${run_smoke}/final_metrics.json" ]]; then
-      log "CITB smoke missing artifacts → diagnose"
-      python3 "${ITER_DIR}/diagnose_failure.py" --suite citb_instrdialog --version ours-v1 --reason "smoke incomplete" || true
-      return 1
-    fi
-  fi
-  log "CITB smoke OK-ish → formal"
-  wait_gpu
-  session="lora-ours-citb-ours-v1-formal"
-  FORMAL=1 bash ours_v1/scripts/launchers/run_citb_v1.sh || true
-  wait_tmux "$session"
+  local session="lora-ours-citb-ours-v1-formal"
   local run_formal="citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict"
+  # Idempotent: if formal already running/finished artifacts, do not relaunch smoke.
+  if tmux has-session -t "$session" 2>/dev/null; then
+    log "CITB formal session already active — waiting (no relaunch)"
+    write_campaign_status "CITB InstrDialog v1 formal (\`$session\`)" "ARPER v1 → ToDCL v1 → Standard ours-v3"
+    wait_tmux "$session"
+  else
+    log "CITB InstrDialog v1 smoke"
+    wait_gpu
+    session="lora-ours-citb-ours-v1-smoke"
+    bash ours_v1/scripts/launchers/run_citb_v1.sh || true
+    wait_tmux "$session"
+    local run_smoke="citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict"
+    if [[ ! -f "results/runs/${run_smoke}/ccfa_postprocess/summary.json" ]] && \
+       [[ ! -f "results/runs/${run_smoke}/run_manifest.json" ]]; then
+      # smoke may still be success if final_metrics exists
+      if [[ ! -f "results/runs/${run_smoke}/final_metrics.json" ]]; then
+        log "CITB smoke missing artifacts → diagnose"
+        python3 "${ITER_DIR}/diagnose_failure.py" --suite citb_instrdialog --version ours-v1 --reason "smoke incomplete" || true
+        return 1
+      fi
+    fi
+    log "CITB smoke OK-ish → formal"
+    write_campaign_status "CITB InstrDialog v1 formal (launching)" "ARPER v1 → ToDCL v1 → Standard ours-v3"
+    wait_gpu
+    session="lora-ours-citb-ours-v1-formal"
+    FORMAL=1 bash ours_v1/scripts/launchers/run_citb_v1.sh || true
+    wait_tmux "$session"
+  fi
   if python3 "${ITER_DIR}/evaluate_gate.py" --suite citb_instrdialog --run-key "$run_formal"; then
     log "CITB TARGETS MET"
     return 0

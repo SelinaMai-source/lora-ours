@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-12T14:59:22+08:00",
+  "updated_at": "2026-07-12T16:43:14+08:00",
   "campaign": "ours-autonomous-iteration",
   "policy": {
     "one_mechanism_per_version": true,
@@ -13,7 +13,7 @@
     "standard": {
       "current_version": "ours-v3",
       "next_version": "ours-v4",
-      "status": "failed_diagnosed",
+      "status": "proposed",
       "base_method": "O-LoRA official T5-large order1 seed1",
       "metrics": {
         "EM": {
@@ -69,7 +69,7 @@
     "citb_instrdialog": {
       "current_version": "ours-v1",
       "next_version": null,
-      "status": "pending",
+      "status": "formal_running",
       "base_method": "Replay(50)",
       "metrics": {
         "AR": {
@@ -96,7 +96,14 @@
         "SSRG replay_ratio=0.5",
         "min_replay_per_segment=64"
       ],
-      "split_disclosure": "official-public 500/50/50; paper 500/50/100"
+      "split_disclosure": "official-public 500/50/50; paper 500/50/100",
+      "runtime": {
+        "phase": "formal",
+        "tmux": "lora-ours-citb-ours-v1-formal",
+        "run": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict",
+        "note": "smoke PASS; formal in progress (~segment 7/19 as of status refresh)",
+        "updated_at": "2026-07-12T16:43:14+08:00"
+      }
     },
     "citb_instrdialogpp": {
       "current_version": "ours-v1",

@@ -161,6 +161,38 @@ Updated: {datetime.now(timezone.utc).isoformat()}
     return path
 
 
+def _auto_stash_if_dirty() -> bool:
+    """Stash only known branch blockers; never stash results/runs (-u forbidden)."""
+    candidates = [
+        "ours_v1/scripts/iterate/suite_state.json",
+        "docs/experiments/proposals",
+        "docs/experiments/standard_failure_v1.md",
+        "docs/experiments/standard_failure_v1_20260712.md",
+        "docs/experiments/standard_failure_v2.md",
+        "docs/experiments/standard_failure_v2_20260712.md",
+    ]
+    dirty: list[str] = []
+    for path in candidates:
+        check = subprocess.run(
+            ["git", "status", "--porcelain", "--", path],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+        )
+        if check.returncode == 0 and check.stdout.strip():
+            dirty.append(path)
+    if not dirty:
+        return False
+    stamped = datetime.now().strftime("%Y%m%d%H%M%S")
+    stash = subprocess.run(
+        ["git", "stash", "push", "-m", f"propose-next-auto-stash-{stamped}", "--", *dirty],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
+    return stash.returncode == 0
+
+
 def maybe_create_git_branch(version: str, dry_run: bool) -> dict[str, Any]:
     if dry_run:
         return {"branch": version, "created": False, "dry_run": True}
@@ -171,9 +203,19 @@ def maybe_create_git_branch(version: str, dry_run: bool) -> dict[str, Any]:
         text=True,
     )
     if existing.returncode == 0:
-        # Do not force checkout when the worktree is dirty; files are versioned by path.
+        # Never hard-checkout into a dirty tree; path-versioned launchers are enough.
         return {"branch": version, "created": False, "checked_out": False}
     # Create branch pointer at HEAD without switching away from the running worktree.
+    created = subprocess.run(
+        ["git", "branch", version],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
+    if created.returncode == 0:
+        return {"branch": version, "created": True, "checked_out": False}
+    # Retry once after auto-stash if create failed due to dirty conflicts.
+    stashed = _auto_stash_if_dirty()
     created = subprocess.run(
         ["git", "branch", version],
         cwd=REPO,
@@ -185,8 +227,9 @@ def maybe_create_git_branch(version: str, dry_run: bool) -> dict[str, Any]:
             "branch": version,
             "created": False,
             "error": created.stderr.strip(),
+            "stashed": stashed,
         }
-    return {"branch": version, "created": True, "checked_out": False}
+    return {"branch": version, "created": True, "checked_out": False, "stashed": stashed}
 
 
 def main() -> int:
