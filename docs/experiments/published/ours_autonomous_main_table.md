@@ -1,6 +1,6 @@
 # Ours Autonomous Main Table
 
-Updated: 2026-07-12T06:59:22.909778+00:00
+Updated: 2026-07-12T06:59:56.320534+00:00
 
 Sources: published base / local official anchor from frozen matrix; ours from official scorers only.
 
