@@ -1,0 +1,110 @@
+{
+  "created_at": "2026-07-11T20:49:01.307515+00:00",
+  "branch": "ours-v1",
+  "ours_v1_sha": "e0ac90dd24ba00985afb052abf7be8be9f9b7426",
+  "worktree": "/root/lora-ours-ours-v1",
+  "official_repo_shas": {
+    "citb": "bf50533b5bced4c388691ecc75e26773da96b3fd",
+    "o_lora": "07117e1fc4a5f5ad9308a815a42cee8f46502dc8",
+    "arper": "99019defe6bf35e8459ca6abd6f25882724bc956",
+    "todcl": "e70c1edf937f6eb570296ea2897dbc8d6815bc6d"
+  },
+  "matrix": [
+    {
+      "suite": "citb_instrdialog",
+      "benchmark": "InstrDialog-order1",
+      "official_base": "Replay(50)",
+      "ours_v1_delta": "SSRG replay_ratio=0.5, min_replay_per_segment=64",
+      "metric": "ROUGE-L AR / BWT",
+      "split_policy": "official_script_500_50_50",
+      "split_disclosure": "Paper 500/50/100; public script 500/50/50",
+      "smoke_config": "configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict.yaml",
+      "formal_config": "configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict.yaml",
+      "launcher": "ours_v1/scripts/launchers/run_citb_v1.sh",
+      "locked_base_metric": {
+        "AR": 39.98
+      },
+      "target_plus_one_third": {
+        "AR": 53.87
+      }
+    },
+    {
+      "suite": "citb_instrdialogpp",
+      "benchmark": "InstrDialog++-order1",
+      "official_base": "Replay(50) public long stream",
+      "ours_v1_delta": "Same SSRG mechanism; skip_empty_segments; no v49-v51 patches",
+      "metric": "ROUGE-L AR / BWT",
+      "split_policy": "public_actual_100_50_100_with_shortfall",
+      "split_disclosure": "Paper 100/50/100; public data ~100/25/25 on short tasks",
+      "smoke_config": "configs/ccfa_three_suite/citb_instrdialogpp_order1_seed1_ours_v1_20260708_smoke_strict.yaml",
+      "formal_config": "configs/ccfa_three_suite/citb_instrdialogpp_order1_seed1_ours_v1_20260708_formal_strict.yaml",
+      "launcher": "ours_v1/scripts/launchers/run_citb_pp_v1.sh",
+      "locked_base_metric": {
+        "AR": null
+      },
+      "target_plus_one_third": {
+        "AR": null
+      }
+    },
+    {
+      "suite": "standard",
+      "benchmark": "O-LoRA T5-large order1",
+      "official_base": "O-LoRA v57",
+      "ours_v1_delta": "class-coverage SSRG + assess-retention gate 0.25",
+      "metric": "final average EM",
+      "split_policy": "official-equivalent",
+      "split_disclosure": "single-GPU + grad_accum=8; not literal multi-GPU official",
+      "smoke_config": "env:ours_v1/scripts/launchers/run_standard_v1.sh",
+      "formal_config": "env:FORMAL=1 run_standard_v1.sh",
+      "launcher": "ours_v1/scripts/launchers/run_standard_v1.sh",
+      "locked_base_metric": {
+        "EM": 76.81
+      },
+      "target_plus_one_third": {
+        "EM": 84.5
+      }
+    },
+    {
+      "suite": "arper",
+      "benchmark": "ARPER MultiWOZ-2.0 Path B SCLSTM",
+      "official_base": "v89 SCLSTM exemplar500 batch128",
+      "ours_v1_delta": "SSRG exemplar selection overlay",
+      "metric": "BLEU4 / SER",
+      "split_policy": "official Path B",
+      "split_disclosure": "task_seq 0,5,2,1,3,4; local BLEU below paper",
+      "smoke_config": "BOUNDED_SMOKE=1 run_arper_v1.sh",
+      "formal_config": "run_arper_v1.sh",
+      "launcher": "ours_v1/scripts/launchers/run_arper_v1.sh",
+      "locked_base_metric": {
+        "BLEU4": 0.5989,
+        "SER": 5.938
+      },
+      "target_plus_one_third": {
+        "BLEU4": 0.935,
+        "SER": 2.72
+      }
+    },
+    {
+      "suite": "todcl",
+      "benchmark": "ToDCL ADAPTER 37-domain NLG",
+      "official_base": "ADAPTER anchor 20260706",
+      "ours_v1_delta": "Assess-then-Update orthogonal penalty",
+      "metric": "BLEU / EER",
+      "split_policy": "official 37-domain single setting",
+      "split_disclosure": "legacy py37 env; paper BLEU best on ADAPTER, EER best on REPLAY",
+      "smoke_config": "BOUNDED_SMOKE=1 run_todcl_v1.sh",
+      "formal_config": "run_todcl_v1.sh",
+      "launcher": "ours_v1/scripts/launchers/run_todcl_v1.sh",
+      "locked_base_metric": {
+        "BLEU": 21.7719,
+        "EER": 0.163975
+      },
+      "target_plus_one_third": {
+        "BLEU": 29.0,
+        "EER": 0.123
+      }
+    }
+  ],
+  "phase0_seal": "/root/lora-ours/results/logs/phase0_stop_seal_20260712.md",
+  "policy": "smoke early-gate then formal; blocker stops suite; no pseudo-comparable results"
+}

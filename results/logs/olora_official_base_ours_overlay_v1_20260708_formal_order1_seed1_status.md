@@ -1,0 +1,33 @@
+# olora_official_base_ours_overlay_v1_20260708_formal_order1_seed1
+
+- updated: 2026-07-12T14:32:00+08:00
+- state: stopped_invalid
+- reason: STOPPED_INVALID: orphan formal without smoke PASS; incomplete amazon HF prepare; sealed 2026-07-12 autonomous-repair
+- selected base: O-LoRA official T5-large Standard CL order1 seed1
+- overlay: Ours limited replay overlay on training config only
+- replay_per_prior_task: 64
+- replay_mode: ssrg
+- assess_retention_gate: 1
+- early_gate_dbpedia_em: 90
+- early_gate_amazon_em: 50
+- sc_balanced_replay: 0
+- sc_lexical_repair: 0
+- sc_class_coverage_order: 1
+- sc_moderate_curriculum: 0
+- sc_moderate_curriculum_ratio: 0.25
+- train_heldout_gate: 0
+- train_heldout_slice: amazon/train[4500:5000]
+- label: published_base_olora_v69_plus_classcov_ssrg_assess_gate_overlay_v1_20260708_formal
+- W&B project: lora-ours-v1
+- W&B group: published-base-standard-olora-plus-ours-overlay-v1-20260708-formal
+- log: /root/lora-ours-ours-v1/results/logs/olora_official_base_ours_overlay_v1_20260708_formal_order1_seed1.log
+- manifest: /root/lora-ours-ours-v1/results/runs/olora_official_base_ours_overlay_v1_20260708_formal_order1_seed1/run_manifest.json
+- overlay manifest: /root/lora-ours-ours-v1/results/runs/olora_official_base_ours_overlay_v1_20260708_formal_order1_seed1/ours_overlay_manifest.json
+- setting: dbpedia -> amazon -> yahoo -> agnews; max_steps=-1
+- gradient_accumulation_steps: 8
+- learning_rate: 1e-03
+- amazon_learning_rate: 
+- stop_after_round: 0
+- do_predict: 1
+- comparability: ours-overlay diagnostic; not an official-base result and not paper-comparable while smoke caps/single-GPU runtime are present
+- preserved: official task order, official entry/scorer, T5-large, O-LoRA adapter chain, current-round dev/test configs, cumulative test metric surface

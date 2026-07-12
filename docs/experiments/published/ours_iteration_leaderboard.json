@@ -1,0 +1,356 @@
+{
+  "updated_at": "2026-07-12T06:34:56.180338+00:00",
+  "campaign": "ours-autonomous-iteration",
+  "policy": {
+    "one_mechanism_per_version": true,
+    "published_base_plus_minimal_overlay": true,
+    "suite_isolation": true,
+    "single_gpu_serial": true,
+    "formal_requires_smoke_pass": true,
+    "honest_external_blockers": true
+  },
+  "rows": [
+    {
+      "suite": "standard",
+      "metric": "EM",
+      "published_base": 76.81,
+      "official_or_local_anchor": 76.81,
+      "ours": null,
+      "delta": null,
+      "target": 84.54,
+      "setting_label": [
+        "class-coverage SSRG",
+        "assess-retention gate 0.25 (paused on amazon round)"
+      ],
+      "version": "ours-v2",
+      "status": "proposed",
+      "blocker": null,
+      "last_failure": {
+        "version": "ours-v1",
+        "path": "docs/experiments/standard_failure_v1.md",
+        "diagnosis": {
+          "primary_cause": "current_task_underlearning",
+          "mechanism_suspect": "assess_retention_gate_interaction_under_smoke_caps",
+          "recommended_next_delta": "amazon_round_assess_pause",
+          "rationale": "dbpedia EM 98.5 PASS with amazon EM 38.0 FAIL indicates SC current-task underlearning after TC→SC transition, not retention collapse."
+        },
+        "evidence": {
+          "version": "ours-v1",
+          "suite": "standard",
+          "dbpedia_em": 98.5,
+          "amazon_em": 38.0,
+          "reason": "early gate rejected round 2 amazon: EM 38.0 < 50"
+        }
+      },
+      "seed_order": "order1/seed1"
+    },
+    {
+      "suite": "citb_instrdialog",
+      "metric": "AR",
+      "published_base": 39.98,
+      "official_or_local_anchor": 39.98,
+      "ours": null,
+      "delta": null,
+      "target": 53.31,
+      "setting_label": [
+        "SSRG replay_ratio=0.5",
+        "min_replay_per_segment=64"
+      ],
+      "version": "ours-v1",
+      "status": "pending",
+      "blocker": null,
+      "last_failure": null,
+      "seed_order": "order1/seed1"
+    },
+    {
+      "suite": "citb_instrdialog",
+      "metric": "BWT",
+      "published_base": null,
+      "official_or_local_anchor": null,
+      "ours": null,
+      "delta": null,
+      "target": null,
+      "setting_label": [
+        "SSRG replay_ratio=0.5",
+        "min_replay_per_segment=64"
+      ],
+      "version": "ours-v1",
+      "status": "pending",
+      "blocker": null,
+      "last_failure": null,
+      "seed_order": "order1/seed1"
+    },
+    {
+      "suite": "citb_instrdialogpp",
+      "metric": "AR",
+      "published_base": null,
+      "official_or_local_anchor": null,
+      "ours": null,
+      "delta": null,
+      "target": null,
+      "setting_label": [
+        "SSRG same as InstrDialog"
+      ],
+      "version": "ours-v1",
+      "status": "external_blocker",
+      "blocker": {
+        "type": "external_blocker",
+        "reason": "2 public tasks under 100/25/25 (task1549 train=42, task459 train=48); paper-exact split not publicly reproducible",
+        "evidence": "results/manifests/citb_instrdialogpp_split_gate.json"
+      },
+      "last_failure": null,
+      "seed_order": "order1/seed1"
+    },
+    {
+      "suite": "arper",
+      "metric": "BLEU4",
+      "published_base": 0.5989,
+      "official_or_local_anchor": 0.5989,
+      "ours": null,
+      "delta": null,
+      "target": 0.7985,
+      "setting_label": [
+        "SSRG exemplar selection only"
+      ],
+      "version": "ours-v1",
+      "status": "pending",
+      "blocker": null,
+      "last_failure": null,
+      "seed_order": "suite-default"
+    },
+    {
+      "suite": "arper",
+      "metric": "SER",
+      "published_base": 5.938,
+      "official_or_local_anchor": 5.938,
+      "ours": null,
+      "delta": null,
+      "target": 3.9587,
+      "setting_label": [
+        "SSRG exemplar selection only"
+      ],
+      "version": "ours-v1",
+      "status": "pending",
+      "blocker": null,
+      "last_failure": null,
+      "seed_order": "suite-default"
+    },
+    {
+      "suite": "todcl",
+      "metric": "BLEU",
+      "published_base": 21.7719,
+      "official_or_local_anchor": 21.7719,
+      "ours": null,
+      "delta": null,
+      "target": 29.0292,
+      "setting_label": [
+        "Assess-then-Update orthogonal penalty"
+      ],
+      "version": "ours-v1",
+      "status": "pending",
+      "blocker": null,
+      "last_failure": null,
+      "seed_order": "suite-default"
+    },
+    {
+      "suite": "todcl",
+      "metric": "EER",
+      "published_base": 0.163975,
+      "official_or_local_anchor": 0.163975,
+      "ours": null,
+      "delta": null,
+      "target": 0.109317,
+      "setting_label": [
+        "Assess-then-Update orthogonal penalty"
+      ],
+      "version": "ours-v1",
+      "status": "pending",
+      "blocker": null,
+      "last_failure": null,
+      "seed_order": "suite-default"
+    }
+  ],
+  "suites": {
+    "standard": {
+      "current_version": "ours-v2",
+      "next_version": "ours-v3",
+      "status": "proposed",
+      "base_method": "O-LoRA official T5-large order1 seed1",
+      "metrics": {
+        "EM": {
+          "higher_better": true,
+          "bounded_0_100": true,
+          "base": 76.81,
+          "target": 84.54,
+          "ours": null,
+          "source": "frozen_matrix_plus_plan_bounded_formula"
+        }
+      },
+      "best_result": null,
+      "last_failure": {
+        "version": "ours-v1",
+        "path": "docs/experiments/standard_failure_v1.md",
+        "diagnosis": {
+          "primary_cause": "current_task_underlearning",
+          "mechanism_suspect": "assess_retention_gate_interaction_under_smoke_caps",
+          "recommended_next_delta": "amazon_round_assess_pause",
+          "rationale": "dbpedia EM 98.5 PASS with amazon EM 38.0 FAIL indicates SC current-task underlearning after TC→SC transition, not retention collapse."
+        },
+        "evidence": {
+          "version": "ours-v1",
+          "suite": "standard",
+          "dbpedia_em": 98.5,
+          "amazon_em": 38.0,
+          "reason": "early gate rejected round 2 amazon: EM 38.0 < 50"
+        }
+      },
+      "blocker": null,
+      "overlay_active": [
+        "class-coverage SSRG",
+        "assess-retention gate 0.25 (paused on amazon round)"
+      ],
+      "planned_delta_v2": "pause Assess retention gate on amazon round only; keep class-coverage SSRG",
+      "planned_delta": {
+        "key": "amazon_round_assess_pause",
+        "meta": {
+          "suites": [
+            "standard"
+          ],
+          "env": {
+            "ASSESS_RETENTION_SKIP_TASKS": "amazon"
+          },
+          "description": "Pause Assess retention gate on amazon round only; keep class-coverage SSRG and O-LoRA base."
+        },
+        "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v2_proposal.md"
+      }
+    },
+    "citb_instrdialog": {
+      "current_version": "ours-v1",
+      "next_version": null,
+      "status": "pending",
+      "base_method": "Replay(50)",
+      "metrics": {
+        "AR": {
+          "higher_better": true,
+          "bounded_0_100": true,
+          "base": 39.98,
+          "target": 53.31,
+          "ours": null,
+          "source": "local_official_anchor_x4/3_per_plan_table"
+        },
+        "BWT": {
+          "higher_better": true,
+          "bounded_0_100": false,
+          "base": null,
+          "target": null,
+          "ours": null,
+          "note": "compare when available; not hard-gated alone"
+        }
+      },
+      "best_result": null,
+      "last_failure": null,
+      "blocker": null,
+      "overlay_active": [
+        "SSRG replay_ratio=0.5",
+        "min_replay_per_segment=64"
+      ],
+      "split_disclosure": "official-public 500/50/50; paper 500/50/100"
+    },
+    "citb_instrdialogpp": {
+      "current_version": "ours-v1",
+      "next_version": null,
+      "status": "external_blocker",
+      "base_method": "Replay(50) public long stream",
+      "metrics": {
+        "AR": {
+          "higher_better": true,
+          "bounded_0_100": true,
+          "base": null,
+          "target": null,
+          "ours": null
+        }
+      },
+      "best_result": null,
+      "last_failure": null,
+      "blocker": {
+        "type": "external_blocker",
+        "reason": "2 public tasks under 100/25/25 (task1549 train=42, task459 train=48); paper-exact split not publicly reproducible",
+        "evidence": "results/manifests/citb_instrdialogpp_split_gate.json"
+      },
+      "overlay_active": [
+        "SSRG same as InstrDialog"
+      ],
+      "split_disclosure": "Paper 100/50/100; public ~100/25/25 with shortfall — BLOCKED, no skip/resample fake"
+    },
+    "arper": {
+      "current_version": "ours-v1",
+      "next_version": null,
+      "status": "pending",
+      "base_method": "v89 SCLSTM Path B exemplar500 batch128",
+      "metrics": {
+        "BLEU4": {
+          "higher_better": true,
+          "bounded_0_100": false,
+          "base": 0.5989,
+          "target": 0.7985,
+          "ours": null,
+          "note": "target=base*4/3 from frozen local anchor; paper row 0.701→0.935 tracked separately"
+        },
+        "SER": {
+          "higher_better": false,
+          "bounded_0_100": false,
+          "base": 5.938,
+          "target": 3.9587,
+          "ours": null,
+          "note": "target=base*2/3 from frozen local anchor"
+        }
+      },
+      "paper_reference": {
+        "BLEU4": 0.701,
+        "SER": 3.63,
+        "BLEU4_target": 0.935,
+        "SER_target": 2.42
+      },
+      "best_result": null,
+      "last_failure": null,
+      "blocker": null,
+      "overlay_active": [
+        "SSRG exemplar selection only"
+      ],
+      "forbidden": [
+        "Fisher CPU",
+        "post-decode repair",
+        "old checkpoint recovery"
+      ]
+    },
+    "todcl": {
+      "current_version": "ours-v1",
+      "next_version": null,
+      "status": "pending",
+      "base_method": "ADAPTER official checkpoint",
+      "metrics": {
+        "BLEU": {
+          "higher_better": true,
+          "bounded_0_100": false,
+          "base": 21.7719,
+          "target": 29.0292,
+          "ours": null
+        },
+        "EER": {
+          "higher_better": false,
+          "bounded_0_100": false,
+          "base": 0.163975,
+          "target": 0.109317,
+          "ours": null
+        }
+      },
+      "best_result": null,
+      "last_failure": null,
+      "blocker": null,
+      "overlay_active": [
+        "Assess-then-Update orthogonal penalty"
+      ],
+      "note": "BLEU and EER judged vs strongest published row per metric"
+    }
+  }
+}

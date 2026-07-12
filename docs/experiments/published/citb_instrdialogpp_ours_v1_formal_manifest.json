@@ -1,0 +1,41 @@
+{
+  "suite": "citb_instrdialogpp",
+  "created_at": "2026-07-11T20:49:06.016166+00:00",
+  "ours_v1_sha": "e0ac90dd24ba00985afb052abf7be8be9f9b7426",
+  "official_sha": "bf50533b5bced4c388691ecc75e26773da96b3fd",
+  "preflight_rounds": {
+    "code": {
+      "pass": true,
+      "ours_v1_sha": "e0ac90dd24ba00985afb052abf7be8be9f9b7426",
+      "official_sha": "bf50533b5bced4c388691ecc75e26773da96b3fd",
+      "overlay_files": [
+        {
+          "path": "ours_v1/suites/citb",
+          "exists": true
+        },
+        {
+          "path": "core/methods/ours_spectral_replay.py",
+          "exists": true
+        }
+      ]
+    },
+    "data_setting": {
+      "pass": true,
+      "exit_code": 3,
+      "policy": "100/50/100 public actual"
+    },
+    "eval_environment": {
+      "pass": true,
+      "scorer": "official max-over-reference ROUGE-L task-aware",
+      "environment": {
+        "gpu": "NVIDIA vGPU-48GB, 49140 MiB",
+        "pytorch": "2.8.0+cu128 True",
+        "gpu_count": 1,
+        "hardware_label": "official"
+      }
+    }
+  },
+  "status": "ready",
+  "blockers": [],
+  "ready_for_formal": true
+}

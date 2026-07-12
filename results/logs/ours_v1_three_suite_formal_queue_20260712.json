@@ -1,0 +1,56 @@
+{
+  "started_at": "2026-07-12T04:49:08+08:00",
+  "halted_at": "2026-07-12T14:26:11+08:00",
+  "status": "HALTED",
+  "halt_reason": "Standard smoke early-gate FAIL: amazon EM 38.0 < 50; Phase4 fail-stop; do not continue CITB/ARPER/ToDCL until user decides",
+  "jobs": [
+    {
+      "id": "standard-smoke",
+      "status": "FAIL",
+      "detail": "EARLY_GATE_REJECTED round=2 amazon em=38.0 min=50; dbpedia em=98.5 PASS"
+    },
+    {
+      "id": "standard-formal",
+      "status": "STOPPED_INVALID",
+      "detail": "Orphan/hung formal stopped; smoke did not PASS; incomplete HF datasets prepare on amazon since ~09:54"
+    },
+    {
+      "id": "citb-id-smoke",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "citb-id-formal",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "citb-idpp-smoke",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "citb-idpp-formal",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "arper-smoke",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "arper-formal",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "todcl-smoke",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "todcl-formal",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "ops": {
+    "killed_tmux": "lora-ours-v1-three-suite-formal",
+    "stuck_wait": "lora-ours-standard-v1-smoke (session absent since smoke exit)",
+    "failure_report": "/root/lora-ours-ours-v1/docs/experiments/standard_failure_v1_20260712.md",
+    "results_table": "/root/lora-ours-ours-v1/results/tables/ours_v1_three_suite_formal.md"
+  }
+}

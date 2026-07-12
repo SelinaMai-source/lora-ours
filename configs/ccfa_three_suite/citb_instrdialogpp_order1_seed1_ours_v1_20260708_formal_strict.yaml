@@ -1,30 +1,36 @@
-experiment_name: citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict
+experiment_name: citb_instrdialogpp_order1_seed1_ours_v1_20260708_formal_strict
 mode: ours
 seed: 1
 strict_alignment:
-  status: five_segment_smoke_replay50_overlay_v1
-  blocker: none
-  official_evidence: Anchored on Replay(50) formal_v56 AR 39.98. SSRG spectral selection
-    unchanged; only replay mass aligned to published 50% budget.
+  status: instrdialogpp_v1_formal_skip_empty_ssrg
+  blocker: none_if_preflight_passes
+  official_evidence: Public long stream; skip_empty_segments; SSRG replay_ratio 0.5
+    aligned to Replay50 base
+  split_disclosure: Not paper-exact 100/50/100; short tasks below target counts
 paths:
   project_root: /root/lora-ours-ours-v1
   raw_citb_root: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb
-  processed_task_order_file: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_tasks/order1.txt
+  processed_task_order_file: /root/autodl-tmp/lora-baselines-run_v1/external_sources/citb/data/CIT_data/task_orders/stream=cl_dialogue_long_tasks/order1.txt
   processed_stream_dir: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb
-  processed_stream_file: citb_instrdialog_order1_train500_dev50_test100_pos2_multiref_v28.json
+  processed_stream_file: /root/autodl-tmp/lora-baselines-run_v1/data/ccfa_three_suite/citb/citb_instrdialogpp_order1_train100_dev50_test100.json
   results_dir: /root/lora-ours-ours-v1/results
 data:
   suite: CITB
-  benchmark: InstrDialog-order1
-  stream_name: instrdialog
+  benchmark: InstrDialog++-order1
+  stream_name: instrdialog++
   stream_format: unified_ccfa_stream
-  auto_prepare_processed: true
+  auto_prepare_processed: false
   ready: true
-  processed_stream_train_instances_per_task: 500
+  official_num_tasks: 38
+  skip_empty_segments: true
+  processed_stream_train_instances_per_task: 100
   processed_stream_dev_instances_per_task: 50
-  processed_stream_eval_instances_per_task: 50
-  split_policy: official_script_500_50_50
-  max_segments: 5
+  processed_stream_eval_instances_per_task: 100
+  processed_stream_shortfall_note: Full 38-task stream has short official tasks; v50
+    keeps only segments with non-empty train/eval and does not synthesize examples.
+  max_train_examples_per_segment: -1
+  max_eval_examples_per_segment: -1
+  split_policy: public_actual_100_50_100_with_shortfall
 model:
   architecture: seq2seq_lm
   task_type: seq2seq_lm
@@ -129,8 +135,8 @@ router:
   task_aware_fallback_min_margin: 0.18
   force_active_branch_on_spawn_segment: true
   oracle_pll_recalibrate: true
-  oracle_pll_min_agreement: 0.65
-  oracle_pll_bonus_steps: 2
+  oracle_pll_min_agreement: 0.5
+  oracle_pll_bonus_steps: 1
 spectral_replay:
   enabled: true
   buffer_size: 768
@@ -165,27 +171,27 @@ eval_normalization:
     train_target_min_new_tokens_floor: 4
     train_target_min_new_tokens_ceiling: 10
 output:
-  run_name: citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict
+  run_name: citb_instrdialogpp_order1_seed1_ours_v1_20260708_formal_strict
   tracking:
     use_wandb: true
     wandb_project: lora-ours-v1
-    wandb_group: ccfa_citb_ours_v1_20260708_smoke
+    wandb_group: ccfa_citb_instrdialogpp_ours_v1_20260708_formal
     wandb_mode: online
     wandb_tags:
     - ccfa_v2
     - citb
-    - strict-smoke
+    - instrdialogpp
+    - strict-formal
     - ours_v1_20260708
-    - replay50-ratio-align
-    - official_script_500_50_50
+    - skip-empty
 paper:
   strict_ready: false
-  status: smoke_pending
-  method_variant: ours_v1_replay50_ratio_ssrg
-  base_anchor: citb_replay50_formal_v56_ar_39.98
+  status: formal_pending
+  method_variant: ours_v1_replay50_ratio_ssrg_skip_empty
   metrics:
   - official max-over-reference ROUGE-L task-aware score
   - exact-match classification health
-  - current-task Dialogue generation effectiveness
-  notes: V1 single mechanism — replay_ratio 0.5 + min_replay 64 to match Replay(50)
-    published base. SSRG spectral selection unchanged from v85.
+  - broad Dialogue generation calibration signal
+  notes: v50 keeps v49/v36b model behavior and only changes the runner/data policy
+    for official zero-data InstrDialog++ tasks. Empty train/eval segments are skipped
+    by explicit config rather than synthesized, enabling longer order1 smoke runs.

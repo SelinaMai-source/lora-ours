@@ -12,6 +12,7 @@ LOG_PATH="${LOG_PATH:-${LOG_DIR}/citb_ours_v1_20260708_smoke.log}"
 
 if [[ "${FORMAL}" == "1" ]]; then
   CONFIG="${FORMAL_CONFIG:-configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict.yaml}"
+  # InstrDialog formal uses official_script_500_50_50 (4 tasks under train cap — disclosed, not paper-exact test=100)
   SESSION="${TMUX_SESSION:-lora-ours-citb-ours-v1-formal}"
   LOG_PATH="${LOG_PATH:-${LOG_DIR}/citb_ours_v1_20260708_formal.log}"
 fi

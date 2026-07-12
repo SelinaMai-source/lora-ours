@@ -50,6 +50,8 @@ SSRG_SPECTRAL_TOP_K="${SSRG_SPECTRAL_TOP_K:-8}"
 SSRG_ENERGY_THRESHOLD="${SSRG_ENERGY_THRESHOLD:-0.85}"
 ASSESS_RETENTION_GATE="${ASSESS_RETENTION_GATE:-0}"
 ASSESS_RETENTION_THRESHOLD="${ASSESS_RETENTION_THRESHOLD:-0.3}"
+# Comma-separated task names to skip assess-retention gate (e.g. "amazon" for ours-v2).
+ASSESS_RETENTION_SKIP_TASKS="${ASSESS_RETENTION_SKIP_TASKS:-}"
 EARLY_GATE_DBPEDIA_EM="${EARLY_GATE_DBPEDIA_EM:-0}"
 EARLY_GATE_AMAZON_EM="${EARLY_GATE_AMAZON_EM:-0}"
 
@@ -1154,6 +1156,18 @@ run_assess_retention_gate() {
   fi
   if (( index < 2 )); then
     return 0
+  fi
+  # ours-v2+: pause assess gate on selected tasks (comma-separated), e.g. amazon only.
+  if [[ -n "$ASSESS_RETENTION_SKIP_TASKS" ]]; then
+    local skip_item
+    IFS=',' read -ra _assess_skip_arr <<< "$ASSESS_RETENTION_SKIP_TASKS"
+    for skip_item in "${_assess_skip_arr[@]}"; do
+      skip_item="${skip_item// /}"
+      if [[ -n "$skip_item" && "$task" == "$skip_item" ]]; then
+        echo "ASSESS_RETENTION_GATE_SKIPPED round=${index} task=${task} reason=ASSESS_RETENTION_SKIP_TASKS"
+        return 0
+      fi
+    done
   fi
   if [[ ! -d "$prior_adapter" || ! -d "$current_adapter" ]]; then
     return 0

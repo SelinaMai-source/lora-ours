@@ -1,0 +1,6 @@
+{
+  "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v2_proposal.md",
+  "delta": "amazon_round_assess_pause",
+  "version": "ours-v2",
+  "launcher": "/root/lora-ours-ours-v1/ours_v1/scripts/launchers/run_standard_v2.sh"
+}

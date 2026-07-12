@@ -1,8 +1,8 @@
-experiment_name: citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict
+experiment_name: citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict
 mode: ours
 seed: 1
 strict_alignment:
-  status: five_segment_smoke_replay50_overlay_v1
+  status: formal_replay50_overlay_v1
   blocker: none
   official_evidence: Anchored on Replay(50) formal_v56 AR 39.98. SSRG spectral selection
     unchanged; only replay mass aligned to published 50% budget.
@@ -24,7 +24,6 @@ data:
   processed_stream_dev_instances_per_task: 50
   processed_stream_eval_instances_per_task: 50
   split_policy: official_script_500_50_50
-  max_segments: 5
 model:
   architecture: seq2seq_lm
   task_type: seq2seq_lm
@@ -165,22 +164,22 @@ eval_normalization:
     train_target_min_new_tokens_floor: 4
     train_target_min_new_tokens_ceiling: 10
 output:
-  run_name: citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict
+  run_name: citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict
   tracking:
     use_wandb: true
     wandb_project: lora-ours-v1
-    wandb_group: ccfa_citb_ours_v1_20260708_smoke
+    wandb_group: ccfa_citb_ours_v1_20260708_formal
     wandb_mode: online
     wandb_tags:
     - ccfa_v2
     - citb
-    - strict-smoke
+    - strict-formal
     - ours_v1_20260708
     - replay50-ratio-align
     - official_script_500_50_50
 paper:
-  strict_ready: false
-  status: smoke_pending
+  strict_ready: true
+  status: formal_pending
   method_variant: ours_v1_replay50_ratio_ssrg
   base_anchor: citb_replay50_formal_v56_ar_39.98
   metrics:

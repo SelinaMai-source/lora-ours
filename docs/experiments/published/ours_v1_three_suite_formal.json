@@ -1,0 +1,76 @@
+{
+  "updated_at": "2026-07-12T06:34:56.209846+00:00",
+  "rows": [
+    {
+      "suite": "citb_instrdialog",
+      "official_base": 39.98,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": 53.87,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/citb_instrdialog_ours_v1_formal_manifest.json",
+      "run_name": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict"
+    },
+    {
+      "suite": "citb_instrdialogpp",
+      "official_base": null,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": null,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/citb_instrdialogpp_ours_v1_formal_manifest.json",
+      "run_name": "citb_instrdialogpp_order1_seed1_ours_v1_20260708_formal_strict"
+    },
+    {
+      "suite": "standard",
+      "official_base": 76.81,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": 84.5,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/standard_ours_v1_formal_manifest.json",
+      "run_name": "olora_official_base_ours_overlay_v1_20260708_formal_order1_seed1"
+    },
+    {
+      "suite": "arper:BLEU4",
+      "official_base": 0.5989,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": 0.935,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/arper_ours_v1_formal_manifest.json",
+      "run_id": "arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708_formal"
+    },
+    {
+      "suite": "arper:SER",
+      "official_base": 5.938,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": 2.72,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/arper_ours_v1_formal_manifest.json",
+      "run_id": "arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708_formal"
+    },
+    {
+      "suite": "todcl:BLEU",
+      "official_base": 21.7719,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": 29.0,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/todcl_ours_v1_formal_manifest.json",
+      "run_id": "todcl_adapter_nlg_ours_assess_overlay_v1_20260708_formal"
+    },
+    {
+      "suite": "todcl:EER",
+      "official_base": 0.163975,
+      "ours_v1": null,
+      "delta": null,
+      "target_plus_one_third": 0.123,
+      "pass_fail": "pending",
+      "manifest": "/root/lora-ours-ours-v1/results/manifests/todcl_ours_v1_formal_manifest.json",
+      "run_id": "todcl_adapter_nlg_ours_assess_overlay_v1_20260708_formal"
+    }
+  ],
+  "blockers": []
+}
