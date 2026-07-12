@@ -252,9 +252,28 @@ def main() -> int:
     delta_key = args.delta or choose_delta(args.suite, diagnosis)
     if delta_key not in ALLOWED_DELTAS:
         raise SystemExit(f"delta {delta_key} not in RP allow-list")
-    meta = ALLOWED_DELTAS[delta_key]
+    meta = dict(ALLOWED_DELTAS[delta_key])
     if meta["suites"] and args.suite not in meta["suites"]:
         raise SystemExit(f"delta {delta_key} not allowed for suite {args.suite}")
+    if args.suite == "standard" and delta_key == "replay_budget":
+        current_launcher = REPO / "ours_v1" / "scripts" / "launchers" / (
+            f"run_standard_{current.replace('ours-', '')}.sh"
+        )
+        current_budget = 64
+        if current_launcher.is_file():
+            matches = re.findall(
+                r"^export REPLAY_PER_TASK=(\d+)\s*$",
+                current_launcher.read_text(encoding="utf-8"),
+                flags=re.MULTILINE,
+            )
+            if matches:
+                current_budget = int(matches[-1])
+        next_budget = current_budget + 32
+        meta["env"] = {"REPLAY_PER_TASK": str(next_budget)}
+        meta["description"] = (
+            f"Increase replay budget one notch from {current} "
+            f"({current_budget}→{next_budget}); keep SSRG mode."
+        )
 
     proposal = write_proposal(args.suite, version, delta_key, meta, diagnosis)
     artifacts: dict[str, Any] = {"proposal": str(proposal), "delta": delta_key, "version": version}

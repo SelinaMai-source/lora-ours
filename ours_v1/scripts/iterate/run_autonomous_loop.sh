@@ -40,14 +40,13 @@ lines = [
     "# Ours Autonomous Campaign Status",
     "",
     f"- Updated: {now}",
-    f"- Branches: **ours-v1** / **ours-v2** / **ours-v3** (Standard current={std.get('current_version')}, status={std.get('status')})",
+    f"- Branches: **ours-v1** / **ours-v2** / **ours-v3** / **ours-v4** (Standard current={std.get('current_version')}, status={std.get('status')})",
     f"- Running now: **{running}**",
     f"- Next: {nxt}",
     f"- CITB InstrDialog: {citb.get('status')} ({citb.get('current_version')})",
     "- InstrDialog++: **external_blocker**",
     "- Loop: `tmux a -t lora-ours-autonomous-loop`",
     "- Leaderboard: `results/tables/ours_iteration_leaderboard.md`",
-    "",
 ]
 (repo / "results/logs/ours_autonomous_campaign_status.md").write_text("\n".join(lines) + "\n")
 print("refreshed campaign status")
@@ -122,8 +121,8 @@ for suite, st in state["suites"].items():
             "ours": m.get("ours"),
             "delta": (None if m.get("ours") is None or m.get("base") is None else m["ours"] - m["base"]),
             "target": m.get("target"),
-            "version": st.get("current_version"),
-            "status": st.get("status"),
+            "version": m.get("result_version", st.get("current_version")),
+            "status": m.get("result_status", st.get("status")),
             "blocker": st.get("blocker"),
             "setting_label": st.get("overlay_active"),
         })
@@ -180,6 +179,30 @@ st["suites"][suite]["blocker"] = {
 }
 path.write_text(json.dumps(st, indent=2, ensure_ascii=False) + "\n")
 print(json.dumps(st["suites"][suite]["blocker"], indent=2))
+PY
+}
+
+mark_infra_failure() {
+  local suite="$1"
+  local reason="$2"
+  python3 - "$suite" "$reason" <<'PY'
+import json, sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+suite, reason = sys.argv[1], sys.argv[2]
+path = Path("/root/lora-ours-ours-v1/ours_v1/scripts/iterate/suite_state.json")
+state = json.loads(path.read_text())
+entry = state["suites"][suite]
+entry["status"] = "infra_failure"
+entry["last_infra_failure"] = {
+    "version": entry["current_version"],
+    "reason": reason,
+    "retry_policy": "repair_then_retry_same_version",
+    "updated_at": datetime.now(timezone.utc).isoformat(),
+}
+state["updated_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+path.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n")
 PY
 }
 
@@ -252,60 +275,78 @@ advance_standard() {
   python3 "${ITER_DIR}/propose_next_version.py" --suite standard --from-version "$cur" --create-branch
 }
 
-# ---------- CITB InstrDialog v1 ----------
-run_citb_v1() {
-  local session="lora-ours-citb-ours-v1-formal"
-  local run_formal="citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict"
-  # Idempotent: if formal already running/finished artifacts, do not relaunch smoke.
-  if tmux has-session -t "$session" 2>/dev/null; then
-    log "CITB formal session already active — waiting (no relaunch)"
-    write_campaign_status "CITB InstrDialog v1 formal (\`$session\`)" "ARPER v1 → ToDCL v1 → Standard ours-v3"
-    wait_tmux "$session"
-  else
-    log "CITB InstrDialog v1 smoke"
-    wait_gpu
-    session="lora-ours-citb-ours-v1-smoke"
-    bash ours_v1/scripts/launchers/run_citb_v1.sh || true
-    wait_tmux "$session"
-    local run_smoke="citb_instrdialog_order1_seed1_ours_v1_20260708_smoke_strict"
-    if [[ ! -f "results/runs/${run_smoke}/ccfa_postprocess/summary.json" ]] && \
-       [[ ! -f "results/runs/${run_smoke}/run_manifest.json" ]]; then
-      # smoke may still be success if final_metrics exists
-      if [[ ! -f "results/runs/${run_smoke}/final_metrics.json" ]]; then
-        log "CITB smoke missing artifacts → diagnose"
-        python3 "${ITER_DIR}/diagnose_failure.py" --suite citb_instrdialog --version ours-v1 --reason "smoke incomplete" || true
-        return 1
-      fi
-    fi
-    log "CITB smoke OK-ish → formal"
-    write_campaign_status "CITB InstrDialog v1 formal (launching)" "ARPER v1 → ToDCL v1 → Standard ours-v3"
-    wait_gpu
-    session="lora-ours-citb-ours-v1-formal"
-    FORMAL=1 bash ours_v1/scripts/launchers/run_citb_v1.sh || true
-    wait_tmux "$session"
+# ---------- CITB InstrDialog versioned smoke -> formal ----------
+run_citb_version() {
+  local ver="$1"
+  local short="${ver#ours-}"
+  local launcher="ours_v1/scripts/launchers/run_citb_${short}.sh"
+  local stamp="20260712"
+  [[ "$short" == "v1" ]] && stamp="20260708"
+  local run_smoke="citb_instrdialog_order1_seed1_ours_${short}_${stamp}_smoke_strict"
+  local run_formal="citb_instrdialog_order1_seed1_ours_${short}_${stamp}_formal_strict"
+  local session="lora-ours-citb-ours-${short}-smoke"
+  if [[ ! -x "$launcher" ]]; then
+    mark_infra_failure citb_instrdialog "missing launcher ${launcher}"
+    return 2
+  fi
+  log "CITB ${ver} smoke"
+  wait_gpu
+  if ! TMUX_SESSION="$session" bash "$launcher"; then
+    mark_infra_failure citb_instrdialog "smoke launcher failed"
+    return 2
+  fi
+  wait_tmux "$session"
+  if [[ ! -f "results/runs/${run_smoke}/final_metrics.json" ]]; then
+    mark_infra_failure citb_instrdialog "smoke missing final_metrics"
+    return 2
+  fi
+  log "CITB ${ver} smoke completed → formal"
+  wait_gpu
+  session="lora-ours-citb-ours-${short}-formal"
+  if ! FORMAL=1 TMUX_SESSION="$session" bash "$launcher"; then
+    mark_infra_failure citb_instrdialog "formal launcher failed"
+    return 2
+  fi
+  wait_tmux "$session"
+  if [[ ! -f "results/runs/${run_formal}/final_metrics.json" ]]; then
+    mark_infra_failure citb_instrdialog "formal missing final_metrics"
+    return 2
   fi
   if python3 "${ITER_DIR}/evaluate_gate.py" --suite citb_instrdialog --run-key "$run_formal"; then
     log "CITB TARGETS MET"
     return 0
   fi
-  python3 "${ITER_DIR}/diagnose_failure.py" --suite citb_instrdialog --version ours-v1 --reason "metrics or incomplete" || true
+  local ar target
+  ar="$(python3 -c "import json; print(json.load(open('${STATE_JSON}'))['suites']['citb_instrdialog']['metrics']['AR']['ours'])")"
+  target="$(python3 -c "import json; print(json.load(open('${STATE_JSON}'))['suites']['citb_instrdialog']['metrics']['AR']['target'])")"
+  python3 "${ITER_DIR}/diagnose_failure.py" --suite citb_instrdialog --version "$ver" \
+    --ar "$ar" --ar-target "$target" --reason "formal metrics below target" || true
   return 1
 }
 
 # ---------- ARPER v1 ----------
 run_arper_v1() {
+  if ! PREFLIGHT=1 bash ours_v1/scripts/launchers/run_arper_v1.sh; then
+    mark_infra_failure arper "ARPER env/module/config preflight failed"
+    return 2
+  fi
   log "ARPER v1 smoke (no Fisher CPU / no post-decode repair)"
   wait_gpu
   local session="lora-ours-arper-v1-ssrg-smoke"
-  BOUNDED_SMOKE=1 TMUX_SESSION="$session" bash ours_v1/scripts/launchers/run_arper_v1.sh || true
+  if ! BOUNDED_SMOKE=1 TMUX_SESSION="$session" bash ours_v1/scripts/launchers/run_arper_v1.sh; then
+    mark_infra_failure arper "ARPER smoke launcher failed"
+    return 2
+  fi
   wait_tmux "$session"
   local smoke_status="arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708_status"
   local st
   st="$(python3 -c "import json,pathlib; p=pathlib.Path('results/logs/${smoke_status}.json'); print(json.load(open(p)).get('state','missing') if p.exists() else 'missing')")"
+  local errors
+  errors="$(python3 -c "import json,pathlib; p=pathlib.Path('results/logs/${smoke_status}.json'); print(json.load(open(p)).get('error_count',1) if p.exists() else 1)")"
   log "ARPER smoke state=${st}"
-  if [[ "$st" != "completed_or_stopped" && "$st" != "completed" ]]; then
-    python3 "${ITER_DIR}/diagnose_failure.py" --suite arper --version ours-v1 --reason "smoke state=${st}" || true
-    return 1
+  if [[ "$st" != "completed_or_stopped" && "$st" != "completed" ]] || [[ "$errors" -ne 0 ]]; then
+    mark_infra_failure arper "ARPER smoke state=${st}, errors=${errors}"
+    return 2
   fi
   wait_gpu
   session="lora-ours-arper-v1-ssrg-formal"
@@ -318,20 +359,28 @@ run_arper_v1() {
     log "ARPER TARGETS MET"
     return 0
   fi
+  if [[ "$(suite_status arper)" == "incomplete" ]]; then
+    mark_infra_failure arper "formal completed without parseable official metrics"
+    return 2
+  fi
   python3 "${ITER_DIR}/diagnose_failure.py" --suite arper --version ours-v1 --reason "metrics below target" || true
   return 1
 }
 
 # ---------- ToDCL v1 ----------
 run_todcl_v1() {
+  if ! PREFLIGHT=1 bash ours_v1/scripts/launchers/run_todcl_v1.sh; then
+    mark_infra_failure todcl "ToDCL checkpoint/import preflight failed"
+    return 2
+  fi
   log "ToDCL v1 smoke"
   wait_gpu
   local session="lora-ours-todcl-v1-assess-overlay"
   local rc=0
   BOUNDED_SMOKE=1 bash ours_v1/scripts/launchers/run_todcl_v1.sh || rc=$?
-  if [[ "$rc" -eq 77 ]]; then
-    mark_blocker todcl "no loadable ADAPTER anchor checkpoint"
-    return 1
+  if [[ "$rc" -ne 0 ]]; then
+    mark_infra_failure todcl "ToDCL smoke launcher rc=${rc}"
+    return 2
   fi
   wait_tmux "$session"
   wait_gpu
@@ -340,13 +389,20 @@ run_todcl_v1() {
     RUN_ID=todcl_adapter_nlg_ours_assess_overlay_v1_20260708_formal \
     bash ours_v1/scripts/launchers/run_todcl_v1.sh || rc=$?
   if [[ "$rc" -eq 77 ]]; then
-    mark_blocker todcl "no loadable ADAPTER anchor checkpoint"
-    return 1
+    mark_infra_failure todcl "ToDCL formal checkpoint unavailable"
+    return 2
+  elif [[ "$rc" -ne 0 ]]; then
+    mark_infra_failure todcl "ToDCL formal launcher rc=${rc}"
+    return 2
   fi
   wait_tmux "$session"
   if python3 "${ITER_DIR}/evaluate_gate.py" --suite todcl --run-key todcl_adapter_nlg_ours_assess_overlay_v1_20260708_formal; then
     log "ToDCL TARGETS MET"
     return 0
+  fi
+  if [[ "$(suite_status todcl)" == "incomplete" ]]; then
+    mark_infra_failure todcl "formal completed without parseable official metrics"
+    return 2
   fi
   python3 "${ITER_DIR}/diagnose_failure.py" --suite todcl --version ours-v1 --reason "metrics below target" || true
   return 1
@@ -377,67 +433,94 @@ PY
 }
 
 # ===================== MAIN =====================
+if [[ "${PUBLISH_ONLY:-0}" == "1" ]]; then
+  publish_leaderboard
+  write_campaign_status "priority reorder complete; GPU idle" \
+    "Standard ours-v4 → ARPER ours-v1 clean restart → ToDCL ours-v1 → CITB ours-v2"
+  exit 0
+fi
+
 log "=== Autonomous loop start ==="
 enforce_citbpp_blocker
 publish_leaderboard
 
-# 1) Prepare Standard ours-v2 proposal + branch + launcher
-log "Diagnose Standard v1 and propose ours-v2"
-python3 "${ITER_DIR}/diagnose_failure.py" --suite standard --version ours-v1 \
-  --dbpedia-em 98.5 --amazon-em 38.0 \
-  --reason "early gate rejected round 2 amazon: EM 38.0 < 50" || true
-python3 "${ITER_DIR}/propose_next_version.py" --suite standard --from-version ours-v1 \
-  --delta amazon_round_assess_pause --create-branch
-
-# Priority cycle (plan Phase 5)
+# User-priority serial order: Standard decision first, then clean ARPER restart,
+# ToDCL, and finally CITB. The preempted ARPER run is never diagnosed as failure.
 for round in $(seq 1 "$MAX_VERSIONS_PER_SUITE"); do
   log "=== campaign round ${round} ==="
   publish_leaderboard
 
-  # Standard
+  # 1) Standard stays first through smoke/formal decision.
   st="$(suite_status standard)"
   if [[ "$st" != "completed" && "$st" != "external_blocker" ]]; then
     ver="$(suite_version standard)"
+    write_campaign_status "Standard ${ver}" \
+      "ARPER ours-v1 clean restart → ToDCL ours-v1 → CITB ours-v2"
     if run_standard_version "$ver"; then
       log "standard completed at ${ver}"
     else
       rc=$?
       if [[ "$rc" -eq 2 ]]; then
-        log "standard ${ver} infra/incomplete — retry same version next round"
-      else
-        log "standard ${ver} metric/smoke FAIL → propose next"
-        if [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
-          advance_standard || true
-        fi
+        mark_infra_failure standard "standard ${ver} incomplete/preflight"
+        log "standard ${ver} infra failure — retry same version"
+      elif [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
+        log "standard ${ver} metric failure → propose next"
+        advance_standard || true
       fi
     fi
   fi
   publish_leaderboard
 
-  # CITB InstrDialog
-  st="$(suite_status citb_instrdialog)"
+  # 2) ARPER v1 clean restart after priority preemption. rc=2 never advances.
+  st="$(suite_status arper)"
   if [[ "$st" != "completed" && "$st" != "external_blocker" ]]; then
-    if run_citb_v1; then
+    write_campaign_status "ARPER ours-v1 clean restart" \
+      "ToDCL ours-v1 → CITB ours-v2"
+    if run_arper_v1; then
       :
     else
-      # propose next citb version only if diagnosis recommends
-      cur="$(suite_version citb_instrdialog)"
-      python3 "${ITER_DIR}/propose_next_version.py" --suite citb_instrdialog --from-version "$cur" || true
+      rc=$?
+      if [[ "$rc" -eq 2 ]]; then
+        log "ARPER ours-v1 infra failure — repair/retry same version"
+      elif [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
+        python3 "${ITER_DIR}/propose_next_version.py" --suite arper --from-version "$(suite_version arper)" || true
+      fi
     fi
   fi
   publish_leaderboard
 
-  # ARPER
-  st="$(suite_status arper)"
+  # 3) ToDCL v1.
+  st="$(suite_status todcl)"
   if [[ "$st" != "completed" && "$st" != "external_blocker" ]]; then
-    run_arper_v1 || python3 "${ITER_DIR}/propose_next_version.py" --suite arper --from-version "$(suite_version arper)" || true
+    write_campaign_status "ToDCL ours-v1" "CITB ours-v2"
+    if run_todcl_v1; then
+      :
+    else
+      rc=$?
+      if [[ "$rc" -eq 2 ]]; then
+        log "ToDCL ours-v1 infra failure — repair/retry same version"
+      elif [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
+        python3 "${ITER_DIR}/propose_next_version.py" --suite todcl --from-version "$(suite_version todcl)" || true
+      fi
+    fi
   fi
   publish_leaderboard
 
-  # ToDCL
-  st="$(suite_status todcl)"
+  # 4) CITB starts from v2; completed v1 artifacts are never relaunched.
+  st="$(suite_status citb_instrdialog)"
   if [[ "$st" != "completed" && "$st" != "external_blocker" ]]; then
-    run_todcl_v1 || python3 "${ITER_DIR}/propose_next_version.py" --suite todcl --from-version "$(suite_version todcl)" || true
+    ver="$(suite_version citb_instrdialog)"
+    write_campaign_status "CITB ${ver}" "next repaired campaign round"
+    if run_citb_version "$ver"; then
+      :
+    else
+      rc=$?
+      if [[ "$rc" -eq 2 ]]; then
+        log "CITB ${ver} infra failure — retry same version"
+      elif [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
+        python3 "${ITER_DIR}/propose_next_version.py" --suite citb_instrdialog --from-version "$ver" || true
+      fi
+    fi
   fi
   publish_leaderboard
 

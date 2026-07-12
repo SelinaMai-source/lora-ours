@@ -1,0 +1,19 @@
+{
+  "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v4_proposal.md",
+  "delta": "replay_budget",
+  "delta_from": {
+    "version": "ours-v3",
+    "REPLAY_PER_TASK": 96
+  },
+  "delta_to": {
+    "version": "ours-v4",
+    "REPLAY_PER_TASK": 128
+  },
+  "version": "ours-v4",
+  "launcher": "/root/lora-ours-ours-v1/ours_v1/scripts/launchers/run_standard_v4.sh",
+  "git": {
+    "branch": "ours-v4",
+    "created": true,
+    "checked_out": false
+  }
+}

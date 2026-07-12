@@ -1,0 +1,33 @@
+{
+  "updated_at": "2026-07-12T20:36:47+0800",
+  "run_id": "arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708",
+  "state": "priority_preempted",
+  "processes": [],
+  "log_path": "/root/autodl-tmp/lora-ours-logs/arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708.log",
+  "log_size": 2441,
+  "last_signals": [
+    "Current task: Attraction has batches: {'train': 52, 'valid': 7}",
+    "Current task: Attraction has 0 distillation",
+    "Task Attraction Epoch 0 (n_layer 1)",
+    "Train Loss: 4.696 | Time: 32.5",
+    "valid Loss: 3.996 | Slot error: 94.417 | BLEU4: 0.00000 | Time: 5.5",
+    "Task Attraction Epoch 1 (n_layer 1)",
+    "Train Loss: 3.617 | Time: 32.5",
+    "valid Loss: 3.102 | Slot error: 84.415 | BLEU4: 0.00000 | Time: 5.8",
+    "Task Attraction Epoch 2 (n_layer 1)",
+    "Train Loss: 2.796 | Time: 33.4",
+    "valid Loss: 2.448 | Slot error: 64.651 | BLEU4: 0.00000 | Time: 5.6",
+    "Task Attraction Epoch 3 (n_layer 1)",
+    "Train Loss: 2.343 | Time: 32.5",
+    "valid Loss: 2.136 | Slot error: 56.399 | BLEU4: 0.00000 | Time: 5.6",
+    "Task Attraction Epoch 4 (n_layer 1)"
+  ],
+  "error_count": 0,
+  "last_errors": [],
+  "preemption": {
+    "reason": "user-priority preemption for Standard ours-v4",
+    "algorithm_or_metric_failure": false,
+    "restart_policy": "clean_restart_same_version_after_standard_decision",
+    "partial_progress": "Attraction epoch 4"
+  }
+}

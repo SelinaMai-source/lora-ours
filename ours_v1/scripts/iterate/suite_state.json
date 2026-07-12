@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-12T16:43:14+08:00",
+  "updated_at": "2026-07-12T20:36:47+08:00",
   "campaign": "ours-autonomous-iteration",
   "policy": {
     "one_mechanism_per_version": true,
@@ -9,10 +9,16 @@
     "formal_requires_smoke_pass": true,
     "honest_external_blockers": true
   },
+  "priority_queue": [
+    "standard",
+    "arper",
+    "todcl",
+    "citb_instrdialog"
+  ],
   "suites": {
     "standard": {
-      "current_version": "ours-v3",
-      "next_version": "ours-v4",
+      "current_version": "ours-v4",
+      "next_version": "ours-v5",
       "status": "proposed",
       "base_method": "O-LoRA official T5-large order1 seed1",
       "metrics": {
@@ -27,21 +33,20 @@
       },
       "best_result": null,
       "last_failure": {
-        "version": "ours-v2",
-        "path": "docs/experiments/standard_failure_v2.md",
+        "version": "ours-v3",
+        "path": "docs/experiments/standard_failure_v3.md",
         "diagnosis": {
           "primary_cause": "current_task_underlearning_after_assess_pause",
           "mechanism_suspect": "ssrg_class_coverage_or_replay_budget",
           "recommended_next_delta": "replay_budget",
-          "rationale": "dbpedia EM 98.5 with amazon EM 38.5 FAIL indicates SC current-task underlearning after TC→SC transition, not retention collapse."
+          "rationale": "dbpedia EM None with amazon EM 39.5 FAIL indicates SC current-task underlearning after TC→SC transition, not retention collapse."
         },
         "evidence": {
-          "version": "ours-v2",
+          "version": "ours-v3",
           "suite": "standard",
-          "dbpedia_em": 98.5,
-          "amazon_em": 38.5,
-          "reason": "early gate rejected round 2 amazon: EM 38.5 < 50",
-          "assess_skip_amazon": true
+          "reason": "early gate rejected round 2 amazon: EM 39.5 < 50",
+          "assess_skip_amazon": true,
+          "amazon_em": 39.5
         }
       },
       "blocker": null,
@@ -58,18 +63,18 @@
             "citb_instrdialog"
           ],
           "env": {
-            "REPLAY_PER_TASK": "96"
+            "REPLAY_PER_TASK": "128"
           },
           "citb_note": "increase min_replay_per_segment / replay budget in YAML only",
-          "description": "Increase replay budget one notch; keep SSRG mode."
+          "description": "Increase replay budget one notch from ours-v3 (96→128); keep SSRG mode."
         },
-        "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v3_proposal.md"
+        "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v4_proposal.md"
       }
     },
     "citb_instrdialog": {
-      "current_version": "ours-v1",
-      "next_version": null,
-      "status": "formal_running",
+      "current_version": "ours-v2",
+      "next_version": "ours-v3",
+      "status": "proposed",
       "base_method": "Replay(50)",
       "metrics": {
         "AR": {
@@ -77,7 +82,9 @@
           "bounded_0_100": true,
           "base": 39.98,
           "target": 53.31,
-          "ours": null,
+          "ours": 23.894736842105264,
+          "result_version": "ours-v1",
+          "result_status": "metric_fail",
           "source": "local_official_anchor_x4/3_per_plan_table"
         },
         "BWT": {
@@ -85,12 +92,48 @@
           "bounded_0_100": false,
           "base": null,
           "target": null,
-          "ours": null,
+          "ours": -4.111111111111112,
+          "result_version": "ours-v1",
+          "result_status": "metric_fail",
           "note": "compare when available; not hard-gated alone"
         }
       },
-      "best_result": null,
-      "last_failure": null,
+      "best_result": {
+        "suite": "citb_instrdialog",
+        "run_key": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict",
+        "version": "ours-v1",
+        "metrics": {
+          "AR": {
+            "base": 39.98,
+            "target": 53.31,
+            "ours": 23.894736842105264,
+            "verdict": "FAIL",
+            "higher_better": true
+          },
+          "BWT": {
+            "ours": -4.111111111111112,
+            "verdict": "n/a"
+          }
+        },
+        "all_pass": false
+      },
+      "last_failure": {
+        "version": "ours-v1",
+        "path": "docs/experiments/citb_instrdialog_failure_v1.md",
+        "diagnosis": {
+          "primary_cause": "insufficient_retention_or_replay_coverage",
+          "mechanism_suspect": "ssrg_ratio_or_replay_budget",
+          "recommended_next_delta": "replay_budget",
+          "rationale": "AR 23.894736842105264 < target 53.31; adjust SSRG/replay budget only (one delta)."
+        },
+        "evidence": {
+          "version": "ours-v1",
+          "suite": "citb_instrdialog",
+          "reason": "formal 19/19 exit 0; AR 23.8947 < 53.31 and BWT -4.1111",
+          "AR": 23.894736842105264,
+          "AR_target": 53.31
+        }
+      },
       "blocker": null,
       "overlay_active": [
         "SSRG replay_ratio=0.5",
@@ -98,11 +141,26 @@
       ],
       "split_disclosure": "official-public 500/50/50; paper 500/50/100",
       "runtime": {
-        "phase": "formal",
-        "tmux": "lora-ours-citb-ours-v1-formal",
+        "phase": "completed",
+        "tmux": null,
         "run": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict",
-        "note": "smoke PASS; formal in progress (~segment 7/19 as of status refresh)",
-        "updated_at": "2026-07-12T16:43:14+08:00"
+        "note": "formal 19/19 completed exit 0; v1 metric_fail; v2 queued",
+        "updated_at": "2026-07-12T20:28:48+08:00"
+      },
+      "planned_delta": {
+        "key": "replay_budget",
+        "meta": {
+          "suites": [
+            "standard",
+            "citb_instrdialog"
+          ],
+          "env": {
+            "REPLAY_PER_TASK": "96"
+          },
+          "citb_note": "increase min_replay_per_segment / replay budget in YAML only",
+          "description": "Increase replay budget one notch; keep SSRG mode."
+        },
+        "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/citb_instrdialog_ours-v2_proposal.md"
       }
     },
     "citb_instrdialogpp": {
@@ -124,7 +182,7 @@
       "blocker": {
         "type": "external_blocker",
         "reason": "public split shortfall: 2 tasks under train=100 (task1549=42, task459=48); paper-exact not publicly available",
-        "updated_at": "2026-07-12T06:54:56.205296+00:00"
+        "updated_at": "2026-07-12T12:33:21.469901+00:00"
       },
       "overlay_active": [
         "SSRG same as InstrDialog"
@@ -133,8 +191,8 @@
     },
     "arper": {
       "current_version": "ours-v1",
-      "next_version": null,
-      "status": "pending",
+      "next_version": "ours-v2",
+      "status": "priority_preempted",
       "base_method": "v89 SCLSTM Path B exemplar500 batch128",
       "metrics": {
         "BLEU4": {
@@ -162,6 +220,24 @@
       },
       "best_result": null,
       "last_failure": null,
+      "last_infra_failure": {
+        "version": "ours-v1",
+        "reason": "launcher lost ARPER_OVERLAY_CONFIG and module path",
+        "repair": "explicit ARPER_OVERLAY_CONFIG/PYTHONPATH plus CPU import preflight",
+        "preflight": "PASS",
+        "retry_policy": "retry_same_version"
+      },
+      "last_preemption": {
+        "version": "ours-v1",
+        "reason": "user-priority preemption for Standard ours-v4",
+        "classification": "priority_preempted",
+        "algorithm_or_metric_failure": false,
+        "restart_policy": "clean_restart_same_version_after_standard_decision",
+        "session": "lora-ours-arper-v1-ssrg-smoke",
+        "log": "/root/autodl-tmp/lora-ours-logs/arper_woz3_sclstm_v89_ssrg_exemplar_overlay_v1_20260708.log",
+        "partial_progress": "Attraction epoch 4; error_count=0 before SIGINT",
+        "updated_at": "2026-07-12T20:36:47+08:00"
+      },
       "blocker": null,
       "overlay_active": [
         "SSRG exemplar selection only"
@@ -174,8 +250,8 @@
     },
     "todcl": {
       "current_version": "ours-v1",
-      "next_version": null,
-      "status": "pending",
+      "next_version": "ours-v2",
+      "status": "infra_retry_ready",
       "base_method": "ADAPTER official checkpoint",
       "metrics": {
         "BLEU": {
@@ -195,6 +271,13 @@
       },
       "best_result": null,
       "last_failure": null,
+      "last_infra_failure": {
+        "version": "ours-v1",
+        "reason": "OURS_PRIOR_CKPT missing",
+        "repair": "resolve final ADAPTER domain checkpoint and torch.load state_dict on CPU",
+        "preflight": "PASS",
+        "retry_policy": "retry_same_version"
+      },
       "blocker": null,
       "overlay_active": [
         "Assess-then-Update orthogonal penalty"
