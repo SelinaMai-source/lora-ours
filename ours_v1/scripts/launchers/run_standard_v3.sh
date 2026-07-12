@@ -28,7 +28,7 @@ export EARLY_GATE_DBPEDIA_EM="${EARLY_GATE_DBPEDIA_EM:-90}"
 export EARLY_GATE_AMAZON_EM="${EARLY_GATE_AMAZON_EM:-50}"
 export TRAIN_HELDOUT_GATE="${TRAIN_HELDOUT_GATE:-0}"
 # Single-mechanism delta for ours-v3:
-export REPLAY_PER_TASK="${REPLAY_PER_TASK:-96}"
+export REPLAY_PER_TASK=96
 export FORMAL
 
 exec "${REPO_ROOT}/scripts/run_olora_standard_order1_official_base_ours_overlay_v58.sh" "$@"

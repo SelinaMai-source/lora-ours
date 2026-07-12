@@ -90,7 +90,7 @@ def write_standard_launcher(version: str, delta_key: str, env: dict[str, str]) -
     ver = version.replace("ours-", "")
     run_smoke = f"olora_official_base_ours_overlay_{ver}_20260712_smoke_order1_seed1"
     run_formal = f"olora_official_base_ours_overlay_{ver}_20260712_formal_order1_seed1"
-    env_exports = "\n".join(f'export {k}="${{{k}:-{v}}}"' for k, v in env.items())
+    env_exports = "\n".join(f"export {k}={v}" for k, v in env.items())
     content = f'''#!/usr/bin/env bash
 # Standard {version}: O-LoRA + class-coverage SSRG + single delta [{delta_key}].
 set -euo pipefail
