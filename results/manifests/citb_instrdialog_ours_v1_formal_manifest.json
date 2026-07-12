@@ -1,0 +1,53 @@
+{
+  "suite": "citb_instrdialog",
+  "created_at": "2026-07-11T20:49:04.313344+00:00",
+  "ours_v1_sha": "e0ac90dd24ba00985afb052abf7be8be9f9b7426",
+  "official_sha": "bf50533b5bced4c388691ecc75e26773da96b3fd",
+  "preflight_rounds": {
+    "code": {
+      "pass": true,
+      "ours_v1_sha": "e0ac90dd24ba00985afb052abf7be8be9f9b7426",
+      "official_sha": "bf50533b5bced4c388691ecc75e26773da96b3fd",
+      "overlay_files": [
+        {
+          "path": "ours_v1/suites/citb",
+          "exists": true
+        },
+        {
+          "path": "core/methods/ours_spectral_replay.py",
+          "exists": true
+        }
+      ]
+    },
+    "data_setting": {
+      "pass": true,
+      "exit_code": 3,
+      "policy": "500/50/50",
+      "note": "exit 3 = short tasks expected"
+    },
+    "eval_environment": {
+      "pass": true,
+      "scorer": "official max-over-reference ROUGE-L task-aware",
+      "environment": {
+        "gpu": "NVIDIA vGPU-48GB, 49140 MiB",
+        "pytorch": "2.8.0+cu128 True",
+        "gpu_count": 1,
+        "hardware_label": "official"
+      }
+    }
+  },
+  "status": "metric_fail",
+  "blockers": [],
+  "ready_for_formal": false,
+  "formal_result": {
+    "run_id": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict",
+    "tasks_completed": 19,
+    "tasks_total": 19,
+    "exit_code": 0,
+    "AR": 23.894736842105264,
+    "BWT": -4.111111111111112,
+    "target_AR": 53.31,
+    "verdict": "metric_fail",
+    "evidence": "results/runs/citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict/ccfa_postprocess/summary.json"
+  }
+}

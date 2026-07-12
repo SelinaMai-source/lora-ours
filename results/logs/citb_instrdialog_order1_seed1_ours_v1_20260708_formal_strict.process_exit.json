@@ -1,0 +1,16 @@
+{
+  "updated_at": "2026-07-12T20:12:20+0800",
+  "event": "main_completed",
+  "status": "completed",
+  "pid": 77176,
+  "ppid": 77166,
+  "cwd": "/root/lora-ours-ours-v1",
+  "run_id": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict",
+  "config": "/root/lora-ours-ours-v1/configs/ccfa_three_suite/citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict.yaml",
+  "exit_code": 0,
+  "phase": "postprocess",
+  "current_segment_id": 18,
+  "current_segment_name": "task573_air_dialogue_classification",
+  "error": "",
+  "traceback": ""
+}

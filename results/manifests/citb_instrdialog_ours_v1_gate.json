@@ -1,0 +1,19 @@
+{
+  "suite": "citb_instrdialog",
+  "run_key": "citb_instrdialog_order1_seed1_ours_v1_20260708_formal_strict",
+  "version": "ours-v1",
+  "metrics": {
+    "AR": {
+      "base": 39.98,
+      "target": 53.31,
+      "ours": 23.894736842105264,
+      "verdict": "FAIL",
+      "higher_better": true
+    },
+    "BWT": {
+      "ours": -4.111111111111112,
+      "verdict": "n/a"
+    }
+  },
+  "all_pass": false
+}
