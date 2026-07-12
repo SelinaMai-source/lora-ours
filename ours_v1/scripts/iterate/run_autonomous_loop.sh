@@ -152,8 +152,11 @@ run_standard_version() {
   local st
   st="$(read_standard_state "$smoke_name")"
   log "STANDARD ${ver} smoke state=${st}"
+  if [[ "$st" == "missing" || "$st" == "running" || "$st" == "unknown" || "$st" == "preflight" || "$st" == "ready" ]]; then
+    log "STANDARD ${ver} smoke incomplete/infra (state=${st}); RETRY same version — do not advance"
+    return 2
+  fi
   if [[ "$st" != "completed" ]]; then
-    # parse amazon/dbpedia from status for diagnosis
     python3 "${ITER_DIR}/diagnose_failure.py" --suite standard --version "$ver" \
       --reason "$(grep -E '^- reason:' "results/logs/${smoke_name}_status.md" 2>/dev/null | sed 's/^- reason: //')" \
       $( [[ "$ver" != "ours-v1" ]] && echo --assess-skip-amazon || true ) || true
@@ -331,9 +334,14 @@ for round in $(seq 1 "$MAX_VERSIONS_PER_SUITE"); do
     if run_standard_version "$ver"; then
       log "standard completed at ${ver}"
     else
-      log "standard ${ver} failed → propose next"
-      if [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
-        advance_standard || true
+      rc=$?
+      if [[ "$rc" -eq 2 ]]; then
+        log "standard ${ver} infra/incomplete — retry same version next round"
+      else
+        log "standard ${ver} metric/smoke FAIL → propose next"
+        if [[ "$round" -lt "$MAX_VERSIONS_PER_SUITE" ]]; then
+          advance_standard || true
+        fi
       fi
     fi
   fi

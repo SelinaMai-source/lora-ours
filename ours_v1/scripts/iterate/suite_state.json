@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-12T14:34:56+08:00",
+  "updated_at": "2026-07-12T14:54:32+08:00",
   "campaign": "ours-autonomous-iteration",
   "policy": {
     "one_mechanism_per_version": true,
@@ -13,7 +13,7 @@
     "standard": {
       "current_version": "ours-v2",
       "next_version": "ours-v3",
-      "status": "proposed",
+      "status": "running_smoke",
       "base_method": "O-LoRA official T5-large order1 seed1",
       "metrics": {
         "EM": {
@@ -27,21 +27,9 @@
       },
       "best_result": null,
       "last_failure": {
-        "version": "ours-v1",
-        "path": "docs/experiments/standard_failure_v1.md",
-        "diagnosis": {
-          "primary_cause": "current_task_underlearning",
-          "mechanism_suspect": "assess_retention_gate_interaction_under_smoke_caps",
-          "recommended_next_delta": "amazon_round_assess_pause",
-          "rationale": "dbpedia EM 98.5 PASS with amazon EM 38.0 FAIL indicates SC current-task underlearning after TC→SC transition, not retention collapse."
-        },
-        "evidence": {
-          "version": "ours-v1",
-          "suite": "standard",
-          "dbpedia_em": 98.5,
-          "amazon_em": 38.0,
-          "reason": "early gate rejected round 2 amazon: EM 38.0 < 50"
-        }
+        "version": "ours-v2",
+        "path": "docs/experiments/standard_ssrg_runtime_hang_fix_20260712.md",
+        "summary": "infra SSRG hang on amazon dataset prepare; fixed pool/vocab cap; retry same version (not a mechanism fail)"
       },
       "blocker": null,
       "overlay_active": [
@@ -51,16 +39,7 @@
       "planned_delta_v2": "pause Assess retention gate on amazon round only; keep class-coverage SSRG",
       "planned_delta": {
         "key": "amazon_round_assess_pause",
-        "meta": {
-          "suites": [
-            "standard"
-          ],
-          "env": {
-            "ASSESS_RETENTION_SKIP_TASKS": "amazon"
-          },
-          "description": "Pause Assess retention gate on amazon round only; keep class-coverage SSRG and O-LoRA base."
-        },
-        "proposal": "/root/lora-ours-ours-v1/docs/experiments/proposals/standard_ours-v2_proposal.md"
+        "description": "Pause Assess retention gate on amazon round only"
       }
     },
     "citb_instrdialog": {

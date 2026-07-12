@@ -638,8 +638,16 @@ new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_i
     def _ssrg_spectral_sample(self, instances, max_num_instances):
         if max_num_instances is None or max_num_instances < 0 or len(instances) <= max_num_instances:
             return instances
+        # Cap candidate pool / vocab so pure-Python spectral scoring stays tractable
+        # (full CL_Benchmark prior tasks are O(10k+); dense cov at dim=4096 hangs for hours).
+        pool_cap = max(256, min(len(instances), max(max_num_instances * 32, 512)))
+        if len(instances) > pool_cap:
+            step = max(1, len(instances) // pool_cap)
+            pool = instances[::step][:pool_cap]
+        else:
+            pool = list(instances)
         docs = []
-        for item in instances:
+        for item in pool:
             sentence = str(item.get('sentence', item.get('text', '')))
             label = str(item.get('label', ''))
             docs.append(f"{sentence} {label}".strip())
@@ -647,8 +655,10 @@ new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_i
         for doc in docs:
             for tok in set(re.findall(r"[a-z0-9']+", doc.lower())):
                 vocab[tok] = vocab.get(tok, 0) + 1
-        ranked = sorted(vocab.items(), key=lambda row: (-row[1], row[0]))[:4096]
+        ranked = sorted(vocab.items(), key=lambda row: (-row[1], row[0]))[:256]
         vocab = {tok: idx for idx, (tok, _) in enumerate(ranked)}
+        if not vocab:
+            return pool[:max_num_instances]
         matrix = []
         for doc in docs:
             counts = {}
@@ -662,52 +672,90 @@ new = """    def _sampling_dataset(self, instances, sampling_strategy, max_num_i
                     row[vocab[tok]] = 0.5 + 0.5 * (count / max_tf)
             matrix.append(row)
         if len(matrix) < 2:
-            return instances[:max_num_instances]
+            return pool[:max_num_instances]
         dim = len(matrix[0])
         mean = [sum(row[i] for row in matrix) / len(matrix) for i in range(dim)]
         matrix = [[row[i] - mean[i] for i in range(dim)] for row in matrix]
-        cov = [[0.0] * dim for _ in range(dim)]
-        denom = max(1, len(matrix) - 1)
-        for row in matrix:
-            for i in range(dim):
-                for j in range(dim):
-                    cov[i][j] += row[i] * row[j] / denom
-        rank = max(1, min(SSRG_TOP_K, dim))
-        basis = []
-        work = [r[:] for r in cov]
-        singular_values = []
-        for _ in range(rank):
-            vec = [1.0 / math.sqrt(dim)] * dim
-            for _ in range(12):
-                nxt = [0.0] * dim
+        try:
+            import numpy as np
+            arr = np.asarray(matrix, dtype=np.float64)
+            cov = (arr.T @ arr) / max(1, arr.shape[0] - 1)
+            work = cov.copy()
+            basis = []
+            singular_values = []
+            rank = max(1, min(SSRG_TOP_K, dim))
+            for _ in range(rank):
+                vec = np.ones(dim, dtype=np.float64) / math.sqrt(dim)
+                for _ in range(12):
+                    nxt = work @ vec
+                    norm = float(np.linalg.norm(nxt)) or 1.0
+                    vec = nxt / norm
+                singular = float(math.sqrt(max(0.0, float(vec @ work @ vec))))
+                singular_values.append(singular)
+                basis.append(vec)
+                work = work - singular * np.outer(vec, vec)
+            total_energy = sum(v * v for v in singular_values) or 1.0
+            cumulative = 0.0
+            keep = rank
+            for idx, value in enumerate(singular_values, start=1):
+                cumulative += value * value
+                if cumulative / total_energy >= SSRG_ENERGY_THRESHOLD:
+                    keep = idx
+                    break
+            basis = basis[:keep]
+            scores = []
+            for row in arr:
+                energy = 0.0
+                for vec in basis:
+                    proj = float(row @ vec)
+                    energy += proj * proj
+                scores.append(math.sqrt(max(0.0, energy)))
+        except Exception:
+            cov = [[0.0] * dim for _ in range(dim)]
+            denom = max(1, len(matrix) - 1)
+            for row in matrix:
+                for i in range(dim):
+                    ri = row[i]
+                    if ri == 0.0:
+                        continue
+                    for j in range(dim):
+                        cov[i][j] += ri * row[j] / denom
+            rank = max(1, min(SSRG_TOP_K, dim))
+            basis = []
+            work = [r[:] for r in cov]
+            singular_values = []
+            for _ in range(rank):
+                vec = [1.0 / math.sqrt(dim)] * dim
+                for _ in range(12):
+                    nxt = [0.0] * dim
+                    for i in range(dim):
+                        for j in range(dim):
+                            nxt[i] += work[i][j] * vec[j]
+                    norm = math.sqrt(sum(v * v for v in nxt)) or 1.0
+                    vec = [v / norm for v in nxt]
+                singular = math.sqrt(max(0.0, sum(vec[i] * sum(work[i][j] * vec[j] for j in range(dim)) for i in range(dim))))
+                singular_values.append(singular)
+                basis.append(vec)
                 for i in range(dim):
                     for j in range(dim):
-                        nxt[i] += work[i][j] * vec[j]
-                norm = math.sqrt(sum(v * v for v in nxt)) or 1.0
-                vec = [v / norm for v in nxt]
-            singular = math.sqrt(max(0.0, sum(vec[i] * sum(work[i][j] * vec[j] for j in range(dim)) for i in range(dim))))
-            singular_values.append(singular)
-            basis.append(vec)
-            for i in range(dim):
-                for j in range(dim):
-                    work[i][j] -= singular * vec[i] * vec[j]
-        total_energy = sum(v * v for v in singular_values) or 1.0
-        cumulative = 0.0
-        keep = rank
-        for idx, value in enumerate(singular_values, start=1):
-            cumulative += value * value
-            if cumulative / total_energy >= SSRG_ENERGY_THRESHOLD:
-                keep = idx
-                break
-        basis = basis[:keep]
-        scores = []
-        for row in matrix:
-            energy = 0.0
-            for vec in basis:
-                proj = sum(row[i] * vec[i] for i in range(dim))
-                energy += proj * proj
-            scores.append(math.sqrt(max(0.0, energy)))
-        ranked = sorted(enumerate(instances), key=lambda item: -scores[item[0]])
+                        work[i][j] -= singular * vec[i] * vec[j]
+            total_energy = sum(v * v for v in singular_values) or 1.0
+            cumulative = 0.0
+            keep = rank
+            for idx, value in enumerate(singular_values, start=1):
+                cumulative += value * value
+                if cumulative / total_energy >= SSRG_ENERGY_THRESHOLD:
+                    keep = idx
+                    break
+            basis = basis[:keep]
+            scores = []
+            for row in matrix:
+                energy = 0.0
+                for vec in basis:
+                    proj = sum(row[i] * vec[i] for i in range(dim))
+                    energy += proj * proj
+                scores.append(math.sqrt(max(0.0, energy)))
+        ranked = sorted(enumerate(pool), key=lambda item: -scores[item[0]])
         return [item for _, item in ranked[:max_num_instances]]
 """.replace("SSRG_TOP_K", repr(top_k)).replace("SSRG_ENERGY_THRESHOLD", repr(energy_threshold))
 if old not in text:

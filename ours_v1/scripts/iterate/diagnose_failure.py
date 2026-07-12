@@ -193,25 +193,30 @@ def main() -> int:
     if args.assess_skip_amazon:
         evidence["assess_skip_amazon"] = True
 
-    # Auto-pull from known v1 smoke status if standard and empty
+    # Auto-pull metrics only from the matching version status file (never cross-contaminate vN with v1).
     if args.suite == "standard" and "amazon_em" not in evidence:
-        status = read_text(REPO / "results/logs/olora_official_base_ours_overlay_v1_20260708_smoke_order1_seed1_status.md")
-        m = re.search(r"amazon: EM ([0-9.]+)", status)
-        if m:
-            evidence["amazon_em"] = float(m.group(1))
-        m = re.search(r"dbpedia.*?EM ([0-9.]+)|reason:.*?dbpedia", status)
-        # parse reason line
-        rm = re.search(r"reason:\s*(.*)", status)
-        if rm:
-            evidence.setdefault("reason", rm.group(1).strip())
-        # also from failure doc
-        fail = read_text(REPO / "docs/experiments/standard_failure_v1_20260712.md")
-        m = re.search(r"dbpedia.*?EM \*\*([0-9.]+)", fail)
-        if m:
-            evidence["dbpedia_em"] = float(m.group(1))
-        m = re.search(r"amazon.*?EM \*\*([0-9.]+)", fail)
-        if m:
-            evidence["amazon_em"] = float(m.group(1))
+        ver = args.version
+        short = ver.replace("ours-", "") if ver.startswith("ours-") else ver
+        candidates = [
+            REPO / f"results/logs/olora_official_base_ours_overlay_{short}_20260712_smoke_order1_seed1_status.md",
+            REPO / f"results/logs/olora_official_base_ours_overlay_{short}_20260708_smoke_order1_seed1_status.md",
+        ]
+        if ver in ("ours-v1", "v1"):
+            candidates.append(REPO / "results/logs/olora_official_base_ours_overlay_v1_20260708_smoke_order1_seed1_status.md")
+        for status_path in candidates:
+            status = read_text(status_path)
+            if not status:
+                continue
+            m = re.search(r"amazon: EM ([0-9.]+)", status)
+            if m:
+                evidence["amazon_em"] = float(m.group(1))
+            m = re.search(r"dbpedia: EM ([0-9.]+)", status)
+            if m:
+                evidence["dbpedia_em"] = float(m.group(1))
+            rm = re.search(r"(?m)^-\s*reason:\s*(.*)", status)
+            if rm and rm.group(1).strip():
+                evidence.setdefault("reason", rm.group(1).strip())
+            break
 
     if args.suite == "standard":
         diagnosis = diagnose_standard(evidence)
